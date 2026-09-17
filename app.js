@@ -1,0 +1,2258 @@
+/* ===================== Spark app.js ===================== */
+(function(){
+  "use strict";
+
+  /* ---------- Constants derived from data ---------- */
+  var CATEGORIES = Array.from(new Set(IDEAS_DATA.map(function(i){ return i.category; })));
+  var IDEAS_BY_ID = {};
+  IDEAS_DATA.forEach(function(i){ IDEAS_BY_ID[i.id] = i; });
+
+  var FILTER_DEFS = [
+    { key:"duration", label:"Date Length", options:["Quick (under 1 hr)","Short (1-2 hrs)","Half-day (2-5 hrs)","Full day","Overnight"] },
+    { key:"cost",     label:"Budget",      options:["Free","$1-$10","$20-$30","$100 and under"] },
+    { key:"time",     label:"Time of Day", options:["Morning","Afternoon","Evening","Night"] },
+    { key:"setting",  label:"Indoor / Outdoor", options:["Indoor","Outdoor"] },
+    { key:"vibe",     label:"Vibe",        options:["Chill","Romantic","Active","Adventurous","Creative","Silly","Cozy","Spontaneous"] },
+    { key:"season",   label:"Season",      options:["Spring","Summer","Fall","Winter"] },
+    { key:"stage",    label:"Date Stage",  options:["First Date","Second/Third Date","Serious Relationship"] },
+    { key:"dateType", label:"Double or Group Date?", options:["Solo/Couple","Double Date","Group Date"] }
+  ];
+
+  var STORAGE_KEY = "spark_state_v1";
+
+  /* ---------- Icon system ----------
+     Simple single-color line icons (SVG) used everywhere in place of emoji,
+     for a cleaner, more modern look. Each entry is the inner markup for a
+     24x24 viewBox; icon() wraps it in an <svg> that inherits the current
+     text color, so icons automatically match button/text styling. */
+  var ICONS = {
+    zap:        '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10" fill="currentColor" stroke="none"/>',
+    user:       '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',
+    users:      '<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.8 13.6c2.9.3 5.2 2.8 5.2 6.4"/>',
+    camera:     '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/>',
+    gift:       '<rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 13h18"/><path d="M12 9v12"/><path d="M8.5 9c-1.4 0-2.5-1.1-2.5-2.5S7.1 4 8.5 4C10.5 4 12 9 12 9"/><path d="M15.5 9c1.4 0 2.5-1.1 2.5-2.5S16.9 4 15.5 4C13.5 4 12 9 12 9"/>',
+    settings:   '<circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7M18.4 18.4l-1.7-1.7M7.3 7.3L5.6 5.6"/>',
+    lightbulb:  '<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 00-3.6 10.8c.6.5 1 1.2 1 2.2h5.2c0-1 .4-1.7 1-2.2A6 6 0 0012 3z"/>',
+    "book-open":'<path d="M12 6.5C10.5 5 8 4.5 3 5v13c5-.5 7.5 0 9 1.5V6.5z"/><path d="M12 6.5C13.5 5 16 4.5 21 5v13c-5-.5-7.5 0-9 1.5V6.5z"/>',
+    "check-circle":'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16.5 9"/>',
+    sliders:    '<path d="M4 6h9M17 6h3"/><circle cx="14" cy="6" r="2"/><path d="M4 12h3M10 12h10"/><circle cx="7" cy="12" r="2"/><path d="M4 18h9M17 18h3"/><circle cx="14" cy="18" r="2"/>',
+    calendar:   '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/>',
+    bookmark:   '<path d="M6 3.5h12v17l-6-4-6 4z"/>',
+    star:       '<path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 17l-5.6 3.1 1.4-6.3-4.8-4.3 6.4-.6z"/>',
+    "map-pin":  '<path d="M12 22s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.3"/>',
+    compass:    '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5.5-5.5 2 2-5.5z" fill="currentColor" stroke="none"/>',
+    heart:      '<path d="M12 20.5s-7.5-4.6-9.8-9.4C.7 7.6 2.2 4 5.7 3.3c2-.4 4 .5 5 2.3a4 4 0 013-2.3c3.5.7 5 4.3 3.5 7.8-2.3 4.8-9.8 9.4-9.8 9.4z"/>',
+    share:      '<path d="M3 12l18-8-6 18-4-7z"/><path d="M15 13l6-9"/>',
+    "trash-2":  '<path d="M4 7h16"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"/><path d="M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13"/><path d="M10 11v6M14 11v6"/>',
+    plus:       '<path d="M12 5v14M5 12h14"/>',
+    copy:       '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/>',
+    mountain:   '<path d="M3 19l6-10 4 6 2-3 6 7z"/>',
+    music:      '<circle cx="6.5" cy="18" r="2.3"/><circle cx="17.5" cy="16" r="2.3"/><path d="M8.8 18V5l10-2v13"/>',
+    film:       '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>',
+    utensils:   '<path d="M6 3v7a2 2 0 002 2 2 2 0 002-2V3"/><path d="M8 12v9"/><path d="M17 3c-1.7 0-3 2-3 5s1.3 5 3 5v9"/>',
+    puzzle:     '<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="4" r="2"/>',
+    tool:       '<path d="M14.5 3.5a4.5 4.5 0 00-5.8 5.8L3 15l3 3 5.7-5.7a4.5 4.5 0 005.8-5.8l-3.2 3.2-2-2z"/>',
+    palette:    '<circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="10.5" r="1.2" fill="currentColor" stroke="none"/><path d="M9 15a3 3 0 003 2c2.2 0 3-1.3 3-2.6 0-.8-.6-1.4-1.4-1.4H10"/>',
+    "shopping-bag":'<path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 016 0v2"/>',
+    activity:   '<path d="M3 12h4l2-7 4 14 2-7h6"/>',
+    tree:       '<path d="M12 3l5 7h-3l4 6h-4v5h-4v-5H6l4-6H7z"/>',
+    landmark:   '<path d="M3 21h18"/><path d="M4 21V10M8 21V10M12 21V10M16 21V10M20 21V10"/><path d="M2 10l10-6 10 6"/>',
+    smile:      '<circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.5 2.5 2.3 4 2.3s3-.8 4-2.3"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>',
+    flag:       '<path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/>',
+    waves:      '<path d="M3 16c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M3 11c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/>',
+    snowflake:  '<path d="M12 2v20M4 7l16 10M20 7L4 17"/>',
+    inbox:      '<path d="M3 12h5l2 3h4l2-3h5"/><path d="M5 5h14l2 7v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7z"/>',
+    "help-circle":'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.7-2.5 2-2.5 3.5"/><circle cx="12" cy="16.5" r=".5" fill="currentColor" stroke="none"/>',
+    "chevron-up":'<path d="M6 15l6-6 6 6"/>',
+    moon:       '<path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z"/>',
+    sun:        '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>',
+    "message-circle":'<path d="M4 12a8 8 0 1114.3 4.9L21 20l-3.4-1.1A8 8 0 014 12z"/>',
+    clock:      '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+    "dollar-sign":'<path d="M12 2v20M17 6.5c0-2-2-3-5-3s-5 1.3-5 3.2c0 4 10 1.8 10 5.8 0 2-2 3.3-5 3.3s-5-1.3-5-3.3"/>'
+  };
+  function icon(name, cls){
+    var body = ICONS[name] || ICONS.star;
+    return '<svg class="icon' + (cls ? " " + cls : "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + body + '</svg>';
+  }
+  var CATEGORY_ICON_MAP = {
+    "Arts, Crafts & Making Things": "palette",
+    "Big Bucket-List Experiences": "star",
+    "Building & DIY Projects": "tool",
+    "Cooking, Food & Eating Challenges": "utensils",
+    "Culture, Community & Local Attractions": "landmark",
+    "Dancing & Live Entertainment": "music",
+    "Games, Contests & Scavenger Hunts": "puzzle",
+    "Hiking & Nature": "mountain",
+    "Learning New Skills": "book-open",
+    "Local Provo/Utah County Business Dates": "map-pin",
+    "Local Utah/Idaho Spots & Day Trips": "compass",
+    "Mall & Store Mischief": "shopping-bag",
+    "Movies & Shows": "film",
+    "Outdoor Adventure & Extreme Sports": "activity",
+    "Picnics & Parks": "tree",
+    "Romantic & Classic Dates": "heart",
+    "Service, Kindness & Community": "gift",
+    "Silly, Prank & Goofy Dates": "smile",
+    "Sports, Games & Rec": "flag",
+    "Themed Nights & Dinners": "utensils",
+    "Water Activities": "waves",
+    "Winter & Snow Adventures": "snowflake",
+    "Real Nearby Spot": "map-pin"
+  };
+  function categoryIcon(category, cls){
+    return icon(CATEGORY_ICON_MAP[category] || "star", cls);
+  }
+
+  /* ---------- State ---------- */
+  function defaultState(){
+    return {
+      onboarded:false,
+      hasSeenTutorial:false,
+      profile:{ name:"", age:"", gender:"Woman", birthday:"", photo:null },
+      datePlans:[],      // [{id, name, date, createdAt, ideaIds:[], friendPicks:[{id,friendName,avatarEmoji,avatarColor,ideaId}]}] — named/dated planning sessions
+      somedayIds:[],     // ideas saved with no active plan, or via the dedicated "Someday" button
+      doneIds:[],       // [{id, date}]
+      seenIds:[],        // ids already swiped (yes or no) this "session cycle"
+      passedIds:[],
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null },
+      submittedIdeas:[],
+      deckOrder:null,    // cached shuffled id order for current filter set
+      location:null,     // {lat, lng, grantedAt} once the user enables "Near You" real-place matching
+      settings:{ autoDarkMode:true } // auto dark mode between 9pm-6am, toggle in profile
+    };
+  }
+
+  var state = loadState();
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      var d = defaultState();
+      for(var k in d){ if(!(k in parsed)) parsed[k] = d[k]; }
+      // Deep-merge filters specifically, so older saved states (from before a new
+      // filter category like "dateType" existed) don't end up missing a nested key.
+      parsed.filters = parsed.filters || {};
+      for(var fk in d.filters){ if(!(fk in parsed.filters)) parsed.filters[fk] = d.filters[fk]; }
+      // Same backfill treatment for settings (e.g. older saved states from
+      // before the night-mode toggle existed won't have this key yet).
+      parsed.settings = parsed.settings || {};
+      for(var sk in d.settings){ if(!(sk in parsed.settings)) parsed.settings[sk] = d.settings[sk]; }
+      if(!Array.isArray(parsed.datePlans)) parsed.datePlans = [];
+      if(!Array.isArray(parsed.somedayIds)) parsed.somedayIds = [];
+      // Older plans (saved before friend-sharing existed) won't have a
+      // friendPicks array yet — add it so share/highlight code can rely on it.
+      parsed.datePlans.forEach(function(plan){
+        if(!Array.isArray(plan.friendPicks)) plan.friendPicks = [];
+      });
+      // One-time migration: fold any legacy flat "savedIds" (from before the
+      // date-planning feature existed) into the new Someday bucket, then clear
+      // it so it can't resurrect already-removed ideas on a later load.
+      if(Array.isArray(parsed.savedIds) && parsed.savedIds.length){
+        var merged = parsed.somedayIds.slice();
+        parsed.savedIds.forEach(function(id){ if(merged.indexOf(id) === -1) merged.push(id); });
+        parsed.somedayIds = merged;
+        parsed.savedIds = [];
+      }
+      return parsed;
+    }catch(e){ return defaultState(); }
+  }
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  /* ---------- Real nearby-place ideas, auto-generated (talks to server.js) ----------
+     As soon as location is available, we silently ask the server for a batch
+     of real-place idea cards (Google Places + Claude) and shuffle them
+     straight into the swipe deck alongside the built-in ideas — no button,
+     no per-idea lookup. Everything here degrades gracefully: if the app was
+     opened straight from a file (no server), or the server is running
+     without API keys configured, this simply resolves to zero extra cards
+     instead of erroring. */
+  var apiStatusPromise = null;
+  function fetchApiStatus(){
+    if(apiStatusPromise) return apiStatusPromise;
+    apiStatusPromise = fetch("/api/status")
+      .then(function(r){ return r.json(); })
+      .catch(function(){ return { placesConfigured:false, aiConfigured:false, offline:true }; });
+    return apiStatusPromise;
+  }
+
+  // Real-place ideas generated this session. Not persisted — a fresh batch
+  // is fetched each time the app loads (once location is available).
+  var REAL_IDEAS_RUNTIME = [];
+  var realIdeasLoading = false;
+  var realIdCounter = 9000001;
+
+  function requestLocation(opts){
+    opts = opts || {};
+    if(!("geolocation" in navigator)){
+      if(!opts.silent) showToast("Location isn't supported in this browser");
+      return;
+    }
+    if(!opts.silent) showToast("Requesting location…");
+    navigator.geolocation.getCurrentPosition(function(pos){
+      state.location = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        grantedAt: todayISO()
+      };
+      saveState();
+      if(!opts.silent) showToast("Location enabled!");
+      updateLocationBar();
+      fetchNearbyIdeas();
+    }, function(err){
+      if(!opts.silent) showToast("Couldn't get your location: " + (err && err.message ? err.message : "permission denied"));
+    }, { timeout: 8000 });
+  }
+
+  function clearLocation(){
+    state.location = null;
+    saveState();
+    renderContent();
+  }
+
+  // Turns one raw generated card (from /api/nearby-ideas) into a full idea
+  // object matching the same shape as built-in ideas, so it can flow through
+  // every existing code path (filters, saving, plans, Done, sharing) untouched.
+  function hydrateRealIdea(raw, filters){
+    var ALL_SEASONS = ["Spring","Summer","Fall","Winter"];
+    var ALL_TIMES = ["Morning","Afternoon","Evening","Night"];
+    var ALL_STAGES = ["First Date","Second/Third Date","Serious Relationship"];
+    var ALL_DATETYPES = ["Solo/Couple","Double Date","Group Date"];
+    return {
+      id: realIdCounter++,
+      title: raw.title,
+      description: raw.description || "",
+      category: "Real Nearby Spot",
+      icon: raw.icon || "map-pin",
+      setting: raw.setting === "Outdoor" ? "Outdoor" : "Indoor",
+      season: (filters.season && filters.season.length) ? filters.season.slice() : ALL_SEASONS,
+      food: !!raw.food,
+      cost: raw.cost || "$20-$30",
+      duration: (filters.duration && filters.duration.length) ? filters.duration[0] : (raw.durationGuess || "Half-day (2-5 hrs)"),
+      time: (filters.time && filters.time.length) ? filters.time.slice() : ALL_TIMES,
+      vibe: (raw.vibe && raw.vibe.length) ? raw.vibe : ["Chill"],
+      stage: (filters.stage && filters.stage.length) ? filters.stage.slice() : ALL_STAGES,
+      dateType: (filters.dateType && filters.dateType.length) ? filters.dateType.slice() : ALL_DATETYPES,
+      isReal: true,
+      placeName: raw.placeName,
+      address: raw.address,
+      mapsUrl: raw.mapsUrl,
+      rating: raw.rating || null
+    };
+  }
+
+  // Silently fetches a batch of real-place ideas (once per session) and
+  // mixes them into the deck as soon as they're ready. Never throws.
+  function fetchNearbyIdeas(){
+    if(!state.location || realIdeasLoading || REAL_IDEAS_RUNTIME.length) return;
+    fetchApiStatus().then(function(status){
+      if(status.offline || !status.placesConfigured || !status.aiConfigured) return;
+      realIdeasLoading = true;
+      updateLocationBar();
+      fetch("/api/nearby-ideas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat: state.location.lat, lng: state.location.lng, filters: state.filters, count: 12 })
+      })
+        .then(function(r){ return r.json(); })
+        .catch(function(){ return { ideas: [] }; })
+        .then(function(result){
+          realIdeasLoading = false;
+          var ideas = (result && result.ideas) || [];
+          ideas.forEach(function(raw){
+            var idea = hydrateRealIdea(raw, state.filters);
+            IDEAS_BY_ID[idea.id] = idea;
+            REAL_IDEAS_RUNTIME.push(idea);
+          });
+          updateLocationBar();
+          if(ideas.length){
+            var deckEl = $("#deck");
+            if(deckEl){ renderDeckCards(deckEl); updateResultCount(); }
+          }
+        });
+    });
+  }
+
+  // Re-renders just the location bar (chip / loading text) without touching
+  // the deck underneath, so in-flight swipes aren't disturbed.
+  function updateLocationBar(){
+    var old = document.getElementById("location-bar");
+    if(!old || !old.parentNode) return;
+    var fresh = buildLocationBar();
+    old.parentNode.replaceChild(fresh, old);
+  }
+
+  // Interleaves real-place ids evenly among built-in ids, so they're mixed
+  // into the deck from the start rather than only appearing at the very end.
+  function interleaveIds(builtinIds, realIds){
+    if(!realIds.length) return builtinIds;
+    if(!builtinIds.length) return realIds;
+    var result = [];
+    var step = Math.max(1, Math.floor(builtinIds.length / (realIds.length + 1)));
+    var ri = 0;
+    for(var i = 0; i < builtinIds.length; i++){
+      result.push(builtinIds[i]);
+      if((i + 1) % step === 0 && ri < realIds.length){
+        result.push(realIds[ri++]);
+      }
+    }
+    while(ri < realIds.length) result.push(realIds[ri++]);
+    return result;
+  }
+
+  /* ---------- UI router state (not persisted) ---------- */
+  var ui = {
+    tab:"discover", screen:"list", detailIdeaId:null, detailFriendId:null, filterDraft:null, profileMenuOpen:null,
+    activePlanId:null,   // id of the date plan currently being swiped for; null = casual/Someday mode
+    savedBucket:null,    // {type:"plan", planId} | {type:"someday"} — which Saved folder is currently open
+    planDraft:null       // {name, date} while the "Plan a Date" overlay is open
+  };
+
+  /* ---------- Date-plan / Someday bucket helpers ---------- */
+  function genId(prefix){
+    return prefix + "_" + Date.now().toString(36) + "_" + Math.floor(Math.random() * 1e6).toString(36);
+  }
+  function getPlanById(planId){
+    return state.datePlans.find(function(p){ return p.id === planId; }) || null;
+  }
+  function getActivePlan(){
+    return ui.activePlanId ? getPlanById(ui.activePlanId) : null;
+  }
+  // Returns the "primary" bucket an idea is saved in, for the single Save
+  // button's label. An idea can actually live in more than one bucket at once
+  // (e.g. a plan AND Someday) — this just picks the most relevant one to show,
+  // preferring the currently-active plan so the label matches what you're doing.
+  function findIdeaBucket(ideaId){
+    if(ui.activePlanId){
+      var ap = getPlanById(ui.activePlanId);
+      if(ap && ap.ideaIds.indexOf(ideaId) !== -1) return { type:"plan", planId: ap.id };
+    }
+    for(var i = 0; i < state.datePlans.length; i++){
+      if(state.datePlans[i].ideaIds.indexOf(ideaId) !== -1) return { type:"plan", planId: state.datePlans[i].id };
+    }
+    if(state.somedayIds.indexOf(ideaId) !== -1) return { type:"someday" };
+    return null;
+  }
+  function isIdeaSaved(ideaId){ return findIdeaBucket(ideaId) !== null; }
+  // Unlike findIdeaBucket (which returns one "primary" bucket), this checks
+  // membership in one SPECIFIC bucket — used to support an idea belonging to
+  // more than one bucket at a time (e.g. saved to a plan AND to Someday).
+  function isIdeaInBucket(ideaId, bucket){
+    if(!bucket) return false;
+    if(bucket.type === "plan"){
+      var plan = getPlanById(bucket.planId);
+      return !!(plan && plan.ideaIds.indexOf(ideaId) !== -1);
+    }
+    return state.somedayIds.indexOf(ideaId) !== -1;
+  }
+  function addIdeaToBucket(ideaId, bucket){
+    if(bucket && bucket.type === "plan"){
+      var plan = getPlanById(bucket.planId);
+      if(plan && plan.ideaIds.indexOf(ideaId) === -1) plan.ideaIds.push(ideaId);
+    } else {
+      if(state.somedayIds.indexOf(ideaId) === -1) state.somedayIds.push(ideaId);
+    }
+  }
+  function removeIdeaFromBucket(ideaId, bucket){
+    if(!bucket) return;
+    if(bucket.type === "plan"){
+      var plan = getPlanById(bucket.planId);
+      if(plan){
+        var idx = plan.ideaIds.indexOf(ideaId);
+        if(idx !== -1) plan.ideaIds.splice(idx, 1);
+      }
+    } else {
+      var i2 = state.somedayIds.indexOf(ideaId);
+      if(i2 !== -1) state.somedayIds.splice(i2, 1);
+    }
+  }
+  // Removes an idea from EVERY bucket it might be in (a plan can dual-save
+  // into Someday too, so a single findIdeaBucket() call isn't enough here).
+  function removeIdeaEverywhere(ideaId){
+    state.datePlans.forEach(function(plan){
+      var idx = plan.ideaIds.indexOf(ideaId);
+      if(idx !== -1) plan.ideaIds.splice(idx, 1);
+    });
+    var i2 = state.somedayIds.indexOf(ideaId);
+    if(i2 !== -1) state.somedayIds.splice(i2, 1);
+  }
+  function bucketLabel(bucket){
+    if(bucket && bucket.type === "plan"){
+      var plan = getPlanById(bucket.planId);
+      if(plan) return plan.name;
+    }
+    return "Favorites";
+  }
+  // Where a swipe-up save should land: the active plan if one is in progress,
+  // otherwise the Someday bucket.
+  function saveIdeaToActiveBucket(ideaId){
+    var bucket = ui.activePlanId ? { type:"plan", planId: ui.activePlanId } : { type:"someday" };
+    addIdeaToBucket(ideaId, bucket);
+    return bucket;
+  }
+  function totalSavedCount(){
+    var n = state.somedayIds.length;
+    state.datePlans.forEach(function(p){ n += p.ideaIds.length; });
+    return n;
+  }
+  // Collects every friend "favorite pick" across all plans that points at this
+  // idea (a friend could in theory pick the same idea in more than one plan).
+  function getFriendPicksForIdea(ideaId){
+    var out = [];
+    state.datePlans.forEach(function(plan){
+      (plan.friendPicks || []).forEach(function(p){
+        if(p.ideaId === ideaId){
+          out.push({ friendName: p.friendName, avatarEmoji: p.avatarEmoji, avatarColor: p.avatarColor, planName: plan.name, planId: plan.id });
+        }
+      });
+    });
+    return out;
+  }
+
+  /* ---------- Helpers ---------- */
+  function $(sel, root){ return (root||document).querySelector(sel); }
+  function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  var toastTimer = null;
+  function showToast(msg){
+    var t = $("#toast");
+    t.textContent = msg;
+    t.classList.remove("hidden");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.add("hidden"); }, 2200);
+  }
+  function openOverlay(id){ $(id).classList.remove("hidden"); }
+  function closeOverlay(id){ $(id).classList.add("hidden"); }
+
+  function fmtDate(d){
+    // Parse "YYYY-MM-DD" as local calendar date components (not UTC) so the
+    // displayed day never shifts backward/forward due to timezone offset.
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || "");
+    var dt = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(d);
+    if(isNaN(dt.getTime())) return "";
+    return dt.toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
+  }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+  /* ---------- Procedural cover art (unique generated art per idea) ---------- */
+  function hashStr(s){
+    var h = 0;
+    s = String(s || "");
+    for(var i = 0; i < s.length; i++){ h = (Math.imul(31, h) + s.charCodeAt(i)) | 0; }
+    return h;
+  }
+  function mulberry32(seed){
+    var a = seed >>> 0;
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var artCache = {};
+
+  // Maps each exact category string to a "scene" type used to pick a silhouette
+  // composition below. Categories not listed fall back to a sensible default.
+  var SCENE_THEMES = {
+    "Arts, Crafts & Making Things": "indoor",
+    "Big Bucket-List Experiences": "mountains",
+    "Building & DIY Projects": "indoor",
+    "Cooking, Food & Eating Challenges": "kitchen",
+    "Culture, Community & Local Attractions": "city",
+    "Dancing & Live Entertainment": "stage",
+    "Games, Contests & Scavenger Hunts": "park",
+    "Hiking & Nature": "forest",
+    "Learning New Skills": "indoor",
+    "Local Provo/Utah County Business Dates": "mountains",
+    "Local Utah/Idaho Spots & Day Trips": "mountains",
+    "Mall & Store Mischief": "city",
+    "Movies & Shows": "cinema",
+    "Outdoor Adventure & Extreme Sports": "mountains",
+    "Picnics & Parks": "park",
+    "Romantic & Classic Dates": "sunset",
+    "Service, Kindness & Community": "park",
+    "Silly, Prank & Goofy Dates": "confetti",
+    "Sports, Games & Rec": "field",
+    "Themed Nights & Dinners": "citynight",
+    "Water Activities": "water",
+    "Winter & Snow Adventures": "snow"
+  };
+
+  var VALID_SCENES = ["mountains","forest","water","snow","park","field","city","citynight","stage","cinema","kitchen","indoor","sunset","confetti"];
+
+  // Ground line for the cover art, in the 100x52 canvas getCoverArtStyle draws
+  // on. Sits inside the slice window that both the card and the hero show.
+  var HORIZON = 46;
+
+  // Draws the idea's own motif (see motifs.js) standing on the horizon. Placed
+  // right of centre so it doesn't sit behind the centred text on the detail
+  // hero. Silent no-op for ideas with no motif, so art still works without one.
+  // Fallback motifs per scene, so an idea with no motif of its own still gets
+  // something fitting rather than bare scenery. Picked by id, so a given idea
+  // always draws the same one.
+  var SCENE_MOTIFS = {
+    mountains:["summit","backpack","binoculars","balloon"],
+    forest:["tent","campfire","backpack","wildflowers"],
+    water:["canoe","paddleboard","swimming","fishing"],
+    snow:["sled","snowman","iceskates","cocoa"],
+    park:["frisbee","bike","wildflowers","binoculars"],
+    field:["soccer","frisbee","golf","wildflowers"],
+    city:["storefront","coffee","shopping","market"],
+    citynight:["candles","storefront","coffee","discoball"],
+    stage:["concert","guitar","karaoke","dancing"],
+    cinema:["movie","popcorn","drivein","movie"],
+    kitchen:["cooking","pizza","baking","coffee"],
+    indoor:["painting","pottery","camera","knitting"],
+    sunset:["candles","wildflowers","binoculars","beach"],
+    confetti:["partypopper","costume","rubberduck","karaoke"]
+  };
+
+  function motifFor(idea){
+    var lib = (typeof MOTIFS !== "undefined") && MOTIFS.M;
+    if(!lib || !idea) return null;
+    if(idea.motif && lib[idea.motif]) return lib[idea.motif];
+    var pool = SCENE_MOTIFS[getSceneTheme(idea.category, idea)];
+    if(!pool || !pool.length) return null;
+    return lib[pool[Math.abs(idea.id | 0) % pool.length]] || null;
+  }
+
+  function motifMarkup(idea, pal, isNight){
+    var art = motifFor(idea);
+    if(!art) return "";
+    var ink = isNight ? "#0C1428" : "#22303F";
+    var acc = isNight ? "#FFC46B" : "#FF7A5C";
+    var colors = { "{ink}": ink, "{acc}": acc, "{lit}": "#FFFFFF", "{sky}": pal.sky2 };
+    art = art.replace(/\{(ink|acc|lit|sky)\}/g, function(m){ return colors[m]; });
+    var s = 0.95, cx = 63;
+    // local box is 40 wide with its baseline at y=40
+    return '<g transform="translate(' + (cx - 20 * s).toFixed(2) + ',' +
+      (HORIZON - 40 * s).toFixed(2) + ') scale(' + s + ')">' + art + '</g>';
+  }
+
+  // An idea can name its own scene (so an indoor cooking date inside a "Winter"
+  // category doesn't get a snowy mountain backdrop); otherwise it falls back to
+  // the scene for its category.
+  function getSceneTheme(category, idea){
+    if(idea && idea.scene && VALID_SCENES.indexOf(idea.scene) !== -1) return idea.scene;
+    return SCENE_THEMES[category] || "park";
+  }
+
+  // Builds a small, seeded "scene" illustration (sky gradient + silhouette
+  // elements) so every idea gets a unique, semi-realistic looking backdrop
+  // without needing an external image source.
+  function getCoverArtStyle(idea){
+    if(artCache[idea.id]) return artCache[idea.id];
+    var seed = (idea.id * 2654435761) ^ hashStr(idea.category) ^ hashStr(idea.title);
+    var rnd = mulberry32(seed >>> 0);
+    var theme = getSceneTheme(idea.category, idea);
+
+    // Time of day / palette pools, chosen per-idea for variety.
+    var palettes = [
+      { sky1:"#FFD9A0", sky2:"#FF8C7A", name:"sunset" },
+      { sky1:"#FFEFC2", sky2:"#FFB48A", name:"golden" },
+      { sky1:"#BEE8FF", sky2:"#5FA8E0", name:"day" },
+      { sky1:"#0E1A3B", sky2:"#3A2E6B", name:"night" },
+      { sky1:"#B9E4FF", sky2:"#EFF9FF", name:"overcast" },
+      { sky1:"#FFC9DE", sky2:"#B49CFF", name:"dusk" }
+    ];
+    // Certain themes look better with certain palette bias, but keep it
+    // randomized-but-seeded so each idea still looks unique.
+    var pool = palettes;
+    if(theme === "citynight" || theme === "stage" || theme === "cinema") pool = [palettes[3], palettes[5], palettes[0]];
+    else if(theme === "snow") pool = [palettes[2], palettes[4], palettes[5]];
+    else if(theme === "water" || theme === "sunset") pool = [palettes[0], palettes[1], palettes[5]];
+    var pal = pool[Math.floor(rnd() * pool.length)];
+
+    // The canvas is deliberately wide (roughly 2:1) rather than square. It is
+    // drawn with "slice" into boxes that are much wider than tall, so a square
+    // canvas would have most of its height cropped away — the old art put its
+    // scenery at y=74-100 and the detail hero never showed any of it. At 100x52
+    // the hero shows about 83% of the canvas and the card shows all of it.
+    var w = 100, h = 52;
+    var sky = '<rect width="' + w + '" height="' + h + '" fill="url(#sky)"/>';
+    var defs = '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="' + pal.sky1 + '"/>' +
+      '<stop offset="100%" stop-color="' + pal.sky2 + '"/></linearGradient>';
+
+    var isNight = pal.name === "night";
+    var elements = "";
+
+    // Sun / moon
+    var sunX = 12 + Math.floor(rnd() * 64), sunY = 6 + Math.floor(rnd() * 11), sunR = 3.2 + rnd() * 2.6;
+    elements += '<circle cx="' + sunX + '" cy="' + sunY + '" r="' + (sunR + 3.2).toFixed(1) + '" fill="#fff" opacity="0.14"/>';
+    elements += '<circle cx="' + sunX + '" cy="' + sunY + '" r="' + sunR.toFixed(1) + '" fill="' + (isNight ? "#F4F1E3" : "#FFF6D8") + '" opacity="0.92"/>';
+
+    if(isNight){
+      var starCount = 18 + Math.floor(rnd() * 14);
+      for(var s = 0; s < starCount; s++){
+        var stx = Math.floor(rnd() * w), sty = Math.floor(rnd() * (h * 0.55)), str = (rnd() * 0.45 + 0.2).toFixed(2);
+        elements += '<circle cx="' + stx + '" cy="' + sty + '" r="' + str + '" fill="#fff" opacity="' + (0.4 + rnd() * 0.5).toFixed(2) + '"/>';
+      }
+    }
+
+    // Ground/base silhouette color, darker version of sky2 for contrast
+    var groundColor = isNight ? "#12102A" : "#2A2540";
+    var midColor = isNight ? "#1B1840" : "#3B3560";
+
+    function jaggedPath(baseY, amp, segs, color, opacity){
+      var pts = "M0," + h;
+      var stepW = w / segs;
+      for(var i = 0; i <= segs; i++){
+        var x = Math.round(i * stepW);
+        var y = Math.round(baseY - rnd() * amp);
+        pts += " L" + x + "," + y;
+      }
+      pts += " L" + w + "," + h + " Z";
+      return '<path d="' + pts + '" fill="' + color + '" opacity="' + opacity + '"/>';
+    }
+
+    function buildingsRow(baseY, count, color, opacity){
+      var svg = "";
+      var bw = w / count;
+      for(var i = 0; i < count; i++){
+        var bx = i * bw + rnd() * 2;
+        var bh = 5 + rnd() * (h - baseY + 12);
+        var bwid = bw * (0.55 + rnd() * 0.4);
+        svg += '<rect x="' + bx.toFixed(1) + '" y="' + (baseY - bh).toFixed(1) + '" width="' + bwid.toFixed(1) + '" height="' + (bh + 14).toFixed(1) + '" fill="' + color + '" opacity="' + opacity + '"/>';
+        if(rnd() < 0.7){
+          var winCols = 1 + Math.floor(rnd() * 2);
+          for(var wc = 0; wc < winCols; wc++){
+            var winY = baseY - bh + 2.4 + rnd() * (bh * 0.5);
+            svg += '<rect x="' + (bx + 2 + wc * (bwid / (winCols + 1))).toFixed(1) + '" y="' + winY.toFixed(1) + '" width="1" height="1.3" fill="#FFE49A" opacity="' + (0.5 + rnd() * 0.4).toFixed(2) + '"/>';
+          }
+        }
+      }
+      return svg;
+    }
+
+    function treesRow(baseY, count, color, opacity){
+      var svg = "";
+      for(var i = 0; i < count; i++){
+        var tx = (i + 0.5) * (w / count) + (rnd() * 6 - 3);
+        var th = 3.4 + rnd() * 5.6;
+        svg += '<polygon points="' + tx.toFixed(1) + ',' + (baseY - th).toFixed(1) + ' ' + (tx - th * 0.55).toFixed(1) + ',' + baseY + ' ' + (tx + th * 0.55).toFixed(1) + ',' + baseY + '" fill="' + color + '" opacity="' + opacity + '"/>';
+      }
+      return svg;
+    }
+
+    if(theme === "mountains"){
+      elements += jaggedPath(30, 11, 6, midColor, 0.55);
+      elements += jaggedPath(36, 10, 8, groundColor, 0.85);
+      elements += treesRow(50, 9, groundColor, 0.9);
+    } else if(theme === "forest"){
+      elements += jaggedPath(32, 6, 5, midColor, 0.4);
+      elements += treesRow(45, 7, midColor, 0.65);
+      elements += treesRow(52, 10, groundColor, 0.92);
+    } else if(theme === "water"){
+      elements += jaggedPath(31, 5, 5, midColor, 0.35);
+      elements += '<rect x="0" y="37" width="' + w + '" height="' + (h - 37) + '" fill="' + groundColor + '" opacity="0.5"/>';
+      for(var wv = 0; wv < 6; wv++){
+        var wy = 39 + wv * 2.2;
+        elements += '<path d="M0,' + wy + ' Q ' + (w * 0.25) + ',' + (wy - 2) + ' ' + (w * 0.5) + ',' + wy + ' T ' + w + ',' + wy + '" stroke="#fff" stroke-width="0.6" fill="none" opacity="' + (0.12 + rnd() * 0.1).toFixed(2) + '"/>';
+      }
+    } else if(theme === "snow"){
+      elements += jaggedPath(29, 13, 6, "#E7EEF7", 0.5);
+      elements += jaggedPath(37, 9, 7, "#FFFFFF", 0.8);
+      elements += treesRow(50, 8, "#1F2A33", 0.6);
+      var flakeCount = 26;
+      for(var f = 0; f < flakeCount; f++){
+        elements += '<circle cx="' + Math.floor(rnd() * w) + '" cy="' + Math.floor(rnd() * h) + '" r="' + (0.35 + rnd() * 0.55).toFixed(2) + '" fill="#fff" opacity="' + (0.5 + rnd() * 0.4).toFixed(2) + '"/>';
+      }
+    } else if(theme === "park"){
+      elements += jaggedPath(41, 4, 6, midColor, 0.3);
+      elements += treesRow(47, 6, midColor, 0.55);
+      elements += treesRow(52, 8, groundColor, 0.85);
+    } else if(theme === "field"){
+      elements += '<rect x="0" y="38" width="' + w + '" height="' + (h - 38) + '" fill="' + groundColor + '" opacity="0.8"/>';
+      for(var g = 0; g < 40; g++){
+        var gx = rnd() * w, gy = 38 + rnd() * 12, gh = 1.2 + rnd() * 1.8;
+        elements += '<rect x="' + gx.toFixed(1) + '" y="' + gy.toFixed(1) + '" width="0.6" height="' + gh.toFixed(1) + '" fill="' + midColor + '" opacity="0.5"/>';
+      }
+    } else if(theme === "city" || theme === "citynight"){
+      elements += buildingsRow(41, 8, midColor, 0.55);
+      elements += buildingsRow(47, 11, groundColor, 0.92);
+    } else if(theme === "stage"){
+      elements += '<rect x="0" y="38" width="' + w + '" height="' + (h - 38) + '" fill="' + groundColor + '" opacity="0.9"/>';
+      for(var sp = 0; sp < 4; sp++){
+        var spx = 15 + sp * 24;
+        elements += '<polygon points="' + spx + ',3 ' + (spx - 9) + ',38 ' + (spx + 9) + ',38" fill="#FFE9A8" opacity="0.16"/>';
+      }
+      elements += '<rect x="0" y="38" width="' + w + '" height="1.2" fill="#000" opacity="0.25"/>';
+    } else if(theme === "cinema"){
+      elements += '<rect x="10" y="7" width="80" height="26" rx="1.6" fill="#000" opacity="0.55"/>';
+      elements += '<rect x="13" y="9.4" width="74" height="21" rx="1" fill="#5FA8E0" opacity="0.35"/>';
+      elements += jaggedPath(47, 4, 6, groundColor, 0.8);
+    } else if(theme === "kitchen"){
+      elements += '<rect x="0" y="34" width="' + w + '" height="' + (h - 34) + '" fill="' + groundColor + '" opacity="0.85"/>';
+      for(var k = 0; k < 5; k++){
+        elements += '<rect x="' + (6 + k * 18) + '" y="36.4" width="14" height="10.4" rx="1.2" fill="' + midColor + '" opacity="0.55"/>';
+      }
+    } else if(theme === "indoor"){
+      elements += '<rect x="0" y="36" width="' + w + '" height="' + (h - 36) + '" fill="' + groundColor + '" opacity="0.75"/>';
+      elements += '<rect x="12" y="15.6" width="22" height="20.4" fill="' + midColor + '" opacity="0.4"/>';
+      elements += '<rect x="66" y="10.4" width="22" height="25.6" fill="' + midColor + '" opacity="0.4"/>';
+    } else if(theme === "sunset"){
+      elements += jaggedPath(38, 5, 6, midColor, 0.4);
+      elements += jaggedPath(45, 4, 8, groundColor, 0.75);
+    } else if(theme === "confetti"){
+      elements += jaggedPath(44, 4, 6, groundColor, 0.5);
+      var confColors = ["#FFD166", "#EF476F", "#06D6A0", "#118AB2", "#FFF"];
+      for(var c = 0; c < 22; c++){
+        var ccx = rnd() * w, ccy = rnd() * h * 0.8, crot = Math.floor(rnd() * 360);
+        elements += '<rect x="' + ccx.toFixed(1) + '" y="' + ccy.toFixed(1) + '" width="1.5" height="1.5" fill="' + confColors[Math.floor(rnd() * confColors.length)] + '" opacity="0.85" transform="rotate(' + crot + ' ' + ccx.toFixed(1) + ' ' + ccy.toFixed(1) + ')"/>';
+      }
+    } else {
+      elements += jaggedPath(42, 6, 6, groundColor, 0.7);
+    }
+
+    // The art is rendered with "slice" into boxes far wider than they are tall,
+    // so only a band of this 100x100 canvas is ever on screen: y 17-83 on a
+    // swipe card, y 28-72 on the detail hero. Everything the scene draws sits
+    // low (ground around y=100), which put it outside both windows — the art
+    // read as empty sky. Lift the whole scene so its ground line lands on
+    // HORIZON, inside the band both views share, then carry the ground colour
+    // down to the bottom so nothing floats.
+    // The activity's own drawing, planted on the scene's ground line.
+    elements += motifMarkup(idea, pal, isNight);
+
+    // Soft bottom vignette so the info that sits on top of the card stays legible
+    var vignette = '<rect x="0" y="' + (h * 0.6) + '" width="' + w + '" height="' + (h * 0.4) + '" fill="url(#vg)"/>';
+    defs += '<linearGradient id="vg" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#000" stop-opacity="0"/>' +
+      '<stop offset="100%" stop-color="#000" stop-opacity="0.38"/></linearGradient>';
+
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid slice">' +
+      '<defs>' + defs + '</defs>' + sky + elements + vignette + '</svg>';
+    var dataUri = "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    // single-quoted url() so this string is safe to embed inside a double-quoted
+    // HTML style="..." attribute (used via innerHTML for swipe cards)
+    var css = "background-image:url('" + dataUri + "');";
+    artCache[idea.id] = css;
+    return css;
+  }
+
+  /* ---------- Onboarding ---------- */
+  var obPhotoData = null;
+  $("#photo-input").addEventListener("change", function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      obPhotoData = ev.target.result;
+      $("#avatar-preview").innerHTML = '<img src="'+obPhotoData+'" alt="">';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  $("#onboarding-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    state.profile = {
+      name: $("#ob-name").value.trim() || "Friend",
+      age: $("#ob-age").value,
+      gender: $("#ob-gender").value,
+      birthday: $("#ob-birthday").value,
+      photo: obPhotoData
+    };
+    state.onboarded = true;
+    saveState();
+    if(state.hasSeenTutorial){ enterApp(); } else { showTutorial(); }
+  });
+
+  function enterApp(){
+    $("#view-onboarding").classList.add("hidden");
+    $("#view-tutorial").classList.add("hidden");
+    $("#view-app").classList.remove("hidden");
+    renderTopbarAvatar();
+    switchTab("discover");
+    // Ask for location automatically (no button) — the browser's own
+    // one-time permission prompt is the only thing the user sees. If they
+    // deny or dismiss it, the app just carries on with built-in ideas only.
+    if(state.location) fetchNearbyIdeas();
+    else requestLocation({ silent:true });
+  }
+
+  /* ---------- How-to tutorial (shown once, right after signup) ---------- */
+  var TUTORIAL_SLIDES = [
+    { icon:"zap", title:"Swipe to Discover", text:"Swipe a card up if you're into the idea, or down to pass. Keep swiping to build your deck of favorites." },
+    { icon:"sliders", title:"Filter it Your Way", text:"Tap Filters to narrow ideas down by budget, time of day, vibe, season, and whether it's a solo, double, or group date." },
+    { icon:"bookmark", title:"Save & Track", text:"Save ideas you love for later from the Saved tab, and mark dates as Done once you've actually tried them." },
+    { icon:"users", title:"Bring Your Friends", text:"Add friends with a QR code or from your contacts, see what they've tried and saved, and share your favorite ideas with them." },
+    { icon:"lightbulb", title:"Share Your Own Ideas", text:"Got a great date idea? Submit it from your profile — and check Tips of Dating anytime you need a little inspiration." }
+  ];
+  var tutorialIndex = 0;
+  function showTutorial(){
+    tutorialIndex = 0;
+    renderTutorial();
+    $("#view-onboarding").classList.add("hidden");
+    $("#view-tutorial").classList.remove("hidden");
+  }
+  function renderTutorial(){
+    var wrap = $("#tutorial-content");
+    wrap.innerHTML = "";
+    var slide = TUTORIAL_SLIDES[tutorialIndex];
+    var isLast = tutorialIndex === TUTORIAL_SLIDES.length - 1;
+
+    var card = el("div", "tutorial-card");
+    card.innerHTML =
+      '<div class="tutorial-icon">' + icon(slide.icon) + '</div>' +
+      '<h2 class="tutorial-title">' + escapeHtml(slide.title) + '</h2>' +
+      '<p class="tutorial-text">' + escapeHtml(slide.text) + '</p>';
+    wrap.appendChild(card);
+
+    var dots = el("div", "tutorial-dots");
+    TUTORIAL_SLIDES.forEach(function(_, i){
+      dots.appendChild(el("span", "tutorial-dot" + (i === tutorialIndex ? " active" : "")));
+    });
+    wrap.appendChild(dots);
+
+    var actions = el("div", "tutorial-actions");
+    if(!isLast){
+      var skipBtn = el("button", "btn-text", "Skip");
+      skipBtn.type = "button";
+      skipBtn.addEventListener("click", finishTutorial);
+      actions.appendChild(skipBtn);
+    } else {
+      actions.appendChild(el("span", "tutorial-spacer"));
+    }
+    var nextBtn = el("button", "btn-primary", isLast ? "Get Started" : "Next");
+    nextBtn.type = "button";
+    nextBtn.addEventListener("click", function(){
+      if(isLast) finishTutorial();
+      else { tutorialIndex++; renderTutorial(); }
+    });
+    actions.appendChild(nextBtn);
+    wrap.appendChild(actions);
+  }
+  function finishTutorial(){
+    state.hasSeenTutorial = true;
+    saveState();
+    enterApp();
+  }
+
+  /* ---------- Topbar / Nav ---------- */
+  function renderTopbarAvatar(){
+    var av = $("#topbar-avatar");
+    av.innerHTML = state.profile.photo ? '<img src="'+state.profile.photo+'" alt="">' : icon("user");
+  }
+
+  $all(".nav-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      switchTab(btn.getAttribute("data-tab"));
+    });
+  });
+
+  var TAB_TITLES = { discover:"Discover", friends:"Friends", saved:"Saved", done:"Done" };
+
+  function switchTab(tab){
+    ui.tab = tab; ui.screen = "list"; ui.detailIdeaId = null; ui.detailFriendId = null; ui.savedBucket = null;
+    $all(".nav-btn").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-tab") === tab); });
+    $("#topbar-title").textContent = TAB_TITLES[tab] || "Spark";
+    renderContent();
+  }
+
+  function renderContent(){
+    var content = $("#content");
+    content.innerHTML = "";
+    if(ui.screen === "detail"){
+      $("#topbar-title").textContent = "Date Idea";
+      content.appendChild(buildDetailScreen(ui.detailIdeaId));
+    } else if(ui.screen === "friendDetail"){
+      $("#topbar-title").textContent = "Friend";
+      content.appendChild(buildFriendDetailScreen(ui.detailFriendId));
+    } else {
+      if(ui.tab === "saved" && ui.savedBucket){
+        $("#topbar-title").textContent = bucketLabel(ui.savedBucket);
+      } else {
+        $("#topbar-title").textContent = TAB_TITLES[ui.tab] || "Spark";
+      }
+      if(ui.tab === "discover") content.appendChild(buildDiscoverScreen());
+      else if(ui.tab === "friends") content.appendChild(buildFriendsScreen());
+      else if(ui.tab === "saved") content.appendChild(buildSavedScreen());
+      else if(ui.tab === "done") content.appendChild(buildDoneScreen());
+    }
+  }
+
+  function goToDetail(ideaId){
+    ui.screen = "detail"; ui.detailIdeaId = ideaId;
+    renderContent();
+  }
+  function goBackFromDetail(){
+    ui.screen = "list"; ui.detailIdeaId = null;
+    renderContent();
+  }
+
+  /* ---------- Filtering ---------- */
+  function matchesFilters(idea, f){
+    if(f.duration.length && f.duration.indexOf(idea.duration) === -1) return false;
+    if(f.cost.length && f.cost.indexOf(idea.cost) === -1) return false;
+    if(f.time.length && !idea.time.some(function(t){ return f.time.indexOf(t) !== -1; })) return false;
+    if(f.setting.length){
+      var ok = idea.setting === "Both" || f.setting.indexOf(idea.setting) !== -1;
+      if(!ok) return false;
+    }
+    if(f.vibe.length && !idea.vibe.some(function(v){ return f.vibe.indexOf(v) !== -1; })) return false;
+    if(f.season.length && !idea.season.some(function(s){ return f.season.indexOf(s) !== -1; })) return false;
+    if(f.stage.length && !idea.stage.some(function(s){ return f.stage.indexOf(s) !== -1; })) return false;
+    if(f.dateType.length && !idea.dateType.some(function(d){ return f.dateType.indexOf(d) !== -1; })) return false;
+    if(f.food !== null && idea.food !== f.food) return false;
+    return true;
+  }
+
+  function activeFilterCount(f){
+    var n = 0;
+    ["duration","cost","time","setting","vibe","season","stage","dateType"].forEach(function(k){ n += f[k].length; });
+    if(f.food !== null) n += 1;
+    return n;
+  }
+
+  function computeDeck(){
+    var realPool = state.location ? REAL_IDEAS_RUNTIME : [];
+    var builtinIds = IDEAS_DATA.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
+    var realIds = realPool.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
+    var builtinRemaining = builtinIds.filter(function(id){ return state.seenIds.indexOf(id) === -1; });
+    var realRemaining = realIds.filter(function(id){ return state.seenIds.indexOf(id) === -1; });
+    return { total: builtinIds.length + realIds.length, remaining: interleaveIds(builtinRemaining, realRemaining) };
+  }
+
+  /* ---------- Discover screen ---------- */
+  function buildDiscoverScreen(){
+    var wrap = el("div", "screen discover-screen");
+
+    var bar = el("div", "filter-bar");
+    var fbtn = el("button", "filter-chip-btn");
+    var count = activeFilterCount(state.filters);
+    fbtn.innerHTML = icon("sliders") + " Filters" + (count ? '<span class="badge">'+count+'</span>' : "");
+    fbtn.addEventListener("click", openFilterOverlay);
+    bar.appendChild(fbtn);
+
+    var deck = computeDeck();
+    var rc = el("div", "result-count", deck.remaining.length + " of " + deck.total + " ideas");
+    bar.appendChild(rc);
+    wrap.appendChild(bar);
+
+    var activePlan = getActivePlan();
+    var planBar = el("div", "plan-bar");
+    if(activePlan){
+      var chip = el("div", "plan-chip");
+      var chipSub = activePlan.date ? fmtDate(activePlan.date) : "No date set";
+      chip.innerHTML =
+        '<span class="plan-chip-icon">' + icon("calendar") + '</span>' +
+        '<span class="plan-chip-text"><b>Planning: ' + escapeHtml(activePlan.name) + '</b><br><small>' + escapeHtml(chipSub) + '</small></span>';
+      var endBtn = el("button", "plan-chip-end", "✕");
+      endBtn.type = "button";
+      endBtn.title = "Stop planning for this date";
+      endBtn.addEventListener("click", function(){
+        ui.activePlanId = null;
+        renderContent();
+      });
+      chip.appendChild(endBtn);
+      planBar.appendChild(chip);
+    } else {
+      var planBtn = el("button", "btn-secondary btn-block plan-cta", icon("calendar") + " Plan a Date");
+      planBtn.type = "button";
+      planBtn.addEventListener("click", openPlanOverlay);
+      planBar.appendChild(planBtn);
+    }
+    wrap.appendChild(planBar);
+    wrap.appendChild(buildLocationBar());
+
+    var deckEl = el("div", "deck");
+    deckEl.id = "deck";
+    wrap.appendChild(deckEl);
+
+    renderDeckCards(deckEl);
+
+    return wrap;
+  }
+
+  // Location is requested automatically (no button) — this bar just shows a
+  // quiet status chip once it's on, with a way to turn it back off. When
+  // location isn't on (denied, pending, or unsupported), it renders empty.
+  function buildLocationBar(){
+    var bar = el("div", "location-bar");
+    bar.id = "location-bar";
+    if(state.location){
+      var statusText = realIdeasLoading
+        ? "Finding real nearby spots…"
+        : (REAL_IDEAS_RUNTIME.length
+          ? "Location on — " + REAL_IDEAS_RUNTIME.length + " real spots mixed into your deck"
+          : "Location on");
+      var chip = el("div", "location-chip");
+      chip.innerHTML =
+        '<span class="location-chip-icon">' + icon("map-pin") + '</span>' +
+        '<span class="location-chip-text">' + escapeHtml(statusText) + '</span>';
+      var endBtn = el("button", "location-chip-end", "✕");
+      endBtn.type = "button";
+      endBtn.title = "Turn off location";
+      endBtn.addEventListener("click", clearLocation);
+      chip.appendChild(endBtn);
+      bar.appendChild(chip);
+    }
+    return bar;
+  }
+
+  function renderDeckCards(deckEl){
+    deckEl.innerHTML = "";
+    var deck = computeDeck();
+    var ids = deck.remaining.slice(0, 3);
+
+    if(ids.length === 0){
+      var empty = el("div", "empty-state");
+      var hasAny = deck.total > 0;
+      empty.innerHTML =
+        '<span class="es-icon">' + (hasAny ? icon("check-circle") : icon("help-circle")) + '</span>' +
+        '<h3>' + (hasAny ? "You've seen them all!" : "No matches yet") + '</h3>' +
+        '<p>' + (hasAny ? "You swiped through every idea that matches your filters." : "Try adjusting your filters to see more ideas.") + '</p>' +
+        (hasAny ? '<button class="btn-secondary" id="deck-reset">Start Over</button>' : '<button class="btn-secondary" id="deck-clear-filters">Clear Filters</button>');
+      deckEl.appendChild(empty);
+      var resetBtn = $("#deck-reset", deckEl);
+      if(resetBtn) resetBtn.addEventListener("click", function(){
+        // Only reset seen state for ideas currently matching the filter
+        var filtered = IDEAS_DATA.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
+        state.seenIds = state.seenIds.filter(function(id){ return filtered.indexOf(id) === -1; });
+        saveState();
+        renderDeckCards(deckEl);
+        updateResultCount();
+      });
+      var clearBtn = $("#deck-clear-filters", deckEl);
+      if(clearBtn) clearBtn.addEventListener("click", function(){
+        state.filters = defaultState().filters;
+        saveState();
+        renderContent();
+      });
+      return;
+    }
+
+    // render back-to-front so first id ends up on top of DOM stacking
+    for(var k = ids.length - 1; k >= 0; k--){
+      var idea = IDEAS_BY_ID[ids[k]];
+      var card = buildSwipeCard(idea, k === 0);
+      card.style.transform = "translateY(" + (k * 8) + "px) scale(" + (1 - k * 0.035) + ")";
+      card.style.zIndex = String(10 - k);
+      if(k !== 0) card.style.pointerEvents = "none";
+      deckEl.appendChild(card);
+    }
+  }
+
+  function updateResultCount(){
+    var rc = $(".result-count");
+    if(!rc) return;
+    var deck = computeDeck();
+    rc.textContent = deck.remaining.length + " of " + deck.total + " ideas";
+  }
+
+  function buildSwipeCard(idea, isTop){
+    var card = el("div", "swipe-card");
+    card.dataset.id = idea.id;
+    card.innerHTML =
+      '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
+        '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
+        (idea.isReal ? '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>' : '') +
+        '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<h3 class="card-title">' + escapeHtml(idea.title) + '</h3>' +
+        '<div class="card-meta">' +
+          '<span class="meta-pill">' + escapeHtml(idea.duration) + '</span>' +
+          '<span class="meta-pill">' + escapeHtml(idea.cost) + '</span>' +
+          '<span class="meta-pill">' + escapeHtml(idea.setting) + '</span>' +
+        '</div>' +
+        '<div class="card-hint">Tap for details · swipe up to save · down to pass</div>' +
+      '</div>';
+    if(isTop) attachSwipeHandlers(card, idea.id);
+    return card;
+  }
+
+  function attachSwipeHandlers(card, ideaId){
+    var startX = 0, startY = 0, curX = 0, curY = 0, dragging = false, moved = false;
+    var yesStamp = $(".stamp.yes", card), noStamp = $(".stamp.no", card);
+
+    function onDown(e){
+      dragging = true; moved = false;
+      var pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX; startY = pt.clientY;
+      card.style.transition = "none";
+      card.setPointerCapture && e.pointerId != null && card.setPointerCapture(e.pointerId);
+    }
+    function onMove(e){
+      if(!dragging) return;
+      var pt = e.touches ? e.touches[0] : e;
+      curX = pt.clientX - startX; curY = pt.clientY - startY;
+      if(Math.abs(curX) > 6 || Math.abs(curY) > 6) moved = true;
+      var rot = curX / 20;
+      card.style.transform = "translate(" + curX + "px," + curY + "px) rotate(" + rot + "deg)";
+      var progress = Math.max(-1, Math.min(1, -curY / 140));
+      yesStamp.style.opacity = String(Math.max(0, progress));
+      noStamp.style.opacity = String(Math.max(0, -progress));
+      e.preventDefault && e.preventDefault();
+    }
+    function onUp(){
+      if(!dragging) return;
+      dragging = false;
+      card.style.transition = "transform .3s ease";
+      if(!moved){
+        // Plain tap (no meaningful drag) — open the detail screen.
+        card.style.transform = "translate(0,0) rotate(0)";
+        yesStamp.style.opacity = "0"; noStamp.style.opacity = "0";
+        curX = 0; curY = 0;
+        goToDetail(ideaId);
+        return;
+      }
+      if(curY < -100){
+        finishSwipe(card, "yes", ideaId);
+      } else if(curY > 100){
+        finishSwipe(card, "no", ideaId);
+      } else {
+        card.style.transform = "translate(0,0) rotate(0)";
+        yesStamp.style.opacity = "0"; noStamp.style.opacity = "0";
+      }
+      curX = 0; curY = 0;
+    }
+
+    card.addEventListener("pointerdown", onDown);
+    card.addEventListener("pointermove", onMove);
+    card.addEventListener("pointerup", onUp);
+    card.addEventListener("pointercancel", onUp);
+    card.addEventListener("pointerleave", function(e){ if(dragging && e.buttons === 0) onUp(); });
+  }
+
+  function finishSwipe(card, direction, ideaId){
+    card.style.transition = "transform .35s ease, opacity .35s ease";
+    card.style.transform = direction === "yes"
+      ? "translate(10px,-620px) rotate(-8deg)"
+      : "translate(-10px,620px) rotate(8deg)";
+    card.style.opacity = "0";
+
+    if(state.seenIds.indexOf(ideaId) === -1) state.seenIds.push(ideaId);
+    if(direction === "no" && state.passedIds.indexOf(ideaId) === -1) state.passedIds.push(ideaId);
+    var bucket = null;
+    if(direction === "yes") bucket = saveIdeaToActiveBucket(ideaId);
+    saveState();
+
+    setTimeout(function(){
+      if(direction === "yes") showToast("Saved to " + bucketLabel(bucket) + "!");
+      // Stay on Discover and keep swiping instead of jumping to another screen.
+      var deckEl = $("#deck");
+      if(deckEl) { renderDeckCards(deckEl); updateResultCount(); }
+    }, 260);
+  }
+
+  /* ---------- Filter overlay ---------- */
+  function openFilterOverlay(){
+    ui.filterDraft = JSON.parse(JSON.stringify(state.filters));
+    renderFilterBody();
+    openOverlay("#filter-overlay");
+  }
+
+  function renderFilterBody(){
+    var body = $("#filter-body");
+    body.innerHTML = "";
+
+    FILTER_DEFS.forEach(function(def){
+      var group = el("div", "filter-group");
+      group.appendChild(el("div", "filter-group-title", def.label));
+      var chipWrap = el("div", "chip-select");
+      def.options.forEach(function(opt){
+        var chip = el("button", "chip", escapeHtml(opt));
+        chip.type = "button";
+        if(ui.filterDraft[def.key].indexOf(opt) !== -1) chip.classList.add("selected");
+        chip.addEventListener("click", function(){
+          var arr = ui.filterDraft[def.key];
+          var idx = arr.indexOf(opt);
+          if(idx === -1) arr.push(opt); else arr.splice(idx, 1);
+          chip.classList.toggle("selected");
+        });
+        chipWrap.appendChild(chip);
+      });
+      group.appendChild(chipWrap);
+      body.appendChild(group);
+    });
+
+    // Food special group (tri-state)
+    var foodGroup = el("div", "filter-group");
+    foodGroup.appendChild(el("div", "filter-group-title", "Food Involved?"));
+    var foodChips = el("div", "chip-select");
+    [["Any", null], ["Has food", true], ["No food", false]].forEach(function(pair){
+      var chip = el("button", "chip", pair[0]);
+      chip.type = "button";
+      if(ui.filterDraft.food === pair[1]) chip.classList.add("selected");
+      chip.addEventListener("click", function(){
+        ui.filterDraft.food = pair[1];
+        $all(".chip", foodChips).forEach(function(c){ c.classList.remove("selected"); });
+        chip.classList.add("selected");
+      });
+      foodChips.appendChild(chip);
+    });
+    foodGroup.appendChild(foodChips);
+    body.appendChild(foodGroup);
+  }
+
+  $("#filter-close").addEventListener("click", function(){ closeOverlay("#filter-overlay"); });
+  $("#filter-reset").addEventListener("click", function(){
+    ui.filterDraft = defaultState().filters;
+    state.filters = defaultState().filters;
+    saveState();
+    closeOverlay("#filter-overlay");
+    if(ui.tab === "discover") renderContent();
+  });
+  $("#filter-apply").addEventListener("click", function(){
+    state.filters = ui.filterDraft;
+    saveState();
+    closeOverlay("#filter-overlay");
+    if(ui.tab === "discover") renderContent();
+  });
+
+  /* ---------- Plan a Date overlay ---------- */
+  // Flow: tap "Plan a Date" -> if you have existing plans, first choose to resume
+  // one of them or start fresh -> (new plan only) name it / pick a date -> Filters
+  // open automatically -> ideas you swipe-save while this plan is active get
+  // grouped under it. Resuming an existing plan skips Filters and goes straight
+  // to Discover with that plan active.
+  function openPlanOverlay(){
+    ui.planDraft = { name:"", date:"" };
+    $("#plan-name").value = "";
+    $("#plan-date").value = "";
+    if(state.datePlans.length){
+      showPlanOverlayStep("picker");
+      renderPlanPickerList();
+    } else {
+      showPlanOverlayStep("form");
+    }
+    openOverlay("#plan-overlay");
+  }
+  function showPlanOverlayStep(step){
+    $("#plan-step-picker").classList.toggle("hidden", step !== "picker");
+    $("#plan-step-form").classList.toggle("hidden", step !== "form");
+  }
+  function renderPlanPickerList(){
+    var list = $("#plan-picker-list");
+    list.innerHTML = "";
+    state.datePlans.slice().reverse().forEach(function(plan){
+      var row = el("div", "share-friend-row");
+      var subtext = plan.date ? fmtDate(plan.date) : "No date set";
+      row.innerHTML =
+        '<span class="friend-avatar" style="background:#eee">' + icon("calendar") + '</span>' +
+        '<span class="friend-name">' + escapeHtml(plan.name) + '<br><small>' + escapeHtml(subtext) + '</small></span>';
+      row.addEventListener("click", function(){
+        ui.activePlanId = plan.id;
+        saveState();
+        closeOverlay("#plan-overlay");
+        switchTab("discover");
+      });
+      list.appendChild(row);
+    });
+  }
+  $("#plan-new-btn").addEventListener("click", function(){ showPlanOverlayStep("form"); });
+  $("#plan-form-back").addEventListener("click", function(){
+    if(state.datePlans.length){ showPlanOverlayStep("picker"); renderPlanPickerList(); }
+    else closeOverlay("#plan-overlay");
+  });
+  $("#plan-close").addEventListener("click", function(){ closeOverlay("#plan-overlay"); });
+  $("#plan-cancel").addEventListener("click", function(){ closeOverlay("#plan-overlay"); });
+  $("#plan-start").addEventListener("click", function(){
+    var name = $("#plan-name").value.trim() || "New Date Plan";
+    var date = $("#plan-date").value || "";
+    var plan = { id: genId("plan"), name: name, date: date, createdAt: todayISO(), ideaIds: [], friendPicks: [] };
+    state.datePlans.push(plan);
+    ui.activePlanId = plan.id;
+    // Starting a brand-new plan gives you a fresh deck: everything you've
+    // already swiped through (yes or no) in previous sessions/plans is
+    // cleared out so the full set of ideas is available again.
+    state.seenIds = [];
+    state.passedIds = [];
+    saveState();
+    closeOverlay("#plan-overlay");
+    if(ui.tab === "discover") renderContent();
+    openFilterOverlay();
+  });
+
+  /* ---------- Detail screen ---------- */
+  function buildDetailScreen(ideaId){
+    var idea = IDEAS_BY_ID[ideaId];
+    var wrap = el("div", "screen detail-screen");
+    if(!idea){
+      wrap.innerHTML = '<p>Idea not found.</p>';
+      return wrap;
+    }
+    var activePlan = getActivePlan();
+    // While a plan is active, the main Save button always targets THAT plan
+    // specifically (not just "whichever bucket happens to contain this idea")
+    // so it stays a reliable way to add/remove it from the plan you're
+    // actually working on, independent of the separate Someday toggle below.
+    var savedBucket = activePlan ? { type:"plan", planId: activePlan.id } : findIdeaBucket(ideaId);
+    var isSaved = activePlan ? isIdeaInBucket(ideaId, savedBucket) : savedBucket !== null;
+    var inSomeday = isIdeaInBucket(ideaId, { type:"someday" });
+    var doneEntry = state.doneIds.find(function(d){ return d.id === ideaId; });
+    var friendPicks = getFriendPicksForIdea(ideaId);
+
+    var back = el("button", "back-link", "‹ Back");
+    back.addEventListener("click", function(){
+      if(ui.detailFriendId != null){ ui.screen = "friendDetail"; renderContent(); }
+      else goBackFromDetail();
+    });
+    wrap.appendChild(back);
+    attachDetailEdgeSwipeBack(wrap, ideaId);
+
+    var hero = el("div", "detail-hero");
+    hero.setAttribute("style", getCoverArtStyle(idea));
+    hero.innerHTML = '<div class="dh-icon">' + categoryIcon(idea.category) + '</div><div class="dh-cat">' + escapeHtml(idea.category) + '</div>' +
+      '<div class="dh-swipe-hint">' + icon("chevron-up") + ' Swipe up to save</div>';
+    wrap.appendChild(hero);
+    attachDetailHeroSwipeUp(hero, ideaId);
+
+    wrap.appendChild(el("h2", "detail-title", escapeHtml(idea.title)));
+    wrap.appendChild(el("p", "detail-desc", escapeHtml(idea.description)));
+
+    if(friendPicks.length){
+      var band = el("div", "friend-pick-banner");
+      band.innerHTML = friendPicks.map(function(p){
+        return p.avatarEmoji + " <b>" + escapeHtml(p.friendName) + "</b> picked this as their favorite for " + escapeHtml(p.planName) + "!";
+      }).join("<br>");
+      wrap.appendChild(band);
+    }
+
+    if(idea.isReal){
+      var realBlock = el("div", "detail-real-block");
+      var ratingHtml = idea.rating ? (" · ★ " + idea.rating) : "";
+      realBlock.innerHTML =
+        '<div class="detail-real-title">' + icon("map-pin") + ' Real Nearby Spot</div>' +
+        '<div class="detail-real-name">' + escapeHtml(idea.placeName || idea.title) + '</div>' +
+        (idea.address ? '<div class="detail-real-addr">' + escapeHtml(idea.address) + escapeHtml(ratingHtml) + '</div>' : '') +
+        (idea.mapsUrl ? '<a class="btn-outline btn-block detail-real-link" href="' + idea.mapsUrl + '" target="_blank" rel="noopener">' + icon("map-pin") + ' Open in Maps</a>' : '');
+      wrap.appendChild(realBlock);
+    }
+
+    var tagGrid = el("div", "tag-grid");
+    var tags = [idea.duration, idea.cost, idea.setting].concat(idea.time, idea.vibe, idea.season, idea.stage);
+    if(idea.food) tags.push("Food involved");
+    tags.forEach(function(t){ tagGrid.appendChild(el("span", "tag-chip", escapeHtml(t))); });
+    wrap.appendChild(tagGrid);
+
+    var actions = el("div", "detail-actions");
+    var row2 = el("div", "row2");
+    var saveBtn = el("button", "btn-outline" + (isSaved ? " active" : ""),
+      isSaved ? (icon("bookmark") + " Saved · " + bucketLabel(savedBucket)) : (icon("bookmark") + " Save"));
+    saveBtn.addEventListener("click", function(){
+      // Re-derive the same "target" bucket as above (the active plan, if any,
+      // else Someday) rather than trusting a stale closure value.
+      var bucket = activePlan ? { type:"plan", planId: activePlan.id } : findIdeaBucket(ideaId);
+      var currentlySaved = activePlan ? isIdeaInBucket(ideaId, bucket) : bucket !== null;
+      if(currentlySaved){
+        removeIdeaFromBucket(ideaId, bucket);
+        showToast("Removed from " + bucketLabel(bucket));
+      } else {
+        var newBucket;
+        if(activePlan){ addIdeaToBucket(ideaId, bucket); newBucket = bucket; }
+        else { newBucket = saveIdeaToActiveBucket(ideaId); }
+        showToast("Saved to " + bucketLabel(newBucket) + "!");
+      }
+      saveState();
+      renderContent();
+    });
+    var shareBtn = el("button", "btn-outline", icon("share") + " Share");
+    shareBtn.addEventListener("click", function(){ openShareOverlay(ideaId); });
+    row2.appendChild(saveBtn); row2.appendChild(shareBtn);
+    actions.appendChild(row2);
+
+    // While a date plan is active, offer a second, independent way to also
+    // keep this idea in Favorites — an idea can live in both places at once.
+    if(activePlan){
+      var alsoBtn = el("button", "btn-outline btn-block also-someday-btn" + (inSomeday ? " active" : ""),
+        inSomeday ? (icon("star") + " Also saved to Favorites · tap to remove") : (icon("star") + " Also save to Favorites"));
+      alsoBtn.addEventListener("click", function(){
+        if(isIdeaInBucket(ideaId, { type:"someday" })){
+          removeIdeaFromBucket(ideaId, { type:"someday" });
+          showToast("Removed from Favorites");
+        } else {
+          addIdeaToBucket(ideaId, { type:"someday" });
+          showToast("Also saved to Favorites!");
+        }
+        saveState();
+        renderContent();
+      });
+      actions.appendChild(alsoBtn);
+    }
+
+    var doneBtn = el("button", "btn-outline" + (doneEntry ? " active" : ""),
+      doneEntry ? (icon("check-circle") + " Marked Done · " + fmtDate(doneEntry.date)) : (icon("check-circle") + " Mark as Done"));
+    doneBtn.addEventListener("click", function(){
+      var idx = state.doneIds.findIndex(function(d){ return d.id === ideaId; });
+      if(idx === -1){ state.doneIds.push({ id: ideaId, date: todayISO() }); showToast("Nice! Marked as done!"); }
+      else { state.doneIds.splice(idx, 1); showToast("Removed from Done"); }
+      saveState();
+      renderContent();
+    });
+    actions.appendChild(doneBtn);
+    wrap.appendChild(actions);
+
+    return wrap;
+  }
+
+  // Swiping up on the detail hero image saves the idea and jumps to Saved,
+  // mirroring the swipe-up-to-save gesture on the Discover cards.
+  function attachDetailHeroSwipeUp(hero, ideaId){
+    var startX = 0, startY = 0, dragging = false;
+    function onDown(e){
+      dragging = true;
+      var pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX; startY = pt.clientY;
+      hero.style.transition = "none";
+      hero.setPointerCapture && e.pointerId != null && hero.setPointerCapture(e.pointerId);
+    }
+    function onMove(e){
+      if(!dragging) return;
+      var pt = e.touches ? e.touches[0] : e;
+      var dy = pt.clientY - startY;
+      if(dy < 0){
+        hero.style.transform = "translateY(" + Math.max(dy, -90) + "px)";
+        e.preventDefault && e.preventDefault();
+      }
+    }
+    function onUp(e){
+      if(!dragging) return;
+      dragging = false;
+      hero.style.transition = "transform .25s ease";
+      var pt = e.changedTouches ? e.changedTouches[0] : e;
+      var dy = (pt ? pt.clientY : startY) - startY;
+      hero.style.transform = "translateY(0)";
+      if(dy < -70){
+        // Target the active plan (or Someday, if not currently planning) specifically,
+        // so this still works as expected even if the idea is already dual-saved
+        // to Someday separately from the active plan.
+        var bucket = ui.activePlanId ? { type:"plan", planId: ui.activePlanId } : { type:"someday" };
+        var already = isIdeaInBucket(ideaId, bucket);
+        if(!already) addIdeaToBucket(ideaId, bucket);
+        if(state.seenIds.indexOf(ideaId) === -1) state.seenIds.push(ideaId);
+        saveState();
+        showToast((already ? "Already in " : "Saved to ") + bucketLabel(bucket) + (already ? "" : "!"));
+        // Head back to the swipe deck (or wherever detail was opened from) so
+        // you can keep swiping without an extra tap.
+        if(ui.detailFriendId != null){ ui.screen = "friendDetail"; renderContent(); }
+        else goBackFromDetail();
+      }
+    }
+    hero.addEventListener("pointerdown", onDown);
+    hero.addEventListener("pointermove", onMove);
+    hero.addEventListener("pointerup", onUp);
+    hero.addEventListener("pointercancel", onUp);
+    hero.addEventListener("pointerleave", function(e){ if(dragging && e.buttons === 0) onUp(e); });
+  }
+
+  // Starting a drag within a thin zone at the very left edge of the detail
+  // screen and pulling right (like iOS's edge-swipe-back) leaves the detail
+  // screen, same as tapping "‹ Back".
+  var EDGE_SWIPE_ZONE = 24; // px from the left edge that can start the gesture
+  var EDGE_SWIPE_THRESHOLD = 70; // px dragged right before it counts as "back"
+  function attachDetailEdgeSwipeBack(wrap, ideaId){
+    var startX = 0, startY = 0, dragging = false;
+    function onDown(e){
+      var pt = e.touches ? e.touches[0] : e;
+      // Measured from the app's own screen edge (the .phone frame), not the
+      // raw browser viewport, so this still lines up in the centered desktop
+      // preview and not just on a real phone where the two coincide.
+      var screenEl = wrap.closest(".phone") || wrap;
+      var screenLeft = screenEl.getBoundingClientRect().left;
+      if(pt.clientX - screenLeft > EDGE_SWIPE_ZONE) return;
+      dragging = true;
+      startX = pt.clientX; startY = pt.clientY;
+      wrap.style.transition = "none";
+      wrap.setPointerCapture && e.pointerId != null && wrap.setPointerCapture(e.pointerId);
+    }
+    function onMove(e){
+      if(!dragging) return;
+      var pt = e.touches ? e.touches[0] : e;
+      var dx = pt.clientX - startX;
+      var dy = pt.clientY - startY;
+      if(Math.abs(dy) > Math.abs(dx) + 10){ dragging = false; wrap.style.transform = ""; return; }
+      if(dx > 0){
+        wrap.style.transform = "translateX(" + Math.min(dx, 120) + "px)";
+        e.preventDefault && e.preventDefault();
+      }
+    }
+    function onUp(e){
+      if(!dragging) return;
+      dragging = false;
+      wrap.style.transition = "transform .2s ease";
+      var pt = e.changedTouches ? e.changedTouches[0] : e;
+      var dx = (pt ? pt.clientX : startX) - startX;
+      wrap.style.transform = "translateX(0)";
+      if(dx > EDGE_SWIPE_THRESHOLD){
+        if(ui.detailFriendId != null){ ui.screen = "friendDetail"; renderContent(); }
+        else goBackFromDetail();
+      }
+    }
+    wrap.addEventListener("pointerdown", onDown);
+    wrap.addEventListener("pointermove", onMove);
+    wrap.addEventListener("pointerup", onUp);
+    wrap.addEventListener("pointercancel", onUp);
+    wrap.addEventListener("pointerleave", function(e){ if(dragging && e.buttons === 0) onUp(e); });
+  }
+
+  /* ---------- Share overlay ---------- */
+  var shareTargetIdeaId = null;
+  function openShareOverlay(ideaId){
+    shareTargetIdeaId = ideaId;
+    var list = $("#share-friend-list");
+    list.innerHTML = "";
+    DEMO_FRIENDS.forEach(function(f){
+      var row = el("div", "share-friend-row");
+      row.innerHTML =
+        '<span class="friend-avatar" style="background:' + f.avatarColor + '">' + f.avatarEmoji + '</span>' +
+        '<span class="friend-name">' + escapeHtml(f.name) + '</span>';
+      row.addEventListener("click", function(){
+        closeOverlay("#share-overlay");
+        showToast("Shared with " + f.name + "!");
+      });
+      list.appendChild(row);
+    });
+    openOverlay("#share-overlay");
+  }
+  $("#share-close").addEventListener("click", function(){ closeOverlay("#share-overlay"); });
+
+  /* ---------- Share-a-plan overlay ----------
+     Two steps: pick a friend, then (simulated, since there's no backend
+     connecting devices) mark which idea in the plan that friend likes best. */
+  var planShareState = { planId: null, friendIdx: null };
+  function openPlanShareOverlay(planId){
+    planShareState.planId = planId;
+    planShareState.friendIdx = null;
+    showPlanShareStep(1);
+    openOverlay("#plan-share-overlay");
+  }
+  function showPlanShareStep(step){
+    $("#plan-share-step1").classList.toggle("hidden", step !== 1);
+    $("#plan-share-step2").classList.toggle("hidden", step !== 2);
+    if(step === 1) renderPlanShareFriends();
+    else renderPlanShareIdeas();
+  }
+  function renderPlanShareFriends(){
+    var list = $("#plan-share-friend-list");
+    list.innerHTML = "";
+    DEMO_FRIENDS.forEach(function(f, idx){
+      var row = el("div", "share-friend-row");
+      row.innerHTML =
+        '<span class="friend-avatar" style="background:' + f.avatarColor + '">' + f.avatarEmoji + '</span>' +
+        '<span class="friend-name">' + escapeHtml(f.name) + '</span>';
+      row.addEventListener("click", function(){
+        planShareState.friendIdx = idx;
+        showPlanShareStep(2);
+      });
+      list.appendChild(row);
+    });
+  }
+  function renderPlanShareIdeas(){
+    var plan = getPlanById(planShareState.planId);
+    var f = DEMO_FRIENDS[planShareState.friendIdx];
+    if(!f) return;
+    $("#plan-share-friend-label").textContent = f.name;
+    var list = $("#plan-share-idea-list");
+    list.innerHTML = "";
+    if(!plan || !plan.ideaIds.length){
+      list.innerHTML = '<p class="field-hint">No ideas saved in this plan yet — save a few first, then share.</p>';
+      return;
+    }
+    plan.ideaIds.forEach(function(id){
+      var idea = IDEAS_BY_ID[id];
+      if(!idea) return;
+      var row = el("div", "idea-row");
+      row.innerHTML =
+        '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
+        '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
+        '<div class="ir-sub">' + escapeHtml(idea.category) + '</div></span>' +
+        '<span class="ir-chevron">›</span>';
+      row.addEventListener("click", function(){ commitFriendPick(id); });
+      list.appendChild(row);
+    });
+  }
+  function commitFriendPick(ideaId){
+    var plan = getPlanById(planShareState.planId);
+    var f = DEMO_FRIENDS[planShareState.friendIdx];
+    if(!plan || !f) return;
+    if(!Array.isArray(plan.friendPicks)) plan.friendPicks = [];
+    // A friend only has one active "favorite" per plan — picking again replaces it.
+    plan.friendPicks = plan.friendPicks.filter(function(p){ return p.friendName !== f.name; });
+    plan.friendPicks.push({ id: genId("pick"), friendName: f.name, avatarEmoji: f.avatarEmoji, avatarColor: f.avatarColor, ideaId: ideaId });
+    saveState();
+    closeOverlay("#plan-share-overlay");
+    var idea = IDEAS_BY_ID[ideaId];
+    showToast(f.name + " picked \"" + (idea ? idea.title : "that idea") + "\" as their favorite!");
+    renderContent();
+  }
+  $("#plan-share-close").addEventListener("click", function(){ closeOverlay("#plan-share-overlay"); });
+  $("#plan-share-back").addEventListener("click", function(){ showPlanShareStep(1); });
+
+  /* ---------- Saved / Done screens ---------- */
+  function buildIdeaRow(idea, subtext){
+    var row = el("div", "idea-row");
+    row.innerHTML =
+      '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
+      '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
+      '<div class="ir-sub">' + escapeHtml(subtext) + '</div></span>' +
+      '<span class="ir-chevron">›</span>';
+    row.addEventListener("click", function(){ goToDetail(idea.id); });
+    return row;
+  }
+
+  function buildSavedScreen(){
+    if(ui.savedBucket) return buildSavedBucketScreen(ui.savedBucket);
+    return buildSavedFolderList();
+  }
+
+  // Top-level Saved tab: a folder for "Favorites" plus one folder per date plan.
+  function buildSavedFolderList(){
+    var wrap = el("div", "screen saved-screen");
+
+    var newPlanBtn = el("button", "btn-secondary btn-block plan-cta", icon("calendar") + " Plan a New Date");
+    newPlanBtn.type = "button";
+    newPlanBtn.addEventListener("click", openPlanOverlay);
+    wrap.appendChild(newPlanBtn);
+
+    wrap.appendChild(el("div", "section-title", "Your Saved Ideas"));
+
+    if(totalSavedCount() === 0){
+      wrap.appendChild(emptyNote(icon("bookmark"), "No saved ideas yet", "Swipe yes on ideas you love, or tap Favorites, to start filling up your folders."));
+      return wrap;
+    }
+
+    wrap.appendChild(buildFolderRow({ type:"someday" }, icon("star"), "Favorites", state.somedayIds.length, "Ideas with no date planned yet"));
+
+    state.datePlans.slice().reverse().forEach(function(plan){
+      var subtext = plan.date ? fmtDate(plan.date) : "No date set";
+      var row = buildFolderRow({ type:"plan", planId: plan.id }, icon("calendar"), plan.name, plan.ideaIds.length, subtext);
+      wrap.appendChild(buildSwipeToDeleteRow(row, function(){ deletePlan(plan.id); }));
+    });
+
+    return wrap;
+  }
+
+  function buildFolderRow(bucket, icon, title, count, subtext){
+    var row = el("div", "idea-row folder-row");
+    row.innerHTML =
+      '<span class="ir-icon">' + icon + '</span>' +
+      '<span class="ir-text"><div class="ir-title">' + escapeHtml(title) + '</div>' +
+      '<div class="ir-sub">' + escapeHtml(subtext) + ' · ' + count + (count === 1 ? " idea" : " ideas") + '</div></span>' +
+      '<span class="ir-chevron">›</span>';
+    row.addEventListener("click", function(){
+      ui.savedBucket = bucket;
+      renderContent();
+    });
+    return row;
+  }
+
+  function deletePlan(planId){
+    var idx = state.datePlans.findIndex(function(p){ return p.id === planId; });
+    if(idx !== -1) state.datePlans.splice(idx, 1);
+    if(ui.activePlanId === planId) ui.activePlanId = null;
+    saveState();
+    showToast("Plan deleted");
+    renderContent();
+  }
+
+  // Drilled-in view of a single bucket's (plan's or Someday's) saved ideas.
+  function buildSavedBucketScreen(bucket){
+    var wrap = el("div", "screen saved-screen saved-bucket-screen");
+
+    var backBtn = el("button", "btn-text saved-back-btn", "‹ All Saved");
+    backBtn.type = "button";
+    backBtn.addEventListener("click", function(){
+      ui.savedBucket = null;
+      renderContent();
+    });
+    wrap.appendChild(backBtn);
+
+    var ids, plan = null;
+    if(bucket.type === "plan"){
+      plan = getPlanById(bucket.planId);
+      if(!plan){ ui.savedBucket = null; return buildSavedFolderList(); }
+      var subtext = plan.date ? fmtDate(plan.date) : "No date set";
+      wrap.appendChild(el("div", "section-title", plan.name));
+      wrap.appendChild(el("div", "saved-bucket-subtitle", subtext));
+      var shareBtn = el("button", "btn-outline plan-share-btn", icon("share") + " Share with Friends");
+      shareBtn.type = "button";
+      shareBtn.addEventListener("click", function(){ openPlanShareOverlay(plan.id); });
+      wrap.appendChild(shareBtn);
+      ids = plan.ideaIds;
+    } else {
+      wrap.appendChild(el("div", "section-title", "Favorites"));
+      wrap.appendChild(el("div", "saved-bucket-subtitle", "Ideas with no date planned yet"));
+      ids = state.somedayIds;
+    }
+
+    if(ids.length === 0){
+      wrap.appendChild(emptyNote(icon("bookmark"), "Nothing here yet", "Ideas you save into this folder will show up here."));
+      return wrap;
+    }
+
+    // Friend-picked ideas float to the top of the list (most-recently-picked
+    // first), so the ones a friend has highlighted as their favorite are the
+    // first thing you see; everything else keeps its normal recent-first order.
+    var orderedIds = ids.slice().reverse();
+    var pickedIds = [], restIds = [];
+    orderedIds.forEach(function(id){
+      var hasPick = plan && (plan.friendPicks || []).some(function(p){ return p.ideaId === id; });
+      (hasPick ? pickedIds : restIds).push(id);
+    });
+    pickedIds.concat(restIds).forEach(function(id){
+      var idea = IDEAS_BY_ID[id];
+      if(!idea) return;
+      var row = buildIdeaRow(idea, idea.category);
+      var picks = plan ? (plan.friendPicks || []).filter(function(p){ return p.ideaId === id; }) : [];
+      var swipeRow = buildSwipeToDeleteRow(row, function(){ removeSavedIdea(id, bucket); });
+      if(picks.length){
+        swipeRow.classList.add("friend-picked");
+        var badge = el("div", "friend-pick-badge",
+          picks.map(function(p){ return p.avatarEmoji + " " + escapeHtml(p.friendName); }).join(", ") + " picked this!");
+        var irText = row.querySelector(".ir-text");
+        if(irText) irText.appendChild(badge);
+      }
+      wrap.appendChild(swipeRow);
+    });
+    return wrap;
+  }
+
+  function removeSavedIdea(id, bucket){
+    removeIdeaFromBucket(id, bucket);
+    saveState();
+    showToast("Removed from " + bucketLabel(bucket));
+    renderContent();
+  }
+
+  // Wraps a row element so a big right-to-left swipe reveals a Delete button.
+  // Tracks the single currently-open row so opening a new one closes the last.
+  var openSwipeRowReset = null;
+  function buildSwipeToDeleteRow(innerEl, onDelete){
+    var wrapper = el("div", "swipeable-row");
+    var action = el("div", "swipe-delete-action");
+    var delBtn = el("button", "swipe-delete-btn", icon("trash-2") + " Delete");
+    delBtn.type = "button";
+    action.appendChild(delBtn);
+    wrapper.appendChild(action);
+
+    var content = el("div", "swipeable-row-content");
+    content.appendChild(innerEl);
+    wrapper.appendChild(content);
+
+    var REVEAL = 84;
+    var isOpen = false, startX = 0, startY = 0, baseX = 0, axis = null, dragging = false, wasOpenAtDown = false, suppressClick = false;
+
+    function setOffset(x, animate){
+      content.style.transition = animate ? "transform .22s ease" : "none";
+      content.style.transform = "translateX(" + x + "px)";
+    }
+    function closeRow(animate){
+      isOpen = false;
+      setOffset(0, animate !== false);
+      if(openSwipeRowReset === closeRow) openSwipeRowReset = null;
+    }
+    function openRow(animate){
+      isOpen = true;
+      setOffset(-REVEAL, animate !== false);
+      if(openSwipeRowReset && openSwipeRowReset !== closeRow) openSwipeRowReset();
+      openSwipeRowReset = closeRow;
+    }
+
+    content.addEventListener("pointerdown", function(e){
+      dragging = true; axis = null;
+      var pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX; startY = pt.clientY;
+      baseX = isOpen ? -REVEAL : 0;
+      wasOpenAtDown = isOpen;
+    });
+    content.addEventListener("pointermove", function(e){
+      if(!dragging) return;
+      var pt = e.touches ? e.touches[0] : e;
+      var dx = pt.clientX - startX, dy = pt.clientY - startY;
+      if(axis === null){
+        if(Math.abs(dx) > 6 || Math.abs(dy) > 6) axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      }
+      if(axis === "y"){ return; }
+      if(axis === "x"){
+        e.preventDefault && e.preventDefault();
+        var next = Math.max(-REVEAL, Math.min(0, baseX + dx));
+        setOffset(next, false);
+      }
+    });
+    content.addEventListener("pointerup", function(e){
+      if(!dragging) return;
+      dragging = false;
+      var pt = e.changedTouches ? e.changedTouches[0] : e;
+      var dx = pt.clientX - startX;
+      if(axis === "x"){
+        var finalX = Math.max(-REVEAL, Math.min(0, baseX + dx));
+        if(finalX < -REVEAL / 2) openRow(); else closeRow();
+        suppressClick = true;
+      } else {
+        if(wasOpenAtDown){ closeRow(); suppressClick = true; }
+      }
+      axis = null;
+    });
+    content.addEventListener("pointercancel", function(){ dragging = false; axis = null; });
+    content.addEventListener("click", function(e){
+      if(suppressClick){ e.stopPropagation(); e.preventDefault(); suppressClick = false; }
+    }, true);
+
+    delBtn.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      wrapper.style.transition = "opacity .2s ease, max-height .2s ease, margin .2s ease";
+      wrapper.style.maxHeight = wrapper.offsetHeight + "px";
+      requestAnimationFrame(function(){
+        wrapper.style.overflow = "hidden";
+        wrapper.style.maxHeight = "0px";
+        wrapper.style.opacity = "0";
+        wrapper.style.marginBottom = "0px";
+      });
+      setTimeout(onDelete, 200);
+    });
+
+    return wrapper;
+  }
+
+  function buildDoneScreen(){
+    var wrap = el("div", "screen done-screen");
+    wrap.appendChild(el("div", "section-title", "Dates You've Done (" + state.doneIds.length + ")"));
+    if(state.doneIds.length === 0){
+      wrap.appendChild(emptyNote(icon("check-circle"), "No completed dates yet", "Mark ideas as done from their detail screen after you try them."));
+      return wrap;
+    }
+    state.doneIds.slice().reverse().forEach(function(entry){
+      var idea = IDEAS_BY_ID[entry.id];
+      if(idea) wrap.appendChild(buildIdeaRow(idea, "Done " + fmtDate(entry.date)));
+    });
+    return wrap;
+  }
+
+  function emptyNote(icon, title, sub){
+    var e = el("div", "empty-state");
+    e.innerHTML = '<span class="es-icon">' + icon + '</span><h3>' + title + '</h3><p>' + sub + '</p>';
+    return e;
+  }
+
+  /* ---------- Friends screen ---------- */
+  function buildFriendsScreen(){
+    var wrap = el("div", "screen friends-screen");
+    wrap.appendChild(el("div", "section-title", "You"));
+    var meCard = el("div", "friend-card");
+    meCard.innerHTML =
+      '<span class="friend-avatar" style="background:#FF6B6B">' + (state.profile.photo ? '' : icon("user")) + '</span>' +
+      '<span><div class="friend-name">' + escapeHtml(state.profile.name || "You") + '</div>' +
+      '<div class="friend-stats">' + state.doneIds.length + ' done · ' + totalSavedCount() + ' saved</div></span>';
+    if(state.profile.photo){
+      var av = $(".friend-avatar", meCard);
+      av.style.background = "transparent";
+      av.innerHTML = '<img src="' + state.profile.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">';
+    }
+    wrap.appendChild(meCard);
+
+    var addFriendsBtn = el("button", "btn-secondary btn-block", icon("plus") + " Add Friends");
+    addFriendsBtn.type = "button";
+    addFriendsBtn.addEventListener("click", function(){ openSubpage("addFriends"); });
+    wrap.appendChild(addFriendsBtn);
+
+    wrap.appendChild(el("div", "section-title", "Friends"));
+    DEMO_FRIENDS.forEach(function(f, idx){
+      var card = el("div", "friend-card");
+      card.innerHTML =
+        '<span class="friend-avatar" style="background:' + f.avatarColor + '">' + f.avatarEmoji + '</span>' +
+        '<span><div class="friend-name">' + escapeHtml(f.name) + '</div>' +
+        '<div class="friend-stats">' + f.doneIds.length + ' done · ' + f.savedIds.length + ' saved</div></span>';
+      card.addEventListener("click", function(){
+        ui.screen = "friendDetail"; ui.detailFriendId = idx;
+        renderContent();
+      });
+      wrap.appendChild(card);
+    });
+    return wrap;
+  }
+
+  function buildFriendDetailScreen(friendIdx){
+    var f = DEMO_FRIENDS[friendIdx];
+    var wrap = el("div", "screen friend-detail-screen");
+    if(!f){ wrap.innerHTML = '<p>Friend not found.</p>'; return wrap; }
+
+    var header = el("div", "friend-detail-header");
+    header.innerHTML =
+      '<span class="friend-avatar" style="background:' + f.avatarColor + '">' + f.avatarEmoji + '</span>' +
+      '<div><div class="profile-name-big">' + escapeHtml(f.name) + '</div>' +
+      '<div class="profile-sub">' + f.doneIds.length + ' done · ' + f.savedIds.length + ' saved</div></div>';
+    wrap.appendChild(header);
+
+    var back = el("button", "back-link", "‹ Back to Friends");
+    back.addEventListener("click", function(){ switchTab("friends"); });
+    wrap.insertBefore(back, header);
+
+    wrap.appendChild(el("div", "section-title", "Done"));
+    if(f.doneIds.length === 0) wrap.appendChild(el("p", null, "No dates done yet."));
+    f.doneIds.forEach(function(id){
+      var idea = IDEAS_BY_ID[id];
+      if(idea) wrap.appendChild(buildFriendIdeaRow(idea));
+    });
+
+    wrap.appendChild(el("div", "section-title", "Wants to Try"));
+    if(f.savedIds.length === 0) wrap.appendChild(el("p", null, "Nothing saved yet."));
+    f.savedIds.forEach(function(id){
+      var idea = IDEAS_BY_ID[id];
+      if(idea) wrap.appendChild(buildFriendIdeaRow(idea));
+    });
+
+    return wrap;
+  }
+
+  function buildFriendIdeaRow(idea){
+    var row = el("div", "idea-row");
+    row.innerHTML =
+      '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
+      '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
+      '<div class="ir-sub">' + escapeHtml(idea.category) + '</div></span>' +
+      '<span class="ir-chevron">›</span>';
+    row.addEventListener("click", function(){
+      ui.screen = "detail"; ui.detailIdeaId = idea.id;
+      renderContent();
+    });
+    return row;
+  }
+
+  /* ---------- Profile overlay ---------- */
+  $("#profile-btn").addEventListener("click", function(){
+    renderProfileHeader();
+    ui.profileMenuOpen = null;
+    openOverlay("#profile-overlay");
+  });
+  $("#profile-close").addEventListener("click", function(){ closeOverlay("#profile-overlay"); });
+
+  function renderProfileHeader(){
+    var av = $("#profile-avatar-big");
+    av.innerHTML = state.profile.photo ? '<img src="' + state.profile.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : icon("user");
+    $("#profile-name-big").textContent = state.profile.name || "You";
+    var ageText = state.profile.age ? state.profile.age + " · " : "";
+    $("#profile-sub").textContent = ageText + (state.profile.gender || "");
+    $("#done-count-label").textContent = state.doneIds.length + " dates completed";
+    var toggle = $("#auto-dark-toggle");
+    if(toggle) toggle.checked = !!(state.settings && state.settings.autoDarkMode);
+  }
+
+  $all(".profile-menu-item").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      openSubpage(btn.getAttribute("data-action"));
+    });
+  });
+
+  /* ---------- Full-screen subpages (Tips, Done, Idea, Edit, Add Friends) ----------
+     Opened as an X-closable, edge-swipe-back full-screen page over the app,
+     rather than an inline accordion. */
+  var SUBPAGE_TITLES = {
+    done:"What You've Done",
+    idea:"Got an Idea?",
+    tips:"Tips of Dating",
+    edit:"Edit Profile",
+    addFriends:"Add Friends"
+  };
+  function openSubpage(action){
+    ui.profileMenuOpen = action;
+    $("#subpage-title").textContent = SUBPAGE_TITLES[action] || "";
+    var body = $("#subpage-body");
+    body.innerHTML = "";
+    if(action === "done") body.appendChild(buildDoneSubpanel());
+    else if(action === "idea") body.appendChild(buildIdeaSubmitSubpanel());
+    else if(action === "tips") body.appendChild(buildTipsSubpanel());
+    else if(action === "edit") body.appendChild(buildEditProfileSubpanel());
+    else if(action === "addFriends") body.appendChild(buildAddFriendsSubpanel());
+    body.scrollTop = 0;
+    $("#subpage-overlay").classList.remove("hidden");
+  }
+  function closeSubpage(){
+    $("#subpage-overlay").classList.add("hidden");
+    ui.profileMenuOpen = null;
+  }
+  $("#subpage-close").addEventListener("click", closeSubpage);
+  attachEdgeSwipeBack($("#subpage-overlay"), closeSubpage);
+
+  function attachEdgeSwipeBack(container, onBack){
+    var startX = 0, startY = 0, tracking = false;
+    container.addEventListener("pointerdown", function(e){
+      var pt = e.touches ? e.touches[0] : e;
+      var rect = container.getBoundingClientRect();
+      startX = pt.clientX; startY = pt.clientY;
+      // only start tracking if the touch/click begins near the container's own left edge
+      tracking = (startX - rect.left) <= 26;
+    });
+    container.addEventListener("pointermove", function(e){
+      if(!tracking) return;
+      var pt = e.touches ? e.touches[0] : e;
+      if(Math.abs(pt.clientY - startY) > 60) tracking = false;
+    });
+    container.addEventListener("pointerup", function(e){
+      if(!tracking) return;
+      tracking = false;
+      var pt = e.changedTouches ? e.changedTouches[0] : e;
+      if(pt.clientX - startX > 70) onBack();
+    });
+    container.addEventListener("pointercancel", function(){ tracking = false; });
+  }
+
+  function buildDoneSubpanel(){
+    var wrap = el("div", null);
+    wrap.appendChild(el("div", "section-title", "What You've Done"));
+    if(state.doneIds.length === 0){
+      wrap.appendChild(el("p", null, "You haven't marked any dates as done yet. Once you try an idea, mark it done from its detail screen!"));
+      return wrap;
+    }
+    state.doneIds.slice().reverse().forEach(function(entry){
+      var idea = IDEAS_BY_ID[entry.id];
+      if(!idea) return;
+      var row = el("div", "idea-row");
+      row.innerHTML =
+        '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
+        '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
+        '<div class="ir-sub">Done ' + fmtDate(entry.date) + '</div></span><span class="ir-chevron">›</span>';
+      row.addEventListener("click", function(){
+        closeSubpage();
+        closeOverlay("#profile-overlay");
+        goToDetail(idea.id);
+      });
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function buildTipsSubpanel(){
+    var wrap = el("div", null);
+    wrap.appendChild(el("div", "section-title", "Tips of Dating"));
+    DATING_TIPS.forEach(function(tip){
+      var row = el("div", "tip-row");
+      row.innerHTML = '<span class="t-icon">' + icon(tip.icon) + '</span><span class="t-text">' + escapeHtml(tip.text) + '</span>';
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function buildIdeaSubmitSubpanel(){
+    var wrap = el("div", null);
+    wrap.appendChild(el("div", "section-title", "Got an Idea?"));
+    wrap.appendChild(el("p", null, "Share a new date idea and give a short description of how to do it — great ideas may get added to Spark!"));
+
+    var form = el("form", "idea-form");
+    form.innerHTML =
+      '<label>Title</label><input type="text" id="idea-title" placeholder="e.g. Sunset kayak picnic" required>' +
+      '<label>Category</label><select id="idea-category">' +
+        CATEGORIES.map(function(c){ return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>'; }).join("") +
+      '</select>' +
+      '<label>How do you do it?</label><textarea id="idea-desc" placeholder="Describe the date idea and how to pull it off..." required></textarea>' +
+      '<label>Vibe (pick any)</label><div class="chip-select" id="idea-vibe"></div>';
+    var submitBtn = el("button", "btn-primary btn-block", "Submit Idea");
+    submitBtn.type = "submit";
+    form.appendChild(submitBtn);
+    wrap.appendChild(form);
+
+    var vibeWrap = $("#idea-vibe", form);
+    var selectedVibes = [];
+    ["Chill","Romantic","Active","Adventurous","Creative","Silly"].forEach(function(v){
+      var chip = el("button", "chip", v);
+      chip.type = "button";
+      chip.addEventListener("click", function(){
+        var idx = selectedVibes.indexOf(v);
+        if(idx === -1) selectedVibes.push(v); else selectedVibes.splice(idx, 1);
+        chip.classList.toggle("selected");
+      });
+      vibeWrap.appendChild(chip);
+    });
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var titleVal = $("#idea-title", form).value.trim();
+      var descVal = $("#idea-desc", form).value.trim();
+      if(!titleVal || !descVal) return;
+      state.submittedIdeas.push({
+        title: titleVal,
+        category: $("#idea-category", form).value,
+        description: descVal,
+        vibe: selectedVibes.slice(),
+        submittedAt: todayISO()
+      });
+      saveState();
+      showToast("Thanks! Your idea was submitted!");
+      openSubpage("idea");
+    });
+
+    if(state.submittedIdeas.length){
+      wrap.appendChild(el("div", "section-title", "Your Submitted Ideas"));
+      state.submittedIdeas.slice().reverse().forEach(function(s){
+        var row = el("div", "idea-row");
+        row.style.cursor = "default";
+        row.innerHTML =
+          '<span class="ir-icon">' + icon("lightbulb") + '</span><span class="ir-text"><div class="ir-title">' + escapeHtml(s.title) + '</div>' +
+          '<div class="ir-sub">' + escapeHtml(s.category) + '</div></span>';
+        wrap.appendChild(row);
+      });
+    }
+
+    return wrap;
+  }
+
+  function buildEditProfileSubpanel(){
+    var wrap = el("div", null);
+    wrap.appendChild(el("div", "section-title", "Edit Profile"));
+    var form = el("form", "idea-form");
+    form.innerHTML =
+      '<label>Name</label><input type="text" id="ep-name" value="' + escapeHtml(state.profile.name) + '" required>' +
+      '<label>Age</label><input type="number" id="ep-age" value="' + escapeHtml(state.profile.age) + '" min="13" max="120" required>' +
+      '<label>Gender</label><select id="ep-gender">' +
+        ["Woman","Man","Nonbinary","Prefer not to say"].map(function(g){
+          return '<option value="' + g + '"' + (g === state.profile.gender ? " selected" : "") + '>' + g + '</option>';
+        }).join("") +
+      '</select>' +
+      '<label>Birthday</label><input type="date" id="ep-birthday" value="' + escapeHtml(state.profile.birthday) + '" required>' +
+      '<label>Photo</label><input type="file" id="ep-photo" accept="image/*">';
+    var saveBtn = el("button", "btn-primary btn-block", "Save Changes");
+    saveBtn.type = "submit";
+    form.appendChild(saveBtn);
+    wrap.appendChild(form);
+
+    var newPhoto = null;
+    $("#ep-photo", form).addEventListener("change", function(e){
+      var file = e.target.files && e.target.files[0];
+      if(!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev){ newPhoto = ev.target.result; };
+      reader.readAsDataURL(file);
+    });
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      state.profile.name = $("#ep-name", form).value.trim() || state.profile.name;
+      state.profile.age = $("#ep-age", form).value;
+      state.profile.gender = $("#ep-gender", form).value;
+      state.profile.birthday = $("#ep-birthday", form).value;
+      if(newPhoto) state.profile.photo = newPhoto;
+      saveState();
+      renderTopbarAvatar();
+      renderProfileHeader();
+      showToast("Profile updated!");
+    });
+
+    return wrap;
+  }
+
+  /* ---------- Add Friends (QR code + mock contacts) ---------- */
+  var MOCK_CONTACTS = [
+    { name:"Alex Chen", phone:"(801) 555-0134" },
+    { name:"Priya Patel", phone:"(385) 555-0192" },
+    { name:"Jordan Lee", phone:"(801) 555-0177" },
+    { name:"Maria Gomez", phone:"(435) 555-0163" },
+    { name:"Sam Whitfield", phone:"(801) 555-0148" },
+    { name:"Taylor Brooks", phone:"(385) 555-0121" }
+  ];
+
+  function getInviteLink(){
+    var slug = (state.profile.name || "friend").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "friend";
+    var code = Math.abs(hashStr(state.profile.name || "friend") ^ hashStr(state.profile.birthday || "")).toString(36).slice(0, 6);
+    return "https://spark-dates.app/invite/" + slug + "-" + code;
+  }
+
+  function buildAddFriendsSubpanel(){
+    var wrap = el("div", null);
+    wrap.appendChild(el("div", "section-title", "Your Invite QR Code"));
+    wrap.appendChild(el("p", null, "Have a friend scan this with their phone's camera to add you on Spark."));
+
+    var link = getInviteLink();
+    var qrWrap = el("div", "qr-wrap");
+    try{
+      var qr = qrcode(0, "M");
+      qr.addData(link);
+      qr.make();
+      qrWrap.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2 });
+    }catch(e){
+      qrWrap.textContent = "QR code unavailable";
+    }
+    wrap.appendChild(qrWrap);
+
+    wrap.appendChild(el("p", "qr-link-note", link));
+    var copyBtn = el("button", "btn-secondary btn-block", icon("copy") + " Copy Invite Link");
+    copyBtn.type = "button";
+    copyBtn.addEventListener("click", function(){
+      showToast("Invite link copied!");
+    });
+    wrap.appendChild(copyBtn);
+
+    wrap.appendChild(el("div", "section-title", "Add From Contacts"));
+    wrap.appendChild(el("p", null, "Tap a contact to send them your invite link."));
+    MOCK_CONTACTS.forEach(function(c){
+      var initials = c.name.split(" ").map(function(n){ return n[0]; }).join("");
+      var row = el("div", "contact-row");
+      row.innerHTML =
+        '<span class="contact-avatar">' + escapeHtml(initials) + '</span>' +
+        '<span class="contact-info"><div class="contact-name">' + escapeHtml(c.name) + '</div>' +
+        '<div class="contact-phone">' + escapeHtml(c.phone) + '</div></span>' +
+        '<button type="button" class="btn-outline contact-send-btn">Send Link</button>';
+      $(".contact-send-btn", row).addEventListener("click", function(ev){
+        ev.stopPropagation();
+        showToast("Link sent to " + c.name.split(" ")[0] + "!");
+      });
+      wrap.appendChild(row);
+    });
+
+    return wrap;
+  }
+
+  $("#reset-app-btn").addEventListener("click", function(){
+    if(confirm("Reset all Spark data on this device? This can't be undone.")){
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.reload();
+    }
+  });
+
+  /* ---------- Dark mode (auto, 9pm-6am) ---------- */
+  function isNightHours(){
+    var hr = new Date().getHours();
+    return hr >= 21 || hr < 6; // 9pm - 6am
+  }
+  function applyTheme(){
+    var dark = !!(state.settings && state.settings.autoDarkMode) && isNightHours();
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  }
+  var autoDarkToggle = $("#auto-dark-toggle");
+  if(autoDarkToggle){
+    autoDarkToggle.addEventListener("change", function(){
+      state.settings.autoDarkMode = autoDarkToggle.checked;
+      saveState();
+      applyTheme();
+    });
+  }
+  applyTheme();
+  setInterval(applyTheme, 60000);
+
+  /* ---------- Boot ---------- */
+  function boot(){
+    if(state.onboarded){
+      // prefill onboarding fields in case user goes back, and enter app directly
+      $("#ob-name").value = state.profile.name || "";
+      $("#ob-age").value = state.profile.age || "";
+      $("#ob-gender").value = state.profile.gender || "Woman";
+      $("#ob-birthday").value = state.profile.birthday || "";
+      if(state.profile.photo){
+        obPhotoData = state.profile.photo;
+        $("#avatar-preview").innerHTML = '<img src="' + state.profile.photo + '" alt="">';
+      }
+      enterApp();
+    } else {
+      $("#view-onboarding").classList.remove("hidden");
+      $("#view-app").classList.add("hidden");
+    }
+  }
+
+  boot();
+})();

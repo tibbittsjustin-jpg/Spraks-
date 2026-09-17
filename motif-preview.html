@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Spark motif preview</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#16171b;color:#eee;margin:0;padding:24px;}
+  h2{font-size:15px;margin:26px 0 10px;color:#9aa;text-transform:uppercase;letter-spacing:.08em;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+  .cell{background:#22242a;border-radius:10px;overflow:hidden;}
+  /* exact aspect ratios measured from the real app */
+  .card-media{height:0;padding-bottom:66.6%;background-size:cover;background-position:center;}
+  .hero{height:0;padding-bottom:43%;background-size:cover;background-position:center;}
+  .label{font-size:11px;padding:6px 8px;color:#bbc;font-family:ui-monospace,Menlo,monospace;}
+  .row{display:flex;gap:2px;}
+  .row>div{flex:1;}
+</style>
+</head>
+<body>
+<div id="out"></div>
+
+<script src="data.js"></script>
+<script src="motifs.js"></script>
+<script>
+/* Mirrors the real art pipeline closely enough to judge composition.
+   Loads app.js's functions by re-running the page's own art code is not
+   possible (it's inside an IIFE), so this harness re-implements the framing
+   and calls into the shared MOTIFS library. */
+var HORIZON = 46, CW = 100, CH = 52;
+function motifMarkup(name, pal, isNight){
+  var art = MOTIFS.M[name];
+  if(!art) return "";
+  var colors = {"{ink}": isNight?"#0C1428":"#22303F", "{acc}": isNight?"#FFC46B":"#FF7A5C",
+                "{lit}":"#FFFFFF", "{sky}":pal.sky2};
+  art = art.replace(/\{(ink|acc|lit|sky)\}/g, function(m){return colors[m];});
+  var s=0.95, cx=63;
+  return '<g transform="translate('+(cx-20*s).toFixed(2)+','+(HORIZON-40*s).toFixed(2)+') scale('+s+')">'+art+'</g>';
+}
+var PALS = {
+  day:{sky1:"#BEE8FF",sky2:"#5FA8E0",name:"day"},
+  night:{sky1:"#0E1A3B",sky2:"#3A2E6B",name:"night"},
+  sunset:{sky1:"#FFD9A0",sky2:"#FF8C7A",name:"sunset"}
+};
+function art(name, palKey){
+  var pal = PALS[palKey], isNight = pal.name==="night";
+  var ground = isNight? "#10131C" : "#2C3A46";
+  var defs = '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+pal.sky1+'"/><stop offset="100%" stop-color="'+pal.sky2+'"/></linearGradient>'+
+    '<linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity="0.38"/></linearGradient>';
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+CW+' '+CH+'" preserveAspectRatio="xMidYMid slice">'+
+    '<defs>'+defs+'</defs>'+
+    '<rect width="'+CW+'" height="'+CH+'" fill="url(#sky)"/>'+
+    '<rect x="0" y="'+(HORIZON-0.5)+'" width="100" height="'+(CH-HORIZON+0.5)+'" fill="'+ground+'"/>'+
+    motifMarkup(name, pal, isNight)+
+    '<rect x="0" y="'+(CH*0.6)+'" width="100" height="'+(CH*0.4)+'" fill="url(#vg)"/></svg>';
+  return "background-image:url('data:image/svg+xml;utf8,"+encodeURIComponent(svg)+"')";
+}
+
+var out = document.getElementById("out");
+var names = Object.keys(MOTIFS.M).sort();
+
+function section(title, render){
+  var h = document.createElement("h2"); h.textContent = title + " — " + names.length + " motifs";
+  out.appendChild(h);
+  var g = document.createElement("div"); g.className="grid";
+  names.forEach(function(n){
+    var c = document.createElement("div"); c.className="cell";
+    c.innerHTML = render(n) + '<div class="label">'+n+'</div>';
+    g.appendChild(c);
+  });
+  out.appendChild(g);
+}
+
+section("Card size (day)", function(n){ return '<div class="card-media" style="'+art(n,"day")+'"></div>'; });
+section("Detail hero size (day)", function(n){ return '<div class="hero" style="'+art(n,"day")+'"></div>'; });
+section("Night + sunset palettes (hero size)", function(n){
+  return '<div class="row"><div class="hero" style="'+art(n,"night")+'"></div><div class="hero" style="'+art(n,"sunset")+'"></div></div>'; });
+</script>
+</body>
+</html>

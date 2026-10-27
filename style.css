@@ -470,3 +470,53 @@ background:var(--surface-soft); border:1.5px solid var(--border); border-radius:
 .detail-real-name{ font-size:14px; font-weight:700; color:var(--accent-dark); margin-bottom:2px; }
 .detail-real-addr{ font-size:12.5px; color:var(--text-soft); margin-bottom:10px; }
 .detail-real-link svg{ width:15px; height:15px; }
+/* ---------- Local events ---------- */
+.events-screen .section-title{ margin-top:18px; }
+
+/* Radius picker */
+.radius-row{ display:flex; align-items:center; gap:8px; margin:4px 0 14px; flex-wrap:wrap; }
+.radius-label{ font-size:12.5px; font-weight:700; color:var(--text-soft); }
+.radius-chip{
+background:var(--surface); border:1.5px solid var(--border); color:var(--text);
+padding:7px 14px; border-radius:20px; font-size:13px; font-weight:700; cursor:pointer;
+}
+.radius-chip.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* Zip-code fallback for anyone who declines location */
+.zip-fallback{
+background:var(--surface); border:1px solid var(--border); border-radius:16px;
+padding:14px; margin-bottom:16px;
+}
+.zip-fallback-title{ display:flex; align-items:center; gap:7px; font-weight:800; font-size:14px; color:var(--text); }
+.zip-fallback-title svg{ width:16px; height:16px; color:var(--accent); }
+.zip-fallback-sub{ font-size:12px; color:var(--text-soft); margin:6px 0 12px; line-height:1.5; }
+.zip-form{ display:flex; gap:8px; align-items:stretch; }
+.zip-form .zip-input{ flex:1; margin:0; }
+.zip-form .btn-primary{ flex-shrink:0; padding:12px 16px; font-size:14px; box-shadow:none; }
+.events-origin{ margin-bottom:16px; }
+
+/* Day-grouped event list */
+.event-day-header{
+font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+color:var(--text-soft); margin:16px 0 8px;
+}
+.event-row .ir-price{ font-size:12px; font-weight:700; color:var(--accent); margin-top:3px; }
+/* Dark chip so the date reads against the card art, and so it stays
+   distinct from the white "Real spot" badge. Text is explicitly white rather
+   than var(--text), which would be near-black in light mode. */
+.event-badge{ background:rgba(24,26,32,.82); color:#fff; }
+
+/* A saved event whose date has already gone by */
+.idea-row.past-event{ opacity:.55; }
+.idea-row.past-event .ir-title{ text-decoration:line-through; }
+
+/* Detail screen */
+.detail-event-block .detail-event-when{ font-weight:800; font-size:15px; color:var(--text); margin-top:4px; }
+.detail-event-block .detail-event-price{ font-size:13px; font-weight:700; color:var(--accent); margin-top:6px; }
+
+/* Ticketmaster attribution — required by their terms wherever events show */
+.events-attribution{
+font-size:11px; color:var(--text-soft); text-align:center; margin-top:14px; padding-bottom:4px;
+}
+.events-attribution a{ color:var(--text-soft); }
+.zip-change{ flex-shrink:0; font-size:12px; font-weight:700; padding:0; }

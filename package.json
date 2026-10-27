@@ -5,7 +5,8 @@
 "description": "Spark – swipe-based date idea finder, with optional real nearby-place matching.",
 "main": "server.js",
 "scripts": {
-"start": "node server.js"
+"start": "node server.js",
+"test": "node test/run.js"
 },
 "engines": {
 "node": ">=18"

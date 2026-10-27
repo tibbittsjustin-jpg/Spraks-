@@ -103,6 +103,13 @@
   function categoryIcon(category, cls){
     return icon(CATEGORY_ICON_MAP[category] || "star", cls);
   }
+  // Events carry their own icon from the classification table (a guitar for a
+  // gig, a film reel for a screening), which is far more useful than the one
+  // generic icon their shared "Local Event" category would otherwise give them.
+  function ideaIcon(idea, cls){
+    if(idea && idea.icon && ICONS[idea.icon]) return icon(idea.icon, cls);
+    return categoryIcon(idea ? idea.category : null, cls);
+  }
 
   /* ---------- State ---------- */
   function defaultState(){
@@ -119,6 +126,9 @@
       submittedIdeas:[],
       deckOrder:null,    // cached shuffled id order for current filter set
       location:null,     // {lat, lng, grantedAt} once the user enables "Near You" real-place matching
+      postalCode:null,   // manual fallback for local events when location is declined
+      eventRadiusMiles:25, // how far to look for local events (5 / 10 / 25)
+      realIdeas:{},      // id -> full idea snapshot, for real (external) ideas the user has kept
       settings:{ autoDarkMode:true } // auto dark mode between 9pm-6am, toggle in profile
     };
   }
@@ -156,10 +166,28 @@
         parsed.somedayIds = merged;
         parsed.savedIds = [];
       }
+      // Drop references to real-idea ids nothing can resolve any more. Real
+      // ideas used to get a throwaway counter id that restarted every load, so
+      // states saved before snapshotting existed carry ids pointing at nothing.
+      // Left in place they'd be invisible rows that still counted toward the
+      // folder totals ("Favorites · 4 ideas" showing 2). The range is written
+      // out literally because REAL_ID_MIN isn't assigned yet at load time.
+      parsed.realIdeas = parsed.realIdeas || {};
+      var resolvable = function(id){
+        if(!(typeof id === "number" && id >= 9000000 && id < 10000000)) return true;
+        return !!parsed.realIdeas[id];
+      };
+      parsed.somedayIds = parsed.somedayIds.filter(resolvable);
+      parsed.datePlans.forEach(function(plan){
+        plan.ideaIds = (plan.ideaIds || []).filter(resolvable);
+        plan.friendPicks = (plan.friendPicks || []).filter(function(p){ return resolvable(p.ideaId); });
+      });
+      parsed.doneIds = (parsed.doneIds || []).filter(function(d){ return resolvable(d.id); });
       return parsed;
     }catch(e){ return defaultState(); }
   }
   function saveState(){
+    syncRealIdeaSnapshots();
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
   }
 
@@ -180,11 +208,91 @@
     return apiStatusPromise;
   }
 
-  // Real-place ideas generated this session. Not persisted — a fresh batch
-  // is fetched each time the app loads (once location is available).
-  var REAL_IDEAS_RUNTIME = [];
+  /* ---------- Stable ids for real (external) ideas ----------
+     Real ideas are generated fresh each session, but the user's saved/done
+     lists persist ids only. With a throwaway counter (9000001, 9000002, …)
+     that restarted every load, a saved real spot either vanished from Saved on
+     the next load or — worse — its id was handed to a completely different
+     place. Ids are now derived from a stable key, and every real idea the user
+     actually keeps is snapshotted into state so it survives a reload. */
+  var REAL_ID_MIN = 9000000, REAL_ID_SPAN = 1000000;
+  var REAL_IDEAS_RUNTIME = [];   // this session's deck-eligible real ideas
   var realIdeasLoading = false;
-  var realIdCounter = 9000001;
+  var realKeyToId = {};          // stableKey -> numeric id
+  var realIdToKey = {};          // numeric id -> stableKey
+
+  function isRealId(id){
+    return typeof id === "number" && id >= REAL_ID_MIN && id < REAL_ID_MIN + REAL_ID_SPAN;
+  }
+
+  // Google's place_id is stable across sessions and searches; name+address is
+  // the fallback for anything that arrives without one.
+  function stableKeyForReal(raw){
+    if(raw.placeId) return "gp:" + raw.placeId;
+    return "np:" + String(raw.placeName || raw.title || "").toLowerCase().trim() +
+           "|" + String(raw.address || "").toLowerCase().trim();
+  }
+
+  // Maps a stable key onto a numeric id in the reserved real-idea range. Ids
+  // must stay numeric: getCoverArtStyle() and motifFor() seed the generated
+  // cover art off idea.id arithmetically, so a string id would break the art.
+  // On the rare hash collision we probe forward; because every kept idea's key
+  // is persisted next to its id and replayed here on load, an idea the user has
+  // saved always maps back to the id it was first given.
+  function realIdForKey(key){
+    if(realKeyToId[key] != null) return realKeyToId[key];
+    var id = REAL_ID_MIN + (Math.abs(hashStr(key)) % REAL_ID_SPAN);
+    while(realIdToKey[id] != null && realIdToKey[id] !== key){
+      id = REAL_ID_MIN + ((id - REAL_ID_MIN + 1) % REAL_ID_SPAN);
+    }
+    realKeyToId[key] = id;
+    realIdToKey[id] = key;
+    return id;
+  }
+
+  // Ids the user deliberately kept — everything that must still resolve after a
+  // reload. Deliberately excludes seenIds/passedIds: a real idea that was only
+  // swiped past doesn't need to outlive the session.
+  function keptIdeaIds(){
+    var ids = state.somedayIds.slice();
+    state.datePlans.forEach(function(plan){
+      ids = ids.concat(plan.ideaIds || []);
+      (plan.friendPicks || []).forEach(function(p){ ids.push(p.ideaId); });
+    });
+    state.doneIds.forEach(function(d){ ids.push(d.id); });
+    return ids;
+  }
+
+  // Puts persisted real ideas back into circulation on load, WITHOUT adding
+  // them to REAL_IDEAS_RUNTIME — they're restored so Saved/Done/plans can
+  // render them, not re-dealt into the swipe deck.
+  function rehydrateRealIdeas(){
+    var snaps = state.realIdeas || {};
+    Object.keys(snaps).forEach(function(k){
+      var idea = snaps[k];
+      if(!idea || idea.id == null) return;
+      if(idea.stableKey){
+        realKeyToId[idea.stableKey] = idea.id;
+        realIdToKey[idea.id] = idea.stableKey;
+      }
+      IDEAS_BY_ID[idea.id] = idea;
+    });
+  }
+
+  // Keeps state.realIdeas in step with what the user has kept: snapshot any
+  // real idea that's referenced, drop any that no longer is. Called from
+  // saveState() so no individual save path can forget it.
+  function syncRealIdeaSnapshots(){
+    var keep = {};
+    keptIdeaIds().forEach(function(id){
+      if(!isRealId(id)) return;
+      var idea = IDEAS_BY_ID[id] || (state.realIdeas || {})[id];
+      if(idea) keep[id] = idea;
+    });
+    state.realIdeas = keep;
+  }
+
+  rehydrateRealIdeas();
 
   function requestLocation(opts){
     opts = opts || {};
@@ -203,6 +311,7 @@
       if(!opts.silent) showToast("Location enabled!");
       updateLocationBar();
       fetchNearbyIdeas();
+      fetchLocalEvents();
     }, function(err){
       if(!opts.silent) showToast("Couldn't get your location: " + (err && err.message ? err.message : "permission denied"));
     }, { timeout: 8000 });
@@ -222,8 +331,10 @@
     var ALL_TIMES = ["Morning","Afternoon","Evening","Night"];
     var ALL_STAGES = ["First Date","Second/Third Date","Serious Relationship"];
     var ALL_DATETYPES = ["Solo/Couple","Double Date","Group Date"];
+    var stableKey = stableKeyForReal(raw);
     return {
-      id: realIdCounter++,
+      id: realIdForKey(stableKey),
+      stableKey: stableKey,
       title: raw.title,
       description: raw.description || "",
       category: "Real Nearby Spot",
@@ -238,6 +349,7 @@
       stage: (filters.stage && filters.stage.length) ? filters.stage.slice() : ALL_STAGES,
       dateType: (filters.dateType && filters.dateType.length) ? filters.dateType.slice() : ALL_DATETYPES,
       isReal: true,
+      placeId: raw.placeId || "",
       placeName: raw.placeName,
       address: raw.address,
       mapsUrl: raw.mapsUrl,
@@ -266,7 +378,10 @@
           ideas.forEach(function(raw){
             var idea = hydrateRealIdea(raw, state.filters);
             IDEAS_BY_ID[idea.id] = idea;
-            REAL_IDEAS_RUNTIME.push(idea);
+            // A stable id means a place we've already got can come back in a
+            // later batch; keep one copy so it isn't dealt into the deck twice.
+            var known = REAL_IDEAS_RUNTIME.some(function(x){ return x.id === idea.id; });
+            if(!known) REAL_IDEAS_RUNTIME.push(idea);
           });
           updateLocationBar();
           if(ideas.length){
@@ -286,13 +401,22 @@
     old.parentNode.replaceChild(fresh, old);
   }
 
-  // Interleaves real-place ids evenly among built-in ids, so they're mixed
+  // At most this many built-in ideas between two external ones (a real nearby
+  // spot or a local event). Spreading a dozen extras *evenly* across 2000
+  // built-in ideas sounds fair but buries the first one ~200 cards deep, which
+  // in practice means nobody ever reaches it — the whole point of mixing them
+  // in is that you meet one early. Small enough to surface quickly, large
+  // enough that the built-in ideas still dominate the deck.
+  var EXTRAS_EVERY = 8;
+
+  // Interleaves real-place and event ids among built-in ids, so they're mixed
   // into the deck from the start rather than only appearing at the very end.
   function interleaveIds(builtinIds, realIds){
     if(!realIds.length) return builtinIds;
     if(!builtinIds.length) return realIds;
     var result = [];
-    var step = Math.max(1, Math.floor(builtinIds.length / (realIds.length + 1)));
+    var evenly = Math.floor(builtinIds.length / (realIds.length + 1));
+    var step = Math.max(1, Math.min(evenly, EXTRAS_EVERY));
     var ri = 0;
     for(var i = 0; i < builtinIds.length; i++){
       result.push(builtinIds[i]);
@@ -302,6 +426,136 @@
     }
     while(ri < realIds.length) result.push(realIds[ri++]);
     return result;
+  }
+
+  /* ---------- Local events (talks to /api/events) ----------
+     Events arrive from the server already translated into Spark's shape by
+     events-map.js, so almost nothing needs doing here beyond giving each one a
+     stable numeric id and dropping it into IDEAS_BY_ID, after which every
+     existing code path — filters, saving, plans, Done, sharing — treats it as
+     an ordinary idea.
+
+     Unlike the evergreen built-in ideas, an event expires. Anything in the
+     past is kept out of the deck and the events list, but is deliberately NOT
+     deleted from a user's saved buckets: a date you actually went on should
+     stay in your plan afterwards, marked as past rather than vanishing. */
+  var EVENT_IDEAS_RUNTIME = [];
+  var eventsLoading = false;
+  var eventsState = { reason: null, attribution: null, fetchedFor: null };
+
+  // How many of the soonest events get shuffled into the swipe deck. The full
+  // list always lives on the Events tab; this is just a taste, so a busy city
+  // doesn't bury the 2000 built-in ideas.
+  var EVENTS_IN_DECK = 12;
+
+  var EVENT_RADIUS_OPTIONS = [5, 10, 25];
+
+  function eventRadius(){
+    var r = state.eventRadiusMiles;
+    return EVENT_RADIUS_OPTIONS.indexOf(r) !== -1 ? r : 25;
+  }
+
+  // An event is "past" once its day is over. Deliberately day-granular rather
+  // than to the minute: a 7pm show shouldn't drop off the list at 7:01pm while
+  // someone is still deciding whether to go.
+  function isPastEvent(idea){
+    if(!idea || !idea.isEvent || !idea.localDate) return false;
+    return idea.localDate < localDateISO();
+  }
+
+  function upcomingEvents(){
+    return EVENT_IDEAS_RUNTIME.filter(function(e){ return !isPastEvent(e); });
+  }
+
+  // Built from the event's own facts rather than invented — the card needs a
+  // sentence, and this is the honest one until per-event blurb copy exists.
+  function eventDescription(raw){
+    var bits = [];
+    if(raw.genre && raw.genre !== raw.segment) bits.push(raw.genre);
+    else if(raw.segment) bits.push(raw.segment);
+    var where = raw.venue && raw.venue.name ? raw.venue.name : null;
+    if(where) bits.push("at " + where);
+    var sentence = bits.join(" ");
+    if(raw.dateLabel) sentence += (sentence ? ", " : "") + raw.dateLabel;
+    return sentence ? sentence + "." : "A local event near you.";
+  }
+
+  function hydrateEventIdea(raw){
+    var idea = {};
+    for(var k in raw){ if(Object.prototype.hasOwnProperty.call(raw, k)) idea[k] = raw[k]; }
+    idea.id = realIdForKey(raw.stableKey);
+    idea.isEvent = true;
+    idea.description = raw.description || eventDescription(raw);
+    // cost stays exactly as the server sent it, null included: an event too
+    // expensive for any of Spark's budget bands must not claim one. Display
+    // paths fall back to priceText via displayCost().
+    return idea;
+  }
+
+  // Budget bands don't reach above $100, so an expensive event has no band to
+  // show. Every display path goes through here; matchesFilters keeps using the
+  // raw `cost` so filtering stays truthful.
+  function displayCost(idea){
+    if(idea.cost) return idea.cost;
+    if(idea.priceText) return idea.priceText;
+    return "Price varies";
+  }
+
+  // Fetches events for wherever we can locate the user — real coordinates if
+  // they allowed location, otherwise the zip code they typed. Never throws.
+  function fetchLocalEvents(opts){
+    opts = opts || {};
+    var where = null;
+    if(state.location) where = { lat: state.location.lat, lng: state.location.lng };
+    else if(state.postalCode) where = { postalCode: state.postalCode };
+    if(!where) return;
+
+    // Skip a refetch when nothing about the query has changed.
+    var signature = JSON.stringify(where) + "|" + eventRadius();
+    if(!opts.force && (eventsLoading || eventsState.fetchedFor === signature)) return;
+
+    eventsLoading = true;
+    eventsState.reason = null;
+    renderEventsIfOpen();
+
+    var body = { radiusMiles: eventRadius() };
+    for(var k in where){ if(Object.prototype.hasOwnProperty.call(where, k)) body[k] = where[k]; }
+
+    fetch("/api/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    })
+      .then(function(r){ return r.json(); })
+      .catch(function(){ return { events: [], reason: "offline" }; })
+      .then(function(result){
+        eventsLoading = false;
+        eventsState.fetchedFor = signature;
+        eventsState.reason = (result && result.reason) || null;
+        eventsState.attribution = (result && result.attribution) || eventsState.attribution;
+
+        EVENT_IDEAS_RUNTIME = [];
+        ((result && result.events) || []).forEach(function(raw){
+          if(!raw || !raw.stableKey) return;
+          var idea = hydrateEventIdea(raw);
+          IDEAS_BY_ID[idea.id] = idea;
+          if(!EVENT_IDEAS_RUNTIME.some(function(e){ return e.id === idea.id; })){
+            EVENT_IDEAS_RUNTIME.push(idea);
+          }
+        });
+
+        renderEventsIfOpen();
+        if(ui.tab === "discover" && ui.screen === "list"){
+          var deckEl = $("#deck");
+          if(deckEl){ renderDeckCards(deckEl); updateResultCount(); }
+        }
+      });
+  }
+
+  // Repaints the Events tab in place if that's what's on screen, so a fetch
+  // finishing doesn't disturb whatever else the user is doing.
+  function renderEventsIfOpen(){
+    if(ui.tab === "events" && ui.screen === "list") renderContent();
   }
 
   /* ---------- UI router state (not persisted) ---------- */
@@ -447,6 +701,14 @@
     return dt.toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
   }
   function todayISO(){ return new Date().toISOString().slice(0,10); }
+  // todayISO() is UTC, so west of Greenwich it rolls over to tomorrow during
+  // the evening — which would make an event vanish from the list hours before
+  // it actually starts. Events compare against the LOCAL calendar day instead.
+  function pad2(n){ return (n < 10 ? "0" : "") + n; }
+  function localDateISO(d){
+    d = d || new Date();
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
 
   /* ---------- Procedural cover art (unique generated art per idea) ---------- */
   function hashStr(s){
@@ -784,6 +1046,7 @@
     // deny or dismiss it, the app just carries on with built-in ideas only.
     if(state.location) fetchNearbyIdeas();
     else requestLocation({ silent:true });
+    fetchLocalEvents();
   }
 
   /* ---------- How-to tutorial (shown once, right after signup) ---------- */
@@ -856,7 +1119,7 @@
     });
   });
 
-  var TAB_TITLES = { discover:"Discover", friends:"Friends", saved:"Saved", done:"Done" };
+  var TAB_TITLES = { discover:"Discover", events:"Near You", friends:"Friends", saved:"Saved", done:"Done" };
 
   function switchTab(tab){
     ui.tab = tab; ui.screen = "list"; ui.detailIdeaId = null; ui.detailFriendId = null; ui.savedBucket = null;
@@ -881,6 +1144,7 @@
         $("#topbar-title").textContent = TAB_TITLES[ui.tab] || "Spark";
       }
       if(ui.tab === "discover") content.appendChild(buildDiscoverScreen());
+      else if(ui.tab === "events") content.appendChild(buildEventsScreen());
       else if(ui.tab === "friends") content.appendChild(buildFriendsScreen());
       else if(ui.tab === "saved") content.appendChild(buildSavedScreen());
       else if(ui.tab === "done") content.appendChild(buildDoneScreen());
@@ -920,13 +1184,35 @@
     return n;
   }
 
+  // The interleaved deck order, cached so it stays PUT between swipes.
+  // Recomputing it from what's left after every swipe looks equivalent but
+  // isn't: the extras get re-inserted N cards deep each time, so the first
+  // event or real spot sits perpetually N cards ahead and is never actually
+  // reached, no matter how long you swipe. Ordering once and then merely
+  // hiding what's been seen is what makes the position real.
+  var deckOrderCache = null;   // { signature, ids }
+
   function computeDeck(){
+    // Real nearby spots need real coordinates; events also work from a typed
+    // zip, so the two pools have slightly different preconditions. Only the
+    // soonest few events join the deck — the rest live on the Events tab.
     var realPool = state.location ? REAL_IDEAS_RUNTIME : [];
+    var eventPool = (state.location || state.postalCode) ? upcomingEvents().slice(0, EVENTS_IN_DECK) : [];
+    var extras = realPool.concat(eventPool);
     var builtinIds = IDEAS_DATA.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
-    var realIds = realPool.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
-    var builtinRemaining = builtinIds.filter(function(id){ return state.seenIds.indexOf(id) === -1; });
-    var realRemaining = realIds.filter(function(id){ return state.seenIds.indexOf(id) === -1; });
-    return { total: builtinIds.length + realIds.length, remaining: interleaveIds(builtinRemaining, realRemaining) };
+    var extraIds = extras.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
+
+    // Rebuild the order only when the deck's *contents* change — a new filter
+    // set, or a fresh batch of events arriving. Swiping doesn't change it.
+    var signature = JSON.stringify(state.filters) + "|" + builtinIds.length + "|" + extraIds.join(",");
+    if(!deckOrderCache || deckOrderCache.signature !== signature){
+      deckOrderCache = { signature: signature, ids: interleaveIds(builtinIds, extraIds) };
+    }
+
+    var seen = {};
+    state.seenIds.forEach(function(id){ seen[id] = true; });
+    var remaining = deckOrderCache.ids.filter(function(id){ return !seen[id]; });
+    return { total: deckOrderCache.ids.length, remaining: remaining };
   }
 
   /* ---------- Discover screen ---------- */
@@ -1063,13 +1349,14 @@
       '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
         '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
         (idea.isReal ? '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>' : '') +
+        (idea.isEvent ? '<span class="real-badge event-badge" title="Real local event">' + icon("calendar") + ' ' + escapeHtml(idea.dateLabel || "Event") + '</span>' : '') +
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '</div>' +
       '<div class="card-body">' +
         '<h3 class="card-title">' + escapeHtml(idea.title) + '</h3>' +
         '<div class="card-meta">' +
           '<span class="meta-pill">' + escapeHtml(idea.duration) + '</span>' +
-          '<span class="meta-pill">' + escapeHtml(idea.cost) + '</span>' +
+          '<span class="meta-pill">' + escapeHtml(displayCost(idea)) + '</span>' +
           '<span class="meta-pill">' + escapeHtml(idea.setting) + '</span>' +
         '</div>' +
         '<div class="card-hint">Tap for details · swipe up to save · down to pass</div>' +
@@ -1310,7 +1597,7 @@
 
     var hero = el("div", "detail-hero");
     hero.setAttribute("style", getCoverArtStyle(idea));
-    hero.innerHTML = '<div class="dh-icon">' + categoryIcon(idea.category) + '</div><div class="dh-cat">' + escapeHtml(idea.category) + '</div>' +
+    hero.innerHTML = '<div class="dh-icon">' + ideaIcon(idea) + '</div><div class="dh-cat">' + escapeHtml(idea.category) + '</div>' +
       '<div class="dh-swipe-hint">' + icon("chevron-up") + ' Swipe up to save</div>';
     wrap.appendChild(hero);
     attachDetailHeroSwipeUp(hero, ideaId);
@@ -1337,8 +1624,34 @@
       wrap.appendChild(realBlock);
     }
 
+    if(idea.isEvent){
+      var past = isPastEvent(idea);
+      var evBlock = el("div", "detail-real-block detail-event-block");
+      var venueLine = "";
+      if(idea.venue){
+        var vparts = [idea.venue.name, idea.venue.address, [idea.venue.city, idea.venue.state].filter(Boolean).join(", ")];
+        venueLine = vparts.filter(Boolean).join(" · ");
+      }
+      var distLine = distanceLabel(idea.distanceMiles);
+      distLine = distLine ? (distLine === "Right nearby" ? distLine : distLine + " away") : "";
+      evBlock.innerHTML =
+        '<div class="detail-real-title">' + icon("calendar") + (past ? ' This event has passed' : ' Local Event') + '</div>' +
+        '<div class="detail-event-when">' + escapeHtml(idea.dateLabel || "Date TBA") + '</div>' +
+        (venueLine ? '<div class="detail-real-addr">' + escapeHtml(venueLine) + '</div>' : '') +
+        (distLine ? '<div class="detail-real-addr">' + escapeHtml(distLine) + '</div>' : '') +
+        '<div class="detail-event-price">' + escapeHtml(displayCost(idea)) + '</div>' +
+        // Ticketmaster's terms require linking back to their listing for
+        // tickets. Spark never sells anything itself.
+        (idea.ticketUrl && !past
+          ? '<a class="btn-outline btn-block detail-real-link" href="' + escapeHtml(idea.ticketUrl) + '" target="_blank" rel="noopener">' +
+            icon("share") + ' Get Tickets on Ticketmaster</a>'
+          : '') +
+        '<div class="events-attribution">Event data provided by Ticketmaster</div>';
+      wrap.appendChild(evBlock);
+    }
+
     var tagGrid = el("div", "tag-grid");
-    var tags = [idea.duration, idea.cost, idea.setting].concat(idea.time, idea.vibe, idea.season, idea.stage);
+    var tags = [idea.duration, displayCost(idea), idea.setting].concat(idea.time, idea.vibe, idea.season, idea.stage);
     if(idea.food) tags.push("Food involved");
     tags.forEach(function(t){ tagGrid.appendChild(el("span", "tag-chip", escapeHtml(t))); });
     wrap.appendChild(tagGrid);
@@ -1599,8 +1912,16 @@
   /* ---------- Saved / Done screens ---------- */
   function buildIdeaRow(idea, subtext){
     var row = el("div", "idea-row");
+    // A saved event that's already happened stays in the list — you may well
+    // have gone — but says so rather than looking like it's still coming up.
+    if(isPastEvent(idea)){
+      row.classList.add("past-event");
+      subtext = "Passed · " + subtext;
+    } else if(idea.isEvent && idea.dateLabel){
+      subtext = idea.dateLabel;
+    }
     row.innerHTML =
-      '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
+      '<span class="ir-icon">' + ideaIcon(idea) + '</span>' +
       '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
       '<div class="ir-sub">' + escapeHtml(subtext) + '</div></span>' +
       '<span class="ir-chevron">›</span>';
@@ -1840,6 +2161,209 @@
     var e = el("div", "empty-state");
     e.innerHTML = '<span class="es-icon">' + icon + '</span><h3>' + title + '</h3><p>' + sub + '</p>';
     return e;
+  }
+
+  /* ---------- Events screen ----------
+     The date-sorted browse view. The swipe deck is a shuffle, where "sorted by
+     date" has no meaning, so events get their own surface here and only a
+     handful of the soonest ones are mixed into the deck. */
+
+  function eventDayLabel(localDate){
+    var today = localDateISO();
+    if(localDate === today) return "Today";
+    var t = new Date(); t.setDate(t.getDate() + 1);
+    if(localDate === localDateISO(t)) return "Tomorrow";
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(localDate || "");
+    if(!m) return "Later";
+    var dt = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return dt.toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" });
+  }
+
+  // "0 mi" for a venue round the corner reads like missing data rather than
+  // "very close", and rounding 1.7 to 2 throws away the detail people care
+  // about most at short range.
+  function distanceLabel(miles){
+    if(miles == null) return null;
+    if(miles < 0.1) return "Right nearby";
+    if(miles < 10) return String(miles.toFixed(1)).replace(/\.0$/, "") + " mi";
+    return Math.round(miles) + " mi";
+  }
+
+  function eventTimeLabel(idea){
+    if(!idea.localTime) return "Time TBA";
+    var hour = parseInt(idea.localTime.slice(0, 2), 10);
+    var min = idea.localTime.slice(3, 5);
+    if(isNaN(hour)) return "Time TBA";
+    var ampm = hour >= 12 ? "pm" : "am";
+    var h12 = hour % 12 === 0 ? 12 : hour % 12;
+    return h12 + (min === "00" ? "" : ":" + min) + ampm;
+  }
+
+  function buildRadiusPicker(){
+    var row = el("div", "radius-row");
+    row.appendChild(el("span", "radius-label", "Within"));
+    EVENT_RADIUS_OPTIONS.forEach(function(miles){
+      var chip = el("button", "radius-chip" + (eventRadius() === miles ? " active" : ""), miles + " mi");
+      chip.type = "button";
+      chip.addEventListener("click", function(){
+        if(eventRadius() === miles) return;
+        state.eventRadiusMiles = miles;
+        saveState();
+        fetchLocalEvents({ force:true });
+        renderContent();
+      });
+      row.appendChild(chip);
+    });
+    return row;
+  }
+
+  // Shown when the browser gave us nothing — either the user declined the
+  // permission prompt or it silently failed. Ticketmaster searches by zip just
+  // as well as by coordinates, so this costs the user one field and hands over
+  // far less than their exact position.
+  function buildZipFallback(){
+    // Once a zip is saved the full explainer has done its job, so it collapses
+    // to a one-line chip and gives the list back its vertical space.
+    if(state.postalCode){
+      var compact = el("div", "location-chip events-origin");
+      compact.innerHTML =
+        '<span class="location-chip-icon">' + icon("map-pin") + '</span>' +
+        '<span class="location-chip-text">Searching near ' + escapeHtml(state.postalCode) + '</span>';
+      var change = el("button", "location-chip-end", "Change");
+      change.type = "button";
+      change.className = "btn-text zip-change";
+      change.addEventListener("click", function(){
+        state.postalCode = null;
+        EVENT_IDEAS_RUNTIME = [];
+        eventsState.fetchedFor = null;
+        saveState();
+        renderContent();
+      });
+      compact.appendChild(change);
+      return compact;
+    }
+
+    var box = el("div", "zip-fallback");
+    box.appendChild(el("div", "zip-fallback-title", icon("map-pin") + " Where should we look?"));
+    box.appendChild(el("p", "zip-fallback-sub",
+      "Enter a zip code to see events near you. We only use it to search — it stays on your device."));
+
+    var form = el("form", "zip-form");
+    var input = el("input", "field-input zip-input");
+    input.type = "text";
+    input.inputMode = "numeric";
+    input.placeholder = "e.g. 84601";
+    input.maxLength = 10;
+    input.value = state.postalCode || "";
+
+    var submit = el("button", "btn-primary", "Find Events");
+    submit.type = "submit";
+
+    form.appendChild(input);
+    form.appendChild(submit);
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var zip = (input.value || "").trim();
+      if(!/^\d{5}(-\d{4})?$/.test(zip)){
+        showToast("Enter a 5-digit zip code");
+        return;
+      }
+      state.postalCode = zip;
+      saveState();
+      fetchLocalEvents({ force:true });
+      renderContent();
+    });
+    box.appendChild(form);
+
+    return box;
+  }
+
+  function buildEventRow(idea){
+    var row = el("div", "idea-row event-row");
+    var bits = [];
+    bits.push(eventTimeLabel(idea));
+    if(idea.venue && idea.venue.name) bits.push(idea.venue.name);
+    var dist = distanceLabel(idea.distanceMiles);
+    if(dist) bits.push(dist);
+    var sub = bits.join(" · ");
+
+    row.innerHTML =
+      '<span class="ir-icon">' + ideaIcon(idea) + '</span>' +
+      '<span class="ir-text">' +
+        '<div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
+        '<div class="ir-sub">' + escapeHtml(sub) + '</div>' +
+        '<div class="ir-price">' + escapeHtml(displayCost(idea)) + '</div>' +
+      '</span>' +
+      '<span class="ir-chevron">›</span>';
+    row.addEventListener("click", function(){ goToDetail(idea.id); });
+    return row;
+  }
+
+  function buildEventsScreen(){
+    var wrap = el("div", "screen events-screen");
+
+    wrap.appendChild(buildRadiusPicker());
+
+    // Where we're searching from, and how to change it.
+    if(state.location){
+      var chip = el("div", "location-chip events-origin");
+      chip.innerHTML =
+        '<span class="location-chip-icon">' + icon("map-pin") + '</span>' +
+        '<span class="location-chip-text">Using your current location</span>';
+      wrap.appendChild(chip);
+    } else {
+      wrap.appendChild(buildZipFallback());
+    }
+
+    if(eventsLoading){
+      wrap.appendChild(emptyNote(icon("clock"), "Looking for events…", "Checking what's on near you."));
+      return wrap;
+    }
+
+    // Nothing to search from yet.
+    if(!state.location && !state.postalCode) return wrap;
+
+    if(eventsState.reason === "not_configured"){
+      wrap.appendChild(emptyNote(icon("help-circle"), "Events aren't switched on yet",
+        "Add a Ticketmaster API key to the server's .env file to see real events here. Everything else in Spark works as normal."));
+      return wrap;
+    }
+    if(eventsState.reason){
+      var msg = eventsState.reason === "TM_RATE_LIMIT"
+        ? "We're checking too often right now — give it a minute and try again."
+        : "We couldn't reach the events service just now. Try again in a bit.";
+      wrap.appendChild(emptyNote(icon("help-circle"), "Couldn't load events", msg));
+      return wrap;
+    }
+
+    var events = upcomingEvents();
+    if(!events.length){
+      wrap.appendChild(emptyNote(icon("calendar"), "Nothing on just yet",
+        "No events found within " + eventRadius() + " miles. Try a wider radius."));
+      return wrap;
+    }
+
+    wrap.appendChild(el("div", "section-title", events.length + (events.length === 1 ? " event" : " events") + " near you"));
+
+    // Grouped under day headings, soonest first — the server already sorted.
+    var currentDay = null;
+    events.forEach(function(idea){
+      if(idea.localDate !== currentDay){
+        currentDay = idea.localDate;
+        wrap.appendChild(el("div", "event-day-header", eventDayLabel(currentDay)));
+      }
+      wrap.appendChild(buildEventRow(idea));
+    });
+
+    // Ticketmaster's terms require crediting them as the source.
+    if(eventsState.attribution){
+      var credit = el("div", "events-attribution");
+      credit.innerHTML = '<a href="' + escapeHtml(eventsState.attribution.url) + '" target="_blank" rel="noopener">' +
+        escapeHtml(eventsState.attribution.text) + '</a>';
+      wrap.appendChild(credit);
+    }
+
+    return wrap;
   }
 
   /* ---------- Friends screen ---------- */

@@ -16,6 +16,7 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
+const eventsSource = require("./events-source");
 
 const app = express();
 app.use(express.json());
@@ -25,11 +26,20 @@ const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || "";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || "";
 const PORT = process.env.PORT || 3000;
 
+// Ticketmaster's terms require crediting them as the source and linking back
+// to their listing for tickets. Spark never sells anything itself — every
+// event card carries this and the event's own ticketUrl.
+const TICKETMASTER_ATTRIBUTION = {
+text: "Event data provided by Ticketmaster",
+url: "https://www.ticketmaster.com/"
+};
+
 /* ---------- Status: lets the frontend know what's configured ---------- */
 app.get("/api/status", (req, res) => {
 res.json({
 placesConfigured: !!GOOGLE_PLACES_API_KEY,
-aiConfigured: !!ANTHROPIC_API_KEY
+aiConfigured: !!ANTHROPIC_API_KEY,
+eventsConfigured: eventsSource.isConfigured()
 });
 });
 
@@ -63,6 +73,7 @@ throw err;
 var results = data.results || [];
 return results.slice(0, 6).map(function (r) {
 return {
+placeId: r.place_id || "",
 name: r.name,
 address: r.formatted_address || "",
 rating: r.rating || null,
@@ -184,6 +195,7 @@ setting: c.setting === "Outdoor" ? "Outdoor" : "Indoor",
 vibe: Array.isArray(c.vibe) ? c.vibe : [],
 food: !!c.food,
 durationGuess: c.durationGuess || null,
+placeId: place.placeId || "",
 placeName: place.name,
 address: place.address,
 mapsUrl: place.mapsUrl,
@@ -198,6 +210,40 @@ res.json({ ideas: [], reason: "error" });
 }
 });
 
+/* ---------- Local events (Ticketmaster) ----------
+* Returns real nearby events, already translated into Spark's own shape by
+* events-map.js and sorted soonest-first.
+*
+* POST rather than GET on purpose: the body carries the user's coordinates,
+* and keeping them out of the URL keeps them out of proxy logs, browser
+* history and Referer headers. Location is the most sensitive thing this app
+* handles, so it never travels as a query string. */
+app.post("/api/events", async (req, res) => {
+var body = req.body || {};
+try {
+var result = await eventsSource.fetchEvents({
+lat: typeof body.lat === "number" ? body.lat : undefined,
+lng: typeof body.lng === "number" ? body.lng : undefined,
+postalCode: body.postalCode,
+radiusMiles: body.radiusMiles,
+windowDays: body.windowDays
+});
+res.json({
+events: result.events,
+cached: result.cached,
+attribution: TICKETMASTER_ATTRIBUTION
+});
+} catch (err) {
+var code = err.code || "ERROR";
+// No key yet is a normal state, not a failure — the app is expected to run
+// fine without one, exactly like the Google Places feature above.
+if (code === "NOT_CONFIGURED") return res.json({ events: [], reason: "not_configured" });
+if (code === "NO_LOCATION") return res.status(400).json({ events: [], reason: code });
+console.error("[events]", code, err.message);
+res.status(502).json({ events: [], reason: code, message: err.message });
+}
+});
+
 // Always fall back to index.html for anything else (single-page app).
 app.get("*", (req, res) => {
 res.sendFile(path.join(__dirname, "index.html"));
@@ -207,5 +253,8 @@ app.listen(PORT, () => {
 console.log("Spark server running at http://localhost:" + PORT);
 if (!GOOGLE_PLACES_API_KEY || !ANTHROPIC_API_KEY) {
 console.log("(Real nearby-place matching is OFF — add GOOGLE_PLACES_API_KEY and ANTHROPIC_API_KEY to .env to enable it. See SETUP.md.)");
+}
+if (!eventsSource.isConfigured()) {
+console.log("(Local events are OFF — add TICKETMASTER_API_KEY to .env to enable them. See SETUP.md.)");
 }
 });

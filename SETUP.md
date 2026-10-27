@@ -21,7 +21,10 @@ exactly like before either way.**
    ```
    cp .env.example .env
    ```
-   Then open `.env` in a text editor and fill in:
+   Then open `.env` in a text editor and fill in whichever keys you want.
+   Every one of them is optional and each feature stays off until its key is
+   present:
+   - `TICKETMASTER_API_KEY` — from the [Ticketmaster developer portal](https://developer-acct.ticketmaster.com/). Powers the **local events** list. Free tier.
    - `GOOGLE_PLACES_API_KEY` — from the [Google Cloud Console](https://console.cloud.google.com/), with the **Places API** enabled for your project.
    - `ANTHROPIC_API_KEY` — from [console.anthropic.com](https://console.anthropic.com/).
 
@@ -49,6 +52,29 @@ Then open **http://localhost:3000** in your browser. That's the app.
 4. No keys yet? You'll instead see a small note letting you know real
    nearby matching isn't turned on yet — everything else still works normally.
 
+## What's on near you (events)
+
+Once `TICKETMASTER_API_KEY` is set, the server exposes:
+
+    POST /api/events
+    { "lat": 40.2338, "lng": -111.6585, "radiusMiles": 25 }
+
+or, for anyone who declines location access:
+
+    POST /api/events
+    { "postalCode": "84601", "radiusMiles": 10 }
+
+It returns real events near that location, already translated into Spark's own
+shape (vibe, date stage, budget band, time of day, season) and sorted
+soonest-first. `radiusMiles` is the 5 / 10 / 25 the radius picker offers.
+
+It's a POST rather than a GET on purpose: the body carries the user's
+coordinates, and keeping them out of the URL keeps them out of proxy logs,
+browser history and `Referer` headers.
+
+Without a key the route replies `{ "events": [], "reason": "not_configured" }`
+rather than failing, so the rest of the app carries on as normal.
+
 ## Notes
 
 - Your API keys stay on your own computer, in your own `.env` file — never
@@ -58,3 +84,9 @@ Then open **http://localhost:3000** in your browser. That's the app.
   JS.
 - Google Places and Anthropic API usage may incur costs on your account
   depending on your plan — check their pricing pages before heavy use.
+- Event searches are cached on the server for a few hours (tune with
+  `EVENTS_CACHE_TTL_MINUTES`). The cache is keyed on a coordinate rounded to
+  about a kilometre, so everyone in a neighbourhood shares one entry and no
+  precise location is ever used as a lookup key.
+- Ticketmaster's terms require crediting them as the source and linking back to
+  their listing for tickets. Spark does both, and never sells tickets itself.

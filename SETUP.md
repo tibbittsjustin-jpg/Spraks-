@@ -110,7 +110,9 @@ To turn it on with Supabase:
    order. A missing number does not stop later files. `002_over100_age21.sql`
    allows the `Over $100` cost and adds the `age21` column.
    `003_source_url_city.sql` adds nullable `source_url` (https only, at most
-   2048 characters) and nullable `city`. `006_security_hardening.sql` moves
+   2048 characters) and nullable `city`. `004_materials.sql` adds a non-null
+   `materials` text array that defaults to empty. There is no `005` yet.
+   `006_security_hardening.sql` moves
    `citext` into the `extensions` schema, pins `search_path` on the trigger
    functions, and revokes anonymous access to `st_estimatedextent` and
    `spatial_ref_sys`. PostGIS stays in `public`.

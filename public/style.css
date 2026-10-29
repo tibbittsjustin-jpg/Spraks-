@@ -183,6 +183,8 @@ background:var(--surface-soft); color:var(--text); font-family:inherit;
 }
 .field-input:focus{ outline:none; border-color:var(--accent); }
 .field-hint{ font-size:11.5px; color:var(--text-soft); margin:6px 2px 0; line-height:1.4; display:flex; align-items:flex-start; gap:5px; }
+.field-error{ font-size:12px; color:var(--danger); margin:6px 2px 0; line-height:1.4; }
+.field-error[hidden]{ display:none; }
 
 .btn-primary{
 background:var(--accent); color:#fff; border:none; padding:14px 18px; border-radius:14px;
@@ -385,6 +387,10 @@ border-radius:24px; padding:34px 22px; text-align:center; color:#fff; margin-top
 .detail-hero:active{ cursor:grabbing; }
 .detail-title{ font-size:24px; font-weight:800; color:var(--text); margin:18px 0 6px; }
 .detail-desc{ font-size:14.5px; line-height:1.6; color:var(--text-soft); margin:0 0 16px; }
+.detail-materials{ margin:0 0 16px; }
+.detail-materials-title{ font-size:15px; font-weight:700; color:var(--color-text); margin:0 0 6px; }
+.detail-materials-list{ margin:0; padding-left:20px; font-size:14px; line-height:1.6; color:var(--color-text-soft); }
+.detail-materials-none{ font-size:14px; color:var(--color-text-soft); margin:0; }
 .tag-grid{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
 .tag-chip{ background:var(--surface-soft); color:var(--text); font-size:12.5px; font-weight:700; padding:7px 12px; border-radius:14px; }
 .detail-actions{ display:flex; flex-direction:column; gap:10px; margin-bottom:30px; }
@@ -460,6 +466,9 @@ border-radius:50%; font-size:14px; cursor:pointer; color:var(--text-soft);
 .avatar-big{ width:64px; height:64px; }
 .avatar-big svg{ width:26px; height:26px; }
 .profile-name-big{ font-size:18px; font-weight:800; color:var(--text); }
+.profile-username{ font-size:13px; font-weight:700; color:var(--text); margin-top:2px; }
+.profile-username.missing{ font-weight:600; color:var(--text-soft); }
+.profile-ideas{ font-size:12.5px; color:var(--text-soft); margin-top:2px; }
 .profile-sub{ font-size:12.5px; color:var(--text-soft); margin-top:2px; }
 .profile-menu{ display:flex; flex-direction:column; gap:8px; overflow-y:auto; }
 .profile-menu-item{
@@ -500,6 +509,7 @@ transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,.25);
 width:100%; padding:11px 13px; border-radius:12px; border:1.5px solid var(--border); font-size:14px;
 background:var(--surface-soft); color:var(--text); font-family:inherit;
 }
+.idea-form input.invalid{ border-color:var(--danger); }
 .chip-select{ display:flex; flex-wrap:wrap; gap:7px; }
 .chip-select .chip{
 padding:8px 13px; border-radius:16px; background:var(--surface-soft); font-size:12.5px; font-weight:700; color:var(--text-soft); cursor:pointer;
@@ -611,6 +621,8 @@ font-size:12px; color:var(--text-soft); cursor:pointer;
 .saved-back-btn{ margin:0 0 4px -10px; }
 .saved-bucket-subtitle{ font-size:12.5px; color:var(--text-soft); margin:-6px 0 14px; }
 .plan-share-btn{ width:100%; margin-bottom:16px; }
+.plan-link-body{ overflow-y:auto; min-height:0; }
+.plan-link-omit{ margin:0 0 12px; }
 
 /* ---------- Detail screen: dual-save + friend-pick banner ---------- */
 .also-someday-btn{ margin-top:2px; }

@@ -193,11 +193,45 @@
     };
   }
 
+  // One object for who this browser is. userId stays null until a server
+  // profile (email magic link) exists. localId is minted once per device.
+  function newLocalId(){
+    var alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+    var out = "loc_";
+    for(var i = 0; i < 20; i++) out += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+    return out;
+  }
+
+  function normalizeStoredIdentity(raw){
+    var localId = "";
+    var username = null;
+    var userId = null;
+    if(raw && typeof raw === "object"){
+      if(typeof raw.localId === "string" && raw.localId.trim()) localId = raw.localId.trim();
+      if(typeof raw.userId === "string" && raw.userId.trim()) userId = raw.userId.trim();
+      if(typeof raw.username === "string" && raw.username.trim()){
+        var checked = SparkUtil.validateUsername(raw.username);
+        if(checked.ok) username = checked.username;
+      }
+    }
+    if(!localId) localId = newLocalId();
+    return { localId: localId, username: username, userId: userId };
+  }
+
+  function storedIdentityNeedsWrite(raw, next){
+    if(!raw || typeof raw !== "object") return true;
+    if(raw.localId !== next.localId) return true;
+    if(!Object.prototype.hasOwnProperty.call(raw, "username") || raw.username !== next.username) return true;
+    if(!Object.prototype.hasOwnProperty.call(raw, "userId") || raw.userId !== next.userId) return true;
+    return false;
+  }
+
   function defaultState(){
     return {
       onboarded:false,
       hasSeenTutorial:false,
       profile:{ name:"", gender:"Woman", photo:null, ageConfirmedAt:null },
+      identity: normalizeStoredIdentity(null),
       datePlans:[],      // [{id, name, date, createdAt, ideaIds:[], friendPicks:[{id,friendName,avatarEmoji,avatarColor,ideaId}]}] — named/dated planning sessions
       somedayIds:[],     // ideas saved with no active plan, or via the dedicated "Someday" button
       doneIds:[],       // [{id, date}]
@@ -213,6 +247,7 @@
   }
 
   var pendingDobScrub = false;
+  var pendingIdentitySave = false;
   var state = loadState();
 
   function loadState(){
@@ -220,6 +255,7 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return defaultState();
       var parsed = JSON.parse(raw);
+      var storedIdentity = parsed.identity;
       var d = defaultState();
       for(var k in d){ if(!(k in parsed)) parsed[k] = d[k]; }
       // Deep-merge filters specifically, so older saved states (from before a new
@@ -276,6 +312,15 @@
         parsed.onboarded = false;
       }
       if(scrubProfileDob(parsed.profile)) pendingDobScrub = true;
+      // Older saves have no identity. Mint localId once and keep it.
+      // submittedIdeas are not rewritten; only new submissions get submittedBy.
+      var normalizedIdentity = normalizeStoredIdentity(storedIdentity);
+      if(storedIdentityNeedsWrite(storedIdentity, normalizedIdentity)){
+        parsed.identity = normalizedIdentity;
+        pendingIdentitySave = true;
+      } else {
+        parsed.identity = storedIdentity;
+      }
       return parsed;
     }catch(e){ return defaultState(); }
   }
@@ -387,8 +432,9 @@
   }
 
   rehydrateRealIdeas();
-  if(pendingDobScrub){
+  if(pendingDobScrub || pendingIdentitySave){
     pendingDobScrub = false;
+    pendingIdentitySave = false;
     saveState();
   }
 
@@ -434,6 +480,7 @@
       stableKey: stableKey,
       title: raw.title,
       description: raw.description || "",
+      materials: Array.isArray(raw.materials) ? raw.materials : [],
       category: "Real Nearby Spot",
       icon: raw.icon || "map-pin",
       setting: raw.setting === "Outdoor" ? "Outdoor" : "Indoor",
@@ -649,6 +696,7 @@
   // Pure helpers live in util.js. Wrappers keep the call sites, and the
   // names the test harness reads, inside this IIFE.
   function escapeHtml(s){ return SparkUtil.escapeHtml(s); }
+  function validateUsername(value){ return SparkUtil.validateUsername(value); }
   var toastTimer = null;
   function showToast(msg){
     var t = $("#toast");
@@ -1739,6 +1787,20 @@
     wrap.appendChild(el("h2", "detail-title", escapeHtml(idea.title) + ageBadgeHtml(idea)));
     wrap.appendChild(el("p", "detail-desc", escapeHtml(idea.description)));
 
+    // Missing (events, older saved spots) stays hidden. [] is "Nothing needed".
+    if(Array.isArray(idea.materials)){
+      var mat = el("div", "detail-materials");
+      mat.appendChild(el("h3", "detail-materials-title", "Materials needed"));
+      if(idea.materials.length){
+        var ul = el("ul", "detail-materials-list");
+        idea.materials.forEach(function(m){ ul.appendChild(el("li", "", escapeHtml(m))); });
+        mat.appendChild(ul);
+      } else {
+        mat.appendChild(el("p", "detail-materials-none", "Nothing needed"));
+      }
+      wrap.appendChild(mat);
+    }
+
     if(friendPicks.length){
       var band = el("div", "friend-pick-banner");
       band.innerHTML = friendPicks.map(function(p){
@@ -2123,6 +2185,323 @@
   $("#plan-share-close").addEventListener("click", function(){ closeOverlay("#plan-share-overlay"); });
   $("#plan-share-back").addEventListener("click", function(){ showPlanShareStep(1); });
 
+  /* ---------- Plan link (#plan=v1.<base64url>) ----------
+     Wire JSON is compact and has only three keys: n (name), d (date,
+     YYYY-MM-DD or ""), i (built-in data.js idea ids). Addresses,
+     coordinates, location, and place or event cards are not included.
+     Decode drops any other fields and returns null for bad input.
+     The fragment is not read on boot. */
+  var PLAN_SHARE_MAX_CHARS = 400;
+  var PLAN_SHARE_MAX_IDEAS = 24;
+  var PLAN_SHARE_MAX_NAME = 60;
+  var PLAN_SHARE_B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  var planShareBuiltinIds = null;
+  var planShareB64Map = null;
+
+  function planShareIsBuiltin(id){
+    if(!planShareBuiltinIds){
+      planShareBuiltinIds = Object.create(null);
+      if(typeof IDEAS_DATA !== "undefined" && IDEAS_DATA){
+        for(var b = 0; b < IDEAS_DATA.length; b++) planShareBuiltinIds[IDEAS_DATA[b].id] = 1;
+      }
+    }
+    return !!planShareBuiltinIds[id];
+  }
+  function planShareId(value){
+    var n = typeof value === "number" ? value : NaN;
+    if(typeof value === "string" && /^\d+$/.test(value)) n = Number(value);
+    if(!isFinite(n) || Math.floor(n) !== n) return null;
+    if(n < 1 || n > 9999999) return null;
+    return n;
+  }
+  function planShareClip(value, max){
+    if(typeof value !== "string") return "";
+    var s = value.replace(/[\u0000-\u001f\u007f]/g, "").replace(/\s+/g, " ").trim();
+    if(s.length <= max) return s;
+    s = s.slice(0, max);
+    var tail = s.charCodeAt(s.length - 1);
+    if(tail >= 0xD800 && tail <= 0xDBFF) s = s.slice(0, -1);
+    return s;
+  }
+  function planShareDate(value){
+    if(typeof value !== "string") return "";
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if(!m) return "";
+    var mo = +m[2], day = +m[3];
+    if(mo < 1 || mo > 12 || day < 1 || day > 31) return "";
+    return m[1] + "-" + m[2] + "-" + m[3];
+  }
+  function planShareUtf8(str){
+    var bytes = [];
+    for(var i = 0; i < str.length; i++){
+      var c = str.charCodeAt(i);
+      if(c >= 0xD800 && c <= 0xDBFF){
+        var c2 = i + 1 < str.length ? str.charCodeAt(i + 1) : 0;
+        if(c2 < 0xDC00 || c2 > 0xDFFF) continue;
+        var u = 0x10000 + ((c - 0xD800) << 10) + (c2 - 0xDC00);
+        i++;
+        bytes.push(0xF0 | (u >>> 18), 0x80 | ((u >>> 12) & 63), 0x80 | ((u >>> 6) & 63), 0x80 | (u & 63));
+      } else if(c >= 0xDC00 && c <= 0xDFFF){
+        continue;
+      } else if(c < 0x80){
+        bytes.push(c);
+      } else if(c < 0x800){
+        bytes.push(0xC0 | (c >>> 6), 0x80 | (c & 63));
+      } else {
+        bytes.push(0xE0 | (c >>> 12), 0x80 | ((c >>> 6) & 63), 0x80 | (c & 63));
+      }
+    }
+    return bytes;
+  }
+  function planShareFromUtf8(bytes){
+    var out = "";
+    var i = 0;
+    while(i < bytes.length){
+      var b = bytes[i];
+      var need, cp, min;
+      if(b < 0x80){ out += String.fromCharCode(b); i++; continue; }
+      if((b & 0xE0) === 0xC0){ need = 2; cp = b & 0x1F; min = 0x80; }
+      else if((b & 0xF0) === 0xE0){ need = 3; cp = b & 0x0F; min = 0x800; }
+      else if((b & 0xF8) === 0xF0){ need = 4; cp = b & 0x07; min = 0x10000; }
+      else return null;
+      if(i + need > bytes.length) return null;
+      for(var j = 1; j < need; j++){
+        var nb = bytes[i + j];
+        if((nb & 0xC0) !== 0x80) return null;
+        cp = (cp << 6) | (nb & 0x3F);
+      }
+      if(cp < min || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF)) return null;
+      if(cp > 0xFFFF){
+        cp -= 0x10000;
+        out += String.fromCharCode(0xD800 + (cp >>> 10), 0xDC00 + (cp & 0x3FF));
+      } else {
+        out += String.fromCharCode(cp);
+      }
+      i += need;
+    }
+    return out;
+  }
+  function planShareB64Index(){
+    if(planShareB64Map) return planShareB64Map;
+    planShareB64Map = Object.create(null);
+    for(var i = 0; i < PLAN_SHARE_B64.length; i++) planShareB64Map[PLAN_SHARE_B64.charAt(i)] = i;
+    return planShareB64Map;
+  }
+  function planShareToB64(bytes){
+    var out = "";
+    var i = 0;
+    while(i + 3 <= bytes.length){
+      var n = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+      out += PLAN_SHARE_B64.charAt((n >>> 18) & 63);
+      out += PLAN_SHARE_B64.charAt((n >>> 12) & 63);
+      out += PLAN_SHARE_B64.charAt((n >>> 6) & 63);
+      out += PLAN_SHARE_B64.charAt(n & 63);
+      i += 3;
+    }
+    var rem = bytes.length - i;
+    if(rem === 1){
+      var n1 = bytes[i] << 16;
+      out += PLAN_SHARE_B64.charAt((n1 >>> 18) & 63);
+      out += PLAN_SHARE_B64.charAt((n1 >>> 12) & 63);
+    } else if(rem === 2){
+      var n2 = (bytes[i] << 16) | (bytes[i + 1] << 8);
+      out += PLAN_SHARE_B64.charAt((n2 >>> 18) & 63);
+      out += PLAN_SHARE_B64.charAt((n2 >>> 12) & 63);
+      out += PLAN_SHARE_B64.charAt((n2 >>> 6) & 63);
+    }
+    return out;
+  }
+  function planShareFromB64(s){
+    if(typeof s !== "string" || s.length === 0 || (s.length % 4) === 1) return null;
+    var map = planShareB64Index();
+    var out = [];
+    var i = 0;
+    while(i < s.length){
+      var c0 = map[s.charAt(i)];
+      var c1 = (i + 1 < s.length) ? map[s.charAt(i + 1)] : undefined;
+      if(c0 === undefined || c1 === undefined) return null;
+      if(i + 2 >= s.length){
+        if((c1 & 15) !== 0) return null;
+        out.push((c0 << 2) | (c1 >> 4));
+        break;
+      }
+      var c2 = map[s.charAt(i + 2)];
+      if(c2 === undefined) return null;
+      if(i + 3 >= s.length){
+        if((c2 & 3) !== 0) return null;
+        out.push((c0 << 2) | (c1 >> 4));
+        out.push(((c1 & 15) << 4) | (c2 >> 2));
+        break;
+      }
+      var c3 = map[s.charAt(i + 3)];
+      if(c3 === undefined) return null;
+      out.push((c0 << 2) | (c1 >> 4));
+      out.push(((c1 & 15) << 4) | (c2 >> 2));
+      out.push(((c2 & 3) << 6) | c3);
+      i += 4;
+    }
+    return out;
+  }
+  function planSharePack(name, date, ids){
+    var json = JSON.stringify({ n: name, d: date, i: ids });
+    var bytes = planShareUtf8(json);
+    if(!bytes) return null;
+    return "v1." + planShareToB64(bytes);
+  }
+  function planShareBuiltinIdsFrom(plan){
+    var ids = [];
+    var seen = Object.create(null);
+    var raw = plan && Array.isArray(plan.ideaIds) ? plan.ideaIds : [];
+    for(var i = 0; i < raw.length && ids.length < PLAN_SHARE_MAX_IDEAS; i++){
+      var id = planShareId(raw[i]);
+      if(id == null || seen[id] || !planShareIsBuiltin(id)) continue;
+      seen[id] = 1;
+      ids.push(id);
+    }
+    return ids;
+  }
+  function encodePlanShare(plan){
+    try{
+      if(!plan || typeof plan !== "object" || Array.isArray(plan)) return null;
+      var name = planShareClip(plan.name, PLAN_SHARE_MAX_NAME);
+      var date = planShareDate(plan.date);
+      var ids = planShareBuiltinIdsFrom(plan);
+      var payload = planSharePack(name, date, ids);
+      while(payload && payload.length > PLAN_SHARE_MAX_CHARS && ids.length){
+        ids.pop();
+        payload = planSharePack(name, date, ids);
+      }
+      if(!payload || payload.length > PLAN_SHARE_MAX_CHARS) return null;
+      return payload;
+    }catch(err){
+      return null;
+    }
+  }
+  function decodePlanShare(payload){
+    try{
+      if(typeof payload !== "string" || payload.length > PLAN_SHARE_MAX_CHARS) return null;
+      if(payload.indexOf("v1.") !== 0) return null;
+      var body = payload.slice(3);
+      var bytes = planShareFromB64(body);
+      if(!bytes) return null;
+      var json = planShareFromUtf8(bytes);
+      if(json == null) return null;
+      var obj = JSON.parse(json);
+      if(!obj || typeof obj !== "object" || Array.isArray(obj)) return null;
+      var name = "";
+      if(obj.n != null){
+        if(typeof obj.n !== "string") return null;
+        name = planShareClip(obj.n, PLAN_SHARE_MAX_NAME);
+      }
+      var date = "";
+      if(obj.d != null && obj.d !== ""){
+        if(typeof obj.d !== "string") return null;
+        date = planShareDate(obj.d);
+        if(!date) return null;
+      }
+      if(obj.i != null && !Array.isArray(obj.i)) return null;
+      var source = Array.isArray(obj.i) ? obj.i : [];
+      var ids = [];
+      var seen = Object.create(null);
+      for(var i = 0; i < source.length && ids.length < PLAN_SHARE_MAX_IDEAS; i++){
+        var item = source[i];
+        var id = null;
+        if(item && typeof item === "object") id = planShareId(item.id);
+        else id = planShareId(item);
+        if(id == null){
+          if(item && typeof item === "object") continue;
+          return null;
+        }
+        if(!planShareIsBuiltin(id) || seen[id]) continue;
+        seen[id] = 1;
+        ids.push(id);
+      }
+      return { name: name, date: date, ideaIds: ids };
+    }catch(err){
+      return null;
+    }
+  }
+  function planShareOmittedCount(plan){
+    if(!plan || !Array.isArray(plan.ideaIds)) return 0;
+    var seen = Object.create(null);
+    var n = 0;
+    for(var i = 0; i < plan.ideaIds.length; i++){
+      var id = planShareId(plan.ideaIds[i]);
+      var key = id == null ? ("x" + i) : String(id);
+      if(seen[key]) continue;
+      seen[key] = 1;
+      if(id == null || !planShareIsBuiltin(id)) n++;
+    }
+    return n;
+  }
+  function planShareOmissionNote(count){
+    count = count | 0;
+    if(count <= 0) return "";
+    if(count === 1) return "1 saved place isn't included in shared links";
+    return count + " saved places aren't included in shared links";
+  }
+  function planShareOrigin(){
+    var loc = null;
+    try{
+      if(typeof location !== "undefined" && location) loc = location;
+    }catch(e){}
+    if(!loc){
+      try{
+        if(typeof window !== "undefined" && window.location) loc = window.location;
+      }catch(e2){}
+    }
+    var origin = loc && typeof loc.origin === "string" ? loc.origin : "";
+    if(!origin || origin === "null") return "";
+    return origin;
+  }
+  function planShareUrl(plan){
+    var payload = encodePlanShare(plan);
+    if(!payload) return "";
+    return planShareOrigin() + "/#plan=" + payload;
+  }
+  function planLinkShareData(plan){
+    var url = planShareUrl(plan);
+    var name = planShareClip(plan && plan.name, PLAN_SHARE_MAX_NAME) || "Date plan";
+    return { title: name, text: name, url: url };
+  }
+  function openPlanLinkOverlay(planId){
+    var plan = getPlanById(planId);
+    if(!plan) return;
+    var body = $("#plan-link-body");
+    body.innerHTML = "";
+    var note = planShareOmissionNote(planShareOmittedCount(plan));
+    if(note) body.appendChild(el("p", "field-hint plan-link-omit", note));
+    var url = planShareUrl(plan);
+    if(!url){
+      body.appendChild(el("p", "field-hint", "This plan can't be packed into a link."));
+      openOverlay("#plan-link-overlay");
+      return;
+    }
+    var qrWrap = el("div", "qr-wrap");
+    try{
+      var qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      qrWrap.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2 });
+    }catch(e){
+      qrWrap.textContent = "QR code unavailable";
+    }
+    body.appendChild(qrWrap);
+    var linkNote = el("p", "qr-link-note");
+    linkNote.textContent = url;
+    body.appendChild(linkNote);
+    var copyBtn = el("button", "btn-secondary btn-block", icon("copy") + " Copy link");
+    copyBtn.type = "button";
+    copyBtn.addEventListener("click", function(){ presentCopy(planShareUrl(plan)); });
+    body.appendChild(copyBtn);
+    var shareLinkBtn = el("button", "btn-secondary btn-block", icon("share") + " Share link");
+    shareLinkBtn.type = "button";
+    shareLinkBtn.addEventListener("click", function(){ presentShare(planLinkShareData(plan)); });
+    body.appendChild(shareLinkBtn);
+    openOverlay("#plan-link-overlay");
+  }
+  $("#plan-link-close").addEventListener("click", function(){ closeOverlay("#plan-link-overlay"); });
+
   /* ---------- Saved / Done screens ---------- */
   function buildIdeaRow(idea, subtext){
     var row = el("div", "idea-row");
@@ -2217,6 +2596,10 @@
       shareBtn.type = "button";
       shareBtn.addEventListener("click", function(){ openPlanShareOverlay(plan.id); });
       wrap.appendChild(shareBtn);
+      var linkBtn = el("button", "btn-outline plan-share-btn", icon("share") + " Share plan");
+      linkBtn.type = "button";
+      linkBtn.addEventListener("click", function(){ openPlanLinkOverlay(plan.id); });
+      wrap.appendChild(linkBtn);
       ids = plan.ideaIds;
     } else {
       wrap.appendChild(el("div", "section-title", "Favorites"));
@@ -2473,10 +2856,30 @@
   });
   $("#profile-close").addEventListener("click", function(){ closeOverlay("#profile-overlay"); });
 
+  function profileUsernameLine(){
+    var name = state.identity && state.identity.username;
+    if(name) return "@" + name;
+    return "Add a username";
+  }
+
+  function submittedIdeasLabel(count){
+    var n = typeof count === "number" ? count : (Array.isArray(state.submittedIdeas) ? state.submittedIdeas.length : 0);
+    if(n === 1) return "1 idea submitted";
+    return n + " ideas submitted";
+  }
+
   function renderProfileHeader(){
     var av = $("#profile-avatar-big");
     av.innerHTML = state.profile.photo ? '<img src="' + state.profile.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : icon("user");
     $("#profile-name-big").textContent = state.profile.name || "You";
+    var usernameEl = $("#profile-username");
+    if(usernameEl){
+      var handle = state.identity && state.identity.username;
+      usernameEl.textContent = profileUsernameLine();
+      if(usernameEl.classList) usernameEl.classList.toggle("missing", !handle);
+    }
+    var ideasEl = $("#profile-ideas");
+    if(ideasEl) ideasEl.textContent = submittedIdeasLabel(Array.isArray(state.submittedIdeas) ? state.submittedIdeas.length : 0);
     $("#profile-sub").textContent = state.profile.gender || "";
     $("#done-count-label").textContent = state.doneIds.length + " dates completed";
     var toggle = $("#auto-dark-toggle");
@@ -2578,6 +2981,30 @@
     return wrap;
   }
 
+  function recordSubmittedIdea(fields){
+    fields = fields || {};
+    var title = String(fields.title == null ? "" : fields.title).trim();
+    var description = String(fields.description == null ? "" : fields.description).trim();
+    if(!title || !description) return null;
+    if(!state.identity || typeof state.identity !== "object" || typeof state.identity.localId !== "string" || !state.identity.localId){
+      state.identity = normalizeStoredIdentity(state.identity);
+    }
+    var row = {
+      title: title,
+      category: fields.category == null ? "" : String(fields.category),
+      description: description,
+      vibe: Array.isArray(fields.vibe) ? fields.vibe.slice() : [],
+      submittedAt: todayISO(),
+      submittedBy: {
+        localId: state.identity.localId,
+        username: state.identity.username || null
+      }
+    };
+    if(!Array.isArray(state.submittedIdeas)) state.submittedIdeas = [];
+    state.submittedIdeas.push(row);
+    return row;
+  }
+
   function buildIdeaSubmitSubpanel(){
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Got an Idea?"));
@@ -2614,14 +3041,15 @@
       var titleVal = $("#idea-title", form).value.trim();
       var descVal = $("#idea-desc", form).value.trim();
       if(!titleVal || !descVal) return;
-      state.submittedIdeas.push({
+      var savedIdea = recordSubmittedIdea({
         title: titleVal,
         category: $("#idea-category", form).value,
         description: descVal,
-        vibe: selectedVibes.slice(),
-        submittedAt: todayISO()
+        vibe: selectedVibes.slice()
       });
+      if(!savedIdea) return;
       saveState();
+      renderProfileHeader();
       showToast("Thanks! Your idea was submitted!");
       openSubpage("idea");
     });
@@ -2641,12 +3069,37 @@
     return wrap;
   }
 
+  function applyProfileEdits(fields){
+    fields = fields || {};
+    if(!state.identity || typeof state.identity !== "object" || typeof state.identity.localId !== "string" || !state.identity.localId){
+      state.identity = normalizeStoredIdentity(state.identity);
+    }
+    var rawUsername = fields.username == null ? "" : String(fields.username);
+    if(rawUsername.trim()){
+      var checked = validateUsername(rawUsername);
+      if(!checked.ok) return { ok:false, error: checked.message, code: checked.error };
+      state.identity.username = checked.username;
+      if(!Object.prototype.hasOwnProperty.call(state.identity, "userId") || state.identity.userId == null) state.identity.userId = null;
+    }
+    var name = fields.name == null ? "" : String(fields.name).trim();
+    if(name) state.profile.name = name;
+    if(fields.gender) state.profile.gender = fields.gender;
+    if(fields.photo) state.profile.photo = fields.photo;
+    scrubProfileDob(state.profile);
+    saveState();
+    return { ok:true };
+  }
+
   function buildEditProfileSubpanel(){
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Edit Profile"));
     var form = el("form", "idea-form");
+    var usernameNow = (state.identity && state.identity.username) || "";
     form.innerHTML =
       '<label>Name</label><input type="text" id="ep-name" value="' + escapeHtml(state.profile.name) + '" required>' +
+      '<label>Username</label><input type="text" id="ep-username" value="' + escapeHtml(usernameNow) + '" placeholder="letters, numbers, underscores" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" aria-describedby="ep-username-note ep-username-error">' +
+      '<p class="field-hint" id="ep-username-note">Saved on this device only for now. It is not reserved or unique yet.</p>' +
+      '<p class="field-error" id="ep-username-error" hidden></p>' +
       '<label>Gender</label><select id="ep-gender">' +
         ["Woman","Man","Nonbinary","Prefer not to say"].map(function(g){
           return '<option value="' + g + '"' + (g === state.profile.gender ? " selected" : "") + '>' + g + '</option>';
@@ -2658,6 +3111,19 @@
     form.appendChild(saveBtn);
     wrap.appendChild(form);
 
+    function showUsernameError(message){
+      var errEl = $("#ep-username-error", form);
+      var input = $("#ep-username", form);
+      if(errEl){
+        errEl.textContent = message || "";
+        errEl.hidden = !message;
+      }
+      if(input){
+        input.classList.toggle("invalid", !!message);
+        input.setAttribute("aria-invalid", message ? "true" : "false");
+      }
+    }
+
     var newPhoto = null;
     $("#ep-photo", form).addEventListener("change", function(e){
       var file = e.target.files && e.target.files[0];
@@ -2666,14 +3132,23 @@
       reader.onload = function(ev){ newPhoto = ev.target.result; };
       reader.readAsDataURL(file);
     });
+    $("#ep-username", form).addEventListener("input", function(){ showUsernameError(""); });
 
     form.addEventListener("submit", function(e){
       e.preventDefault();
-      state.profile.name = $("#ep-name", form).value.trim() || state.profile.name;
-      state.profile.gender = $("#ep-gender", form).value;
-      if(newPhoto) state.profile.photo = newPhoto;
-      scrubProfileDob(state.profile);
-      saveState();
+      var outcome = applyProfileEdits({
+        name: $("#ep-name", form).value,
+        gender: $("#ep-gender", form).value,
+        username: $("#ep-username", form).value,
+        photo: newPhoto
+      });
+      if(!outcome.ok){
+        showUsernameError(outcome.error);
+        var usernameInput = $("#ep-username", form);
+        if(usernameInput && usernameInput.focus) usernameInput.focus();
+        return;
+      }
+      showUsernameError("");
       renderTopbarAvatar();
       renderProfileHeader();
       showToast("Profile updated!");

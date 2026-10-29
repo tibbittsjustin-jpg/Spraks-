@@ -2,7 +2,7 @@
    No database. */
 "use strict";
 
-const { buildListQuery, METERS_PER_MILE } = require("../db/activities-repo");
+const { buildListQuery, mapRow, METERS_PER_MILE } = require("../db/activities-repo");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -31,6 +31,7 @@ section("defaults", () => {
   check("default limit and offset", q.limit === 50 && q.offset === 0);
   check("unordered by distance", q.text.indexOf("ORDER BY id") !== -1 && q.located === false);
   check("omitting hide21 leaves 21+ rows included", q.text.indexOf("age21 = false") === -1);
+  check("materials is selected", q.text.indexOf("materials") !== -1);
   check("limit and offset are parameters",
     q.values[q.values.length - 2] === 50 && q.values[q.values.length - 1] === 0);
 });
@@ -118,6 +119,23 @@ section("location, radius, page clamps", () => {
 section("paid rows stay gated", () => {
   check("query string cannot include paid", buildListQuery({ includePaid: "true" }).text.indexOf("tier = 'free'") !== -1);
   check("boolean includePaid drops the free clause", buildListQuery({ includePaid: true }).text.indexOf("tier = 'free'") === -1);
+});
+
+section("mapRow materials", () => {
+  const base = {
+    id: 2, title: "T", description: "D", category: "Hiking & Nature", icon: "",
+    setting: "Outdoor", season: [], food: false, cost: "Free", duration: "Short (1-2 hrs)",
+    time: [], vibe: [], stage: [], date_type: [], scene: null, motif: null,
+    source: "curated", tier: "free", address: null, lat: null, lng: null,
+    affiliate_url: null, updated_at: null
+  };
+  check("null materials becomes []",
+    JSON.stringify(mapRow(Object.assign({}, base, { materials: null }), false).materials) === "[]");
+  check("missing materials becomes []",
+    JSON.stringify(mapRow(base, false).materials) === "[]");
+  check("materials pass through",
+    JSON.stringify(mapRow(Object.assign({}, base, { materials: ["Boots", "Water"] }), false).materials) ===
+    JSON.stringify(["Boots", "Water"]));
 });
 
 module.exports = { pass: pass, fail: fail };

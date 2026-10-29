@@ -1,6 +1,7 @@
 /* ===================== Spark util.js =====================
- * Pure helpers: HTML escaping, calendar dates, and the seeded hash/RNG
- * the cover art and external-idea ids both depend on.
+ * Pure helpers: HTML escaping, calendar dates, the seeded hash/RNG
+ * the cover art and external-idea ids both depend on, and the username
+ * rules a future profiles table can share. Uniqueness is not decided here.
  *
  * No DOM, no app state. Loaded as a classic script before app.js so the
  * page still works from file:// and from the static server. Node tests
@@ -63,6 +64,18 @@
     return { y: dt.getUTCFullYear(), mo: dt.getUTCMonth() + 1, d: dt.getUTCDate() };
   }
 
+  // Trim, then lowercase, then 3–20 of [a-z0-9_]. Empty is not a username.
+  // This does not check that the name is free. That is a server concern.
+  function validateUsername(value){
+    if(typeof value !== "string") return { ok:false, error:"empty", message:"Enter a username." };
+    var username = value.trim().toLowerCase();
+    if(!username) return { ok:false, error:"empty", message:"Enter a username." };
+    if(username.length < 3) return { ok:false, error:"too_short", message:"Use 3 to 20 characters: lowercase letters, numbers, and underscores." };
+    if(username.length > 20) return { ok:false, error:"too_long", message:"Use 3 to 20 characters: lowercase letters, numbers, and underscores." };
+    if(!/^[a-z0-9_]+$/.test(username)) return { ok:false, error:"invalid_chars", message:"Use lowercase letters, numbers, and underscores only." };
+    return { ok:true, username:username };
+  }
+
   function checkAge(dob, now){
     var parsed = parseDobParts(dob);
     if(!parsed) return { ok: false, error: "invalid_date" };
@@ -90,6 +103,7 @@
     pad2: pad2,
     localDateISO: localDateISO,
     hashStr: hashStr,
+    validateUsername: validateUsername,
     checkAge: checkAge,
     mulberry32: mulberry32
   };

@@ -12,7 +12,6 @@
 336 partypopper
 337 plane
 339 storefront
-340 minigolf
 342 concert
 346 scavenger
 348 trophy

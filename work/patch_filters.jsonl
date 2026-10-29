@@ -299,7 +299,6 @@
 {"id":337,"cost":"Free","time":["Morning","Afternoon"],"dateType":["Solo/Couple","Double Date","Group Date"]}
 {"id":338,"duration":"Quick (under 1 hr)","season":["Spring","Summer","Fall","Winter"],"time":["Morning","Afternoon"],"dateType":["Solo/Couple","Double Date","Group Date"]}
 {"id":339,"duration":"Short (1-2 hrs)","dateType":["Solo/Couple","Double Date","Group Date"]}
-{"id":340,"setting":"Outdoor","season":["Spring","Summer","Fall"],"duration":"Short (1-2 hrs)","dateType":["Solo/Couple","Double Date","Group Date"]}
 {"id":341,"cost":"$20-$30","dateType":["Solo/Couple","Double Date","Group Date"]}
 {"id":342,"setting":"Outdoor","cost":"Free","dateType":["Solo/Couple","Double Date","Group Date"]}
 {"id":343,"cost":"Free","duration":"Short (1-2 hrs)","time":["Morning","Afternoon"]}
@@ -1812,7 +1811,7 @@
 {"id":1873,"cost":"$20-$30","dateType":["Solo/Couple","Double Date","Group Date"]}
 {"id":1874,"cost":"$100 and under","time":["Evening"],"vibe":["Romantic","Chill","Creative"],"dateType":["Solo/Couple","Double Date","Group Date"]}
 {"id":1875,"cost":"$100 and under","vibe":["Romantic","Chill"],"stage":["Second/Third Date","Serious Relationship"]}
-{"id":1876,"setting":"Outdoor","cost":"$20-$30","dateType":["Solo/Couple","Double Date","Group Date"]}
+{"id":1876,"setting":"Indoor","season":["Winter","Spring","Summer","Fall"],"cost":"$20-$30","dateType":["Solo/Couple","Double Date","Group Date"]}
 {"id":1877,"cost":"$100 and under","vibe":["Romantic","Chill"],"stage":["Second/Third Date","Serious Relationship"]}
 {"id":1878,"cost":"$20-$30","time":["Evening"]}
 {"id":1879,"cost":"$20-$30","dateType":["Solo/Couple","Double Date","Group Date"]}

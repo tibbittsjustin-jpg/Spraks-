@@ -38,6 +38,9 @@ function row(id, extra) {
     source: "curated",
     tier: "free",
     address: null,
+    city: null,
+    source_url: null,
+    age21: null,
     lat: 40.23,
     lng: -111.66,
     affiliate_url: "https://example.com/out",
@@ -89,6 +92,9 @@ async function main() {
       const item = body.items[0];
       check("date_type maps to dateType", Array.isArray(item.dateType) && item.dateType[0] === "Solo/Couple");
       check("missing age21 maps to false", item.age21 === false);
+      check("null source_url and city map to null", item.sourceUrl === null && item.city === null);
+      check("source_url is not exposed as snake_case",
+        !Object.prototype.hasOwnProperty.call(item, "source_url") && res.body.indexOf("source_url") === -1);
       check("affiliate_url maps to affiliateUrl", item.affiliateUrl === "https://example.com/out");
       check("status is not exposed", !Object.prototype.hasOwnProperty.call(item, "status") && res.body.indexOf("\"status\"") === -1);
       check("submitter_email is not exposed", res.body.indexOf("submitter_email") === -1);
@@ -111,7 +117,13 @@ async function main() {
         async query(text, values) {
           const approvedOnly = text.indexOf("status = 'approved'") !== -1;
           if (values && values[0] === 340) return { rows: approvedOnly ? [] : [row(340, { status: "archived" })] };
-          if (values && values[0] === 2) return { rows: [row(2)] };
+          if (values && values[0] === 2) {
+            return { rows: [row(2, {
+              source_url: "https://getoutgames.com/provo/",
+              city: "Provo",
+              age21: true
+            })] };
+          }
           return { rows: [] };
         }
       };
@@ -122,7 +134,10 @@ async function main() {
         const ok = await request(one.address().port, "/api/activities/2");
         const okBody = JSON.parse(ok.body);
         check("approved id is 200", ok.status === 200 && okBody.id === 2 && okBody.dateType[0] === "Solo/Couple");
-        check("detail does not leak status", ok.body.indexOf("submitter_email") === -1 && !okBody.status);
+        check("detail returns sourceUrl, city, and age21",
+          okBody.sourceUrl === "https://getoutgames.com/provo/" && okBody.city === "Provo" && okBody.age21 === true);
+        check("detail does not leak status or source_url",
+          ok.body.indexOf("submitter_email") === -1 && !okBody.status && ok.body.indexOf("source_url") === -1);
         const missing = await request(one.address().port, "/api/activities/999999");
         check("missing id is 404", missing.status === 404 && JSON.parse(missing.body).error === "not_found");
         const archived = await request(one.address().port, "/api/activities/340");

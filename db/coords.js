@@ -42,6 +42,14 @@ function finiteNumber(value) {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+/* Display city only. Blank and non-strings become null. source_url in the
+   file is provenance text and is never copied. */
+function normalizeCity(value) {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
 /* Pure. `knownIds` (a Set) is optional; when present, an id outside it is
    unknown_id and not applied. */
 function normalizeCoords(json, options) {
@@ -107,7 +115,8 @@ function normalizeCoords(json, options) {
       geoStatus: status,
       geoConfidence: entry.confidence == null ? null : String(entry.confidence),
       geoSource: entry.source == null ? null : String(entry.source),
-      geoResolvedAt: entry.resolvedAt == null ? null : entry.resolvedAt
+      geoResolvedAt: entry.resolvedAt == null ? null : entry.resolvedAt,
+      city: normalizeCity(entry.city)
     });
   }
 
@@ -165,7 +174,8 @@ async function applyCoords(entries, db) {
       "geo_status = $8, " +
       "geo_confidence = $9, " +
       "geo_source = $10, " +
-      "geo_resolved_at = $11 " +
+      "geo_resolved_at = $11, " +
+      "city = $12 " +
       "where id = $1 and coords_locked = false",
       [
         entry.id,
@@ -178,7 +188,8 @@ async function applyCoords(entries, db) {
         entry.geoStatus,
         entry.geoConfidence,
         entry.geoSource,
-        entry.geoResolvedAt
+        entry.geoResolvedAt,
+        entry.city == null ? null : entry.city
       ]
     );
     if (result.rowCount > 0) {

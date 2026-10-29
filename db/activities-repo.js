@@ -16,7 +16,7 @@ const OVERLAP_FIELDS = {
 
 const SELECT_COLUMNS =
   "id, title, description, category, icon, setting, season, food, age21, cost, duration, " +
-  "time, vibe, stage, date_type, scene, motif, source, tier, address, affiliate_url, updated_at, " +
+  "time, vibe, stage, date_type, scene, motif, source, tier, address, city, source_url, affiliate_url, updated_at, " +
   "ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng";
 
 function invalidFilter(field) {
@@ -100,6 +100,13 @@ function buildListQuery(params) {
     const raw = String(params.hide21).toLowerCase();
     if (raw !== "true" && raw !== "false") throw invalidFilter("hide21");
     if (raw === "true") where.push("age21 = false");
+  }
+
+  const cities = splitList(params.city);
+  if (cities.length) {
+    if (cities.some(city => city.length > 80)) throw invalidFilter("city");
+    values.push(cities.map(city => city.toLowerCase()));
+    where.push("lower(city) = ANY($" + values.length + "::text[])");
   }
 
   const latMissing = params.lat == null || params.lat === "";
@@ -196,6 +203,8 @@ function mapRow(row, located) {
     source: row.source,
     tier: row.tier,
     address: row.address,
+    city: row.city == null ? null : row.city,
+    sourceUrl: row.source_url == null ? null : row.source_url,
     lat: row.lat == null ? null : Number(row.lat),
     lng: row.lng == null ? null : Number(row.lng),
     affiliateUrl: row.affiliate_url == null ? null : row.affiliate_url,

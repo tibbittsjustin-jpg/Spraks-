@@ -108,10 +108,16 @@ To turn it on with Supabase:
 
    `npm run db:migrate` applies every file in `db/migrations/`, including
    `002_over100_age21.sql`, which allows the `Over $100` cost and adds the
-   `age21` column. `npm run db:seed` loads `public/data.js` and, when
-   `data/coords/*.json` is present, the coordinate files. It is safe to run
-   again. Curated ideas that were removed from `data.js` are archived, not
-   deleted. A missing `age21` on an idea is stored as false.
+   `age21` column, and `003_source_url_city.sql`, which adds nullable
+   `source_url` (https only, at most 2048 characters) and nullable `city`.
+   `npm run db:seed` loads `public/data.js` and, when `data/coords/*.json` is
+   present, the coordinate files. City is copied from those files for every
+   status; a locked row keeps the city it already has. Curated ideas do not
+   set `source_url`, and source notes in the coords files are not copied.
+   It is safe to run again. A content re-seed does not clear `source_url` or
+   `city`. Curated ideas that were removed from `data.js` are archived, not
+   deleted. A missing `age21` on an idea is stored as false. 21+ rows are
+   returned unless the request passes `hide21=true`.
 
 For a local Postgres without TLS, set `PGSSLMODE=disable`. Integration tests
 use `TEST_DATABASE_URL` and never point at the Supabase project.

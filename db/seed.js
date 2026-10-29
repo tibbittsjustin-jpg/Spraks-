@@ -20,8 +20,8 @@ const BATCH = 500;
 
 const INSERT_COLS = [
   "id", "title", "description", "category", "icon", "setting", "season", "food",
-  "cost", "duration", "time", "vibe", "stage", "date_type", "scene", "motif", "affiliate_url",
-  "age21"
+  "cost", "duration", "time", "vibe", "stage", "date_type", "scene", "motif", "materials",
+  "affiliate_url", "age21"
 ];
 
 function loadIdeas(file) {
@@ -33,6 +33,16 @@ function loadIdeas(file) {
     throw new Error("IDEAS_DATA missing in " + file);
   }
   return sandbox.__IDEAS_DATA;
+}
+
+// materials is optional. When present it is a short bring-list: at most 6
+// non-empty trimmed strings, each at most 60 characters.
+function materialsAreValid(materials) {
+  if (materials == null) return true;
+  if (!Array.isArray(materials) || materials.length > 6) return false;
+  return materials.every(item =>
+    typeof item === "string" && item.length > 0 && item.length <= 60 && item === item.trim()
+  );
 }
 
 function validateIdeas(ideas) {
@@ -53,6 +63,7 @@ function validateIdeas(ideas) {
     });
     if (typeof idea.food !== "boolean") problems.push("food");
     if (idea.age21 != null && filters.age21.indexOf(idea.age21) === -1) problems.push("age21");
+    if (!materialsAreValid(idea.materials)) problems.push("materials");
     if (problems.length) bad.push(String(idea.id) + " (" + problems.join(", ") + ")");
   });
   if (bad.length) {
@@ -83,6 +94,7 @@ function ideaValues(idea) {
     idea.dateType,
     idea.scene == null ? null : idea.scene,
     idea.motif == null ? null : idea.motif,
+    Array.isArray(idea.materials) ? idea.materials : [],
     null,
     idea.age21 === true
   ];
@@ -97,7 +109,7 @@ async function upsertBatch(client, batch) {
   });
   const updateCols = [
     "title", "description", "category", "icon", "setting", "season", "food", "cost",
-    "duration", "time", "vibe", "stage", "date_type", "scene", "motif", "age21"
+    "duration", "time", "vibe", "stage", "date_type", "scene", "motif", "materials", "age21"
   ];
   const assignments = updateCols.map(col => col + " = EXCLUDED." + col).concat([
     "affiliate_url = NULL",

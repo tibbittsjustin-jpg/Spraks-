@@ -154,7 +154,9 @@ async function main() {
 
   try {
     await resetDatabase(pool);
-    await applyMigrationFiles(pool, ["001_init.sql", "002_over100_age21.sql"]);
+    // The current seed writes materials, so 004 is already applied here.
+    // The upgrade under test is still 003 (source_url and city).
+    await applyMigrationFiles(pool, ["001_init.sql", "002_over100_age21.sql", "004_materials.sql"]);
     await seed({ pool: pool, connectionString: connectionString, coordsDir: emptyDir });
     const beforeUpgrade = await pool.query(
       "select id, title, description, category, age21, status, source from activities order by id"
@@ -166,7 +168,8 @@ async function main() {
     check("upgrade applies only 003",
       upgrade.applied.length === 1 && upgrade.applied[0] === "003_source_url_city.sql" &&
       upgrade.skipped.indexOf("001_init.sql") !== -1 &&
-      upgrade.skipped.indexOf("002_over100_age21.sql") !== -1,
+      upgrade.skipped.indexOf("002_over100_age21.sql") !== -1 &&
+      upgrade.skipped.indexOf("004_materials.sql") !== -1,
       upgrade.applied.join(",") + " / " + upgrade.skipped.join(","));
     const upgradedSame = beforeUpgrade.rows.length === ideas.length &&
       afterUpgrade.rows.length === ideas.length &&
@@ -185,11 +188,13 @@ async function main() {
     check("migration applied", first.applied.indexOf("001_init.sql") !== -1, first.applied.join(","));
     check("migration 002 applied", first.applied.indexOf("002_over100_age21.sql") !== -1, first.applied.join(","));
     check("migration 003 applied", first.applied.indexOf("003_source_url_city.sql") !== -1, first.applied.join(","));
+    check("migration 004 applied", first.applied.indexOf("004_materials.sql") !== -1, first.applied.join(","));
     check("second migrate is a no-op",
       second.applied.length === 0 &&
       second.skipped.indexOf("001_init.sql") !== -1 &&
       second.skipped.indexOf("002_over100_age21.sql") !== -1 &&
-      second.skipped.indexOf("003_source_url_city.sql") !== -1);
+      second.skipped.indexOf("003_source_url_city.sql") !== -1 &&
+      second.skipped.indexOf("004_materials.sql") !== -1);
     let reran = true;
     try {
       await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "003_source_url_city.sql"), "utf8"));
@@ -197,14 +202,24 @@ async function main() {
       reran = false;
     }
     check("003 sql can run again", reran);
+    let materialsReran = true;
+    try {
+      await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "004_materials.sql"), "utf8"));
+    } catch (err) {
+      materialsReran = false;
+    }
+    check("004 sql can run again", materialsReran);
 
     const overCost = await pool.query(
       "insert into activities (title, category, setting, cost, duration, status, source, tier) " +
       "values ('Over', 'Hiking & Nature', 'Outdoor', 'Over $100', 'Full day', 'approved', 'community', 'free') " +
-      "returning id, age21, cost"
+      "returning id, age21, cost, materials"
     );
     check("Over $100 is allowed and age21 defaults to false",
       overCost.rows[0] && overCost.rows[0].cost === "Over $100" && overCost.rows[0].age21 === false);
+    check("materials defaults to an empty list",
+      overCost.rows[0] && Array.isArray(overCost.rows[0].materials) && overCost.rows[0].materials.length === 0,
+      JSON.stringify(overCost.rows[0] && overCost.rows[0].materials));
     let costCode = null;
     try {
       await pool.query(
@@ -274,6 +289,14 @@ async function main() {
       acceptedUrl.rows[0].source_url === "https://getoutgames.com/provo/" && maxAccepted.rows[0].source_url.length === 2048);
     check("null source_url and city are accepted",
       nullUrl.rows[0].source_url === null && nullUrl.rows[0].city === null);
+    const matCol = await pool.query(
+      "select udt_name, is_nullable, column_default from information_schema.columns " +
+      "where table_schema = 'public' and table_name = 'activities' and column_name = 'materials'"
+    );
+    check("materials is a non-null text array defaulting to empty",
+      matCol.rows[0] && matCol.rows[0].udt_name === "_text" && matCol.rows[0].is_nullable === "NO" &&
+      String(matCol.rows[0].column_default).indexOf("'{}'") !== -1,
+      JSON.stringify(matCol.rows[0]));
     await pool.query("delete from activities where id = any($1::int[])", [[
       overCost.rows[0].id, acceptedUrl.rows[0].id, nullUrl.rows[0].id, maxAccepted.rows[0].id
     ]]);
@@ -308,7 +331,9 @@ async function main() {
       "from activities where source = 'curated'"
     );
     check("migrate after seed is a no-op",
-      afterSeedMigrate.applied.length === 0 && afterSeedMigrate.skipped.indexOf("003_source_url_city.sql") !== -1);
+      afterSeedMigrate.applied.length === 0 &&
+      afterSeedMigrate.skipped.indexOf("003_source_url_city.sql") !== -1 &&
+      afterSeedMigrate.skipped.indexOf("004_materials.sql") !== -1);
     check("re-running migrate keeps the curated count",
       curatedAfter.rows[0].n === ideas.length, String(curatedAfter.rows[0].n));
     check("seed without coords leaves source_url and city null",
@@ -523,14 +548,26 @@ async function main() {
       const goneRes = await request(port, "/api/activities/" + goneId);
       check("removed #" + goneId + " is 404", goneRes.status === 404 && JSON.parse(goneRes.body).error === "not_found");
     }
-    for (const id of [1854, 1876]) {
-      const row = await pool.query("select title, description, setting from activities where id = $1", [id]);
+    for (const id of [2, 1854, 1876]) {
+      const row = await pool.query(
+        "select title, description, setting, materials from activities where id = $1",
+        [id]
+      );
       const idea = byId[id];
+      const materialsMatch = !!idea && row.rows[0] &&
+        JSON.stringify(row.rows[0].materials || []) === JSON.stringify(Array.isArray(idea.materials) ? idea.materials : []);
       check("#" + id + " matches data.js",
         !!idea && row.rows[0] && row.rows[0].title === idea.title &&
-        row.rows[0].description === idea.description && row.rows[0].setting === idea.setting,
+        row.rows[0].description === idea.description && row.rows[0].setting === idea.setting &&
+        materialsMatch,
         idea ? idea.title : "missing idea");
     }
+    const apiTwo = await request(port, "/api/activities/2");
+    const apiTwoBody = JSON.parse(apiTwo.body);
+    check("GET /api/activities/2 includes materials from data.js",
+      apiTwo.status === 200 && Array.isArray(apiTwoBody.materials) &&
+      JSON.stringify(apiTwoBody.materials) === JSON.stringify(byId[2].materials),
+      apiTwo.body.slice(0, 220));
     const realLocked = await pool.query(
       "select coords_locked, geo_source, location is not null as pinned from activities where id = 1876"
     );

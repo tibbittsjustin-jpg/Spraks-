@@ -15,7 +15,7 @@ const OVERLAP_FIELDS = {
 };
 
 const SELECT_COLUMNS =
-  "id, title, description, category, icon, setting, season, food, age21, cost, duration, " +
+  "id, title, description, materials, category, icon, setting, season, food, age21, cost, duration, " +
   "time, vibe, stage, date_type, scene, motif, source, tier, address, city, source_url, affiliate_url, updated_at, " +
   "ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng";
 
@@ -186,6 +186,7 @@ function mapRow(row, located) {
     id: row.id,
     title: row.title,
     description: row.description,
+    materials: row.materials || [],
     category: row.category,
     icon: row.icon,
     setting: row.setting,

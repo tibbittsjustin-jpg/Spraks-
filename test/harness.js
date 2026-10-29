@@ -75,6 +75,12 @@ function loadApp(storage) {
     shareOrCopy: shareOrCopy,
     presentCopy: presentCopy,
     presentShare: presentShare,
+    encodePlanShare: encodePlanShare,
+    decodePlanShare: decodePlanShare,
+    planShareUrl: planShareUrl,
+    planShareOmittedCount: planShareOmittedCount,
+    planShareOmissionNote: planShareOmissionNote,
+    PLAN_SHARE_MAX_CHARS: PLAN_SHARE_MAX_CHARS,
     getInviteLink: getInviteLink,
     commitFriendPick: commitFriendPick,
     planShareState: planShareState,
@@ -87,6 +93,7 @@ function loadApp(storage) {
     buildEditProfileSubpanel: buildEditProfileSubpanel,
     get navigator(){ return navigator; },
     get document(){ return document; },
+    get window(){ return window; },
   };
 `;
   const anchor = "\n  boot();\n})();";

@@ -1,6 +1,6 @@
 /* ===================== Spark server ===================== *
 * Small Express server that:
-* 1. Serves the Spark app itself (index.html, app.js, style.css, data.js)
+* 1. Serves the Spark app from public/ (index.html, app.js, style.css, data.js, util.js)
 * 2. Provides an API route the frontend calls (automatically, once it has
 * your location) to find a handful of REAL nearby places via Google
 * Places, then has Claude turn them into Spark-style idea cards that
@@ -17,10 +17,13 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const eventsSource = require("./events-source");
+const db = require("./db");
+const { createActivitiesRouter } = require("./routes/activities");
 
 const app = express();
+const publicDir = path.join(__dirname, "public");
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(publicDir, { dotfiles: "ignore", index: "index.html" }));
 
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || "";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || "";
@@ -39,7 +42,8 @@ app.get("/api/status", (req, res) => {
 res.json({
 placesConfigured: !!GOOGLE_PLACES_API_KEY,
 aiConfigured: !!ANTHROPIC_API_KEY,
-eventsConfigured: eventsSource.isConfigured()
+eventsConfigured: eventsSource.isConfigured(),
+dbConfigured: db.isConfigured()
 });
 });
 
@@ -244,11 +248,33 @@ res.status(502).json({ events: [], reason: code, message: err.message });
 }
 });
 
-// Always fall back to index.html for anything else (single-page app).
-app.get("*", (req, res) => {
-res.sendFile(path.join(__dirname, "index.html"));
+app.use("/api/activities", createActivitiesRouter());
+
+// Extensionless GETs are the single-page app. Anything else that static did
+// not serve — source files, dotfiles, unknown assets — is a real 404.
+// Unknown /api routes stay JSON so a missing path is not an HTML page.
+function isSpaPath(req) {
+if (req.method !== "GET" && req.method !== "HEAD") return false;
+const urlPath = req.path || "/";
+if (urlPath === "/api" || urlPath.startsWith("/api/")) return false;
+const base = path.basename(urlPath);
+if (base.startsWith(".")) return false;
+return path.extname(urlPath) === "";
+}
+
+app.use((req, res) => {
+if (req.path === "/api" || req.path.startsWith("/api/")) {
+return res.status(404).json({ error: "not_found" });
+}
+if (isSpaPath(req)) {
+return res.sendFile(path.join(publicDir, "index.html"));
+}
+res.status(404).type("txt").send("Not found");
 });
 
+module.exports = app;
+
+if (require.main === module) {
 app.listen(PORT, () => {
 console.log("Spark server running at http://localhost:" + PORT);
 if (!GOOGLE_PLACES_API_KEY || !ANTHROPIC_API_KEY) {
@@ -257,4 +283,8 @@ console.log("(Real nearby-place matching is OFF — add GOOGLE_PLACES_API_KEY an
 if (!eventsSource.isConfigured()) {
 console.log("(Local events are OFF — add TICKETMASTER_API_KEY to .env to enable them. See SETUP.md.)");
 }
+if (!db.isConfigured()) {
+console.log("(Activities database is OFF — the built-in catalog still works. Add DATABASE_URL to enable GET /api/activities. See SETUP.md.)");
+}
 });
+}

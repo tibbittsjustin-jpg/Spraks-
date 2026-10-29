@@ -31,7 +31,7 @@ cp .env.example .env   # optional; every key can stay blank
 npm start              # http://localhost:3000
 ```
 
-Node 18 or newer. Every key in `.env` is optional. Without them the matching feature stays off and the built-in catalog still works. Do not commit `.env`.
+Node 18 or newer. Every key in `.env` is optional. Without them the matching feature stays off and the built-in catalog still works. `DATABASE_URL` is optional too: without it the app behaves as it does today and `GET /api/activities` answers `503`. Do not commit `.env`.
 
 ## Project structure
 
@@ -49,7 +49,10 @@ Node 18 or newer. Every key in `.env` is optional. Without them the matching fea
 | `public/motifs.js` | `MOTIFS` drawing library. 117 drawings; the catalog uses 115 of them. |
 | `public/motif-preview.html` | Standalone art preview. Reimplements framing because `app.js` does not export it. |
 | `public/qrcode.lib.js` | Vendored MIT QR Code generator (Kazuhiko Arase). Used only for the invite QR. |
-| `server.js` | Express static server plus `GET /api/status`, `POST /api/nearby-ideas`, and `POST /api/events`. |
+| `server.js` | Express server. Static files come only from `public/`. Routes: `GET /api/status`, `GET /api/activities`, `GET /api/activities/:id`, `POST /api/nearby-ideas`, `POST /api/events`. |
+| `db/` | Postgres migrations, the curated seed, and activities queries. Used only when `DATABASE_URL` is set. |
+| `shared/filters.js` | Filter vocabulary for the seed and the activities API. |
+| `routes/activities.js` | Read-only activities API. Approved free rows only. |
 | `events-source.js` | Ticketmaster Discovery client, in-memory cache, coordinate coarsening. |
 | `events-map.js` | Pure Ticketmaster → Spark card translation and the classification table. |
 | `test/` | `npm test` runner, a Node VM harness for `app.js`, and the current test files. |

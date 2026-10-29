@@ -30,6 +30,7 @@ section("defaults", () => {
     q.text.indexOf("status = 'approved'") !== -1 && q.text.indexOf("tier = 'free'") !== -1);
   check("default limit and offset", q.limit === 50 && q.offset === 0);
   check("unordered by distance", q.text.indexOf("ORDER BY id") !== -1 && q.located === false);
+  check("omitting hide21 leaves 21+ rows included", q.text.indexOf("age21 = false") === -1);
   check("limit and offset are parameters",
     q.values[q.values.length - 2] === 50 && q.values[q.values.length - 1] === 0);
 });
@@ -72,6 +73,17 @@ section("filters become parameters", () => {
   check("hide21=true does not interpolate the query string", hidden.text.indexOf("true") === -1);
   check("hide21=false does not add the age21 predicate", buildListQuery({ hide21: "false" }).text.indexOf("age21 = false") === -1);
   check("hide21=maybe throws", throwsFilter({ hide21: "maybe" }, "hide21"));
+  const city = buildListQuery({ city: "Provo,orem" });
+  const cityValues = city.values.find(value => Array.isArray(value) && value.indexOf("provo") !== -1);
+  check("city filter compares lower(city)", city.text.indexOf("lower(city) = ANY(") !== -1);
+  check("city values are lowercased parameters",
+    !!cityValues && cityValues.length === 2 && cityValues[0] === "provo" && cityValues[1] === "orem");
+  check("city names stay out of the SQL",
+    city.text.toLowerCase().indexOf("provo") === -1 && city.text.toLowerCase().indexOf("orem") === -1);
+  check("city is free text", buildListQuery({ city: "Not A Real City" }).text.indexOf("lower(city) = ANY(") !== -1);
+  check("80-char city is accepted", buildListQuery({ city: "p".repeat(80) }).text.indexOf("lower(city) = ANY(") !== -1);
+  check("81-char city throws", throwsFilter({ city: "p".repeat(81) }, "city"));
+  check("one 81-char city in a list throws", throwsFilter({ city: "Provo," + "q".repeat(81) }, "city"));
 });
 
 section("location, radius, page clamps", () => {

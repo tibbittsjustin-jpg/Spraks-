@@ -109,6 +109,30 @@ async function resetDatabase(pool) {
   if (!have.has("authenticated")) await pool.query("CREATE ROLE authenticated NOLOGIN");
 }
 
+async function applyMigrationFiles(pool, filenames) {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      "create table if not exists schema_migrations (" +
+      "filename text primary key, applied_at timestamptz not null default now())"
+    );
+    for (const filename of filenames) {
+      const sql = fs.readFileSync(path.join(__dirname, "..", "db", "migrations", filename), "utf8");
+      await client.query("BEGIN");
+      try {
+        await client.query(sql);
+        await client.query("insert into schema_migrations (filename) values ($1)", [filename]);
+        await client.query("COMMIT");
+      } catch (err) {
+        try { await client.query("ROLLBACK"); } catch (e) { /* already aborted */ }
+        throw err;
+      }
+    }
+  } finally {
+    client.release();
+  }
+}
+
 async function main() {
   if (!process.env.TEST_DATABASE_URL) {
     console.log("  SKIP db integration (TEST_DATABASE_URL unset)");
@@ -130,14 +154,49 @@ async function main() {
 
   try {
     await resetDatabase(pool);
+    await applyMigrationFiles(pool, ["001_init.sql", "002_over100_age21.sql"]);
+    await seed({ pool: pool, connectionString: connectionString, coordsDir: emptyDir });
+    const beforeUpgrade = await pool.query(
+      "select id, title, description, category, age21, status, source from activities order by id"
+    );
+    const upgrade = await migrate({ pool: pool, connectionString: connectionString });
+    const afterUpgrade = await pool.query(
+      "select id, title, description, category, age21, status, source, source_url, city from activities order by id"
+    );
+    check("upgrade applies only 003",
+      upgrade.applied.length === 1 && upgrade.applied[0] === "003_source_url_city.sql" &&
+      upgrade.skipped.indexOf("001_init.sql") !== -1 &&
+      upgrade.skipped.indexOf("002_over100_age21.sql") !== -1,
+      upgrade.applied.join(",") + " / " + upgrade.skipped.join(","));
+    const upgradedSame = beforeUpgrade.rows.length === ideas.length &&
+      afterUpgrade.rows.length === ideas.length &&
+      beforeUpgrade.rows.every((row, i) => {
+        const next = afterUpgrade.rows[i];
+        return next && row.id === next.id && row.title === next.title &&
+          row.description === next.description && row.category === next.category &&
+          row.age21 === next.age21 && row.status === next.status && row.source === next.source &&
+          next.source_url == null && next.city == null;
+      });
+    check("003 on a seeded database leaves rows untouched", upgradedSame, String(afterUpgrade.rows.length));
+
+    await resetDatabase(pool);
     const first = await migrate({ pool: pool, connectionString: connectionString });
     const second = await migrate({ pool: pool, connectionString: connectionString });
     check("migration applied", first.applied.indexOf("001_init.sql") !== -1, first.applied.join(","));
     check("migration 002 applied", first.applied.indexOf("002_over100_age21.sql") !== -1, first.applied.join(","));
+    check("migration 003 applied", first.applied.indexOf("003_source_url_city.sql") !== -1, first.applied.join(","));
     check("second migrate is a no-op",
       second.applied.length === 0 &&
       second.skipped.indexOf("001_init.sql") !== -1 &&
-      second.skipped.indexOf("002_over100_age21.sql") !== -1);
+      second.skipped.indexOf("002_over100_age21.sql") !== -1 &&
+      second.skipped.indexOf("003_source_url_city.sql") !== -1);
+    let reran = true;
+    try {
+      await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "003_source_url_city.sql"), "utf8"));
+    } catch (err) {
+      reran = false;
+    }
+    check("003 sql can run again", reran);
 
     const overCost = await pool.query(
       "insert into activities (title, category, setting, cost, duration, status, source, tier) " +
@@ -164,7 +223,60 @@ async function main() {
       ageCol.rows[0] && ageCol.rows[0].is_nullable === "NO" &&
       String(ageCol.rows[0].column_default).indexOf("false") !== -1,
       JSON.stringify(ageCol.rows[0]));
-    await pool.query("delete from activities where id = $1", [overCost.rows[0].id]);
+    const addedCols = await pool.query(
+      "select column_name, is_nullable from information_schema.columns " +
+      "where table_schema = 'public' and table_name = 'activities' and column_name in ('source_url', 'city')"
+    );
+    const nullable = {};
+    addedCols.rows.forEach(row => { nullable[row.column_name] = row.is_nullable; });
+    check("source_url and city are nullable", nullable.source_url === "YES" && nullable.city === "YES", JSON.stringify(nullable));
+    const cityIdx = await pool.query(
+      "select indexdef from pg_indexes where schemaname = 'public' and indexname = 'activities_city_idx'"
+    );
+    const indexdef = cityIdx.rows[0] ? cityIdx.rows[0].indexdef : "";
+    check("city index is case-insensitive and partial",
+      /lower/i.test(indexdef) && /city/i.test(indexdef) && /is not null/i.test(indexdef),
+      indexdef);
+    async function sourceUrlCode(url) {
+      try {
+        const inserted = await pool.query(
+          "insert into activities (title, category, setting, cost, duration, source_url) " +
+          "values ('Link', 'Hiking & Nature', 'Outdoor', 'Free', 'Quick (under 1 hr)', $1) returning id",
+          [url]
+        );
+        await pool.query("delete from activities where id = $1", [inserted.rows[0].id]);
+        return null;
+      } catch (err) {
+        return err.code;
+      }
+    }
+    check("http source_url is rejected", await sourceUrlCode("http://x") === "23514");
+    check("source_url with a space is rejected", await sourceUrlCode("https://a b") === "23514");
+    check("javascript: source_url is rejected", await sourceUrlCode("javascript:") === "23514");
+    const urlPrefix = "https://getoutgames.com/";
+    const maxUrl = urlPrefix + "a".repeat(2048 - urlPrefix.length);
+    check("source_url longer than 2048 is rejected", await sourceUrlCode(maxUrl + "b") === "23514");
+    const acceptedUrl = await pool.query(
+      "insert into activities (title, category, setting, cost, duration, source_url) " +
+      "values ('Link', 'Hiking & Nature', 'Outdoor', 'Free', 'Quick (under 1 hr)', $1) returning id, source_url",
+      ["https://getoutgames.com/provo/"]
+    );
+    const nullUrl = await pool.query(
+      "insert into activities (title, category, setting, cost, duration, source_url, city) " +
+      "values ('No link', 'Hiking & Nature', 'Outdoor', 'Free', 'Quick (under 1 hr)', null, null) returning id, source_url, city"
+    );
+    const maxAccepted = await pool.query(
+      "insert into activities (title, category, setting, cost, duration, source_url) " +
+      "values ('Max', 'Hiking & Nature', 'Outdoor', 'Free', 'Quick (under 1 hr)', $1) returning id, source_url",
+      [maxUrl]
+    );
+    check("https source_url is accepted",
+      acceptedUrl.rows[0].source_url === "https://getoutgames.com/provo/" && maxAccepted.rows[0].source_url.length === 2048);
+    check("null source_url and city are accepted",
+      nullUrl.rows[0].source_url === null && nullUrl.rows[0].city === null);
+    await pool.query("delete from activities where id = any($1::int[])", [[
+      overCost.rows[0].id, acceptedUrl.rows[0].id, nullUrl.rows[0].id, maxAccepted.rows[0].id
+    ]]);
 
     const app = require("../server");
     server = await new Promise(resolve => {
@@ -185,6 +297,23 @@ async function main() {
       "select count(*)::int as n from activities where location is not null or coords_locked"
     );
     check("seed without coords leaves every location empty and unlocked", located.rows[0].n === 0, String(located.rows[0].n));
+    const afterSeedMigrate = await migrate({ pool: pool, connectionString: connectionString });
+    const curatedAfter = await pool.query(
+      "select count(*)::int as n from activities where status = 'approved' and source = 'curated'"
+    );
+    const freshCols = await pool.query(
+      "select count(*) filter (where source_url is not null)::int as urls, " +
+      "count(*) filter (where city is not null)::int as cities, " +
+      "count(*) filter (where age21 is null)::int as null_age " +
+      "from activities where source = 'curated'"
+    );
+    check("migrate after seed is a no-op",
+      afterSeedMigrate.applied.length === 0 && afterSeedMigrate.skipped.indexOf("003_source_url_city.sql") !== -1);
+    check("re-running migrate keeps the curated count",
+      curatedAfter.rows[0].n === ideas.length, String(curatedAfter.rows[0].n));
+    check("seed without coords leaves source_url and city null",
+      freshCols.rows[0].urls === 0 && freshCols.rows[0].cities === 0 && freshCols.rows[0].null_age === 0,
+      JSON.stringify(freshCols.rows[0]));
 
     const center = { lat: 40.76, lng: -111.89 };
     const pins = [
@@ -239,6 +368,21 @@ async function main() {
     const unknown = await pool.query("select geo_status, location is null as empty from activities where id = 12");
     check("unknown status is metadata only",
       unknown.rows[0] && unknown.rows[0].geo_status === "ambiguous" && unknown.rows[0].empty === true);
+    const mappedCities = await pool.query(
+      "select id, city, source_url from activities where id = any($1::int[])",
+      [[12, 105, 187, 350, 361, 500, 1876]]
+    );
+    const cityById = {};
+    mappedCities.rows.forEach(row => { cityById[row.id] = row; });
+    check("coords city is stored for every status and source notes are not",
+      cityById[187] && cityById[187].city === "Sundance" && cityById[187].source_url == null &&
+      cityById[350] && cityById[350].city === "Salt Lake City" && cityById[350].source_url == null &&
+      cityById[361] && cityById[361].city == null &&
+      cityById[500] && cityById[500].city === "Provo" &&
+      cityById[105] && cityById[105].city === "Provo" && cityById[105].source_url == null &&
+      cityById[12] && cityById[12].city === "Provo" &&
+      cityById[1876] && cityById[1876].city === "Provo" && cityById[1876].source_url == null,
+      JSON.stringify(mappedCities.rows));
     check("id missing from the catalog is counted unknown",
       fixtureResult.coords && fixtureResult.coords.unknown_id >= 1, JSON.stringify(fixtureResult.coords));
     const nearFalls = await request(port, "/api/activities?lat=40.39&lng=-111.60&radiusMiles=5&limit=50");
@@ -246,28 +390,41 @@ async function main() {
     check("confident pin shows up in a radius query", nearFalls.status === 200 && nearIds.indexOf(187) !== -1, nearIds.join(","));
 
     sample["1876"].lat = 41.5;
+    sample["1876"].city = "Other City";
     fs.writeFileSync(path.join(fixtureDir, "utah.json"), JSON.stringify(sample));
+    await pool.query("update activities set city = $1 where id = 1876", ["Kept City"]);
     const relock = await seed({ pool: pool, connectionString: connectionString, coordsDir: fixtureDir });
-    const lockedAfter = await pool.query("select ST_Y(location::geometry) as lat from activities where id = 1876");
+    const lockedAfter = await pool.query("select ST_Y(location::geometry) as lat, city from activities where id = 1876");
     check("reseeding coords does not move a locked pin",
       Math.abs(Number(lockedAfter.rows[0].lat) - lockedLat) < 0.00001 &&
       relock.coords && relock.coords.skipped_locked >= 1,
       JSON.stringify(relock.coords));
+    check("a locked row keeps its city across a re-seed",
+      lockedAfter.rows[0].city === "Kept City", lockedAfter.rows[0].city);
     const raised = await expectFail(pool.query(
       "update activities set location = ST_MakePoint(-111.8, 40.7)::geography where id = 1876"
     ));
     check("a direct location update on a locked row is rejected", raised);
+    await pool.query(
+      "update activities set city = $2, source_url = $3 where id = $1",
+      [187, "Admin City", "https://getoutgames.com/provo/"]
+    );
     const beforeContent = await pool.query(
-      "select ST_AsText(location::geometry) as g, address, coords_locked from activities where id = 187"
+      "select ST_AsText(location::geometry) as g, address, coords_locked, city, source_url from activities where id = 187"
     );
     await seed({ pool: pool, connectionString: connectionString, coordsDir: emptyDir });
     const afterContent = await pool.query(
-      "select ST_AsText(location::geometry) as g, address, coords_locked from activities where id = 187"
+      "select ST_AsText(location::geometry) as g, address, coords_locked, city, source_url from activities where id = 187"
     );
     check("re-seeding content does not touch coordinates",
       beforeContent.rows[0].g === afterContent.rows[0].g &&
       beforeContent.rows[0].address === afterContent.rows[0].address &&
       beforeContent.rows[0].coords_locked === afterContent.rows[0].coords_locked);
+    check("re-seeding content keeps city and source_url",
+      afterContent.rows[0].city === "Admin City" &&
+      afterContent.rows[0].source_url === "https://getoutgames.com/provo/" &&
+      beforeContent.rows[0].city === afterContent.rows[0].city &&
+      beforeContent.rows[0].source_url === afterContent.rows[0].source_url);
 
     const pending = await pool.query(
       "insert into activities (title, category, setting, cost, duration) " +
@@ -380,6 +537,78 @@ async function main() {
     check("real utah file locks the hand pin",
       realLocked.rows[0] && realLocked.rows[0].coords_locked === true && realLocked.rows[0].pinned === true &&
       realLocked.rows[0].geo_source === "manual");
+
+    const utah = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "coords", "utah.json"), "utf8"));
+    const seededCity = await pool.query("select city, source_url, coords_locked from activities where id = 187");
+    const expectedCity = (typeof utah["187"].city === "string" && utah["187"].city.trim()) ? utah["187"].city.trim() : null;
+    check("a seeded utah id gets its city from the coords file",
+      seededCity.rows[0] && seededCity.rows[0].city === expectedCity && seededCity.rows[0].coords_locked === false,
+      seededCity.rows[0] && seededCity.rows[0].city);
+    check("coords re-seed does not clear an admin source_url",
+      seededCity.rows[0] && seededCity.rows[0].source_url === "https://getoutgames.com/provo/");
+    const areaCity = await pool.query(
+      "select city, location is null as empty from activities where id = 350"
+    );
+    const expectedArea = (typeof utah["350"].city === "string" && utah["350"].city.trim()) ? utah["350"].city.trim() : null;
+    check("an unpinned status still gets city from the coords file",
+      areaCity.rows[0] && areaCity.rows[0].empty === true && areaCity.rows[0].city === expectedArea,
+      areaCity.rows[0] && areaCity.rows[0].city);
+    const noteUrls = [];
+    Object.keys(utah).forEach(key => {
+      if (utah[key] && utah[key].source_url) noteUrls.push(utah[key].source_url);
+    });
+    const copiedNotes = await pool.query(
+      "select id from activities where source_url = any($1::text[])",
+      [noteUrls]
+    );
+    check("coords source notes are never stored on source_url", copiedNotes.rows.length === 0, String(copiedNotes.rows.length));
+    const dbCities = await pool.query(
+      "select id, city, coords_locked from activities where source = 'curated'"
+    );
+    const dbById = {};
+    dbCities.rows.forEach(row => { dbById[row.id] = row; });
+    let cityMismatch = 0;
+    Object.keys(utah).forEach(key => {
+      const entry = utah[key];
+      const row = dbById[entry.id];
+      if (!row || row.coords_locked) return;
+      const expected = (typeof entry.city === "string" && entry.city.trim()) ? entry.city.trim() : null;
+      if (row.city !== expected) cityMismatch++;
+    });
+    check("unlocked rows take city from the coords file", cityMismatch === 0, String(cityMismatch));
+
+    const provo = await fetchAll(port, "city=provo");
+    const provoUpper = await fetchAll(port, "city=PROVO");
+    const provoDb = await pool.query(
+      "select count(*)::int as n from activities where status = 'approved' and tier = 'free' and lower(city) = 'provo'"
+    );
+    check("city=provo returns only Provo rows",
+      provo.length > 0 && provo.every(item => item.city && item.city.toLowerCase() === "provo" &&
+        Object.prototype.hasOwnProperty.call(item, "sourceUrl") && Object.prototype.hasOwnProperty.call(item, "age21")));
+    check("city filter is case-insensitive",
+      provo.length === provoDb.rows[0].n &&
+      provoUpper.map(item => item.id).join(",") === provo.map(item => item.id).join(","),
+      provo.length + " vs " + (provoDb.rows[0] && provoDb.rows[0].n));
+    const provoDetail = await request(port, "/api/activities/" + provo[0].id);
+    const provoBody = JSON.parse(provoDetail.body);
+    check("detail returns sourceUrl, city, and age21",
+      provoDetail.status === 200 && provoBody.city === provo[0].city &&
+      Object.prototype.hasOwnProperty.call(provoBody, "sourceUrl") && typeof provoBody.age21 === "boolean" &&
+      !Object.prototype.hasOwnProperty.call(provoBody, "source_url"));
+    const ageIdea = ideas.find(idea => idea.age21 === true);
+    const ageDefault = await request(port, "/api/activities/" + ageIdea.id);
+    const ageDefaultBody = JSON.parse(ageDefault.body);
+    const ageCategory = "category=" + encodeURIComponent(ageIdea.category);
+    const ageShown = await fetchAll(port, ageCategory);
+    const ageShownFalse = await fetchAll(port, ageCategory + "&hide21=false");
+    const ageHidden = await fetchAll(port, ageCategory + "&hide21=true");
+    check("a seeded age21 row is returned by default",
+      ageDefault.status === 200 && ageDefaultBody.age21 === true && ageDefaultBody.id === ageIdea.id &&
+      ageShown.some(item => item.id === ageIdea.id && item.age21 === true));
+    check("hide21=false still returns that age21 row",
+      ageShownFalse.some(item => item.id === ageIdea.id && item.age21 === true));
+    check("hide21=true excludes that age21 row",
+      ageHidden.every(item => item.id !== ageIdea.id && item.age21 !== true));
 
     const rand = rng(0x5e1);
     let parityBad = 0;

@@ -434,6 +434,7 @@
       stableKey: stableKey,
       title: raw.title,
       description: raw.description || "",
+      materials: Array.isArray(raw.materials) ? raw.materials : [],
       category: "Real Nearby Spot",
       icon: raw.icon || "map-pin",
       setting: raw.setting === "Outdoor" ? "Outdoor" : "Indoor",
@@ -1738,6 +1739,20 @@
 
     wrap.appendChild(el("h2", "detail-title", escapeHtml(idea.title) + ageBadgeHtml(idea)));
     wrap.appendChild(el("p", "detail-desc", escapeHtml(idea.description)));
+
+    // Missing (events, older saved spots) stays hidden. [] is "Nothing needed".
+    if(Array.isArray(idea.materials)){
+      var mat = el("div", "detail-materials");
+      mat.appendChild(el("h3", "detail-materials-title", "Materials needed"));
+      if(idea.materials.length){
+        var ul = el("ul", "detail-materials-list");
+        idea.materials.forEach(function(m){ ul.appendChild(el("li", "", escapeHtml(m))); });
+        mat.appendChild(ul);
+      } else {
+        mat.appendChild(el("p", "detail-materials-none", "Nothing needed"));
+      }
+      wrap.appendChild(mat);
+    }
 
     if(friendPicks.length){
       var band = el("div", "friend-pick-banner");

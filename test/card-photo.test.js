@@ -2,6 +2,7 @@
    and the existing cover-art card when it isn't. */
 
 const { loadApp } = require("./harness.js");
+const { escapeHtml } = require("../public/util.js");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -68,7 +69,8 @@ section("A photo url switches to the H1 card", () => {
   check("card is marked has-photo", card.className === "swipe-card has-photo", card.className);
   check("photo fills the card", card.html.indexOf("card-photo") !== -1 && card.html.indexOf("https://example.com/ridge.jpg") !== -1);
   check("scrim is present", card.html.indexOf("card-photo-scrim") !== -1);
-  check("title sits in the overlay", card.html.indexOf("Palisades After the Powder") !== -1 && card.html.indexOf("card-photo-overlay") !== -1);
+  check("title sits in the overlay",
+        idea.title.length > 0 && card.html.indexOf(escapeHtml(idea.title)) !== -1 && card.html.indexOf("card-photo-overlay") !== -1);
   check("no cover-art media and no hint",
         card.html.indexOf('class="card-media"') === -1 && card.html.indexOf(HINT) === -1);
 

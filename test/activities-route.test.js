@@ -71,7 +71,7 @@ function listen(app) {
 }
 
 async function main() {
-  const rows = [row(2), row(3)];
+  const rows = [row(2, { materials: ["Boots", "Water"] }), row(3, { materials: null })];
   const db = {
     async query() { return { rows: rows }; }
   };
@@ -95,6 +95,9 @@ async function main() {
       check("null source_url and city map to null", item.sourceUrl === null && item.city === null);
       check("source_url is not exposed as snake_case",
         !Object.prototype.hasOwnProperty.call(item, "source_url") && res.body.indexOf("source_url") === -1);
+      check("materials are returned", JSON.stringify(item.materials) === JSON.stringify(["Boots", "Water"]));
+      check("null materials maps to an empty list",
+        Array.isArray(body.items[1].materials) && body.items[1].materials.length === 0);
       check("affiliate_url maps to affiliateUrl", item.affiliateUrl === "https://example.com/out");
       check("status is not exposed", !Object.prototype.hasOwnProperty.call(item, "status") && res.body.indexOf("\"status\"") === -1);
       check("submitter_email is not exposed", res.body.indexOf("submitter_email") === -1);

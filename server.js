@@ -141,8 +141,35 @@ return out;
 
 // Sends the whole candidate list to Claude ONCE and asks it to pick the best
 // subset and turn each into a Spark-style idea card. Returns an array of
-// { placeIndex, title, description, icon, cost, setting, vibe, food, durationGuess }.
+// { placeIndex, title, description, materials, icon, cost, setting, vibe, food, durationGuess }.
 // The prompt names venues. It does not include the user's coordinates.
+function normalizeNearbyMaterials(raw) {
+if (!Array.isArray(raw)) return [];
+return raw.filter(function (s) { return typeof s === "string" && s.trim(); })
+.map(function (s) { return s.trim().slice(0, 60); })
+.slice(0, 6);
+}
+
+function mapNearbyCard(c, place) {
+if (!place) return null;
+return {
+title: c.title || place.name,
+description: c.description || "",
+icon: c.icon || "📍",
+cost: c.cost || null,
+setting: c.setting === "Outdoor" ? "Outdoor" : "Indoor",
+vibe: Array.isArray(c.vibe) ? c.vibe : [],
+food: !!c.food,
+durationGuess: c.durationGuess || null,
+materials: normalizeNearbyMaterials(c && c.materials),
+placeId: place.placeId || "",
+placeName: place.name,
+address: place.address,
+mapsUrl: place.mapsUrl,
+rating: place.rating
+};
+}
+
 async function generateNearbyIdeaCards(candidates, count) {
 var Anthropic = require("@anthropic-ai/sdk");
 var client = new Anthropic({ apiKey: anthropicKey() });
@@ -159,14 +186,16 @@ var prompt = "You are turning REAL nearby places into short, fun date-idea cards
 + "write a short, catchy Spark-style date idea card.\n\n"
 + "Respond ONLY with strict JSON, no markdown fencing, as an array in exactly this shape:\n"
 + "[{\"placeIndex\": 1, \"title\": \"short catchy activity title mentioning the place (<=8 words)\", "
-+ "\"description\": \"1 friendly sentence specific to this venue\", \"icon\": \"a single relevant emoji\", "
++ "\"description\": \"2-3 friendly sentences on how to do this date at this venue\", \"icon\": \"a single relevant emoji\", "
 + "\"cost\": \"one of Free, $1-$10, $20-$30, $100 and under\", \"setting\": \"Indoor or Outdoor\", "
 + "\"vibe\": [\"1-3 of: Chill, Romantic, Active, Adventurous, Creative, Silly, Cozy, Spontaneous\"], "
-+ "\"food\": true or false, \"durationGuess\": \"one of Quick (under 1 hr), Short (1-2 hrs), Half-day (2-5 hrs), Full day, Overnight\"}]";
++ "\"food\": true or false, \"durationGuess\": \"one of Quick (under 1 hr), Short (1-2 hrs), Half-day (2-5 hrs), Full day, Overnight\", "
++ "\"materials\": [\"0-4 short items to bring, [] if nothing\"]}]"
++ "\n\nNever invent prices, hours, or phone numbers.";
 
 var msg = await client.messages.create({
 model: "claude-sonnet-5",
-max_tokens: 1800,
+max_tokens: 2500,
 messages: [{ role: "user", content: prompt }]
 });
 var text = (msg.content && msg.content[0] && msg.content[0].text) ? msg.content[0].text : "[]";
@@ -205,23 +234,7 @@ candidates = shuffleArray(candidates).slice(0, 20);
 var cards = await generateNearbyIdeaCards(candidates, count);
 
 var ideas = (cards || []).map(function (c) {
-var place = candidates[(c.placeIndex || 0) - 1];
-if (!place) return null;
-return {
-title: c.title || place.name,
-description: c.description || "",
-icon: c.icon || "📍",
-cost: c.cost || null,
-setting: c.setting === "Outdoor" ? "Outdoor" : "Indoor",
-vibe: Array.isArray(c.vibe) ? c.vibe : [],
-food: !!c.food,
-durationGuess: c.durationGuess || null,
-placeId: place.placeId || "",
-placeName: place.name,
-address: place.address,
-mapsUrl: place.mapsUrl,
-rating: place.rating
-};
+return mapNearbyCard(c, candidates[(c.placeIndex || 0) - 1]);
 }).filter(Boolean);
 
 res.json({ ideas: ideas });
@@ -270,6 +283,8 @@ res.status(404).type("txt").send("Not found");
 });
 
 module.exports = app;
+app.normalizeNearbyMaterials = normalizeNearbyMaterials;
+app.mapNearbyCard = mapNearbyCard;
 
 if (require.main === module) {
 app.listen(PORT, () => {

@@ -106,13 +106,20 @@ To turn it on with Supabase:
    npm run db:migrate && npm run db:seed
    ```
 
-   `npm run db:migrate` applies every file in `db/migrations/`, including
-   `002_over100_age21.sql`, which allows the `Over $100` cost and adds the
-   `age21` column, and `003_source_url_city.sql`, which adds nullable
-   `source_url` (https only, at most 2048 characters) and nullable `city`.
+   `npm run db:migrate` applies every file in `db/migrations/` in filename
+   order. A missing number does not stop later files. `002_over100_age21.sql`
+   allows the `Over $100` cost and adds the `age21` column.
+   `003_source_url_city.sql` adds nullable `source_url` (https only, at most
+   2048 characters) and nullable `city`. `004_materials.sql` adds a non-null
+   `materials` text array that defaults to empty. There is no `005` yet.
+   `006_security_hardening.sql` moves
+   `citext` into the `extensions` schema, pins `search_path` on the trigger
+   functions, and revokes anonymous access to `st_estimatedextent` and
+   `spatial_ref_sys`. PostGIS stays in `public`.
    `npm run db:seed` loads `public/data.js` and, when `data/coords/*.json` is
    present, the coordinate files. City is copied from those files for every
-   status; a locked row keeps the city it already has. Curated ideas do not
+   status, including a row whose coordinates are locked. A locked row still
+   keeps its location, address, and geo fields. Curated ideas do not
    set `source_url`, and source notes in the coords files are not copied.
    It is safe to run again. A content re-seed does not clear `source_url` or
    `city`. Curated ideas that were removed from `data.js` are archived, not

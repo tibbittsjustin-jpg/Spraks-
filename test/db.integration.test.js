@@ -10,7 +10,7 @@ const { Pool } = require("pg");
 const filters = require("../shared/filters");
 const { migrate } = require("../db/migrate");
 const { seed, loadIdeas } = require("../db/seed");
-const { closePool } = require("../db");
+const { closePool, poolConfig } = require("../db");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -100,6 +100,11 @@ function encodeFilters(f) {
 }
 
 async function resetDatabase(pool) {
+  // 006 creates `extensions`, and the supabase-history check creates
+  // supabase_migrations. Both sit outside public, so a second test run
+  // would otherwise skip 003/006 or find citext already moved.
+  await pool.query("DROP SCHEMA IF EXISTS supabase_migrations CASCADE");
+  await pool.query("DROP SCHEMA IF EXISTS extensions CASCADE");
   await pool.query("DROP SCHEMA IF EXISTS public CASCADE");
   await pool.query("CREATE SCHEMA public");
   await pool.query("GRANT ALL ON SCHEMA public TO public");
@@ -144,7 +149,7 @@ async function main() {
   process.env.PGSSLMODE = "disable";
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
   const connectionString = process.env.TEST_DATABASE_URL;
-  const pool = new Pool({ connectionString: connectionString, ssl: false, max: 5, connectionTimeoutMillis: 8000 });
+  const pool = new Pool(Object.assign({}, poolConfig(connectionString), { connectionTimeoutMillis: 8000 }));
   const ideas = loadIdeas(path.join(__dirname, "..", "public", "data.js"));
   const byId = {};
   ideas.forEach(idea => { byId[idea.id] = idea; });
@@ -155,18 +160,24 @@ async function main() {
   try {
     await resetDatabase(pool);
     // The current seed writes materials, so 004 is already applied here.
-    // The upgrade under test is still 003 (source_url and city).
+    // The upgrade under test is 003 (source_url and city) and 006.
     await applyMigrationFiles(pool, ["001_init.sql", "002_over100_age21.sql", "004_materials.sql"]);
     await seed({ pool: pool, connectionString: connectionString, coordsDir: emptyDir });
     const beforeUpgrade = await pool.query(
       "select id, title, description, category, age21, status, source from activities order by id"
     );
+    await pool.query(
+      "insert into submissions (payload, submitter_email) values ('{\"title\":\"Hi\"}'::jsonb, 'Before@Move.dev')"
+    );
     const upgrade = await migrate({ pool: pool, connectionString: connectionString });
     const afterUpgrade = await pool.query(
       "select id, title, description, category, age21, status, source, source_url, city from activities order by id"
     );
-    check("upgrade applies only 003",
-      upgrade.applied.length === 1 && upgrade.applied[0] === "003_source_url_city.sql" &&
+    check("upgrade applies 003 and 006 and skips 001 and 002",
+      upgrade.applied.indexOf("003_source_url_city.sql") !== -1 &&
+      upgrade.applied.indexOf("006_security_hardening.sql") !== -1 &&
+      upgrade.applied.indexOf("001_init.sql") === -1 &&
+      upgrade.applied.indexOf("002_over100_age21.sql") === -1 &&
       upgrade.skipped.indexOf("001_init.sql") !== -1 &&
       upgrade.skipped.indexOf("002_over100_age21.sql") !== -1 &&
       upgrade.skipped.indexOf("004_materials.sql") !== -1,
@@ -180,7 +191,13 @@ async function main() {
           row.age21 === next.age21 && row.status === next.status && row.source === next.source &&
           next.source_url == null && next.city == null;
       });
-    check("003 on a seeded database leaves rows untouched", upgradedSame, String(afterUpgrade.rows.length));
+    check("003 and 006 on a seeded database leave rows untouched", upgradedSame, String(afterUpgrade.rows.length));
+    const keptEmail = await pool.query(
+      "select (submitter_email = 'before@move.dev') as same, submitter_email::text as raw from submissions"
+    );
+    check("citext email still matches after 006 moves the type",
+      keptEmail.rows[0] && keptEmail.rows[0].same === true && keptEmail.rows[0].raw === "Before@Move.dev",
+      JSON.stringify(keptEmail.rows[0]));
 
     await resetDatabase(pool);
     const first = await migrate({ pool: pool, connectionString: connectionString });
@@ -189,12 +206,18 @@ async function main() {
     check("migration 002 applied", first.applied.indexOf("002_over100_age21.sql") !== -1, first.applied.join(","));
     check("migration 003 applied", first.applied.indexOf("003_source_url_city.sql") !== -1, first.applied.join(","));
     check("migration 004 applied", first.applied.indexOf("004_materials.sql") !== -1, first.applied.join(","));
+    check("migration 006 applied", first.applied.indexOf("006_security_hardening.sql") !== -1, first.applied.join(","));
+    check("005 is not required for 006 to apply",
+      first.applied.indexOf("005_subscriptions.sql") === -1 &&
+      first.applied.indexOf("006_security_hardening.sql") > first.applied.indexOf("004_materials.sql"),
+      first.applied.join(","));
     check("second migrate is a no-op",
       second.applied.length === 0 &&
       second.skipped.indexOf("001_init.sql") !== -1 &&
       second.skipped.indexOf("002_over100_age21.sql") !== -1 &&
       second.skipped.indexOf("003_source_url_city.sql") !== -1 &&
-      second.skipped.indexOf("004_materials.sql") !== -1);
+      second.skipped.indexOf("004_materials.sql") !== -1 &&
+      second.skipped.indexOf("006_security_hardening.sql") !== -1);
     let reran = true;
     try {
       await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "003_source_url_city.sql"), "utf8"));
@@ -209,6 +232,136 @@ async function main() {
       materialsReran = false;
     }
     check("004 sql can run again", materialsReran);
+    let reran006 = true;
+    try {
+      await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "006_security_hardening.sql"), "utf8"));
+    } catch (err) {
+      reran006 = false;
+    }
+    check("006 sql can run again", reran006);
+
+    const fnConfig = await pool.query(
+      "select proname, proconfig from pg_proc p " +
+      "join pg_namespace n on n.oid = p.pronamespace " +
+      "where n.nspname = 'public' and proname in ('protect_locked_coords', 'set_updated_at') " +
+      "order by proname"
+    );
+    const configByName = {};
+    fnConfig.rows.forEach(row => { configByName[row.proname] = (row.proconfig || []).join(" "); });
+    check("trigger functions pin search_path",
+      /search_path/i.test(configByName.protect_locked_coords || "") &&
+      /search_path/i.test(configByName.set_updated_at || ""),
+      JSON.stringify(configByName));
+    const citextSchema = await pool.query(
+      "select n.nspname from pg_extension e " +
+      "join pg_namespace n on n.oid = e.extnamespace where e.extname = 'citext'"
+    );
+    const postgisSchema = await pool.query(
+      "select n.nspname from pg_extension e " +
+      "join pg_namespace n on n.oid = e.extnamespace where e.extname = 'postgis'"
+    );
+    check("citext lives in extensions", citextSchema.rows[0] && citextSchema.rows[0].nspname === "extensions",
+      citextSchema.rows[0] && citextSchema.rows[0].nspname);
+    check("postgis stays in public", postgisSchema.rows[0] && postgisSchema.rows[0].nspname === "public",
+      postgisSchema.rows[0] && postgisSchema.rows[0].nspname);
+    await pool.query("grant select on table public.spatial_ref_sys to anon, authenticated, public");
+    const extentFns = await pool.query(
+      "select p.oid::regprocedure::text as sig from pg_proc p " +
+      "join pg_namespace n on n.oid = p.pronamespace " +
+      "where n.nspname = 'public' and p.proname = 'st_estimatedextent'"
+    );
+    for (const row of extentFns.rows) {
+      await pool.query("grant execute on function " + row.sig + " to anon, authenticated, public");
+    }
+    await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "006_security_hardening.sql"), "utf8"));
+    const spatialPriv = await pool.query(
+      "select has_table_privilege('anon', 'public.spatial_ref_sys', 'SELECT') as anon_select, " +
+      "has_table_privilege('authenticated', 'public.spatial_ref_sys', 'SELECT') as auth_select, " +
+      "has_table_privilege('public', 'public.spatial_ref_sys', 'SELECT') as public_select"
+    );
+    check("anon, authenticated, and public cannot select spatial_ref_sys",
+      spatialPriv.rows[0] && spatialPriv.rows[0].anon_select === false &&
+      spatialPriv.rows[0].auth_select === false && spatialPriv.rows[0].public_select === false,
+      JSON.stringify(spatialPriv.rows[0]));
+    const extentPriv = await pool.query(
+      "select has_function_privilege('anon', p.oid, 'EXECUTE') as anon_exec, " +
+      "has_function_privilege('authenticated', p.oid, 'EXECUTE') as auth_exec, " +
+      "has_function_privilege('public', p.oid, 'EXECUTE') as public_exec, " +
+      "pg_get_function_identity_arguments(p.oid) as args " +
+      "from pg_proc p join pg_namespace n on n.oid = p.pronamespace " +
+      "where n.nspname = 'public' and p.proname = 'st_estimatedextent'"
+    );
+    check("st_estimatedextent execute is revoked from anon, authenticated, and public",
+      extentPriv.rows.length >= 1 && extentPriv.rows.every(row =>
+        row.anon_exec === false && row.auth_exec === false && row.public_exec === false),
+      JSON.stringify(extentPriv.rows));
+    const rls = await pool.query(
+      "select c.relname, c.relrowsecurity as enabled, " +
+      "(select count(*)::int from pg_policy pol where pol.polrelid = c.oid) as policies " +
+      "from pg_class c join pg_namespace n on n.oid = c.relnamespace " +
+      "where n.nspname = 'public' and c.relname in ('activities', 'sources', 'submissions') " +
+      "order by c.relname"
+    );
+    check("app tables keep RLS and still have no policies",
+      rls.rows.length === 3 && rls.rows.every(row => row.enabled === true && row.policies === 0),
+      JSON.stringify(rls.rows));
+    const srid = await pool.query("select srid from public.spatial_ref_sys where srid = 4326");
+    check("spatial_ref_sys SRID 4326 is still readable", srid.rows.length === 1);
+    await pool.query(
+      "alter table activities add column if not exists materials text[] not null default '{}'"
+    );
+    const mats = await pool.query(
+      "insert into activities (title, category, setting, cost, duration, materials) " +
+      "values ('Mats', 'Hiking & Nature', 'Outdoor', 'Free', 'Quick (under 1 hr)', '{blanket,snacks}') " +
+      "returning id, materials"
+    );
+    const matsDefault = await pool.query(
+      "insert into activities (title, category, setting, cost, duration) " +
+      "values ('No mats', 'Hiking & Nature', 'Outdoor', 'Free', 'Quick (under 1 hr)') returning id, materials"
+    );
+    check("materials text[] still inserts after citext moves",
+      mats.rows[0] && mats.rows[0].materials.length === 2 && mats.rows[0].materials[0] === "blanket" &&
+      matsDefault.rows[0] && matsDefault.rows[0].materials.length === 0,
+      JSON.stringify(mats.rows[0] && mats.rows[0].materials));
+    await pool.query("delete from activities where id = any($1::int[])", [[mats.rows[0].id, matsDefault.rows[0].id]]);
+
+    const trackedBefore = await pool.query("select filename from schema_migrations order by filename");
+    const trackedNames = trackedBefore.rows.map(row => row.filename);
+    await pool.query("delete from schema_migrations");
+    await pool.query("create schema if not exists supabase_migrations");
+    await pool.query(
+      "create table if not exists supabase_migrations.schema_migrations (" +
+      "version text primary key, statements text[], name text)"
+    );
+    await pool.query("delete from supabase_migrations.schema_migrations");
+    const supabaseHistory = [
+      ["20261029211404", "001_init"],
+      ["20261029211410", "002_over100_age21"],
+      ["20261029211849", "003_source_url_city"],
+      ["20261029213000", "004_materials"],
+      ["20261029220000", "006_security_hardening"]
+    ];
+    for (const row of supabaseHistory) {
+      await pool.query(
+        "insert into supabase_migrations.schema_migrations (version, name) values ($1, $2)",
+        row
+      );
+    }
+    const viaSupabase = await migrate({ pool: pool, connectionString: connectionString });
+    ["001_init.sql", "002_over100_age21.sql", "003_source_url_city.sql", "004_materials.sql", "006_security_hardening.sql"].forEach(file => {
+      check("supabase history skips " + file,
+        viaSupabase.skipped.indexOf(file) !== -1 && viaSupabase.applied.indexOf(file) === -1,
+        viaSupabase.applied.join(",") + " / " + viaSupabase.skipped.join(","));
+    });
+    check("supabase history does not invent migration 005",
+      viaSupabase.applied.every(file => file.indexOf("005_") !== 0) &&
+      viaSupabase.skipped.every(file => file.indexOf("005_") !== 0));
+    for (const filename of trackedNames) {
+      await pool.query(
+        "insert into schema_migrations (filename) values ($1) on conflict do nothing",
+        [filename]
+      );
+    }
 
     const overCost = await pool.query(
       "insert into activities (title, category, setting, cost, duration, status, source, tier) " +
@@ -333,7 +486,8 @@ async function main() {
     check("migrate after seed is a no-op",
       afterSeedMigrate.applied.length === 0 &&
       afterSeedMigrate.skipped.indexOf("003_source_url_city.sql") !== -1 &&
-      afterSeedMigrate.skipped.indexOf("004_materials.sql") !== -1);
+      afterSeedMigrate.skipped.indexOf("004_materials.sql") !== -1 &&
+      afterSeedMigrate.skipped.indexOf("006_security_hardening.sql") !== -1);
     check("re-running migrate keeps the curated count",
       curatedAfter.rows[0].n === ideas.length, String(curatedAfter.rows[0].n));
     check("seed without coords leaves source_url and city null",
@@ -420,12 +574,20 @@ async function main() {
     await pool.query("update activities set city = $1 where id = 1876", ["Kept City"]);
     const relock = await seed({ pool: pool, connectionString: connectionString, coordsDir: fixtureDir });
     const lockedAfter = await pool.query("select ST_Y(location::geometry) as lat, city from activities where id = 1876");
-    check("reseeding coords does not move a locked pin",
+    check("a locked row gets its city from the coords file and its location is unchanged",
       Math.abs(Number(lockedAfter.rows[0].lat) - lockedLat) < 0.00001 &&
+      lockedAfter.rows[0].city === "Other City" &&
       relock.coords && relock.coords.skipped_locked >= 1,
-      JSON.stringify(relock.coords));
-    check("a locked row keeps its city across a re-seed",
-      lockedAfter.rows[0].city === "Kept City", lockedAfter.rows[0].city);
+      JSON.stringify({ city: lockedAfter.rows[0].city, lat: lockedAfter.rows[0].lat, coords: relock.coords }));
+    const cityOnly = await pool.query(
+      "update activities set city = $2 where id = $1 returning city, ST_Y(location::geometry) as lat, coords_locked",
+      [1876, "Trigger City"]
+    );
+    check("a city-only update on a locked row is allowed",
+      cityOnly.rows[0] && cityOnly.rows[0].city === "Trigger City" &&
+      cityOnly.rows[0].coords_locked === true &&
+      Math.abs(Number(cityOnly.rows[0].lat) - lockedLat) < 0.00001,
+      JSON.stringify(cityOnly.rows[0]));
     const raised = await expectFail(pool.query(
       "update activities set location = ST_MakePoint(-111.8, 40.7)::geography where id = 1876"
     ));

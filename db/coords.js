@@ -166,6 +166,15 @@ async function applyCoords(entries, db) {
   for (const entry of entries) {
     if (entry.kind === "invalid") { counts.skipped_invalid++; continue; }
     if (entry.kind === "unknown_id") { counts.unknown_id++; continue; }
+    // City is display metadata. It updates even when coordinates are locked.
+    // The locked-coords trigger ignores a city-only change. Location, address,
+    // coords_locked, and geo_* stay behind the coords_locked guard below, and
+    // a locked row still counts as skipped_locked for those fields.
+    const city = entry.city == null ? null : entry.city;
+    await db.query(
+      "update activities set city = $2 where id = $1 and city is distinct from $2",
+      [entry.id, city]
+    );
     const result = await db.query(
       "update activities set " +
       "location = case when $2::boolean then ST_MakePoint($3, $4)::geography else null end, " +
@@ -174,8 +183,7 @@ async function applyCoords(entries, db) {
       "geo_status = $8, " +
       "geo_confidence = $9, " +
       "geo_source = $10, " +
-      "geo_resolved_at = $11, " +
-      "city = $12 " +
+      "geo_resolved_at = $11 " +
       "where id = $1 and coords_locked = false",
       [
         entry.id,
@@ -188,8 +196,7 @@ async function applyCoords(entries, db) {
         entry.geoStatus,
         entry.geoConfidence,
         entry.geoSource,
-        entry.geoResolvedAt,
-        entry.city == null ? null : entry.city
+        entry.geoResolvedAt
       ]
     );
     if (result.rowCount > 0) {

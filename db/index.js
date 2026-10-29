@@ -14,11 +14,18 @@ function sslFor(connectionString) {
   return { rejectUnauthorized: false };
 }
 
+/* citext moves to `extensions` in 006. public stays first so unqualified app
+   tables still resolve, including 004_materials.sql's text[] column on
+   activities. A schema named here that does not exist yet is ignored, so
+   001-003 can run on a fresh database before `extensions` is created. */
+const SEARCH_PATH = "public,extensions,pg_catalog";
+
 function poolConfig(connectionString) {
   return {
     connectionString: connectionString,
     max: 5,
-    ssl: sslFor(connectionString)
+    ssl: sslFor(connectionString),
+    options: "-c search_path=" + SEARCH_PATH
   };
 }
 
@@ -39,4 +46,4 @@ async function closePool() {
   await current.end();
 }
 
-module.exports = { getPool, closePool, isConfigured, poolConfig, sslFor };
+module.exports = { getPool, closePool, isConfigured, poolConfig, sslFor, SEARCH_PATH };

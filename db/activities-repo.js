@@ -15,7 +15,7 @@ const OVERLAP_FIELDS = {
 };
 
 const SELECT_COLUMNS =
-  "id, title, description, category, icon, setting, season, food, cost, duration, " +
+  "id, title, description, category, icon, setting, season, food, age21, cost, duration, " +
   "time, vibe, stage, date_type, scene, motif, source, tier, address, affiliate_url, updated_at, " +
   "ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng";
 
@@ -94,6 +94,12 @@ function buildListQuery(params) {
     if (raw !== "true" && raw !== "false") throw invalidFilter("food");
     values.push(raw === "true");
     where.push("food = $" + values.length);
+  }
+
+  if (params.hide21 != null && params.hide21 !== "") {
+    const raw = String(params.hide21).toLowerCase();
+    if (raw !== "true" && raw !== "false") throw invalidFilter("hide21");
+    if (raw === "true") where.push("age21 = false");
   }
 
   const latMissing = params.lat == null || params.lat === "";
@@ -178,6 +184,7 @@ function mapRow(row, located) {
     setting: row.setting,
     season: row.season || [],
     food: row.food,
+    age21: row.age21 === true,
     cost: row.cost,
     duration: row.duration,
     time: row.time || [],

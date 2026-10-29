@@ -7,13 +7,15 @@
 module.exports = {
   setting: ["Indoor", "Outdoor", "Both"],
   season: ["Spring", "Summer", "Fall", "Winter"],
-  cost: ["Free", "$1-$10", "$20-$30", "$100 and under"],
+  cost: ["Free", "$1-$10", "$20-$30", "$100 and under", "Over $100"],
   duration: ["Quick (under 1 hr)", "Short (1-2 hrs)", "Half-day (2-5 hrs)", "Full day", "Overnight"],
   time: ["Morning", "Afternoon", "Evening", "Night"],
   vibe: ["Chill", "Romantic", "Active", "Adventurous", "Creative", "Silly", "Cozy", "Spontaneous"],
   stage: ["First Date", "Second/Third Date", "Serious Relationship"],
   dateType: ["Solo/Couple", "Double Date", "Group Date"],
   food: [true, false],
+  // Alcohol-centered ideas. Absent on an idea means false.
+  age21: [true, false],
   // Closed set of curated categories. Not a swipe-filter chip, but the API
   // accepts category= the same way it accepts cost=.
   category: [

@@ -20,7 +20,8 @@ const BATCH = 500;
 
 const INSERT_COLS = [
   "id", "title", "description", "category", "icon", "setting", "season", "food",
-  "cost", "duration", "time", "vibe", "stage", "date_type", "scene", "motif", "affiliate_url"
+  "cost", "duration", "time", "vibe", "stage", "date_type", "scene", "motif", "affiliate_url",
+  "age21"
 ];
 
 function loadIdeas(file) {
@@ -51,6 +52,7 @@ function validateIdeas(ideas) {
       if (!Array.isArray(values) || values.some(value => filters[key].indexOf(value) === -1)) problems.push(key);
     });
     if (typeof idea.food !== "boolean") problems.push("food");
+    if (idea.age21 != null && filters.age21.indexOf(idea.age21) === -1) problems.push("age21");
     if (problems.length) bad.push(String(idea.id) + " (" + problems.join(", ") + ")");
   });
   if (bad.length) {
@@ -81,7 +83,8 @@ function ideaValues(idea) {
     idea.dateType,
     idea.scene == null ? null : idea.scene,
     idea.motif == null ? null : idea.motif,
-    null
+    null,
+    idea.age21 === true
   ];
 }
 
@@ -94,7 +97,7 @@ async function upsertBatch(client, batch) {
   });
   const updateCols = [
     "title", "description", "category", "icon", "setting", "season", "food", "cost",
-    "duration", "time", "vibe", "stage", "date_type", "scene", "motif"
+    "duration", "time", "vibe", "stage", "date_type", "scene", "motif", "age21"
   ];
   const assignments = updateCols.map(col => col + " = EXCLUDED." + col).concat([
     "affiliate_url = NULL",

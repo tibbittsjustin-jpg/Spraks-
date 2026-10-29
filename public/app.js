@@ -9,7 +9,7 @@
 
   var FILTER_DEFS = [
     { key:"duration", label:"Date Length", options:["Quick (under 1 hr)","Short (1-2 hrs)","Half-day (2-5 hrs)","Full day","Overnight"] },
-    { key:"cost",     label:"Budget",      options:["Free","$1-$10","$20-$30","$100 and under"] },
+    { key:"cost",     label:"Budget",      options:["Free","$1-$10","$20-$30","$100 and under","Over $100"] },
     { key:"time",     label:"Time of Day", options:["Morning","Afternoon","Evening","Night"] },
     { key:"setting",  label:"Indoor / Outdoor", options:["Indoor","Outdoor"] },
     { key:"vibe",     label:"Vibe",        options:["Chill","Romantic","Active","Adventurous","Creative","Silly","Cozy","Spontaneous"] },
@@ -203,7 +203,7 @@
       doneIds:[],       // [{id, date}]
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false },
       submittedIdeas:[],
       deckOrder:null,    // cached shuffled id order for current filter set
       location:null,     // {lat, lng, grantedAt} once the user enables "Near You" real-place matching
@@ -1145,6 +1145,7 @@
     if(f.stage.length && !idea.stage.some(function(s){ return f.stage.indexOf(s) !== -1; })) return false;
     if(f.dateType.length && !idea.dateType.some(function(d){ return f.dateType.indexOf(d) !== -1; })) return false;
     if(f.food !== null && idea.food !== f.food) return false;
+    if(f.hide21 && idea.age21 === true) return false;
     return true;
   }
 
@@ -1152,6 +1153,7 @@
     var n = 0;
     ["duration","cost","time","setting","vibe","season","stage","dateType"].forEach(function(k){ n += f[k].length; });
     if(f.food !== null) n += 1;
+    if(f.hide21) n += 1;
     return n;
   }
 
@@ -1423,8 +1425,13 @@
 
   // Everything under the title. Kept in one function so the info stack can
   // change without touching the photo frame or the no-photo card.
+  function ageBadgeHtml(idea){
+    if(!idea || idea.age21 !== true) return "";
+    return '<span class="badge-21">21+</span>';
+  }
+
   function photoOverlayHtml(idea){
-    return '<h3 class="card-title">' + escapeHtml(idea.title) + '</h3>' +
+    return '<h3 class="card-title">' + escapeHtml(idea.title) + ageBadgeHtml(idea) + '</h3>' +
       photoStatTilesHtml(idea) +
       photoTagChipsHtml(idea) +
       photoConditionsHtml(idea);
@@ -1458,7 +1465,7 @@
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '</div>' +
       '<div class="card-body">' +
-        '<h3 class="card-title">' + escapeHtml(idea.title) + '</h3>' +
+        '<h3 class="card-title">' + escapeHtml(idea.title) + ageBadgeHtml(idea) + '</h3>' +
         '<div class="card-meta">' +
           '<span class="meta-pill">' + escapeHtml(idea.duration) + '</span>' +
           '<span class="meta-pill">' + escapeHtml(displayCost(idea)) + '</span>' +
@@ -1600,6 +1607,20 @@
     });
     foodGroup.appendChild(foodChips);
     body.appendChild(foodGroup);
+
+    var ageGroup = el("div", "filter-group");
+    ageGroup.appendChild(el("div", "filter-group-title", "21+ ideas"));
+    var ageChips = el("div", "chip-select");
+    var hideChip = el("button", "chip", "Hide 21+");
+    hideChip.type = "button";
+    if(ui.filterDraft.hide21) hideChip.classList.add("selected");
+    hideChip.addEventListener("click", function(){
+      ui.filterDraft.hide21 = !ui.filterDraft.hide21;
+      hideChip.classList.toggle("selected");
+    });
+    ageChips.appendChild(hideChip);
+    ageGroup.appendChild(ageChips);
+    body.appendChild(ageGroup);
   }
 
   $("#filter-close").addEventListener("click", function(){ closeOverlay("#filter-overlay"); });
@@ -1715,7 +1736,7 @@
     wrap.appendChild(hero);
     attachDetailHeroSwipeUp(hero, ideaId);
 
-    wrap.appendChild(el("h2", "detail-title", escapeHtml(idea.title)));
+    wrap.appendChild(el("h2", "detail-title", escapeHtml(idea.title) + ageBadgeHtml(idea)));
     wrap.appendChild(el("p", "detail-desc", escapeHtml(idea.description)));
 
     if(friendPicks.length){

@@ -1,31 +1,128 @@
+/* Design tokens. The short names below (--accent, --bg, …) alias the
+   --color-* / --shadow-card tokens, so every existing rule keeps the
+   color it renders today. Type, space, radius, and duration tokens
+   record sizes that already render; rules still use their literals,
+   so this layer does not collapse a near-duplicate or restyle a screen.
+   Palette, scale, and what must stay distinct: DESIGN-TOKENS.md. */
 :root{
---accent:#FF6B6B;
---accent-dark:#E8555A;
---bg:#F6F6F8;
---surface:#FFFFFF;
---surface-soft:#F1F1F4;
---text:#1F2328;
---text-soft:#6B7280;
---border:#E7E7EC;
---success:#22A06B;
---danger:#E5484D;
---shadow: 0 10px 26px rgba(20,20,30,.08);
---chrome-bg:#EDEDF0;
+/* Brand. --color-on-accent is the #fff painted on accent fills. */
+--color-accent:#FF6B6B;
+--color-accent-strong:#E8555A;
+--color-on-accent:#fff;
+/* Neutrals */
+--color-bg:#F6F6F8;
+--color-surface:#FFFFFF;
+--color-surface-soft:#F1F1F4;
+--color-border:#E7E7EC;
+--color-text:#1F2328;
+--color-text-soft:#6B7280;
+--color-chrome:#EDEDF0;
+/* Status */
+--color-success:#22A06B;
+--color-danger:#E5484D;
+/* Sheet scrim. The same tint in both themes. Other ink alphas
+   (badge shadow, event chip) are different paints — see the doc. */
+--color-overlay:rgba(20,20,26,.45);
+/* Elevation. The accent glow is the light-coral rgba in both themes,
+   which is what .btn-primary paints today. */
+--shadow-card: 0 10px 26px rgba(20,20,30,.08);
+--shadow-accent:0 6px 16px rgba(255,107,107,.28);
+
+/* Type. Each token is a size that renders today. Neighbors such as
+   11px and 11.5px are separate on purpose. */
+--fs-2xs:10.5px;
+--fs-11:11px;
+--fs-xs:11.5px;
+--fs-12:12px;
+--fs-sm:12.5px;
+--fs-13:13px;
+--fs-md:13.5px;
+--fs-14:14px;
+--fs-14-5:14.5px;
+--fs-base:15px;
+--fs-15-5:15.5px;
+--fs-lg:18px;
+--fs-19:19px;
+--fs-xl:22px;
+--fs-2xl:24px;
+--fs-stamp:26px;
+--fs-display:36px;
+--fw-regular:500;
+--fw-semi:600;
+--fw-bold:700;
+--fw-heavy:800;
+--fw-black:900;
+--lh-tight:1.2;
+--lh-normal:1.4;
+--lh-snug:1.45;
+--lh-body:1.5;
+--lh-relaxed:1.6;
+/* Uppercase labels use four different trackings. Not collapsed. */
+--ls-label:.4px;
+--ls-label-wide:.5px;
+--ls-label-em:.02em;
+--ls-label-loose:.05em;
+
+/* Spacing steps that already appear. The 20px step is the screen gutter. */
+--sp-1:4px;
+--sp-2:6px;
+--sp-3:8px;
+--sp-4:10px;
+--sp-5:12px;
+--sp-6:14px;
+--sp-7:20px;
+--sp-8:28px;
+
+/* Radii that already appear. 12/16/20/24 and the 44px phone stay literal. */
+--r-sm:10px;
+--r-md:14px;
+--r-lg:18px;
+--r-xl:26px;
+--r-pill:999px;
+
+/* Durations that already run, in CSS or in the swipe handlers.
+   .btn-primary's glow and these timings are not substituted into rules. */
+--dur-fast:.2s;
+--dur-row:.22s;
+--dur-fade:.25s;
+--dur-base:.3s;
+--dur-swipe:.35s;
+
+/* Legacy names — what the rest of this file reads. */
+--accent:var(--color-accent);
+--accent-dark:var(--color-accent-strong);
+--bg:var(--color-bg);
+--surface:var(--color-surface);
+--surface-soft:var(--color-surface-soft);
+--text:var(--color-text);
+--text-soft:var(--color-text-soft);
+--border:var(--color-border);
+--success:var(--color-success);
+--danger:var(--color-danger);
+--shadow:var(--shadow-card);
+--chrome-bg:var(--color-chrome);
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 [data-theme="dark"]{
---accent:#FF7A7A;
---accent-dark:#FF9393;
---bg:#17181C;
---surface:#1F2126;
---surface-soft:#282A31;
---text:#F1F1F3;
---text-soft:#9A9CA5;
---border:#33353D;
---success:#3FBE8C;
---danger:#FF6B6B;
---shadow: 0 10px 26px rgba(0,0,0,.35);
---chrome-bg:#0E0F12;
+/* Color and elevation only. Type, space, radius, and duration inherit.
+   --color-accent-strong is lighter here than --color-accent; that is
+   the value --accent-dark already resolved to. On-accent, the scrim,
+   and the button glow stay the same paints as light mode. */
+--color-accent:#FF7A7A;
+--color-accent-strong:#FF9393;
+--color-on-accent:#fff;
+--color-bg:#17181C;
+--color-surface:#1F2126;
+--color-surface-soft:#282A31;
+--color-border:#33353D;
+--color-text:#F1F1F3;
+--color-text-soft:#9A9CA5;
+--color-chrome:#0E0F12;
+--color-success:#3FBE8C;
+--color-danger:#FF6B6B;
+--color-overlay:rgba(20,20,26,.45);
+--shadow-card: 0 10px 26px rgba(0,0,0,.35);
+--shadow-accent:0 6px 16px rgba(255,107,107,.28);
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;background:var(--chrome-bg);height:100%;}
@@ -251,7 +348,7 @@ font-size:18px; font-weight:800; color:#fff; flex-shrink:0;
 
 /* ---------- Overlays ---------- */
 .overlay{
-position:absolute; inset:0; background:rgba(20,20,26,.45); display:flex; align-items:flex-end; z-index:50;
+position:absolute; inset:0; background:var(--color-overlay); display:flex; align-items:flex-end; z-index:50;
 }
 .overlay-sheet{
 background:var(--surface); width:100%; max-height:88%; border-radius:26px 26px 0 0; padding:14px 22px 26px;

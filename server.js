@@ -19,10 +19,22 @@ const path = require("path");
 const db = require("./db");
 const { checkAge } = require("./public/util");
 const { createActivitiesRouter } = require("./routes/activities");
+const { createSubmissionsRouter } = require("./routes/submissions");
 
 const app = express();
 const publicDir = path.join(__dirname, "public");
-app.use(express.json());
+// One hop, and only when a known proxy sits in front. Leave unset locally
+// so a client cannot pick its own rate-limit address. See SETUP.md.
+if (process.env.TRUST_PROXY === "1") app.set("trust proxy", 1);
+const jsonParser = express.json();
+app.use((req, res, next) => {
+  // Submissions parses its own 16kb JSON body. The global parser is 100kb
+  // and would accept a payload the route means to reject.
+  if (req.method === "POST" && (req.path === "/api/submissions" || req.path === "/api/submissions/")) {
+    return next();
+  }
+  return jsonParser(req, res, next);
+});
 app.use(express.static(publicDir, { dotfiles: "ignore", index: "index.html" }));
 
 const PORT = process.env.PORT || 3000;
@@ -259,6 +271,7 @@ return res.status(400).json({ ok: false, error: "invalid_date" });
 });
 
 app.use("/api/activities", createActivitiesRouter());
+app.use("/api/submissions", createSubmissionsRouter());
 
 // Extensionless GETs are the single-page app. Anything else that static did
 // not serve — source files, dotfiles, unknown assets — is a real 404.
@@ -293,7 +306,7 @@ if (!googlePlacesKey() || !anthropicKey()) {
 console.log("(Real nearby-place matching is OFF — add GOOGLE_PLACES_API_KEY and ANTHROPIC_API_KEY to .env to enable it. See SETUP.md.)");
 }
 if (!db.isConfigured()) {
-console.log("(Activities database is OFF — the built-in catalog still works. Add DATABASE_URL to enable GET /api/activities. See SETUP.md.)");
+console.log("(Activities database is OFF — the built-in catalog still works. Add DATABASE_URL to enable GET /api/activities and POST /api/submissions. See SETUP.md.)");
 }
 });
 }

@@ -34,10 +34,13 @@ function makeSandbox(storage) {
       setItem(k, v){ this._d[k] = String(v); },
       removeItem(k){ delete this._d[k]; },
     },
-    __net: { fetch: function(){ return new Promise(function(){}); } },
+    __net: { calls: [], fetch: function(){ return new Promise(function(){}); } },
     setTimeout(){}, setInterval(){}, clearTimeout(){}, clearInterval(){},
     console, Math, Date, JSON, Object, Array, String, Number, Boolean, isNaN, parseInt, parseFloat,
-    fetch: function(){ return sandbox.__net.fetch.apply(null, arguments); },
+    fetch: function(){
+      sandbox.__net.calls.push(Array.prototype.slice.call(arguments));
+      return sandbox.__net.fetch.apply(null, arguments);
+    },
   };
   sandbox.globalThis = sandbox;
   sandbox.self = sandbox;
@@ -50,7 +53,7 @@ function makeSandbox(storage) {
 function loadApp(storage) {
   const sandbox = makeSandbox(storage);
   vm.createContext(sandbox);
-  ["data.js", "motifs.js", "util.js", "photos.js"].forEach(f => {
+  ["data.js", "motifs.js", "util.js", "photos.js", "submit.js"].forEach(f => {
     vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), sandbox, { filename: f });
   });
   let src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
@@ -91,6 +94,8 @@ function loadApp(storage) {
     applyProfileEdits: applyProfileEdits,
     recordSubmittedIdea: recordSubmittedIdea,
     buildEditProfileSubpanel: buildEditProfileSubpanel,
+    buildIdeaSubmitSubpanel: buildIdeaSubmitSubpanel,
+    fetchCalls: __net.calls,
     get navigator(){ return navigator; },
     get document(){ return document; },
     get window(){ return window; },

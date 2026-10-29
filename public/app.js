@@ -255,6 +255,7 @@
       passedIds:[],
       filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false },
       submittedIdeas:[],
+      ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
       location:null,     // {lat, lng, grantedAt} once the user enables "Near You" real-place matching
       realIdeas:{},      // id -> full idea snapshot, for real (external) ideas the user has kept
@@ -323,6 +324,10 @@
       });
       parsed.doneIds = (parsed.doneIds || []).filter(function(d){ return resolvable(d.id); });
       parsed.profile = parsed.profile || {};
+      // Existing ideas stay as they were saved. Nothing here is posted.
+      // A missing status means "still on this device" and is sent only on a tap.
+      if(!Array.isArray(parsed.submittedIdeas)) parsed.submittedIdeas = [];
+      if(parsed.ideaSendBannerDismissed !== true) parsed.ideaSendBannerDismissed = false;
       if(!ageGateSatisfied(parsed)){
         parsed.profile.ageConfirmedAt = null;
         parsed.onboarded = false;
@@ -717,6 +722,7 @@
   function showToast(msg){
     var t = $("#toast");
     t.textContent = msg;
+    t.classList.toggle("toast-wrap", String(msg || "").length > 42);
     t.classList.remove("hidden");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ t.classList.add("hidden"); }, 2200);
@@ -3043,64 +3049,317 @@
     return row;
   }
 
+  function filterDef(key){
+    for(var i = 0; i < FILTER_DEFS.length; i++){
+      if(FILTER_DEFS[i].key === key) return FILTER_DEFS[i];
+    }
+    return null;
+  }
+
+  function addFieldLabel(form, text){
+    var label = el("label", null, escapeHtml(text));
+    form.appendChild(label);
+    return label;
+  }
+
+  function addTextField(form, field, placeholder, opts){
+    opts = opts || {};
+    addFieldLabel(form, opts.label);
+    var input = el(opts.multiline ? "textarea" : "input");
+    input.setAttribute("data-field", field);
+    if(!opts.multiline) input.type = opts.type || "text";
+    if(placeholder) input.placeholder = placeholder;
+    if(opts.required) input.required = true;
+    if(opts.maxLength) input.maxLength = opts.maxLength;
+    if(opts.minLength) input.minLength = opts.minLength;
+    if(opts.autocomplete) input.autocomplete = opts.autocomplete;
+    form.appendChild(input);
+    return input;
+  }
+
+  function addSelectField(form, field, label, options, optional){
+    addFieldLabel(form, label);
+    var select = el("select");
+    select.setAttribute("data-field", field);
+    var html = optional ? '<option value="">Optional</option>' : "";
+    options.forEach(function(option){
+      html += '<option value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</option>';
+    });
+    select.innerHTML = html;
+    form.appendChild(select);
+    return select;
+  }
+
+  function addChipField(form, field, label){
+    addFieldLabel(form, label);
+    var wrap = el("div", "chip-select");
+    wrap.setAttribute("data-field", field);
+    var def = filterDef(field);
+    (def ? def.options : []).forEach(function(option){
+      var chip = el("button", "chip", escapeHtml(option));
+      chip.type = "button";
+      chip.setAttribute("data-value", option);
+      chip.addEventListener("click", function(){ chip.classList.toggle("selected"); });
+      wrap.appendChild(chip);
+    });
+    form.appendChild(wrap);
+    return wrap;
+  }
+
+  function addCheckField(form, field, label){
+    var row = el("label", "idea-check");
+    var input = el("input");
+    input.type = "checkbox";
+    input.setAttribute("data-field", field);
+    row.appendChild(input);
+    row.appendChild(el("span", null, escapeHtml(label)));
+    form.appendChild(row);
+    return input;
+  }
+
+  function fieldNode(form, name){
+    return form.querySelector('[data-field="' + name + '"]');
+  }
+
+  function readIdeaForm(form){
+    function text(name){
+      var node = fieldNode(form, name);
+      return node ? node.value : "";
+    }
+    function chips(name){
+      var node = fieldNode(form, name);
+      if(!node) return [];
+      return $all(".chip.selected", node).map(function(chip){ return chip.getAttribute("data-value"); });
+    }
+    function checked(name){
+      var node = fieldNode(form, name);
+      return !!(node && node.checked);
+    }
+    return {
+      title: text("title"),
+      description: text("description"),
+      category: text("category"),
+      setting: text("setting"),
+      cost: text("cost"),
+      duration: text("duration"),
+      season: chips("season"),
+      time: chips("time"),
+      vibe: chips("vibe"),
+      stage: chips("stage"),
+      dateType: chips("dateType"),
+      food: checked("food"),
+      age21: checked("age21"),
+      venueName: text("venueName"),
+      city: text("city"),
+      sourceUrl: text("sourceUrl"),
+      email: text("email"),
+      website: text("website"),
+      ageConfirmed: ageGateSatisfied(state)
+    };
+  }
+
+  function highlightFields(form, fields){
+    $all(".field-invalid", form).forEach(function(node){ node.classList.remove("field-invalid"); });
+    (fields || []).forEach(function(name){
+      var node = fieldNode(form, name);
+      if(node) node.classList.add("field-invalid");
+    });
+  }
+
   function buildIdeaSubmitSubpanel(){
+    function rememberSubmittedIdea(input, status){
+      var row = recordSubmittedIdea({
+        title: input.title,
+        description: input.description,
+        category: input.category,
+        vibe: Array.isArray(input.vibe) ? input.vibe : []
+      });
+      if(!row) return null;
+      ["setting", "cost", "duration", "venueName", "city", "sourceUrl"].forEach(function(key){
+        if(typeof input[key] === "string" && input[key].trim()) row[key] = input[key].trim();
+      });
+      ["season", "time", "stage", "dateType"].forEach(function(key){
+        if(Array.isArray(input[key]) && input[key].length) row[key] = input[key].slice();
+      });
+      if(typeof input.food === "boolean") row.food = input.food;
+      if(typeof input.age21 === "boolean") row.age21 = input.age21;
+      row.status = status;
+      delete row.email;
+      delete row.lat;
+      delete row.lng;
+      delete row.location;
+      delete row.deviceId;
+      delete row.dob;
+      saveState();
+      renderProfileHeader();
+      return row;
+    }
+
+    function postSubmission(body){
+      return fetch("/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }).then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(payload){
+          return { status: res.status, payload: payload || {} };
+        });
+      }).catch(function(){
+        return { status: 0, payload: {} };
+      });
+    }
+
+    function finishSubmission(result, input, opts){
+      opts = opts || {};
+      var outcome = SparkSubmit.submissionOutcome(result.status);
+      if(opts.form){
+        if(outcome.highlight) highlightFields(opts.form, result.payload && result.payload.fields);
+        else highlightFields(opts.form, []);
+      }
+      if(outcome.showGate) showAgeGate();
+      if(outcome.save === "pending" && opts.existing){
+        opts.existing.status = "pending";
+        delete opts.existing.email;
+        saveState();
+        showToast(outcome.message);
+        openSubpage("idea");
+        return;
+      }
+      if(outcome.save && !opts.existing){
+        rememberSubmittedIdea(input, outcome.save);
+        showToast(outcome.message);
+        openSubpage("idea");
+        return;
+      }
+      if(outcome.highlight && opts.emailInput && result.payload && Array.isArray(result.payload.fields) && result.payload.fields.indexOf("email") !== -1){
+        opts.emailInput.classList.add("field-invalid");
+      }
+      showToast(outcome.message);
+      if(opts.button) opts.button.disabled = false;
+    }
+
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Got an Idea?"));
     wrap.appendChild(el("p", null, "Share a new date idea and give a short description of how to do it — great ideas may get added to Spark!"));
 
+    if(SparkSubmit.shouldShowIdeaSendBanner(state)){
+      var banner = el("div", "idea-banner");
+      var bannerText = el("p", null, "You have ideas saved only on this phone. Nothing is sent unless you tap Send on an idea.");
+      banner.appendChild(bannerText);
+      var dismiss = el("button", "btn-text", "Dismiss");
+      dismiss.type = "button";
+      dismiss.addEventListener("click", function(){
+        state.ideaSendBannerDismissed = true;
+        saveState();
+        openSubpage("idea");
+      });
+      banner.appendChild(dismiss);
+      wrap.appendChild(banner);
+    }
+
     var form = el("form", "idea-form");
-    form.innerHTML =
-      '<label>Title</label><input type="text" id="idea-title" placeholder="e.g. Sunset kayak picnic" required>' +
-      '<label>Category</label><select id="idea-category">' +
-        CATEGORIES.map(function(c){ return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>'; }).join("") +
-      '</select>' +
-      '<label>How do you do it?</label><textarea id="idea-desc" placeholder="Describe the date idea and how to pull it off..." required></textarea>' +
-      '<label>Vibe (pick any)</label><div class="chip-select" id="idea-vibe"></div>';
+    addTextField(form, "title", "e.g. Sunset kayak picnic", { label: "Title", required: true, minLength: 3, maxLength: 120 });
+    addSelectField(form, "category", "Category", CATEGORIES, false);
+    addTextField(form, "description", "Describe the date idea and how to pull it off...", {
+      label: "How do you do it?", multiline: true, required: true, minLength: 10, maxLength: 2000
+    });
+    ["setting", "cost", "duration"].forEach(function(key){
+      var def = filterDef(key);
+      if(def) addSelectField(form, key, def.label, def.options, true);
+    });
+    ["time", "season", "vibe", "stage", "dateType"].forEach(function(key){
+      var def = filterDef(key);
+      if(def) addChipField(form, key, def.label);
+    });
+    addCheckField(form, "food", "Food is part of this date");
+    addCheckField(form, "age21", "21+ (alcohol-centered)");
+    addTextField(form, "venueName", "Optional", { label: "Venue name", maxLength: 120 });
+    addTextField(form, "city", "Optional", { label: "City", maxLength: 80 });
+    addTextField(form, "sourceUrl", "https://example.com/place", { label: "Source link", type: "url", maxLength: 2048 });
+    addTextField(form, "email", "you@example.com", {
+      label: "Email", type: "email", required: true, maxLength: 254, autocomplete: "email"
+    });
+    var emailHint = el("p", "idea-hint", "We use this only to credit your ideas once you verify it. Never shown publicly.");
+    form.appendChild(emailHint);
+
+    var trap = el("div", "hp-field");
+    trap.setAttribute("aria-hidden", "true");
+    var trapLabel = el("label", null, "Website");
+    var trapInput = el("input");
+    trapInput.type = "text";
+    trapInput.tabIndex = -1;
+    trapInput.autocomplete = "off";
+    trapInput.setAttribute("data-field", "website");
+    trap.appendChild(trapLabel);
+    trap.appendChild(trapInput);
+    form.appendChild(trap);
+
     var submitBtn = el("button", "btn-primary btn-block", "Submit Idea");
     submitBtn.type = "submit";
     form.appendChild(submitBtn);
     wrap.appendChild(form);
 
-    var vibeWrap = $("#idea-vibe", form);
-    var selectedVibes = [];
-    ["Chill","Romantic","Active","Adventurous","Creative","Silly"].forEach(function(v){
-      var chip = el("button", "chip", v);
-      chip.type = "button";
-      chip.addEventListener("click", function(){
-        var idx = selectedVibes.indexOf(v);
-        if(idx === -1) selectedVibes.push(v); else selectedVibes.splice(idx, 1);
-        chip.classList.toggle("selected");
-      });
-      vibeWrap.appendChild(chip);
-    });
-
     form.addEventListener("submit", function(e){
       e.preventDefault();
-      var titleVal = $("#idea-title", form).value.trim();
-      var descVal = $("#idea-desc", form).value.trim();
-      if(!titleVal || !descVal) return;
-      var savedIdea = recordSubmittedIdea({
-        title: titleVal,
-        category: $("#idea-category", form).value,
-        description: descVal,
-        vibe: selectedVibes.slice()
+      if(submitBtn.disabled) return;
+      if(!ageGateSatisfied(state)){
+        showAgeGate();
+        return;
+      }
+      var input = readIdeaForm(form);
+      input.ageConfirmed = true;
+      var body = SparkSubmit.buildSubmissionBody(input);
+      submitBtn.disabled = true;
+      postSubmission(body).then(function(result){
+        finishSubmission(result, input, { form: form, button: submitBtn });
       });
-      if(!savedIdea) return;
-      saveState();
-      renderProfileHeader();
-      showToast("Thanks! Your idea was submitted!");
-      openSubpage("idea");
     });
 
     if(state.submittedIdeas.length){
       wrap.appendChild(el("div", "section-title", "Your Submitted Ideas"));
       state.submittedIdeas.slice().reverse().forEach(function(s){
+        var block = el("div", "idea-saved");
         var row = el("div", "idea-row");
         row.style.cursor = "default";
         row.innerHTML =
           '<span class="ir-icon">' + icon("lightbulb") + '</span><span class="ir-text"><div class="ir-title">' + escapeHtml(s.title) + '</div>' +
-          '<div class="ir-sub">' + escapeHtml(s.category) + '</div></span>';
-        wrap.appendChild(row);
+          '<div class="ir-sub">' + escapeHtml(s.category || "") + " · " + escapeHtml(SparkSubmit.submissionStatusCopy(s.status)) + '</div></span>';
+        block.appendChild(row);
+        if(s.status !== "pending"){
+          var sendRow = el("div", "idea-send-row");
+          var emailInput = el("input", "idea-email");
+          emailInput.type = "email";
+          emailInput.maxLength = 254;
+          emailInput.placeholder = "Email to credit this idea";
+          emailInput.autocomplete = "email";
+          emailInput.setAttribute("aria-label", "Email");
+          var sendBtn = el("button", "btn-outline", "Send");
+          sendBtn.type = "button";
+          sendBtn.addEventListener("click", function(){
+            if(sendBtn.disabled) return;
+            if(!ageGateSatisfied(state)){
+              showAgeGate();
+              return;
+            }
+            var email = emailInput.value.trim();
+            if(!email){
+              emailInput.classList.add("field-invalid");
+              showToast("Please check the highlighted fields.");
+              return;
+            }
+            emailInput.classList.remove("field-invalid");
+            var input = Object.assign({}, s, { email: email, ageConfirmed: true });
+            var body = SparkSubmit.buildSubmissionBody(input);
+            sendBtn.disabled = true;
+            postSubmission(body).then(function(result){
+              finishSubmission(result, input, { existing: s, button: sendBtn, emailInput: emailInput });
+            });
+          });
+          sendRow.appendChild(emailInput);
+          sendRow.appendChild(sendBtn);
+          block.appendChild(sendRow);
+        }
+        wrap.appendChild(block);
       });
     }
 

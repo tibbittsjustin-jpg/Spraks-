@@ -64,6 +64,48 @@ malformed date is `{ "ok": false, "error": "invalid_date" }` with status 400.
 The date is not written to disk, the database, or the log, and it is not
 echoed back. The browser stores only `ageConfirmedAt`.
 
+## Submitting an idea
+
+Profile → **Got an Idea?** posts JSON, at most 16kb, to:
+
+```
+POST /api/submissions
+```
+
+A valid idea answers `201 { "ok": true, "status": "pending" }`. The route does
+not set a status, so the row stays the database default, `pending`, until
+someone reviews it. It is not published. The route does not accept coordinates,
+a device id, or `submittedBy`.
+
+The email is required. It is stored only in `submissions.submitter_email`
+(admin-only, with row level security on). It is not part of the idea payload,
+not returned, and not written to the log. The form tells the person it will be
+used later to credit a verified email. Verification itself is not built yet.
+
+`ageConfirmed` must be `true`. That is the same flag the age screen already
+keeps on the device. The route does not accept a date of birth. A signed
+check from the age route is a later change.
+
+Limits are counted in memory for this one process: 5 requests per 10 minutes
+and 20 per day for an IP address, and 10 per day for an email address. The
+email is hashed before it is used as the memory key. The address is not
+stored. A filled honeypot field (`website`) is dropped and answered as if it
+had been saved. Set `TRUST_PROXY=1` only when the server sits behind a known
+reverse proxy (one hop), so the limit sees the client address. Leave it unset
+for `npm start` on your own computer. More than one server process will need
+a shared store later; this process does not have one.
+
+If `DATABASE_URL` is unset the route answers
+`503 { "ok": false, "error": "unavailable" }` before those limits, and the
+page keeps the idea on the device. Nothing is sent again until the person
+taps Send. Ideas that were already saved only on the phone get a one-time
+banner. Dismissing the banner keeps it from coming back. Each of those ideas
+is sent only from its own Send button.
+
+There is no new migration. `verified_at` and an IP hash are not stored. City
+is optional. Errors are generic: `invalid_submission`, `age_required`,
+`too_large`, `rate_limited`, `unavailable`, `request_failed`.
+
 Nearby-place search rounds the user's coordinates to two decimal places
 (about a kilometre) before calling Google. The model prompt does not include
 coordinates. Failures return a generic reason, not the upstream message.
@@ -83,10 +125,11 @@ coordinates. Failures return a generic reason, not the upstream message.
 ## Database (optional)
 
 The swipe deck still reads `public/data.js` in the browser. Postgres is only
-for `GET /api/activities` and `GET /api/activities/:id`, and only the server
-connects. The app works without it: leave `DATABASE_URL` empty and those two
-routes answer `{ "error": "db_not_configured" }` while everything else stays
-the same.
+for `GET /api/activities`, `GET /api/activities/:id`, and `POST /api/submissions`,
+and only the server connects. The app works without it: leave `DATABASE_URL`
+empty and the activity routes answer `{ "error": "db_not_configured" }`, while
+`POST /api/submissions` answers `{ "ok": false, "error": "unavailable" }` and
+the form keeps the idea on the device. Everything else stays the same.
 
 To turn it on with Supabase:
 

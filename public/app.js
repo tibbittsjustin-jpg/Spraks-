@@ -6,6 +6,22 @@
   var CATEGORIES = Array.from(new Set(IDEAS_DATA.map(function(i){ return i.category; })));
   var IDEAS_BY_ID = {};
   IDEAS_DATA.forEach(function(i){ IDEAS_BY_ID[i.id] = i; });
+  // photos.json (loaded as IDEA_PHOTOS) supplies { url, credit } for each
+  // idea. License and source links stay on the credits page. Ideas with no
+  // entry, and the four removed catalog ids, keep the generated cover.
+  applyIdeaPhotos(typeof IDEA_PHOTOS === "undefined" ? null : IDEA_PHOTOS);
+
+  function applyIdeaPhotos(map){
+    if(!map || typeof map !== "object") return;
+    IDEAS_DATA.forEach(function(idea){
+      var entry = map[idea.id] || map[String(idea.id)];
+      if(!entry || typeof entry !== "object") return;
+      var url = typeof entry.url === "string" ? entry.url.trim() : "";
+      if(!url) return;
+      var credit = typeof entry.credit === "string" ? entry.credit : "";
+      idea.photo = { url: url, credit: credit };
+    });
+  }
 
   var FILTER_DEFS = [
     { key:"duration", label:"Date Length", options:["Quick (under 1 hr)","Short (1-2 hrs)","Half-day (2-5 hrs)","Full day","Overnight"] },
@@ -1312,6 +1328,8 @@
   function renderDeckCards(deckEl){
     deckEl.innerHTML = "";
     var deck = computeDeck();
+    // Three cards are mounted. Only those photos are requested: the front
+    // card and the next one load now, and the third waits (loading=lazy).
     var ids = deck.remaining.slice(0, 3);
 
     if(ids.length === 0){
@@ -1344,7 +1362,7 @@
     // render back-to-front so first id ends up on top of DOM stacking
     for(var k = ids.length - 1; k >= 0; k--){
       var idea = IDEAS_BY_ID[ids[k]];
-      var card = buildSwipeCard(idea, k === 0);
+      var card = buildSwipeCard(idea, k === 0, k);
       card.style.transform = "translateY(" + (k * 8) + "px) scale(" + (1 - k * 0.035) + ")";
       card.style.zIndex = String(10 - k);
       if(k !== 0) card.style.pointerEvents = "none";
@@ -1359,10 +1377,11 @@
     rc.textContent = deck.remaining.length + " of " + deck.total + " ideas";
   }
 
-  /* Optional photo on an idea. Absent (the whole catalog, today) keeps the
-     generated cover. Shape: { url, credit? }. url is http(s), a same-origin
-     path, or a data-image. credit is the attribution line, shown only when
-     it is non-empty. Photo sourcing is on hold — nothing in data.js sets this.
+  /* Optional photo on an idea. Shape: { url, credit? }. url is http(s), a
+     same-origin path, or a data-image. credit is the short attribution line,
+     shown only when it is non-empty. Catalog photos are attached from
+     IDEA_PHOTOS; data.js itself does not set this. A missing or unsafe
+     photo keeps the generated cover.
 
      The H1 overlay reads a few other optional facts when a photo is present.
      They are not filters and they are not invented when missing:
@@ -1388,8 +1407,14 @@
     return /^[A-Za-z0-9_./~-]+$/.test(url);
   }
 
-  function photoBackgroundStyle(url){
-    return "background-image:url('" + url.replace(/&/g, "&amp;") + "')";
+  // Photos are pre-cropped 4:5 at 800×1000. Width and height let the browser
+  // reserve that ratio. The front card and the one behind it load now; a
+  // deeper card waits so a swipe does not pull the rest of the catalog.
+  function photoImageHtml(photo, depth){
+    var rank = typeof depth === "number" ? depth : 1;
+    var loading = rank > 1 ? "lazy" : "eager";
+    var priority = rank === 0 ? "high" : "low";
+    return '<img alt="" width="800" height="1000" decoding="async" draggable="false" loading="' + loading + '" fetchpriority="' + priority + '" src="' + escapeHtml(photo.url) + '">';
   }
 
   // "Half-day (2-5 hrs)" → "half-day". The tile caption is the short form.
@@ -1493,11 +1518,11 @@
     return "";
   }
 
-  function photoSwipeCardHtml(idea, photo){
+  function photoSwipeCardHtml(idea, photo, depth){
     var credit = photo.credit
       ? '<div class="card-photo-credit">' + escapeHtml(photo.credit) + '</div>'
       : "";
-    return '<div class="card-photo" style="' + photoBackgroundStyle(photo.url) + '"></div>' +
+    return '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
       '<div class="card-photo-scrim"></div>' +
       '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
       photoTopRightHtml(idea) +
@@ -1523,12 +1548,13 @@
       '</div>';
   }
 
-  function buildSwipeCard(idea, isTop){
+  function buildSwipeCard(idea, isTop, depth){
     var card = el("div", "swipe-card");
     card.dataset.id = idea.id;
     var photo = ideaPhoto(idea);
     if(photo) card.className = "swipe-card has-photo";
-    card.innerHTML = photo ? photoSwipeCardHtml(idea, photo) : classicSwipeCardHtml(idea);
+    var rank = typeof depth === "number" ? depth : (isTop ? 0 : 1);
+    card.innerHTML = photo ? photoSwipeCardHtml(idea, photo, rank) : classicSwipeCardHtml(idea);
     if(isTop) attachSwipeHandlers(card, idea.id);
     return card;
   }
@@ -2900,7 +2926,8 @@
     idea:"Got an Idea?",
     tips:"Tips of Dating",
     edit:"Edit Profile",
-    addFriends:"Add Friends"
+    addFriends:"Add Friends",
+    credits:"Photo credits"
   };
   function openSubpage(action){
     ui.profileMenuOpen = action;
@@ -2912,12 +2939,23 @@
     else if(action === "tips") body.appendChild(buildTipsSubpanel());
     else if(action === "edit") body.appendChild(buildEditProfileSubpanel());
     else if(action === "addFriends") body.appendChild(buildAddFriendsSubpanel());
+    else if(action === "credits") body.appendChild(buildCreditsSubpanel());
+    body.classList.toggle("subpage-body-frame", action === "credits");
     body.scrollTop = 0;
     $("#subpage-overlay").classList.remove("hidden");
   }
   function closeSubpage(){
     $("#subpage-overlay").classList.add("hidden");
     ui.profileMenuOpen = null;
+    var body = $("#subpage-body");
+    if(body) body.classList.remove("subpage-body-frame");
+  }
+
+  function buildCreditsSubpanel(){
+    var frame = el("iframe", "credits-frame");
+    frame.title = "Photo credits";
+    frame.src = "credits.html";
+    return frame;
   }
   $("#subpage-close").addEventListener("click", closeSubpage);
   attachEdgeSwipeBack($("#subpage-overlay"), closeSubpage);

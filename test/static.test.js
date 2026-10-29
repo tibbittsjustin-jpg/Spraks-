@@ -22,7 +22,7 @@ const MUST_404 = [
   "/db/migrations/001_init.sql",
   "/data/coords/utah.json"
 ];
-const MUST_200 = ["/", "/app.js", "/data.js", "/style.css", "/motifs.js", "/qrcode.lib.js", "/util.js", "/api/status"];
+const MUST_200 = ["/", "/app.js", "/data.js", "/style.css", "/motifs.js", "/qrcode.lib.js", "/util.js", "/photos.js", "/photos.json", "/CREDITS.md", "/credits.html", "/api/status"];
 
 function request(port, urlPath) {
   return new Promise((resolve, reject) => {
@@ -76,7 +76,16 @@ async function main() {
     const home = await request(port, "/");
     check("home page still loads the browser scripts",
       home.body.indexOf('src="util.js"') !== -1 && home.body.indexOf('src="app.js"') !== -1 &&
-      home.body.indexOf('src="data.js"') !== -1);
+      home.body.indexOf('src="data.js"') !== -1 && home.body.indexOf('src="photos.js"') !== -1);
+    check("profile links to photo credits", home.body.indexOf('data-action="credits"') !== -1);
+    const creditsPage = await request(port, "/credits.html");
+    check("credits page names the AI images and links licenses",
+      creditsPage.status === 200 &&
+      creditsPage.body.indexOf("AI-generated image") !== -1 &&
+      creditsPage.body.indexOf("creativecommons.org") !== -1);
+    const sample = await request(port, "/photos/aquarium/aquarium-1.webp");
+    check("a catalog photo is served", sample.status === 200 && sample.headers["content-type"] && sample.headers["content-type"].indexOf("image/webp") !== -1,
+      sample.status + " " + (sample.headers["content-type"] || ""));
   } finally {
     if (previous == null) delete process.env.DATABASE_URL;
     else process.env.DATABASE_URL = previous;

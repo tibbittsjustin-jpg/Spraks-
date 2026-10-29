@@ -31,8 +31,10 @@ const HINT = "Tap for details · swipe up to save · down to pass";
 
 section("No photo keeps the cover-art card", () => {
   const t = loadApp({});
+  check("catalog idea 2 has a photo from the approved map", t.ideaPhoto(copyIdea(t, 2)) !== null);
   const idea = copyIdea(t, 2);
-  check("catalog idea has no photo field", t.ideaPhoto(idea) === null);
+  delete idea.photo;
+  check("clearing the photo field falls back", t.ideaPhoto(idea) === null);
   const card = cardOf(t, idea);
   check("class is the plain swipe card", card.className === "swipe-card", card.className);
   check("draws the generated cover", card.html.indexOf('class="card-media"') !== -1 && card.html.indexOf("background-image:") !== -1);
@@ -68,6 +70,12 @@ section("A photo url switches to the H1 card", () => {
   const card = cardOf(t, idea);
   check("card is marked has-photo", card.className === "swipe-card has-photo", card.className);
   check("photo fills the card", card.html.indexOf("card-photo") !== -1 && card.html.indexOf("https://example.com/ridge.jpg") !== -1);
+  check("photo image declares 800 by 1000",
+        card.html.indexOf('width="800"') !== -1 && card.html.indexOf('height="1000"') !== -1);
+  const top = t.buildSwipeCard(idea, true, 0);
+  check("the front card loads its photo now", top.innerHTML.indexOf('loading="eager"') !== -1 && top.innerHTML.indexOf('fetchpriority="high"') !== -1);
+  const buried = t.buildSwipeCard(idea, false, 2);
+  check("a card two back waits to load", buried.innerHTML.indexOf('loading="lazy"') !== -1);
   check("scrim is present", card.html.indexOf("card-photo-scrim") !== -1);
   check("title sits in the overlay",
         idea.title.length > 0 && card.html.indexOf(escapeHtml(idea.title)) !== -1 && card.html.indexOf("card-photo-overlay") !== -1);
@@ -132,6 +140,7 @@ section("Unsafe or empty photos fall back to the cover", () => {
   check("null photo is not a photo", t.ideaPhoto(idea) === null);
 
   const stray = copyIdea(t, 2);
+  delete stray.photo;
   stray.imageUrl = "https://example.test/not-a-photo.jpg";
   const ev = cardOf(t, stray);
   check("an imageUrl without photo.url does not hotlink",

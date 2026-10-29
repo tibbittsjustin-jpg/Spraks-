@@ -278,10 +278,15 @@ background:var(--surface-soft); color:var(--text-soft); font-size:11.5px; font-w
 border:none; color:var(--color-on-accent);
 }
 .swipe-card.has-photo .card-photo{
-position:absolute; inset:0; z-index:0;
-background-repeat:no-repeat;
-background-size:auto 130%;
-background-position:center 18%;
+position:absolute; inset:0; z-index:0; overflow:hidden;
+}
+/* Same crop the background-image card used: height 130% of the card,
+   centered, shifted up so background-position's 18% line still lands.
+   offsetY = (cardHeight - 1.3 * cardHeight) * 0.18 = -5.4% of the card. */
+.swipe-card.has-photo .card-photo img{
+position:absolute; height:130%; width:auto; max-width:none;
+left:50%; top:-5.4%; transform:translateX(-50%);
+pointer-events:none; user-select:none; -webkit-user-drag:none;
 }
 .swipe-card.has-photo .card-photo-scrim{
 position:absolute; left:0; right:0; bottom:0; height:64%; z-index:1;
@@ -316,7 +321,7 @@ background:#3FBE8C; box-shadow:0 0 0 3px rgba(63,190,140,.3);
 .swipe-card.has-photo .real-badge{ z-index:3; color:#1F2328; }
 .swipe-card.has-photo .card-photo-overlay{
 position:absolute; left:0; right:0; bottom:0; z-index:2;
-padding:18px 18px 22px; color:var(--color-on-accent);
+padding:18px 18px 42px; color:var(--color-on-accent);
 }
 .swipe-card.has-photo .card-title{
 color:var(--color-on-accent); font-size:27px; font-weight:800; line-height:1.12;
@@ -353,10 +358,10 @@ color:color-mix(in srgb, var(--color-accent) 52%, var(--color-on-accent));
 text-shadow:0 1px 2px rgba(0,0,0,.45);
 }
 .swipe-card.has-photo .card-photo-credit{
-position:absolute; right:12px; bottom:6px; z-index:4;
-font-size:8.5px; font-weight:600;
-color:color-mix(in srgb, var(--color-on-accent) 55%, transparent);
-max-width:64%; text-align:right; pointer-events:none;
+position:absolute; left:14px; right:14px; bottom:8px; z-index:4;
+font-size:8.5px; font-weight:600; line-height:1.3;
+color:color-mix(in srgb, var(--color-on-accent) 72%, transparent);
+text-align:right; pointer-events:none;
 }
 .swipe-card.has-photo .stamp{ z-index:5; }
 
@@ -461,7 +466,7 @@ border-radius:50%; font-size:14px; cursor:pointer; color:var(--text-soft);
 .sheet-title{ font-size:19px; font-weight:800; color:var(--text); margin:4px 0 14px; }
 
 /* profile overlay */
-.profile-sheet{ max-height:92%; }
+.profile-sheet{ max-height:92%; overflow-y:auto; }
 .profile-header{ display:flex; align-items:center; gap:14px; margin:6px 0 18px; }
 .avatar-big{ width:64px; height:64px; }
 .avatar-big svg{ width:26px; height:26px; }
@@ -572,6 +577,8 @@ font-size:15px; color:var(--text-soft); cursor:pointer; flex-shrink:0;
 }
 .subpage-title{ font-size:18px; font-weight:800; color:var(--text); }
 .subpage-body{ flex:1; overflow-y:auto; padding:6px 20px 30px; }
+.subpage-body.subpage-body-frame{ padding:0; overflow:hidden; display:flex; flex-direction:column; }
+.credits-frame{ flex:1; width:100%; border:0; background:var(--bg); }
 
 /* ---------- Add Friends: QR code + contacts ---------- */
 .qr-wrap{

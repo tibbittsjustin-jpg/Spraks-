@@ -1,6 +1,6 @@
 # Spark design tokens
 
-The tokens in `style.css` name the palette, type scale, spacing, radii, and durations Spark already renders. They do not restyle it. Component rules still use the short color variables (`--accent`, `--bg`, and the rest) or the literal sizes they had before. Those short color variables are aliases of the `--color-*` tokens, so light and dark resolve to the same computed colors as before.
+The tokens in `public/style.css` name the palette, type scale, spacing, radii, and durations Spark already renders. They do not restyle it. Component rules still use the short color variables (`--accent`, `--bg`, and the rest) or the literal sizes they had before. Those short color variables are aliases of the `--color-*` tokens, so light and dark resolve to the same computed colors as before.
 
 Change a color by editing the token (and its dark override). Leave the alias in place. Do not fold a nearby literal into a token whose value is different — that would move type, spacing, or timing.
 

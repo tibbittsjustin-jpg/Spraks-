@@ -10,7 +10,7 @@
 //   data/geo/geocode_cache.json   Nominatim responses; a cached query makes no network call
 //   data/coords/utah.json         published pins; entries with locked:true are copied through
 //   data/geo/utah_coords.json     full previous run, if present (gitignored)
-//   data.js                       idea titles and categories (repo root; not moved)
+//   public/data.js                idea titles and categories (browser bundle)
 //
 // Writes:
 //   data/coords/utah.json         confident, area_based, route_unpinned, flagged, pending
@@ -44,7 +44,7 @@ function readJson(p, fallback) {
   return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : fallback;
 }
 function loadIdeas() {
-  const src = fs.readFileSync(path.join(ROOT, "data.js"), "utf8");
+  const src = fs.readFileSync(path.join(ROOT, "public", "data.js"), "utf8");
   const marker = "const IDEAS_DATA = ";
   const start = src.indexOf(marker);
   if (start !== 0 && !src.startsWith(marker)) throw new Error("IDEAS_DATA not found at the start of data.js");

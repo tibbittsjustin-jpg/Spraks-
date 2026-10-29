@@ -90,3 +90,36 @@ rather than failing, so the rest of the app carries on as normal.
   precise location is ever used as a lookup key.
 - Ticketmaster's terms require crediting them as the source and linking back to
   their listing for tickets. Spark does both, and never sells tickets itself.
+
+## Database (optional)
+
+The swipe deck still reads `public/data.js` in the browser. Postgres is only
+for `GET /api/activities` and `GET /api/activities/:id`, and only the server
+connects. The app works without it: leave `DATABASE_URL` empty and those two
+routes answer `{ "error": "db_not_configured" }` while everything else stays
+the same.
+
+To turn it on with Supabase:
+
+1. Create a project in a region near Utah (for example `us-west-1` or
+   `us-west-2`) so the later map queries stay close to the catalog.
+2. In the Supabase SQL editor, enable PostGIS:
+   `create extension if not exists postgis;`
+   The migration also runs that statement, so this is just to confirm the
+   project allows it.
+3. Copy the connection string from Project Settings → Database → Connection
+   string → URI, "Session pooler", port 5432. Put it only in the server
+   environment as `DATABASE_URL`. Do not put it in the browser, in git, or in
+   a `NEXT_PUBLIC` / `VITE_` variable. The anon key is not used.
+4. From this folder:
+
+   ```
+   npm run db:migrate && npm run db:seed
+   ```
+
+`npm run db:seed` loads `public/data.js` and, when `data/coords/*.json` is
+present, the coordinate files. It is safe to run again. Curated ideas that
+were removed from `data.js` are archived, not deleted.
+
+For a local Postgres without TLS, set `PGSSLMODE=disable`. Integration tests
+use `TEST_DATABASE_URL` and never point at the Supabase project.

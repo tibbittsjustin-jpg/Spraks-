@@ -15,7 +15,7 @@ const BB = {minLat:37, maxLat:42, minLng:-114.05, maxLng:-109.04};
 const HAND = [1837, 1848, 1854, 1868, 1876, 1887, 1908];
 
 function loadIdeas() {
-  const src = fs.readFileSync(path.join(ROOT, "data.js"), "utf8");
+  const src = fs.readFileSync(path.join(ROOT, "public", "data.js"), "utf8");
   const marker = "const IDEAS_DATA = ";
   const lineEnd = src.indexOf("\n");
   const line = src.slice(marker.length, lineEnd).replace(/;\s*$/, "");

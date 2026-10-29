@@ -2123,6 +2123,323 @@
   $("#plan-share-close").addEventListener("click", function(){ closeOverlay("#plan-share-overlay"); });
   $("#plan-share-back").addEventListener("click", function(){ showPlanShareStep(1); });
 
+  /* ---------- Plan link (#plan=v1.<base64url>) ----------
+     Wire JSON is compact and has only three keys: n (name), d (date,
+     YYYY-MM-DD or ""), i (built-in data.js idea ids). Addresses,
+     coordinates, location, and place or event cards are not included.
+     Decode drops any other fields and returns null for bad input.
+     The fragment is not read on boot. */
+  var PLAN_SHARE_MAX_CHARS = 400;
+  var PLAN_SHARE_MAX_IDEAS = 24;
+  var PLAN_SHARE_MAX_NAME = 60;
+  var PLAN_SHARE_B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  var planShareBuiltinIds = null;
+  var planShareB64Map = null;
+
+  function planShareIsBuiltin(id){
+    if(!planShareBuiltinIds){
+      planShareBuiltinIds = Object.create(null);
+      if(typeof IDEAS_DATA !== "undefined" && IDEAS_DATA){
+        for(var b = 0; b < IDEAS_DATA.length; b++) planShareBuiltinIds[IDEAS_DATA[b].id] = 1;
+      }
+    }
+    return !!planShareBuiltinIds[id];
+  }
+  function planShareId(value){
+    var n = typeof value === "number" ? value : NaN;
+    if(typeof value === "string" && /^\d+$/.test(value)) n = Number(value);
+    if(!isFinite(n) || Math.floor(n) !== n) return null;
+    if(n < 1 || n > 9999999) return null;
+    return n;
+  }
+  function planShareClip(value, max){
+    if(typeof value !== "string") return "";
+    var s = value.replace(/[\u0000-\u001f\u007f]/g, "").replace(/\s+/g, " ").trim();
+    if(s.length <= max) return s;
+    s = s.slice(0, max);
+    var tail = s.charCodeAt(s.length - 1);
+    if(tail >= 0xD800 && tail <= 0xDBFF) s = s.slice(0, -1);
+    return s;
+  }
+  function planShareDate(value){
+    if(typeof value !== "string") return "";
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if(!m) return "";
+    var mo = +m[2], day = +m[3];
+    if(mo < 1 || mo > 12 || day < 1 || day > 31) return "";
+    return m[1] + "-" + m[2] + "-" + m[3];
+  }
+  function planShareUtf8(str){
+    var bytes = [];
+    for(var i = 0; i < str.length; i++){
+      var c = str.charCodeAt(i);
+      if(c >= 0xD800 && c <= 0xDBFF){
+        var c2 = i + 1 < str.length ? str.charCodeAt(i + 1) : 0;
+        if(c2 < 0xDC00 || c2 > 0xDFFF) continue;
+        var u = 0x10000 + ((c - 0xD800) << 10) + (c2 - 0xDC00);
+        i++;
+        bytes.push(0xF0 | (u >>> 18), 0x80 | ((u >>> 12) & 63), 0x80 | ((u >>> 6) & 63), 0x80 | (u & 63));
+      } else if(c >= 0xDC00 && c <= 0xDFFF){
+        continue;
+      } else if(c < 0x80){
+        bytes.push(c);
+      } else if(c < 0x800){
+        bytes.push(0xC0 | (c >>> 6), 0x80 | (c & 63));
+      } else {
+        bytes.push(0xE0 | (c >>> 12), 0x80 | ((c >>> 6) & 63), 0x80 | (c & 63));
+      }
+    }
+    return bytes;
+  }
+  function planShareFromUtf8(bytes){
+    var out = "";
+    var i = 0;
+    while(i < bytes.length){
+      var b = bytes[i];
+      var need, cp, min;
+      if(b < 0x80){ out += String.fromCharCode(b); i++; continue; }
+      if((b & 0xE0) === 0xC0){ need = 2; cp = b & 0x1F; min = 0x80; }
+      else if((b & 0xF0) === 0xE0){ need = 3; cp = b & 0x0F; min = 0x800; }
+      else if((b & 0xF8) === 0xF0){ need = 4; cp = b & 0x07; min = 0x10000; }
+      else return null;
+      if(i + need > bytes.length) return null;
+      for(var j = 1; j < need; j++){
+        var nb = bytes[i + j];
+        if((nb & 0xC0) !== 0x80) return null;
+        cp = (cp << 6) | (nb & 0x3F);
+      }
+      if(cp < min || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF)) return null;
+      if(cp > 0xFFFF){
+        cp -= 0x10000;
+        out += String.fromCharCode(0xD800 + (cp >>> 10), 0xDC00 + (cp & 0x3FF));
+      } else {
+        out += String.fromCharCode(cp);
+      }
+      i += need;
+    }
+    return out;
+  }
+  function planShareB64Index(){
+    if(planShareB64Map) return planShareB64Map;
+    planShareB64Map = Object.create(null);
+    for(var i = 0; i < PLAN_SHARE_B64.length; i++) planShareB64Map[PLAN_SHARE_B64.charAt(i)] = i;
+    return planShareB64Map;
+  }
+  function planShareToB64(bytes){
+    var out = "";
+    var i = 0;
+    while(i + 3 <= bytes.length){
+      var n = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+      out += PLAN_SHARE_B64.charAt((n >>> 18) & 63);
+      out += PLAN_SHARE_B64.charAt((n >>> 12) & 63);
+      out += PLAN_SHARE_B64.charAt((n >>> 6) & 63);
+      out += PLAN_SHARE_B64.charAt(n & 63);
+      i += 3;
+    }
+    var rem = bytes.length - i;
+    if(rem === 1){
+      var n1 = bytes[i] << 16;
+      out += PLAN_SHARE_B64.charAt((n1 >>> 18) & 63);
+      out += PLAN_SHARE_B64.charAt((n1 >>> 12) & 63);
+    } else if(rem === 2){
+      var n2 = (bytes[i] << 16) | (bytes[i + 1] << 8);
+      out += PLAN_SHARE_B64.charAt((n2 >>> 18) & 63);
+      out += PLAN_SHARE_B64.charAt((n2 >>> 12) & 63);
+      out += PLAN_SHARE_B64.charAt((n2 >>> 6) & 63);
+    }
+    return out;
+  }
+  function planShareFromB64(s){
+    if(typeof s !== "string" || s.length === 0 || (s.length % 4) === 1) return null;
+    var map = planShareB64Index();
+    var out = [];
+    var i = 0;
+    while(i < s.length){
+      var c0 = map[s.charAt(i)];
+      var c1 = (i + 1 < s.length) ? map[s.charAt(i + 1)] : undefined;
+      if(c0 === undefined || c1 === undefined) return null;
+      if(i + 2 >= s.length){
+        if((c1 & 15) !== 0) return null;
+        out.push((c0 << 2) | (c1 >> 4));
+        break;
+      }
+      var c2 = map[s.charAt(i + 2)];
+      if(c2 === undefined) return null;
+      if(i + 3 >= s.length){
+        if((c2 & 3) !== 0) return null;
+        out.push((c0 << 2) | (c1 >> 4));
+        out.push(((c1 & 15) << 4) | (c2 >> 2));
+        break;
+      }
+      var c3 = map[s.charAt(i + 3)];
+      if(c3 === undefined) return null;
+      out.push((c0 << 2) | (c1 >> 4));
+      out.push(((c1 & 15) << 4) | (c2 >> 2));
+      out.push(((c2 & 3) << 6) | c3);
+      i += 4;
+    }
+    return out;
+  }
+  function planSharePack(name, date, ids){
+    var json = JSON.stringify({ n: name, d: date, i: ids });
+    var bytes = planShareUtf8(json);
+    if(!bytes) return null;
+    return "v1." + planShareToB64(bytes);
+  }
+  function planShareBuiltinIdsFrom(plan){
+    var ids = [];
+    var seen = Object.create(null);
+    var raw = plan && Array.isArray(plan.ideaIds) ? plan.ideaIds : [];
+    for(var i = 0; i < raw.length && ids.length < PLAN_SHARE_MAX_IDEAS; i++){
+      var id = planShareId(raw[i]);
+      if(id == null || seen[id] || !planShareIsBuiltin(id)) continue;
+      seen[id] = 1;
+      ids.push(id);
+    }
+    return ids;
+  }
+  function encodePlanShare(plan){
+    try{
+      if(!plan || typeof plan !== "object" || Array.isArray(plan)) return null;
+      var name = planShareClip(plan.name, PLAN_SHARE_MAX_NAME);
+      var date = planShareDate(plan.date);
+      var ids = planShareBuiltinIdsFrom(plan);
+      var payload = planSharePack(name, date, ids);
+      while(payload && payload.length > PLAN_SHARE_MAX_CHARS && ids.length){
+        ids.pop();
+        payload = planSharePack(name, date, ids);
+      }
+      if(!payload || payload.length > PLAN_SHARE_MAX_CHARS) return null;
+      return payload;
+    }catch(err){
+      return null;
+    }
+  }
+  function decodePlanShare(payload){
+    try{
+      if(typeof payload !== "string" || payload.length > PLAN_SHARE_MAX_CHARS) return null;
+      if(payload.indexOf("v1.") !== 0) return null;
+      var body = payload.slice(3);
+      var bytes = planShareFromB64(body);
+      if(!bytes) return null;
+      var json = planShareFromUtf8(bytes);
+      if(json == null) return null;
+      var obj = JSON.parse(json);
+      if(!obj || typeof obj !== "object" || Array.isArray(obj)) return null;
+      var name = "";
+      if(obj.n != null){
+        if(typeof obj.n !== "string") return null;
+        name = planShareClip(obj.n, PLAN_SHARE_MAX_NAME);
+      }
+      var date = "";
+      if(obj.d != null && obj.d !== ""){
+        if(typeof obj.d !== "string") return null;
+        date = planShareDate(obj.d);
+        if(!date) return null;
+      }
+      if(obj.i != null && !Array.isArray(obj.i)) return null;
+      var source = Array.isArray(obj.i) ? obj.i : [];
+      var ids = [];
+      var seen = Object.create(null);
+      for(var i = 0; i < source.length && ids.length < PLAN_SHARE_MAX_IDEAS; i++){
+        var item = source[i];
+        var id = null;
+        if(item && typeof item === "object") id = planShareId(item.id);
+        else id = planShareId(item);
+        if(id == null){
+          if(item && typeof item === "object") continue;
+          return null;
+        }
+        if(!planShareIsBuiltin(id) || seen[id]) continue;
+        seen[id] = 1;
+        ids.push(id);
+      }
+      return { name: name, date: date, ideaIds: ids };
+    }catch(err){
+      return null;
+    }
+  }
+  function planShareOmittedCount(plan){
+    if(!plan || !Array.isArray(plan.ideaIds)) return 0;
+    var seen = Object.create(null);
+    var n = 0;
+    for(var i = 0; i < plan.ideaIds.length; i++){
+      var id = planShareId(plan.ideaIds[i]);
+      var key = id == null ? ("x" + i) : String(id);
+      if(seen[key]) continue;
+      seen[key] = 1;
+      if(id == null || !planShareIsBuiltin(id)) n++;
+    }
+    return n;
+  }
+  function planShareOmissionNote(count){
+    count = count | 0;
+    if(count <= 0) return "";
+    if(count === 1) return "1 saved place isn't included in shared links";
+    return count + " saved places aren't included in shared links";
+  }
+  function planShareOrigin(){
+    var loc = null;
+    try{
+      if(typeof location !== "undefined" && location) loc = location;
+    }catch(e){}
+    if(!loc){
+      try{
+        if(typeof window !== "undefined" && window.location) loc = window.location;
+      }catch(e2){}
+    }
+    var origin = loc && typeof loc.origin === "string" ? loc.origin : "";
+    if(!origin || origin === "null") return "";
+    return origin;
+  }
+  function planShareUrl(plan){
+    var payload = encodePlanShare(plan);
+    if(!payload) return "";
+    return planShareOrigin() + "/#plan=" + payload;
+  }
+  function planLinkShareData(plan){
+    var url = planShareUrl(plan);
+    var name = planShareClip(plan && plan.name, PLAN_SHARE_MAX_NAME) || "Date plan";
+    return { title: name, text: name, url: url };
+  }
+  function openPlanLinkOverlay(planId){
+    var plan = getPlanById(planId);
+    if(!plan) return;
+    var body = $("#plan-link-body");
+    body.innerHTML = "";
+    var note = planShareOmissionNote(planShareOmittedCount(plan));
+    if(note) body.appendChild(el("p", "field-hint plan-link-omit", note));
+    var url = planShareUrl(plan);
+    if(!url){
+      body.appendChild(el("p", "field-hint", "This plan can't be packed into a link."));
+      openOverlay("#plan-link-overlay");
+      return;
+    }
+    var qrWrap = el("div", "qr-wrap");
+    try{
+      var qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      qrWrap.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2 });
+    }catch(e){
+      qrWrap.textContent = "QR code unavailable";
+    }
+    body.appendChild(qrWrap);
+    var linkNote = el("p", "qr-link-note");
+    linkNote.textContent = url;
+    body.appendChild(linkNote);
+    var copyBtn = el("button", "btn-secondary btn-block", icon("copy") + " Copy link");
+    copyBtn.type = "button";
+    copyBtn.addEventListener("click", function(){ presentCopy(planShareUrl(plan)); });
+    body.appendChild(copyBtn);
+    var shareLinkBtn = el("button", "btn-secondary btn-block", icon("share") + " Share link");
+    shareLinkBtn.type = "button";
+    shareLinkBtn.addEventListener("click", function(){ presentShare(planLinkShareData(plan)); });
+    body.appendChild(shareLinkBtn);
+    openOverlay("#plan-link-overlay");
+  }
+  $("#plan-link-close").addEventListener("click", function(){ closeOverlay("#plan-link-overlay"); });
+
   /* ---------- Saved / Done screens ---------- */
   function buildIdeaRow(idea, subtext){
     var row = el("div", "idea-row");
@@ -2217,6 +2534,10 @@
       shareBtn.type = "button";
       shareBtn.addEventListener("click", function(){ openPlanShareOverlay(plan.id); });
       wrap.appendChild(shareBtn);
+      var linkBtn = el("button", "btn-outline plan-share-btn", icon("share") + " Share plan");
+      linkBtn.type = "button";
+      linkBtn.addEventListener("click", function(){ openPlanLinkOverlay(plan.id); });
+      wrap.appendChild(linkBtn);
       ids = plan.ideaIds;
     } else {
       wrap.appendChild(el("div", "section-title", "Favorites"));

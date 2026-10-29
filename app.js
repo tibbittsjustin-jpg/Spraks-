@@ -1313,11 +1313,158 @@
     rc.textContent = deck.remaining.length + " of " + deck.total + " ideas";
   }
 
-  function buildSwipeCard(idea, isTop){
-    var card = el("div", "swipe-card");
-    card.dataset.id = idea.id;
-    card.innerHTML =
-      '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
+  /* Optional photo on an idea. Absent (the whole catalog, today) keeps the
+     generated cover. Shape: { url, credit? }. url is http(s), a same-origin
+     path, or a data-image. credit is the attribution line, shown only when
+     it is non-empty. Photo sourcing is on hold — nothing in data.js sets this.
+
+     The H1 overlay reads a few other optional facts when a photo is present.
+     They are not filters and they are not invented when missing:
+       distanceMiles  → "6.4 mi" / "from you"
+       closesAt       → "10 pm" / "lot closes"   (a short clock time)
+       conditions     → the coral line under the chips
+       openNow        → true shows the Open now badge
+     Events with a photo and no closesAt use their start time instead. */
+  function ideaPhoto(idea){
+    var photo = idea && idea.photo;
+    if(!photo || typeof photo !== "object") return null;
+    var url = typeof photo.url === "string" ? photo.url.trim() : "";
+    if(!isSafePhotoUrl(url)) return null;
+    var credit = typeof photo.credit === "string" ? photo.credit.trim() : "";
+    return { url: url, credit: credit };
+  }
+
+  function isSafePhotoUrl(url){
+    if(!url || url.length > 2500000) return false;
+    if(/[\u0000-\u001f\u007f"'()\\<>]/.test(url)) return false;
+    if(/^https?:\/\//i.test(url)) return true;
+    if(/^data:image\/(?:png|jpe?g|webp|gif);base64,[a-z0-9+/=]+$/i.test(url)) return true;
+    if(url.indexOf("..") !== -1) return false;
+    return /^[A-Za-z0-9_./~-]+$/.test(url);
+  }
+
+  function photoBackgroundStyle(url){
+    return "background-image:url('" + url.replace(/&/g, "&amp;") + "')";
+  }
+
+  // "Half-day (2-5 hrs)" → "half-day". The tile caption is the short form.
+  function photoDurationLabel(duration){
+    if(!duration) return "";
+    var s = String(duration).trim();
+    var paren = s.indexOf(" (");
+    if(paren !== -1) s = s.slice(0, paren);
+    return s.toLowerCase();
+  }
+
+  function photoHoursStat(idea){
+    if(!idea) return null;
+    if(typeof idea.closesAt === "string" && idea.closesAt.trim()){
+      return { value: idea.closesAt.trim(), label: "lot closes" };
+    }
+    if(idea.isEvent && idea.localTime){
+      var when = eventTimeLabel(idea);
+      if(when && when !== "Time TBA") return { value: when, label: "starts" };
+    }
+    return null;
+  }
+
+  function sceneChipLabel(scene){
+    if(scene === "citynight") return "City night";
+    if(!scene) return "";
+    return scene.charAt(0).toUpperCase() + scene.slice(1);
+  }
+
+  // Descriptor chips under the tiles. Cost and duration already sit in the
+  // third tile, so these are the other short facts: where, scene, vibe.
+  function photoTags(idea){
+    var tags = [];
+    function add(t){
+      if(tags.length >= 3) return;
+      t = t == null ? "" : String(t).trim();
+      if(!t || tags.indexOf(t) !== -1) return;
+      tags.push(t);
+    }
+    add(idea.setting);
+    if(idea.scene && VALID_SCENES.indexOf(idea.scene) !== -1) add(sceneChipLabel(idea.scene));
+    if(idea.vibe && idea.vibe.length) add(idea.vibe[0]);
+    if(tags.length < 3 && idea.season && idea.season.length) add(idea.season[0]);
+    if(tags.length < 3 && idea.vibe && idea.vibe.length > 1) add(idea.vibe[1]);
+    return tags;
+  }
+
+  // Distance, closing time, cost/duration. A missing fact is left out rather
+  // than filled with a placeholder — cost is the one tile catalog ideas have.
+  function photoStats(idea){
+    var stats = [];
+    var dist = distanceLabel(idea.distanceMiles);
+    if(dist) stats.push({ key: "distance", value: dist, label: "from you" });
+    var hours = photoHoursStat(idea);
+    if(hours) stats.push({ key: "hours", value: hours.value, label: hours.label });
+    var cost = displayCost(idea);
+    if(cost) stats.push({ key: "cost", value: cost, label: photoDurationLabel(idea.duration) || "cost" });
+    return stats;
+  }
+
+  function photoStatTilesHtml(idea){
+    var stats = photoStats(idea);
+    if(!stats.length) return "";
+    return '<div class="card-stat-tiles">' + stats.map(function(s){
+      return '<div class="card-stat" data-stat="' + s.key + '">' +
+        '<b class="card-stat-value">' + escapeHtml(s.value) + '</b>' +
+        '<span class="card-stat-label">' + escapeHtml(s.label) + '</span>' +
+      '</div>';
+    }).join("") + '</div>';
+  }
+
+  function photoTagChipsHtml(idea){
+    var tags = photoTags(idea);
+    if(!tags.length) return "";
+    return '<div class="card-meta">' + tags.map(function(t){
+      return '<span class="meta-pill">' + escapeHtml(t) + '</span>';
+    }).join("") + '</div>';
+  }
+
+  function photoConditionsHtml(idea){
+    var text = idea && typeof idea.conditions === "string" ? idea.conditions.trim() : "";
+    if(!text) return "";
+    return '<div class="card-conditions">' + escapeHtml(text) + '</div>';
+  }
+
+  // Everything under the title. Kept in one function so the info stack can
+  // change without touching the photo frame or the no-photo card.
+  function photoOverlayHtml(idea){
+    return '<h3 class="card-title">' + escapeHtml(idea.title) + '</h3>' +
+      photoStatTilesHtml(idea) +
+      photoTagChipsHtml(idea) +
+      photoConditionsHtml(idea);
+  }
+
+  function photoTopRightHtml(idea){
+    if(idea.openNow === true) return '<span class="card-open">Open now</span>';
+    if(idea.isEvent){
+      return '<span class="real-badge event-badge" title="Real local event">' + icon("calendar") + ' ' + escapeHtml(idea.dateLabel || "Event") + '</span>';
+    }
+    if(idea.isReal){
+      return '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>';
+    }
+    return "";
+  }
+
+  function photoSwipeCardHtml(idea, photo){
+    var credit = photo.credit
+      ? '<div class="card-photo-credit">' + escapeHtml(photo.credit) + '</div>'
+      : "";
+    return '<div class="card-photo" style="' + photoBackgroundStyle(photo.url) + '"></div>' +
+      '<div class="card-photo-scrim"></div>' +
+      '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
+      photoTopRightHtml(idea) +
+      '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
+      '<div class="card-photo-overlay">' + photoOverlayHtml(idea) + '</div>' +
+      credit;
+  }
+
+  function classicSwipeCardHtml(idea){
+    return '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
         '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
         (idea.isReal ? '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>' : '') +
         (idea.isEvent ? '<span class="real-badge event-badge" title="Real local event">' + icon("calendar") + ' ' + escapeHtml(idea.dateLabel || "Event") + '</span>' : '') +
@@ -1332,6 +1479,14 @@
         '</div>' +
         '<div class="card-hint">Tap for details · swipe up to save · down to pass</div>' +
       '</div>';
+  }
+
+  function buildSwipeCard(idea, isTop){
+    var card = el("div", "swipe-card");
+    card.dataset.id = idea.id;
+    var photo = ideaPhoto(idea);
+    if(photo) card.className = "swipe-card has-photo";
+    card.innerHTML = photo ? photoSwipeCardHtml(idea, photo) : classicSwipeCardHtml(idea);
     if(isTop) attachSwipeHandlers(card, idea.id);
     return card;
   }

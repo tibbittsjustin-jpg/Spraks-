@@ -103,20 +103,101 @@
   function categoryIcon(category, cls){
     return icon(CATEGORY_ICON_MAP[category] || "star", cls);
   }
-  // Events carry their own icon from the classification table (a guitar for a
-  // gig, a film reel for a screening), which is far more useful than the one
-  // generic icon their shared "Local Event" category would otherwise give them.
+  // A kept idea can name its own icon. Otherwise fall back to the category.
   function ideaIcon(idea, cls){
     if(idea && idea.icon && ICONS[idea.icon]) return icon(idea.icon, cls);
     return categoryIcon(idea ? idea.category : null, cls);
   }
 
   /* ---------- State ---------- */
+  var MINIMUM_AGE = 18;
+
+  function parseProfileAge(value){
+    if(typeof value === "number" && isFinite(value)) value = String(value);
+    if(typeof value !== "string") return null;
+    var s = value.trim();
+    if(!/^\d{1,3}$/.test(s)) return null;
+    var n = parseInt(s, 10);
+    if(n < 1 || n > 120) return null;
+    return n;
+  }
+
+  function confirmedMinimum(profile){
+    if(!profile) return null;
+    var raw = profile.ageConfirmedMinimum;
+    if(raw == null || raw === "") return null;
+    var n = typeof raw === "number" ? raw : parseInt(String(raw).trim(), 10);
+    if(!isFinite(n)) return null;
+    return n;
+  }
+
+  function hasAgeConfirmation(profile){
+    if(!profile || typeof profile.ageConfirmedAt !== "string" || !profile.ageConfirmedAt) return false;
+    return isFinite(Date.parse(profile.ageConfirmedAt));
+  }
+
+  // Older saves may still carry an age or a minimum. Under 18 fails the gate.
+  // A missing confirmation timestamp also fails it. The date of birth itself
+  // is never part of this check because it is not kept.
+  function ageGateSatisfied(st){
+    var profile = (st && st.profile) || {};
+    var age = parseProfileAge(profile.age);
+    var confirmed = confirmedMinimum(profile);
+    if(age != null && age < MINIMUM_AGE) return false;
+    if(confirmed != null && confirmed < MINIMUM_AGE) return false;
+    return hasAgeConfirmation(profile);
+  }
+
+  var DOB_KEYS = ["age", "birthday", "dob", "dateOfBirth", "birthDate", "ageConfirmedMinimum"];
+
+  function scrubProfileDob(profile){
+    if(!profile || typeof profile !== "object") return false;
+    var dirty = false;
+    DOB_KEYS.forEach(function(k){
+      if(Object.prototype.hasOwnProperty.call(profile, k)){
+        delete profile[k];
+        dirty = true;
+      }
+    });
+    return dirty;
+  }
+
+  // Saved plans from the removed listings feed. Keep the row, drop the feed.
+  function isRetiredListingSnapshot(idea){
+    if(!idea || typeof idea !== "object" || idea.unavailable) return false;
+    if(idea.isEvent === true) return true;
+    if(typeof idea.stableKey === "string" && idea.stableKey.indexOf("tm:") === 0) return true;
+    if(typeof idea.ticketUrl === "string" && idea.ticketUrl) return true;
+    if(idea.category === "Local Event") return true;
+    return false;
+  }
+
+  function neutralizeRetiredListing(idea){
+    return {
+      id: idea.id,
+      stableKey: idea.stableKey || ("retired:" + idea.id),
+      title: idea.title ? String(idea.title) : "Saved item",
+      description: "This is no longer available.",
+      category: "No longer available",
+      icon: "calendar",
+      setting: "Indoor",
+      season: [],
+      food: false,
+      cost: "",
+      duration: "",
+      time: [],
+      vibe: [],
+      stage: [],
+      dateType: [],
+      unavailable: true
+    };
+  }
+
   function defaultState(){
     return {
       onboarded:false,
       hasSeenTutorial:false,
-      profile:{ name:"", age:"", gender:"Woman", birthday:"", photo:null },
+      profile:{ name:"", gender:"Woman", photo:null, ageConfirmedAt:null },
       datePlans:[],      // [{id, name, date, createdAt, ideaIds:[], friendPicks:[{id,friendName,avatarEmoji,avatarColor,ideaId}]}] — named/dated planning sessions
       somedayIds:[],     // ideas saved with no active plan, or via the dedicated "Someday" button
       doneIds:[],       // [{id, date}]
@@ -126,13 +207,12 @@
       submittedIdeas:[],
       deckOrder:null,    // cached shuffled id order for current filter set
       location:null,     // {lat, lng, grantedAt} once the user enables "Near You" real-place matching
-      postalCode:null,   // manual fallback for local events when location is declined
-      eventRadiusMiles:25, // how far to look for local events (5 / 10 / 25)
       realIdeas:{},      // id -> full idea snapshot, for real (external) ideas the user has kept
       settings:{ autoDarkMode:true } // auto dark mode between 9pm-6am, toggle in profile
     };
   }
 
+  var pendingDobScrub = false;
   var state = loadState();
 
   function loadState(){
@@ -152,6 +232,8 @@
       for(var sk in d.settings){ if(!(sk in parsed.settings)) parsed.settings[sk] = d.settings[sk]; }
       if(!Array.isArray(parsed.datePlans)) parsed.datePlans = [];
       if(!Array.isArray(parsed.somedayIds)) parsed.somedayIds = [];
+      delete parsed.postalCode;
+      delete parsed.eventRadiusMiles;
       // Older plans (saved before friend-sharing existed) won't have a
       // friendPicks array yet — add it so share/highlight code can rely on it.
       parsed.datePlans.forEach(function(plan){
@@ -173,6 +255,11 @@
       // folder totals ("Favorites · 4 ideas" showing 2). The range is written
       // out literally because REAL_ID_MIN isn't assigned yet at load time.
       parsed.realIdeas = parsed.realIdeas || {};
+      Object.keys(parsed.realIdeas).forEach(function(id){
+        if(isRetiredListingSnapshot(parsed.realIdeas[id])){
+          parsed.realIdeas[id] = neutralizeRetiredListing(parsed.realIdeas[id]);
+        }
+      });
       var resolvable = function(id){
         if(!(typeof id === "number" && id >= 9000000 && id < 10000000)) return true;
         return !!parsed.realIdeas[id];
@@ -183,10 +270,17 @@
         plan.friendPicks = (plan.friendPicks || []).filter(function(p){ return resolvable(p.ideaId); });
       });
       parsed.doneIds = (parsed.doneIds || []).filter(function(d){ return resolvable(d.id); });
+      parsed.profile = parsed.profile || {};
+      if(!ageGateSatisfied(parsed)){
+        parsed.profile.ageConfirmedAt = null;
+        parsed.onboarded = false;
+      }
+      if(scrubProfileDob(parsed.profile)) pendingDobScrub = true;
       return parsed;
     }catch(e){ return defaultState(); }
   }
   function saveState(){
+    scrubProfileDob(state.profile);
     syncRealIdeaSnapshots();
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
   }
@@ -293,6 +387,10 @@
   }
 
   rehydrateRealIdeas();
+  if(pendingDobScrub){
+    pendingDobScrub = false;
+    saveState();
+  }
 
   function requestLocation(opts){
     opts = opts || {};
@@ -311,7 +409,6 @@
       if(!opts.silent) showToast("Location enabled!");
       updateLocationBar();
       fetchNearbyIdeas();
-      fetchLocalEvents();
     }, function(err){
       if(!opts.silent) showToast("Couldn't get your location: " + (err && err.message ? err.message : "permission denied"));
     }, { timeout: 8000 });
@@ -401,15 +498,14 @@
     old.parentNode.replaceChild(fresh, old);
   }
 
-  // At most this many built-in ideas between two external ones (a real nearby
-  // spot or a local event). Spreading a dozen extras *evenly* across 2000
+  // At most this many built-in ideas between two real nearby spots. Spreading a dozen extras *evenly* across 2000
   // built-in ideas sounds fair but buries the first one ~200 cards deep, which
   // in practice means nobody ever reaches it — the whole point of mixing them
   // in is that you meet one early. Small enough to surface quickly, large
   // enough that the built-in ideas still dominate the deck.
   var EXTRAS_EVERY = 8;
 
-  // Interleaves real-place and event ids among built-in ids, so they're mixed
+  // Interleaves real-place ids among built-in ids, so they're mixed
   // into the deck from the start rather than only appearing at the very end.
   function interleaveIds(builtinIds, realIds){
     if(!realIds.length) return builtinIds;
@@ -428,134 +524,8 @@
     return result;
   }
 
-  /* ---------- Local events (talks to /api/events) ----------
-     Events arrive from the server already translated into Spark's shape by
-     events-map.js, so almost nothing needs doing here beyond giving each one a
-     stable numeric id and dropping it into IDEAS_BY_ID, after which every
-     existing code path — filters, saving, plans, Done, sharing — treats it as
-     an ordinary idea.
-
-     Unlike the evergreen built-in ideas, an event expires. Anything in the
-     past is kept out of the deck and the events list, but is deliberately NOT
-     deleted from a user's saved buckets: a date you actually went on should
-     stay in your plan afterwards, marked as past rather than vanishing. */
-  var EVENT_IDEAS_RUNTIME = [];
-  var eventsLoading = false;
-  var eventsState = { reason: null, attribution: null, fetchedFor: null };
-
-  // How many of the soonest events get shuffled into the swipe deck. The full
-  // list always lives on the Events tab; this is just a taste, so a busy city
-  // doesn't bury the 2000 built-in ideas.
-  var EVENTS_IN_DECK = 12;
-
-  var EVENT_RADIUS_OPTIONS = [5, 10, 25];
-
-  function eventRadius(){
-    var r = state.eventRadiusMiles;
-    return EVENT_RADIUS_OPTIONS.indexOf(r) !== -1 ? r : 25;
-  }
-
-  // An event is "past" once its day is over. Deliberately day-granular rather
-  // than to the minute: a 7pm show shouldn't drop off the list at 7:01pm while
-  // someone is still deciding whether to go.
-  function isPastEvent(idea){
-    if(!idea || !idea.isEvent || !idea.localDate) return false;
-    return idea.localDate < localDateISO();
-  }
-
-  function upcomingEvents(){
-    return EVENT_IDEAS_RUNTIME.filter(function(e){ return !isPastEvent(e); });
-  }
-
-  // Built from the event's own facts rather than invented — the card needs a
-  // sentence, and this is the honest one until per-event blurb copy exists.
-  function eventDescription(raw){
-    var bits = [];
-    if(raw.genre && raw.genre !== raw.segment) bits.push(raw.genre);
-    else if(raw.segment) bits.push(raw.segment);
-    var where = raw.venue && raw.venue.name ? raw.venue.name : null;
-    if(where) bits.push("at " + where);
-    var sentence = bits.join(" ");
-    if(raw.dateLabel) sentence += (sentence ? ", " : "") + raw.dateLabel;
-    return sentence ? sentence + "." : "A local event near you.";
-  }
-
-  function hydrateEventIdea(raw){
-    var idea = {};
-    for(var k in raw){ if(Object.prototype.hasOwnProperty.call(raw, k)) idea[k] = raw[k]; }
-    idea.id = realIdForKey(raw.stableKey);
-    idea.isEvent = true;
-    idea.description = raw.description || eventDescription(raw);
-    // cost stays exactly as the server sent it, null included: an event too
-    // expensive for any of Spark's budget bands must not claim one. Display
-    // paths fall back to priceText via displayCost().
-    return idea;
-  }
-
-  // Budget bands don't reach above $100, so an expensive event has no band to
-  // show. Every display path goes through here; matchesFilters keeps using the
-  // raw `cost` so filtering stays truthful.
   function displayCost(idea){
-    if(idea.cost) return idea.cost;
-    if(idea.priceText) return idea.priceText;
-    return "Price varies";
-  }
-
-  // Fetches events for wherever we can locate the user — real coordinates if
-  // they allowed location, otherwise the zip code they typed. Never throws.
-  function fetchLocalEvents(opts){
-    opts = opts || {};
-    var where = null;
-    if(state.location) where = { lat: state.location.lat, lng: state.location.lng };
-    else if(state.postalCode) where = { postalCode: state.postalCode };
-    if(!where) return;
-
-    // Skip a refetch when nothing about the query has changed.
-    var signature = JSON.stringify(where) + "|" + eventRadius();
-    if(!opts.force && (eventsLoading || eventsState.fetchedFor === signature)) return;
-
-    eventsLoading = true;
-    eventsState.reason = null;
-    renderEventsIfOpen();
-
-    var body = { radiusMiles: eventRadius() };
-    for(var k in where){ if(Object.prototype.hasOwnProperty.call(where, k)) body[k] = where[k]; }
-
-    fetch("/api/events", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    })
-      .then(function(r){ return r.json(); })
-      .catch(function(){ return { events: [], reason: "offline" }; })
-      .then(function(result){
-        eventsLoading = false;
-        eventsState.fetchedFor = signature;
-        eventsState.reason = (result && result.reason) || null;
-        eventsState.attribution = (result && result.attribution) || eventsState.attribution;
-
-        EVENT_IDEAS_RUNTIME = [];
-        ((result && result.events) || []).forEach(function(raw){
-          if(!raw || !raw.stableKey) return;
-          var idea = hydrateEventIdea(raw);
-          IDEAS_BY_ID[idea.id] = idea;
-          if(!EVENT_IDEAS_RUNTIME.some(function(e){ return e.id === idea.id; })){
-            EVENT_IDEAS_RUNTIME.push(idea);
-          }
-        });
-
-        renderEventsIfOpen();
-        if(ui.tab === "discover" && ui.screen === "list"){
-          var deckEl = $("#deck");
-          if(deckEl){ renderDeckCards(deckEl); updateResultCount(); }
-        }
-      });
-  }
-
-  // Repaints the Events tab in place if that's what's on screen, so a fetch
-  // finishing doesn't disturb whatever else the user is doing.
-  function renderEventsIfOpen(){
-    if(ui.tab === "events" && ui.screen === "list") renderContent();
+    return (idea && idea.cost) ? idea.cost : "";
   }
 
   /* ---------- UI router state (not persisted) ---------- */
@@ -992,18 +962,50 @@
     reader.readAsDataURL(file);
   });
 
+  function finishOnboarding(profile){
+    profile = profile || {};
+    var dob = String(profile.dob || "").trim();
+    if(!SparkUtil.checkAge(dob).ok) return Promise.resolve(false);
+    return fetch("/api/age-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dob: dob })
+    }).then(function(r){ return r.json(); })
+      .then(function(body){
+        if(!body || body.ok !== true) return false;
+        state.profile = {
+          name: String(profile.name || "").trim() || "Friend",
+          gender: profile.gender || "Woman",
+          photo: profile.photo || null,
+          ageConfirmedAt: new Date().toISOString()
+        };
+        state.onboarded = true;
+        saveState();
+        return true;
+      })
+      .catch(function(){ return false; });
+  }
+
+  function showAgeGate(){
+    $("#view-onboarding").classList.remove("hidden");
+    $("#view-tutorial").classList.add("hidden");
+    $("#view-app").classList.add("hidden");
+  }
+
   $("#onboarding-form").addEventListener("submit", function(e){
     e.preventDefault();
-    state.profile = {
-      name: $("#ob-name").value.trim() || "Friend",
-      age: $("#ob-age").value,
+    finishOnboarding({
+      name: $("#ob-name").value,
+      dob: $("#ob-dob").value,
       gender: $("#ob-gender").value,
-      birthday: $("#ob-birthday").value,
       photo: obPhotoData
-    };
-    state.onboarded = true;
-    saveState();
-    if(state.hasSeenTutorial){ enterApp(); } else { showTutorial(); }
+    }).then(function(ok){
+      if(!ok){
+        showToast("You must be 18 or older to use Spark.");
+        return;
+      }
+      if(state.hasSeenTutorial){ enterApp(); } else { showTutorial(); }
+    });
   });
 
   function enterApp(){
@@ -1017,7 +1019,6 @@
     // deny or dismiss it, the app just carries on with built-in ideas only.
     if(state.location) fetchNearbyIdeas();
     else requestLocation({ silent:true });
-    fetchLocalEvents();
   }
 
   /* ---------- How-to tutorial (shown once, right after signup) ---------- */
@@ -1090,7 +1091,7 @@
     });
   });
 
-  var TAB_TITLES = { discover:"Discover", events:"Near You", friends:"Friends", saved:"Saved", done:"Done" };
+  var TAB_TITLES = { discover:"Discover", friends:"Friends", saved:"Saved", done:"Done" };
 
   function switchTab(tab){
     ui.tab = tab; ui.screen = "list"; ui.detailIdeaId = null; ui.detailFriendId = null; ui.savedBucket = null;
@@ -1115,7 +1116,6 @@
         $("#topbar-title").textContent = TAB_TITLES[ui.tab] || "Spark";
       }
       if(ui.tab === "discover") content.appendChild(buildDiscoverScreen());
-      else if(ui.tab === "events") content.appendChild(buildEventsScreen());
       else if(ui.tab === "friends") content.appendChild(buildFriendsScreen());
       else if(ui.tab === "saved") content.appendChild(buildSavedScreen());
       else if(ui.tab === "done") content.appendChild(buildDoneScreen());
@@ -1158,23 +1158,19 @@
   // The interleaved deck order, cached so it stays PUT between swipes.
   // Recomputing it from what's left after every swipe looks equivalent but
   // isn't: the extras get re-inserted N cards deep each time, so the first
-  // event or real spot sits perpetually N cards ahead and is never actually
+  // real spot sits perpetually N cards ahead and is never actually
   // reached, no matter how long you swipe. Ordering once and then merely
   // hiding what's been seen is what makes the position real.
   var deckOrderCache = null;   // { signature, ids }
 
   function computeDeck(){
-    // Real nearby spots need real coordinates; events also work from a typed
-    // zip, so the two pools have slightly different preconditions. Only the
-    // soonest few events join the deck — the rest live on the Events tab.
+    // Real nearby spots need coordinates. Built-in ideas do not.
     var realPool = state.location ? REAL_IDEAS_RUNTIME : [];
-    var eventPool = (state.location || state.postalCode) ? upcomingEvents().slice(0, EVENTS_IN_DECK) : [];
-    var extras = realPool.concat(eventPool);
     var builtinIds = IDEAS_DATA.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
-    var extraIds = extras.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
+    var extraIds = realPool.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
 
     // Rebuild the order only when the deck's *contents* change — a new filter
-    // set, or a fresh batch of events arriving. Swiping doesn't change it.
+    // set, or a fresh batch of real spots arriving. Swiping doesn't change it.
     var signature = JSON.stringify(state.filters) + "|" + builtinIds.length + "|" + extraIds.join(",");
     if(!deckOrderCache || deckOrderCache.signature !== signature){
       deckOrderCache = { signature: signature, ids: interleaveIds(builtinIds, extraIds) };
@@ -1323,8 +1319,7 @@
        distanceMiles  → "6.4 mi" / "from you"
        closesAt       → "10 pm" / "lot closes"   (a short clock time)
        conditions     → the coral line under the chips
-       openNow        → true shows the Open now badge
-     Events with a photo and no closesAt use their start time instead. */
+       openNow        → true shows the Open now badge */
   function ideaPhoto(idea){
     var photo = idea && idea.photo;
     if(!photo || typeof photo !== "object") return null;
@@ -1360,10 +1355,6 @@
     if(!idea) return null;
     if(typeof idea.closesAt === "string" && idea.closesAt.trim()){
       return { value: idea.closesAt.trim(), label: "lot closes" };
-    }
-    if(idea.isEvent && idea.localTime){
-      var when = eventTimeLabel(idea);
-      if(when && when !== "Time TBA") return { value: when, label: "starts" };
     }
     return null;
   }
@@ -1441,9 +1432,6 @@
 
   function photoTopRightHtml(idea){
     if(idea.openNow === true) return '<span class="card-open">Open now</span>';
-    if(idea.isEvent){
-      return '<span class="real-badge event-badge" title="Real local event">' + icon("calendar") + ' ' + escapeHtml(idea.dateLabel || "Event") + '</span>';
-    }
     if(idea.isReal){
       return '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>';
     }
@@ -1467,7 +1455,6 @@
     return '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
         '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
         (idea.isReal ? '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>' : '') +
-        (idea.isEvent ? '<span class="real-badge event-badge" title="Real local event">' + icon("calendar") + ' ' + escapeHtml(idea.dateLabel || "Event") + '</span>' : '') +
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '</div>' +
       '<div class="card-body">' +
@@ -1750,36 +1737,21 @@
       wrap.appendChild(realBlock);
     }
 
-    if(idea.isEvent){
-      var past = isPastEvent(idea);
-      var evBlock = el("div", "detail-real-block detail-event-block");
-      var venueLine = "";
-      if(idea.venue){
-        var vparts = [idea.venue.name, idea.venue.address, [idea.venue.city, idea.venue.state].filter(Boolean).join(", ")];
-        venueLine = vparts.filter(Boolean).join(" · ");
-      }
-      var distLine = distanceLabel(idea.distanceMiles);
-      distLine = distLine ? (distLine === "Right nearby" ? distLine : distLine + " away") : "";
-      evBlock.innerHTML =
-        '<div class="detail-real-title">' + icon("calendar") + (past ? ' This event has passed' : ' Local Event') + '</div>' +
-        '<div class="detail-event-when">' + escapeHtml(idea.dateLabel || "Date TBA") + '</div>' +
-        (venueLine ? '<div class="detail-real-addr">' + escapeHtml(venueLine) + '</div>' : '') +
-        (distLine ? '<div class="detail-real-addr">' + escapeHtml(distLine) + '</div>' : '') +
-        '<div class="detail-event-price">' + escapeHtml(displayCost(idea)) + '</div>' +
-        // Ticketmaster's terms require linking back to their listing for
-        // tickets. Spark never sells anything itself.
-        (idea.ticketUrl && !past
-          ? '<a class="btn-outline btn-block detail-real-link" href="' + escapeHtml(idea.ticketUrl) + '" target="_blank" rel="noopener">' +
-            icon("share") + ' Get Tickets on Ticketmaster</a>'
-          : '') +
-        '<div class="events-attribution">Event data provided by Ticketmaster</div>';
-      wrap.appendChild(evBlock);
+    if(idea.unavailable){
+      var gone = el("div", "detail-real-block");
+      gone.innerHTML =
+        '<div class="detail-real-title">' + icon("calendar") + ' No longer available</div>' +
+        '<div class="detail-real-addr">This saved item is no longer available.</div>';
+      wrap.appendChild(gone);
     }
 
     var tagGrid = el("div", "tag-grid");
-    var tags = [idea.duration, displayCost(idea), idea.setting].concat(idea.time, idea.vibe, idea.season, idea.stage);
+    var tags = [idea.duration, displayCost(idea), idea.setting].concat(idea.time || [], idea.vibe || [], idea.season || [], idea.stage || []);
     if(idea.food) tags.push("Food involved");
-    tags.forEach(function(t){ tagGrid.appendChild(el("span", "tag-chip", escapeHtml(t))); });
+    tags.forEach(function(t){
+      if(t == null || t === "") return;
+      tagGrid.appendChild(el("span", "tag-chip", escapeHtml(t)));
+    });
     wrap.appendChild(tagGrid);
 
     var actions = el("div", "detail-actions");
@@ -2038,13 +2010,9 @@
   /* ---------- Saved / Done screens ---------- */
   function buildIdeaRow(idea, subtext){
     var row = el("div", "idea-row");
-    // A saved event that's already happened stays in the list — you may well
-    // have gone — but says so rather than looking like it's still coming up.
-    if(isPastEvent(idea)){
-      row.classList.add("past-event");
-      subtext = "Passed · " + subtext;
-    } else if(idea.isEvent && idea.dateLabel){
-      subtext = idea.dateLabel;
+    if(idea && idea.unavailable){
+      row.classList.add("unavailable-item");
+      subtext = "No longer available";
     }
     row.innerHTML =
       '<span class="ir-icon">' + ideaIcon(idea) + '</span>' +
@@ -2289,207 +2257,12 @@
     return e;
   }
 
-  /* ---------- Events screen ----------
-     The date-sorted browse view. The swipe deck is a shuffle, where "sorted by
-     date" has no meaning, so events get their own surface here and only a
-     handful of the soonest ones are mixed into the deck. */
-
-  function eventDayLabel(localDate){
-    var today = localDateISO();
-    if(localDate === today) return "Today";
-    var t = new Date(); t.setDate(t.getDate() + 1);
-    if(localDate === localDateISO(t)) return "Tomorrow";
-    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(localDate || "");
-    if(!m) return "Later";
-    var dt = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-    return dt.toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" });
-  }
-
-  // "0 mi" for a venue round the corner reads like missing data rather than
-  // "very close", and rounding 1.7 to 2 throws away the detail people care
-  // about most at short range.
+  // Short distance for a photo stat tile.
   function distanceLabel(miles){
     if(miles == null) return null;
     if(miles < 0.1) return "Right nearby";
     if(miles < 10) return String(miles.toFixed(1)).replace(/\.0$/, "") + " mi";
     return Math.round(miles) + " mi";
-  }
-
-  function eventTimeLabel(idea){
-    if(!idea.localTime) return "Time TBA";
-    var hour = parseInt(idea.localTime.slice(0, 2), 10);
-    var min = idea.localTime.slice(3, 5);
-    if(isNaN(hour)) return "Time TBA";
-    var ampm = hour >= 12 ? "pm" : "am";
-    var h12 = hour % 12 === 0 ? 12 : hour % 12;
-    return h12 + (min === "00" ? "" : ":" + min) + ampm;
-  }
-
-  function buildRadiusPicker(){
-    var row = el("div", "radius-row");
-    row.appendChild(el("span", "radius-label", "Within"));
-    EVENT_RADIUS_OPTIONS.forEach(function(miles){
-      var chip = el("button", "radius-chip" + (eventRadius() === miles ? " active" : ""), miles + " mi");
-      chip.type = "button";
-      chip.addEventListener("click", function(){
-        if(eventRadius() === miles) return;
-        state.eventRadiusMiles = miles;
-        saveState();
-        fetchLocalEvents({ force:true });
-        renderContent();
-      });
-      row.appendChild(chip);
-    });
-    return row;
-  }
-
-  // Shown when the browser gave us nothing — either the user declined the
-  // permission prompt or it silently failed. Ticketmaster searches by zip just
-  // as well as by coordinates, so this costs the user one field and hands over
-  // far less than their exact position.
-  function buildZipFallback(){
-    // Once a zip is saved the full explainer has done its job, so it collapses
-    // to a one-line chip and gives the list back its vertical space.
-    if(state.postalCode){
-      var compact = el("div", "location-chip events-origin");
-      compact.innerHTML =
-        '<span class="location-chip-icon">' + icon("map-pin") + '</span>' +
-        '<span class="location-chip-text">Searching near ' + escapeHtml(state.postalCode) + '</span>';
-      var change = el("button", "location-chip-end", "Change");
-      change.type = "button";
-      change.className = "btn-text zip-change";
-      change.addEventListener("click", function(){
-        state.postalCode = null;
-        EVENT_IDEAS_RUNTIME = [];
-        eventsState.fetchedFor = null;
-        saveState();
-        renderContent();
-      });
-      compact.appendChild(change);
-      return compact;
-    }
-
-    var box = el("div", "zip-fallback");
-    box.appendChild(el("div", "zip-fallback-title", icon("map-pin") + " Where should we look?"));
-    box.appendChild(el("p", "zip-fallback-sub",
-      "Enter a zip code to see events near you. We only use it to search — it stays on your device."));
-
-    var form = el("form", "zip-form");
-    var input = el("input", "field-input zip-input");
-    input.type = "text";
-    input.inputMode = "numeric";
-    input.placeholder = "e.g. 84601";
-    input.maxLength = 10;
-    input.value = state.postalCode || "";
-
-    var submit = el("button", "btn-primary", "Find Events");
-    submit.type = "submit";
-
-    form.appendChild(input);
-    form.appendChild(submit);
-    form.addEventListener("submit", function(e){
-      e.preventDefault();
-      var zip = (input.value || "").trim();
-      if(!/^\d{5}(-\d{4})?$/.test(zip)){
-        showToast("Enter a 5-digit zip code");
-        return;
-      }
-      state.postalCode = zip;
-      saveState();
-      fetchLocalEvents({ force:true });
-      renderContent();
-    });
-    box.appendChild(form);
-
-    return box;
-  }
-
-  function buildEventRow(idea){
-    var row = el("div", "idea-row event-row");
-    var bits = [];
-    bits.push(eventTimeLabel(idea));
-    if(idea.venue && idea.venue.name) bits.push(idea.venue.name);
-    var dist = distanceLabel(idea.distanceMiles);
-    if(dist) bits.push(dist);
-    var sub = bits.join(" · ");
-
-    row.innerHTML =
-      '<span class="ir-icon">' + ideaIcon(idea) + '</span>' +
-      '<span class="ir-text">' +
-        '<div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
-        '<div class="ir-sub">' + escapeHtml(sub) + '</div>' +
-        '<div class="ir-price">' + escapeHtml(displayCost(idea)) + '</div>' +
-      '</span>' +
-      '<span class="ir-chevron">›</span>';
-    row.addEventListener("click", function(){ goToDetail(idea.id); });
-    return row;
-  }
-
-  function buildEventsScreen(){
-    var wrap = el("div", "screen events-screen");
-
-    wrap.appendChild(buildRadiusPicker());
-
-    // Where we're searching from, and how to change it.
-    if(state.location){
-      var chip = el("div", "location-chip events-origin");
-      chip.innerHTML =
-        '<span class="location-chip-icon">' + icon("map-pin") + '</span>' +
-        '<span class="location-chip-text">Using your current location</span>';
-      wrap.appendChild(chip);
-    } else {
-      wrap.appendChild(buildZipFallback());
-    }
-
-    if(eventsLoading){
-      wrap.appendChild(emptyNote(icon("clock"), "Looking for events…", "Checking what's on near you."));
-      return wrap;
-    }
-
-    // Nothing to search from yet.
-    if(!state.location && !state.postalCode) return wrap;
-
-    if(eventsState.reason === "not_configured"){
-      wrap.appendChild(emptyNote(icon("help-circle"), "Events aren't switched on yet",
-        "Add a Ticketmaster API key to the server's .env file to see real events here. Everything else in Spark works as normal."));
-      return wrap;
-    }
-    if(eventsState.reason){
-      var msg = eventsState.reason === "TM_RATE_LIMIT"
-        ? "We're checking too often right now — give it a minute and try again."
-        : "We couldn't reach the events service just now. Try again in a bit.";
-      wrap.appendChild(emptyNote(icon("help-circle"), "Couldn't load events", msg));
-      return wrap;
-    }
-
-    var events = upcomingEvents();
-    if(!events.length){
-      wrap.appendChild(emptyNote(icon("calendar"), "Nothing on just yet",
-        "No events found within " + eventRadius() + " miles. Try a wider radius."));
-      return wrap;
-    }
-
-    wrap.appendChild(el("div", "section-title", events.length + (events.length === 1 ? " event" : " events") + " near you"));
-
-    // Grouped under day headings, soonest first — the server already sorted.
-    var currentDay = null;
-    events.forEach(function(idea){
-      if(idea.localDate !== currentDay){
-        currentDay = idea.localDate;
-        wrap.appendChild(el("div", "event-day-header", eventDayLabel(currentDay)));
-      }
-      wrap.appendChild(buildEventRow(idea));
-    });
-
-    // Ticketmaster's terms require crediting them as the source.
-    if(eventsState.attribution){
-      var credit = el("div", "events-attribution");
-      credit.innerHTML = '<a href="' + escapeHtml(eventsState.attribution.url) + '" target="_blank" rel="noopener">' +
-        escapeHtml(eventsState.attribution.text) + '</a>';
-      wrap.appendChild(credit);
-    }
-
-    return wrap;
   }
 
   /* ---------- Friends screen ---------- */
@@ -2588,8 +2361,7 @@
     var av = $("#profile-avatar-big");
     av.innerHTML = state.profile.photo ? '<img src="' + state.profile.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : icon("user");
     $("#profile-name-big").textContent = state.profile.name || "You";
-    var ageText = state.profile.age ? state.profile.age + " · " : "";
-    $("#profile-sub").textContent = ageText + (state.profile.gender || "");
+    $("#profile-sub").textContent = state.profile.gender || "";
     $("#done-count-label").textContent = state.doneIds.length + " dates completed";
     var toggle = $("#auto-dark-toggle");
     if(toggle) toggle.checked = !!(state.settings && state.settings.autoDarkMode);
@@ -2759,13 +2531,11 @@
     var form = el("form", "idea-form");
     form.innerHTML =
       '<label>Name</label><input type="text" id="ep-name" value="' + escapeHtml(state.profile.name) + '" required>' +
-      '<label>Age</label><input type="number" id="ep-age" value="' + escapeHtml(state.profile.age) + '" min="13" max="120" required>' +
       '<label>Gender</label><select id="ep-gender">' +
         ["Woman","Man","Nonbinary","Prefer not to say"].map(function(g){
           return '<option value="' + g + '"' + (g === state.profile.gender ? " selected" : "") + '>' + g + '</option>';
         }).join("") +
       '</select>' +
-      '<label>Birthday</label><input type="date" id="ep-birthday" value="' + escapeHtml(state.profile.birthday) + '" required>' +
       '<label>Photo</label><input type="file" id="ep-photo" accept="image/*">';
     var saveBtn = el("button", "btn-primary btn-block", "Save Changes");
     saveBtn.type = "submit";
@@ -2784,10 +2554,9 @@
     form.addEventListener("submit", function(e){
       e.preventDefault();
       state.profile.name = $("#ep-name", form).value.trim() || state.profile.name;
-      state.profile.age = $("#ep-age", form).value;
       state.profile.gender = $("#ep-gender", form).value;
-      state.profile.birthday = $("#ep-birthday", form).value;
       if(newPhoto) state.profile.photo = newPhoto;
+      scrubProfileDob(state.profile);
       saveState();
       renderTopbarAvatar();
       renderProfileHeader();
@@ -2809,7 +2578,7 @@
 
   function getInviteLink(){
     var slug = (state.profile.name || "friend").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "friend";
-    var code = Math.abs(hashStr(state.profile.name || "friend") ^ hashStr(state.profile.birthday || "")).toString(36).slice(0, 6);
+    var code = Math.abs(hashStr(state.profile.name || "friend")).toString(36).slice(0, 6);
     return "https://spark-dates.app/invite/" + slug + "-" + code;
   }
 
@@ -2885,22 +2654,25 @@
   applyTheme();
   setInterval(applyTheme, 60000);
 
+  function prefillOnboarding(){
+    $("#ob-name").value = (state.profile && state.profile.name) || "";
+    $("#ob-gender").value = (state.profile && state.profile.gender) || "Woman";
+    if($("#ob-dob")) $("#ob-dob").value = "";
+    if(state.profile && state.profile.photo){
+      obPhotoData = state.profile.photo;
+      $("#avatar-preview").innerHTML = '<img src="' + state.profile.photo + '" alt="">';
+    }
+  }
+
   /* ---------- Boot ---------- */
   function boot(){
-    if(state.onboarded){
-      // prefill onboarding fields in case user goes back, and enter app directly
-      $("#ob-name").value = state.profile.name || "";
-      $("#ob-age").value = state.profile.age || "";
-      $("#ob-gender").value = state.profile.gender || "Woman";
-      $("#ob-birthday").value = state.profile.birthday || "";
-      if(state.profile.photo){
-        obPhotoData = state.profile.photo;
-        $("#avatar-preview").innerHTML = '<img src="' + state.profile.photo + '" alt="">';
-      }
+    prefillOnboarding();
+    if(ageGateSatisfied(state)){
+      state.onboarded = true;
       enterApp();
     } else {
-      $("#view-onboarding").classList.remove("hidden");
-      $("#view-app").classList.add("hidden");
+      state.onboarded = false;
+      showAgeGate();
     }
   }
 

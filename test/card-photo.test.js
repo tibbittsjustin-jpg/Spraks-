@@ -129,12 +129,11 @@ section("Unsafe or empty photos fall back to the cover", () => {
   idea.photo = null;
   check("null photo is not a photo", t.ideaPhoto(idea) === null);
 
-  const eventish = copyIdea(t, 2);
-  eventish.imageUrl = "https://ticketmaster.example/photo.jpg";
-  eventish.isEvent = true;
-  const ev = cardOf(t, eventish);
+  const stray = copyIdea(t, 2);
+  stray.imageUrl = "https://example.test/not-a-photo.jpg";
+  const ev = cardOf(t, stray);
   check("an imageUrl without photo.url does not hotlink",
-        ev.className === "swipe-card" && ev.html.indexOf("ticketmaster.example") === -1 && ev.html.indexOf('class="card-media"') !== -1);
+        ev.className === "swipe-card" && ev.html.indexOf("example.test") === -1 && ev.html.indexOf('class="card-media"') !== -1);
 });
 
 section("Photo does not change filtering", () => {
@@ -151,23 +150,13 @@ section("Photo does not change filtering", () => {
   check("a budget filter still excludes this free idea", t.matchesFilters(idea, narrow) === false);
 });
 
-section("Duration caption and event closing tile", () => {
+section("Duration caption", () => {
   const t = loadApp({});
   const idea = copyIdea(t, 3);
   idea.photo = { url: "https://example.com/ice.jpg" };
   const card = cardOf(t, idea);
   check("parenthetical duration shortens to the tile caption", card.html.indexOf(">half-day<") !== -1, idea.duration);
-
-  const show = copyIdea(t, 2);
-  show.photo = { url: "https://example.com/show.jpg" };
-  show.isEvent = true;
-  show.localTime = "19:30:00";
-  show.dateLabel = "Sat, Nov 1 · 7:30pm";
-  const ev = cardOf(t, show);
-  check("an event photo uses its start time when it has no closing time",
-        ev.html.indexOf('data-stat="hours"') !== -1 && ev.html.indexOf(">starts<") !== -1 && ev.html.indexOf("lot closes") === -1);
-  check("event date badge stays when it is not open now",
-        ev.html.indexOf("event-badge") !== -1 && ev.html.indexOf("Open now") === -1);
+  check("closing tile stays absent without closesAt", card.html.indexOf('data-stat="hours"') === -1);
 });
 
 module.exports = { pass, fail };

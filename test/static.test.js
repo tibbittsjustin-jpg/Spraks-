@@ -11,8 +11,6 @@ function check(name, cond, extra) {
 
 const MUST_404 = [
   "/server.js",
-  "/events-source.js",
-  "/events-map.js",
   "/package.json",
   "/package-lock.json",
   "/.env",

@@ -64,6 +64,7 @@ function loadApp(storage) {
     upcomingEvents: upcomingEvents, displayCost: displayCost,
     localDateISO: localDateISO, eventRadius: eventRadius,
     computeDeck: computeDeck, matchesFilters: matchesFilters,
+    buildSwipeCard: buildSwipeCard, ideaPhoto: ideaPhoto,
     EVENTS_IN_DECK: EVENTS_IN_DECK,
     get EVENT_IDEAS_RUNTIME(){ return EVENT_IDEAS_RUNTIME; },
     set EVENT_IDEAS_RUNTIME(v){ EVENT_IDEAS_RUNTIME = v; },

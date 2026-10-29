@@ -50,7 +50,7 @@ Owners: product, frontend, backend/integrations, and QA/infra. Stay inside your 
 
 ## QA / infra
 
-1. **No CI.** `npm test` is a hand-rolled runner (`test/run.js`) with no GitHub Actions workflow and no dev dependencies. A pull request can merge with a red suite if nobody runs it. **Suggestion:** one workflow that runs `npm test` on Node 18+.
+1. **CI runs `npm test`.** `.github/workflows/ci.yml` checks out the repo, sets up Node 22 (`package.json` engines is `>=18`; there is no `.nvmrc`), caches npm, installs with `npm ci` from `package-lock.json`, and runs the hand-rolled runner (`test/run.js`) on every push and pull request. There are still no dev dependencies. The suite is offline and does not need secrets. **Done.**
 
 2. **Tests cover the events pipeline and external-id persistence, and little of the rest of the app.** Offline mapping, a stubbed Ticketmaster fetch, stable ids, reload behavior, deck interleaving, and a few event filter cases (date stage, time of day, budget) are in `test/events.test.js`, `test/events-ui.test.js`, and `test/ids.test.js`. Nothing asserts the built-in catalog's filter matrix, swipe direction, plans, Favorites, the nearby-ideas route, onboarding, or friends. The harness's DOM is a stub, so it cannot catch a broken render.
 

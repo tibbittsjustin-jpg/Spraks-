@@ -3,7 +3,7 @@
    loadApp(), because the IIFE keeps same-named wrappers for call sites
    and the harness hook — those wrappers have to stay the real functions. */
 
-const util = require("../util.js");
+const util = require("../public/util.js");
 const { loadApp } = require("./harness.js");
 
 let pass = 0, fail = 0;

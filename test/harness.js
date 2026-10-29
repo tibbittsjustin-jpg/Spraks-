@@ -2,7 +2,7 @@
    internals poked at. Nothing here is app logic — it just keeps the DOM
    and storage calls from throwing. */
 const fs = require("fs"), vm = require("vm"), path = require("path");
-const ROOT = process.env.SPARK_ROOT || path.join(__dirname, "..");
+const ROOT = process.env.SPARK_ROOT || path.join(__dirname, "..", "public");
 
 function fakeEl() {
   const e = {

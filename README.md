@@ -9,7 +9,7 @@ The app is a vanilla JavaScript frontend. A small Node/Express server is only re
 - **Onboarding and profile.** Name, age (13–120), gender, birthday, and an optional photo. A five-slide tutorial runs once. Profile data, plans, and saves live in `localStorage` under `spark_state_v1`. There is no account and no server-side user store.
 - **Discover.** A stacked deck of idea cards. Swipe up to save, swipe down to pass, tap for details. The deck shows three cards at a time and remembers what you have already seen. "Start Over" clears seen ids for the current filters. Starting a new date plan clears seen and passed ids so the catalog is available again.
 - **Filters.** Date length, budget, time of day, indoor/outdoor, vibe, season, date stage, solo/double/group, and whether food is involved. Empty selections mean "any."
-- **Built-in catalog.** `data.js` holds 1,999 ideas, with ids 2 through 2000. Each idea has a title, description, one of 22 categories, an emoji icon, and tags for setting, season, food, cost, duration, time, vibe, stage, and date type, plus a `scene` and a `motif` used to draw the cover.
+- **Built-in catalog.** `data.js` holds 1,998 ideas, with ids 2 through 2000 except 340. Id 340 (Trafalga mini golf) was removed after the venue was demolished in 2015. There is no retired-idea flag; an idea that is not in the array is not in the deck. Each idea has a title, description, one of 22 categories, an emoji icon, and tags for setting, season, food, cost, duration, time, vibe, stage, and date type, plus a `scene` and a `motif` used to draw the cover.
 - **Cover art.** `motifs.js` is a library of hand-drawn SVG motifs. `app.js` paints a scene (sky, ground, time of day) and plants the idea's motif on the horizon. `motif-preview.html` is a dark-page gallery for judging that art; it is not part of the app.
 - **Plans and Favorites.** "Plan a Date" starts or resumes a named plan with an optional date. Swipe-saves while a plan is active go into that plan. The Saved tab is a folder list: **Favorites** (the `somedayIds` array — ideas with no plan) plus one folder per plan. An idea can sit in a plan and in Favorites at the same time. Plans can be swipe-deleted. Past events stay in saved lists and are labeled as passed.
 - **Done.** Mark an idea done from its detail screen. The Done tab and the profile "What You've Done" list show them with the date.
@@ -41,6 +41,10 @@ Node 18 or newer. Every key in `.env` is optional. Without them the matching fea
 | `app.js` | All UI and client state. One IIFE, about 2,800 lines. Not a module. |
 | `style.css` | Layout and theme for that shell. |
 | `data.js` | `IDEAS_DATA` (one very large line, about 1.1 MB), `DEMO_FRIENDS`, and `DATING_TIPS`. |
+| `data/coords/utah.json` | Per-idea Utah coordinates, keyed by idea id. Not read by the app. |
+| `data/geo/` | Nominatim cache, place queries, and overrides for `scripts/geocode-utah.js`. |
+| `scripts/geocode-utah.js` | Rerunnable Utah geocoder. Usage is in the file header. |
+| `scripts/pin_utah.js` | Rerunnable hand-pin pass. Never overwrites a locked entry. |
 | `motifs.js` | `MOTIFS` drawing library. 117 drawings; the catalog uses 115 of them. |
 | `motif-preview.html` | Standalone art preview. Reimplements framing because `app.js` does not export it. |
 | `qrcode.lib.js` | Vendored MIT QR Code generator (Kazuhiko Arase). Used only for the invite QR. |
@@ -72,6 +76,7 @@ These files record how the catalog was rewritten (filters, scenes, motifs, title
 | `ids.test.js` | Stable numeric ids for Google-place cards, snapshots across a reload, and cleanup of orphaned legacy ids in the 9000000–9999999 range. |
 | `events-map` via `events.test.js` | Time of day, season, price bands, classification, and the Ticketmaster fetch/cache layer with `fetch` stubbed. |
 | `events-ui.test.js` | Event ids, reload persistence, expiry, budget display, and how many events reach the deck. |
+| `geo.test.js` | `data/coords/utah.json`: ids exist in `data.js`, pinned lat/lng sit inside Utah, statuses are valid. |
 
 Real-place and event ids are numeric on purpose: cover art seeds its random generator from `idea.id`.
 

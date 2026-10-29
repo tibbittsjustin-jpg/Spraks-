@@ -1,0 +1,337 @@
+{
+ "105": {
+  "flag": "Put-in (Lower Provo River Park, below Deer Creek Dam) is verified, but neither Nominatim nor the sources give coordinates (Deer Creek Dam itself, at 40.4071,-111.5288, isn't the launch). Needs a manual lat/lng",
+  "url": "https://provo.com/things-to-do/provo-river-tubing-rafting/ ; https://www.riverbrain.com/accesses/839"
+ },
+ "241": {
+  "from": 1859,
+  "url": "https://provo.com/things-to-do/hiking/stewart-falls/ ; OSM Bridal Veil Falls View Area",
+  "place": "Provo Canyon (Bridal Veil Falls view area)",
+  "near": "Provo",
+  "notes": "Representative point: Bridal Veil Falls View Area on US-189, the canyon's main roadside stop, about 4 mi up from the canyon mouth"
+ },
+ "245": {
+  "from": 1859,
+  "url": "https://provo.com/things-to-do/hiking/stewart-falls/ ; OSM Bridal Veil Falls View Area",
+  "place": "Provo Canyon (Bridal Veil Falls view area)",
+  "near": "Provo",
+  "notes": "Same representative Provo Canyon point as #241"
+ },
+ "337": {
+  "from": 337,
+  "address": "7961 Cottonwood St, Bldg 1955, Hill AFB, Roy, UT 84056",
+  "url": "https://www.aerospaceutah.org/museum/about-the-museum/plan-your-visit/",
+  "near": "Roy",
+  "notes": "Off-base near the Roy Gate; OSM tags it as Sunset, but the official address is Roy"
+ },
+ "339": {
+  "q": [
+   "54 West Center Street, Provo, Utah"
+  ],
+  "address": "54 W Center St, Provo, UT 84601",
+  "url": "https://www.soapfactoryprovo.com/news/where-are-you-located%3F",
+  "near": "Provo"
+ },
+ "356": {
+  "ll": [
+   41.4377,
+   -112.6689
+  ],
+  "url": "https://diaart.org/visit/visit-our-locations-sites/robert-smithson-spiral-jetty ; https://en.wikipedia.org/wiki/Spiral_Jetty",
+  "place": "Spiral Jetty, Rozel Point",
+  "near": "Box Elder County",
+  "notes": "The artwork at Rozel Point; the other OSM matches were a same-named cycleway in Summit County"
+ },
+ "363": {
+  "q": [
+   "Salt Flats Rest Area, Utah",
+   "Bonneville Salt Flats Rest Area"
+  ],
+  "url": "https://www.nps.gov/places/salt-flats-rest-area-utah.htm ; https://bonnevillesaltflats.org/guide/rest-areas-and-viewpoints/",
+  "place": "Salt Flats Rest Area (I-80 MM 10, westbound)",
+  "near": "Wendover",
+  "notes": "Rest area with walk-on access to the salt crust, which fits the copy (walk out and take photos)"
+ },
+ "365": {
+  "from": "cache:fish lake utah",
+  "osmpick": "Sevier County",
+  "address": "Fish Lake Lodge, 2 N SR 25, Fish Lake, UT 84744 (nearby)",
+  "url": "https://www.fs.usda.gov/r04/fishlake/recreation/explore-forest/fish-lake-recreation-area ; https://www.fishlakeresorts.com/findus",
+  "near": "Fish Lake",
+  "notes": "Copy mentions cabin rentals and Utah's highest freshwater lake, so Fishlake NF in Sevier County, not the Summit or Uintah County Fish Lakes"
+ },
+ "367": {
+  "from": 1864,
+  "address": "110 Hobble Creek Canyon Rd, Springville, UT 84663",
+  "url": "https://www.springville.org/parks-recreation/parks/canyon-parks/kellys-grove/",
+  "place": "Hobble Creek Canyon (Kelly's Grove)",
+  "near": "Springville",
+  "notes": "Representative point: Kelly's Grove, the main city canyon park, which fits the copy's 'stop somewhere green' for lunch"
+ },
+ "376": {
+  "ll": [
+   37.7654,
+   -113.1556
+  ],
+  "address": "W Midvalley Rd, Cedar City, UT 84721",
+  "url": "https://www.blm.gov/visit/three-peaks-recreation-area",
+  "near": "Cedar City"
+ },
+ "385": {
+  "flag": "Couldn't verify a 'Horseshoe Bend' of the Sevier River with red cliffs near Ephraim (searches return Horseshoe Bend AZ and the Sanpete 'Horseshoes' trail). Copy may be wrong",
+  "url": "no verifying source found"
+ },
+ "387": {
+  "flag": "Couldn't verify a place named 'Cascade Lakes' at the base of Mt Timpanogos. Nearby real spots are Cascade Springs (no picnicking allowed) and the Aspen Grove/Timpooneke areas. Copy needs a real destination",
+  "url": "USFS Cascade Springs page (no picnicking); no source for Cascade Lakes"
+ },
+ "395": {
+  "q": [
+   "5570 East Lucerne Valley Road, Manila, Utah",
+   "Lucerne Valley Marina"
+  ],
+  "address": "5570 E Lucerne Valley Rd, Manila, UT 84046",
+  "url": "https://www.flaminggorgecountry.com/Lucerne-Valley-Marina/",
+  "place": "Flaming Gorge Reservoir (Lucerne Valley Marina)",
+  "near": "Manila",
+  "notes": "Copy says rent kayaks; Lucerne Valley Marina rents kayaks on the Utah side"
+ },
+ "404": {
+  "same": 363
+ },
+ "413": {
+  "flag": "Sand Mountain (BLM Little Sahara, ~39.63,-112.39 near Jericho/Nephi) is about 140 km from Ibapah. Copy says 'near Ibapah', so the location claim is wrong. Product call: fix the copy to Little Sahara, then pin",
+  "url": "https://www.blm.gov/visit/little-sahara-recreation-area"
+ },
+ "415": {
+  "same": 365
+ },
+ "421": {
+  "ll": [
+   38.01158333,
+   -111.3586944
+  ],
+  "url": "https://www.fs.usda.gov/r04/fishlake/recreation/homestead-overlook-dispersed-camping",
+  "place": "Boulder Mountain (Homestead Overlook, SR-12)",
+  "near": "Boulder",
+  "notes": "Copy is the Byway 12 drive over Boulder Mountain, so Homestead Overlook on SR-12, not the Cache County peak"
+ },
+ "1832": {
+  "flag": "Venue closed: Mora Iced Creamery (541 E University Pkwy, Orem) is listed PERMANENTLY CLOSED",
+  "url": "femalefoodie.com and restaurantji.com Mora Iced Creamery Orem listings (marked permanently closed)"
+ },
+ "1836": {
+  "flag": "Venue likely closed: Yelp lists Sub Zero Nitrogen Ice Cream, 62 W Center St, Provo as CLOSED (Apple Maps still lists it). Verify before pinning",
+  "url": "https://www.yelp.com/biz/sub-zero-nitrogen-ice-cream-provo"
+ },
+ "1840": {
+  "q": [
+   "570 East Park Avenue, Orem, Utah"
+  ],
+  "address": "570 E Park Ave, Orem, UT 84097",
+  "url": "https://jjcoffee.co/pages/store_locations",
+  "near": "Orem",
+  "notes": "Copy names no city; the Orem shop is the original (the other is in SLC). My Provo hint was wrong | Nominatim resolved only to the Park Ave street segment in Orem, not the house number (street-level precision)"
+ },
+ "1841": {
+  "q": [
+   "241 North Freedom Boulevard, Provo, Utah"
+  ],
+  "address": "241 N Freedom Blvd (200 W), Provo, UT 84601",
+  "url": "chamberofcommerce.com and restaurantji.com Juice n Java Provo listings",
+  "near": "Provo"
+ },
+ "1842": {
+  "q": [
+   "1106 South State Street, Provo, Utah"
+  ],
+  "address": "1106 S State St #16, Provo, UT 84606",
+  "url": "joe.coffee and mapquest.com Great Basin Coffee Provo listings",
+  "near": "Provo"
+ },
+ "1843": {
+  "q": [
+   "412 South 700 West, Salt Lake City, Utah"
+  ],
+  "address": "412 S 700 W, Suite 140, Salt Lake City, UT 84104",
+  "url": "https://kingspeakcoffee.com/pages/contact",
+  "near": "Salt Lake City",
+  "notes": "Official site lists only Salt Lake City shops; an older Provo listing (50 E 500 N) isn't on the official site. Copy names no city. Pinned the flagship roastery"
+ },
+ "1846": {
+  "q": [
+   "163 West 400 North, Orem, Utah"
+  ],
+  "address": "163 W 400 N, Orem, UT 84057",
+  "url": "joe.coffee Pink Axolotl Orem listing",
+  "near": "Orem"
+ },
+ "1847": {
+  "q": [
+   "821 Columbia Lane, Provo, Utah"
+  ],
+  "address": "821 Columbia Ln, Provo, UT 84604",
+  "url": "mapquest.com Xocokafe Provo listing",
+  "near": "Provo"
+ },
+ "1850": {
+  "q": [
+   "1200 North University Avenue, Provo, Utah",
+   "FatCats, Provo"
+  ],
+  "address": "1200 N University Ave, Provo, UT 84604",
+  "url": "https://www.fatcatsfun.com/locations/provo/",
+  "near": "Provo",
+  "notes": "CONTENT FLAG: FatCats' site says the Provo location has no GlowGolf (bowling only) | Nominatim hit for 1200 N University Ave is tagged with a neighbor tenant (Costa Vida)"
+ },
+ "1852": {
+  "q": [
+   "1668 South State Street, Orem, Utah"
+  ],
+  "address": "1668 S State St, Orem, UT 84097",
+  "url": "https://www.redgiantescaperooms.com/contact-us",
+  "near": "Orem"
+ },
+ "1853": {
+  "same": 1852
+ },
+ "1854": {
+  "q": [
+   "261 North University Avenue, Provo, Utah"
+  ],
+  "address": "261 N University Ave, Provo, UT 84601",
+  "url": "https://heberhatchets.com/ ; https://www.mapquest.com/us/utah/heber-hatchets-axe-throwing-heber-city-heber-city-443598294",
+  "near": "Provo",
+  "place": "Heber Hatchets",
+  "notes": "Heber City location (1969 Wendell Ln) is closed. Current Utah venue is 261 N University Ave, Provo, UT 84601. Pin is that street address; the OSM node at the house number is named BACKDOOR BRGR."
+ },
+ "1855": {
+  "q": [
+   "2230 North University Parkway, Provo, Utah"
+  ],
+  "address": "2230 N University Pkwy, Suite 12-A, Provo, UT 84604",
+  "url": "https://www.houseofescapes.com/ ; mapquest.com listing",
+  "near": "Provo",
+  "notes": "Now named Vizzini's House of Escapes | Nominatim hit for the same street address (2230 N University Pkwy) is tagged as Baymont hotel"
+ },
+ "1856": {
+  "ll": [
+   40.264472,
+   -111.630519
+  ],
+  "url": "https://unicornadventure.blog/kyhv-peak-provo-utah/ ; exa place listing (Rock Canyon Trailhead)",
+  "place": "Kyhv Peak Trail (Rock Canyon Trailhead)",
+  "near": "Provo",
+  "notes": "Main trailhead for Kyhv Peak (Rock Canyon TH, top of 2300 N). The OSM matches were road segments"
+ },
+ "1863": {
+  "from": 1863,
+  "url": "https://provo.com/things-to-do/hiking/stewart-falls/ ; https://www.utah.com/destinations/cities-towns/provo/hiking/stewart-falls/",
+  "near": "Provo",
+  "notes": "The falls themselves (copy: lunch at the base). Reached from the Aspen Grove TH or Sundance; unincorporated, so OSM gives no city"
+ },
+ "1865": {
+  "ll": [
+   40.331525,
+   -111.060124
+  ],
+  "url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/currant-creek-campground",
+  "place": "Currant Creek Nature Trail #147 (Loop D TH)",
+  "near": "Currant Creek",
+  "notes": "Trail starts in Loop D of Currant Creek Campground; coordinates from the exa place listing"
+ },
+ "1869": {
+  "q": [
+   "1394 North Freedom Boulevard, Provo, Utah"
+  ],
+  "address": "1394 N Freedom Blvd, Provo, UT 84604",
+  "url": "https://shopcurveture.com/pages/contact",
+  "near": "Provo"
+ },
+ "1870": {
+  "q": [
+   "363 North University Avenue, Provo, Utah"
+  ],
+  "address": "363 N University Ave, Unit 105A, Provo, UT 84601",
+  "url": "Apple Maps, exa, and loc8nearme Sad Boi Thrift Provo listings",
+  "near": "Provo"
+ },
+ "1877": {
+  "from": 1877,
+  "address": "4801 N University Ave, Suite 610, Provo, UT 84604",
+  "url": "https://shopsatriverwoods.com/la-jolla-groves/",
+  "near": "Provo",
+  "notes": "CONTENT FLAG: copy says Orem; it's in Provo (Shops at Riverwoods)"
+ },
+ "1878": {
+  "q": [
+   "3330 North University Avenue, Provo, Utah"
+  ],
+  "address": "3330 N University Ave, Provo, UT 84604",
+  "url": "https://blockrestaurantgroup.com/ ; OpenTable listing",
+  "near": "Provo",
+  "notes": "CONTENT FLAG: copy says Orem; Block is in Provo"
+ },
+ "1884": {
+  "q": [
+   "124 South State Street, Orem, Utah"
+  ],
+  "address": "124 S State St, Orem, UT 84058",
+  "url": "https://bangkokwasabi.com/ ; Yelp listing",
+  "near": "Orem"
+ },
+ "1886": {
+  "q": [
+   "4801 North University Avenue, Provo, Utah"
+  ],
+  "address": "4801 N University Ave, Unit 370, Provo, UT 84604",
+  "url": "https://shopsatriverwoods.com ; Yelp Slackwater Riverwoods listing",
+  "near": "Provo",
+  "notes": "Slackwater Riverwoods (Shops at Riverwoods address point)"
+ },
+ "1891": {
+  "q": [
+   "1200 Towne Centre Boulevard, Provo, Utah",
+   "Provo Towne Centre"
+  ],
+  "address": "1200 Towne Centre Blvd, Suite 2050, Provo, UT 84601",
+  "url": "https://www.cinemark.com/theatres/ut-provo/cinemark-provo-16",
+  "near": "Provo",
+  "notes": "Inside Provo Towne Centre mall"
+ },
+ "1892": {
+  "flag": "Verified address 1750 W 8000 S, Spanish Fork 84660, but Nominatim can't geocode it and the source gives no coordinates. Needs a manual lat/lng from a map",
+  "url": "https://glenrayscornmaze.com/contact/"
+ },
+ "1894": {
+  "flag": "Venue closed: Vineyard Garden Center (435 S Geneva Rd, Orem) closed at the end of 2015",
+  "url": "web listings (closure reported at end of 2015)"
+ },
+ "1896": {
+  "q": [
+   "950 West 400 South, Springville, Utah"
+  ],
+  "address": "950 W 400 S, Springville, UT 84663",
+  "url": "https://harwardfarms.com/jakers/ ; Yelp listing",
+  "near": "Springville"
+ },
+ "1904": {
+  "address": "8841 N Alpine Loop Rd, Sundance, UT 84604",
+  "url": "https://www.sundanceresort.com/maps/",
+  "near": "Provo",
+  "from": 1904,
+  "notes": "OSM Sundance Mountain Resort node at the resort base (8841 N Alpine Loop Rd)"
+ },
+ "1905": {
+  "same": 1904
+ },
+ "1912": {
+  "q": [
+   "SCERA Park, Orem, Utah"
+  ],
+  "address": "600 S 400 E, Orem, UT 84058 (SCERA Park)",
+  "url": "https://scera.org/general-information/",
+  "near": "Orem",
+  "notes": "Pinned to the SCERA Park polygon, where the outdoor Shell is"
+ }
+}

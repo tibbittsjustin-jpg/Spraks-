@@ -1,0 +1,1765 @@
+[
+ {
+  "id": 105,
+  "h": "P",
+  "place": "Provo River",
+  "city": "Provo"
+ },
+ {
+  "id": 187,
+  "h": "P",
+  "place": "Stewart Falls",
+  "city": "Sundance"
+ },
+ {
+  "id": 241,
+  "h": "P",
+  "place": "Provo Canyon",
+  "city": "Provo",
+  "variants": [
+   "Provo Canyon",
+   "Provo Canyon, Utah",
+   "Provo Canyon, Utah County, Utah"
+  ],
+  "accept": [
+   "natural/valley",
+   "natural/gorge",
+   "place/locality"
+  ],
+  "notes": "query as canyon/valley feature"
+ },
+ {
+  "id": 245,
+  "h": "P",
+  "place": "Provo Canyon",
+  "city": "Provo",
+  "variants": [
+   "Provo Canyon",
+   "Provo Canyon, Utah",
+   "Provo Canyon, Utah County, Utah"
+  ],
+  "accept": [
+   "natural/valley",
+   "natural/gorge",
+   "place/locality"
+  ],
+  "notes": "query as canyon/valley feature"
+ },
+ {
+  "id": 330,
+  "h": "I",
+  "place": "East Idaho Aquarium",
+  "city": "Idaho Falls, Idaho"
+ },
+ {
+  "id": 331,
+  "h": "P",
+  "place": "Daybreak",
+  "city": "South Jordan"
+ },
+ {
+  "id": 332,
+  "h": "P",
+  "place": "Tunnel Springs Park",
+  "city": "Bountiful"
+ },
+ {
+  "id": 333,
+  "h": "P",
+  "place": "Mutual Dell",
+  "city": "American Fork Canyon"
+ },
+ {
+  "id": 334,
+  "h": "P",
+  "place": "Rock Canyon Park",
+  "city": "Provo"
+ },
+ {
+  "id": 335,
+  "h": "P",
+  "place": "Layton Hills Mall",
+  "city": "Layton"
+ },
+ {
+  "id": 336,
+  "h": "P",
+  "place": "Thanksgiving Point",
+  "city": "Lehi"
+ },
+ {
+  "id": 337,
+  "h": "P",
+  "place": "Hill Aerospace Museum",
+  "city": "Roy"
+ },
+ {
+  "id": 338,
+  "h": "P",
+  "place": "Highland Glen Park",
+  "city": "Highland"
+ },
+ {
+  "id": 339,
+  "h": "P",
+  "place": "The Soap Factory",
+  "city": "Provo"
+ },
+ {
+  "id": 340,
+  "h": "P",
+  "place": "Trafalga",
+  "city": "Orem",
+  "status": "venue_closed",
+  "address": "168 S 1200 W, Orem, UT 84058",
+  "source": "https://gregjonesorg.wordpress.com/2015/12/20/demolition-of-trafalga-family-fun-center-in-orem-utah/ ; https://www.yelp.com/biz/trafalga-family-fun-center-orem (listed CLOSED)",
+  "notes": "Trafalga Family Fun Center was demolished Dec 2015; idea needs a replacement mini-golf venue (content fix), not a pin"
+ },
+ {
+  "id": 341,
+  "h": "P",
+  "place": "Keys on Main",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 342,
+  "h": "P",
+  "place": "Gallivan Center",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 343,
+  "h": "P",
+  "place": "Memory Grove Park",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 344,
+  "h": "P",
+  "place": "International Peace Gardens",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 345,
+  "h": "P",
+  "place": "BYU Creamery",
+  "city": "Provo"
+ },
+ {
+  "id": 346,
+  "h": "P",
+  "place": "Roots of Knowledge",
+  "city": "Orem"
+ },
+ {
+  "id": 347,
+  "h": "P",
+  "place": "Old Ephraim's Grave",
+  "city": "Logan Canyon"
+ },
+ {
+  "id": 348,
+  "h": "P",
+  "place": "Smith's Ballpark",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 349,
+  "h": "P",
+  "place": "Maverik Center",
+  "city": "West Valley City"
+ },
+ {
+  "id": 350,
+  "h": "M",
+  "place": "Salt Lake City bike rental",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 351,
+  "h": "P",
+  "place": "Temple Square",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 352,
+  "h": "P",
+  "place": "Utah State Capitol",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 353,
+  "h": "M",
+  "place": "puppy barn",
+  "city": "Utah"
+ },
+ {
+  "id": 354,
+  "h": "P",
+  "place": "Bear Lake",
+  "city": "Garden City"
+ },
+ {
+  "id": 355,
+  "h": "P",
+  "place": "Goblin Valley State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 356,
+  "h": "P",
+  "place": "Spiral Jetty",
+  "city": "Utah"
+ },
+ {
+  "id": 357,
+  "h": "P",
+  "place": "Dead Horse Point State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 358,
+  "h": "P",
+  "place": "Sundance Mountain Resort",
+  "city": "Sundance"
+ },
+ {
+  "id": 359,
+  "h": "P",
+  "place": "Strawberry Reservoir",
+  "city": "Utah"
+ },
+ {
+  "id": 360,
+  "h": "P",
+  "place": "Mill Canyon Dinosaur Tracks",
+  "city": "Moab"
+ },
+ {
+  "id": 361,
+  "h": "M",
+  "place": "Scenic Byway 12",
+  "city": "Utah"
+ },
+ {
+  "id": 362,
+  "h": "P",
+  "place": "Natural Bridges National Monument",
+  "city": "Utah"
+ },
+ {
+  "id": 363,
+  "h": "P",
+  "place": "Bonneville Salt Flats",
+  "city": "Utah"
+ },
+ {
+  "id": 364,
+  "h": "P",
+  "place": "Kodachrome Basin State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 365,
+  "h": "P",
+  "place": "Fish Lake",
+  "city": "Utah"
+ },
+ {
+  "id": 366,
+  "h": "P",
+  "place": "Escalante Petrified Forest State Park",
+  "city": "Escalante"
+ },
+ {
+  "id": 367,
+  "h": "P",
+  "place": "Hobble Creek Canyon",
+  "city": "Springville"
+ },
+ {
+  "id": 368,
+  "h": "P",
+  "place": "Newspaper Rock",
+  "city": "Utah",
+  "variants": [
+   "Newspaper Rock State Historic Monument, Utah",
+   "Newspaper Rock, San Juan County, Utah"
+  ],
+  "notes": "Newspaper Rock is the SR-211 site in San Juan County (near Monticello), not the St. George one"
+ },
+ {
+  "id": 369,
+  "h": "P",
+  "place": "Antelope Island State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 370,
+  "h": "P",
+  "place": "Crystal Geyser",
+  "city": "Green River"
+ },
+ {
+  "id": 371,
+  "h": "P",
+  "place": "Sand Hollow State Park",
+  "city": "Hurricane"
+ },
+ {
+  "id": 372,
+  "h": "P",
+  "place": "Mystic Hot Springs",
+  "city": "Monroe"
+ },
+ {
+  "id": 373,
+  "h": "P",
+  "place": "Piute Reservoir",
+  "city": "Utah"
+ },
+ {
+  "id": 374,
+  "h": "P",
+  "place": "Red Canyon",
+  "city": "Panguitch"
+ },
+ {
+  "id": 375,
+  "h": "P",
+  "place": "Huntington State Park",
+  "city": "Huntington"
+ },
+ {
+  "id": 376,
+  "h": "P",
+  "place": "Three Peaks Recreation Area",
+  "city": "Cedar City"
+ },
+ {
+  "id": 377,
+  "h": "P",
+  "place": "Cascade Springs",
+  "city": "Utah"
+ },
+ {
+  "id": 378,
+  "h": "P",
+  "place": "Bear Lake Marina",
+  "city": "Garden City"
+ },
+ {
+  "id": 379,
+  "h": "P",
+  "place": "Paria Rimrocks",
+  "city": "Utah"
+ },
+ {
+  "id": 380,
+  "h": "P",
+  "place": "Grafton",
+  "city": "Utah"
+ },
+ {
+  "id": 381,
+  "h": "P",
+  "place": "Mystic Hot Springs",
+  "city": "Monroe"
+ },
+ {
+  "id": 382,
+  "h": "P",
+  "place": "Green River",
+  "city": "Green River"
+ },
+ {
+  "id": 383,
+  "h": "M",
+  "place": "US 191 south of Moab",
+  "city": "Moab"
+ },
+ {
+  "id": 384,
+  "h": "P",
+  "place": "Little Wild Horse Canyon",
+  "city": "Utah"
+ },
+ {
+  "id": 385,
+  "h": "P",
+  "place": "Horseshoe Bend",
+  "city": "Ephraim"
+ },
+ {
+  "id": 386,
+  "h": "P",
+  "place": "Goblin Valley State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 387,
+  "h": "P",
+  "place": "Cascade Lakes",
+  "city": "Utah"
+ },
+ {
+  "id": 388,
+  "h": "P",
+  "place": "Bear Lake",
+  "city": "Garden City"
+ },
+ {
+  "id": 389,
+  "h": "P",
+  "place": "Corona Arch",
+  "city": "Moab"
+ },
+ {
+  "id": 390,
+  "h": "M",
+  "place": "Utah State Route 128",
+  "city": "Moab"
+ },
+ {
+  "id": 391,
+  "h": "P",
+  "place": "Browne Lake",
+  "city": "Flaming Gorge"
+ },
+ {
+  "id": 392,
+  "h": "P",
+  "place": "Lower Calf Creek Falls",
+  "city": "Escalante"
+ },
+ {
+  "id": 393,
+  "h": "P",
+  "place": "Strawberry Reservoir",
+  "city": "Utah"
+ },
+ {
+  "id": 394,
+  "h": "P",
+  "place": "Kodachrome Basin State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 395,
+  "h": "P",
+  "place": "Flaming Gorge Reservoir",
+  "city": "Utah"
+ },
+ {
+  "id": 396,
+  "h": "P",
+  "place": "Tower Arch",
+  "city": "Moab"
+ },
+ {
+  "id": 397,
+  "h": "P",
+  "place": "Little Wild Horse Canyon",
+  "city": "Utah"
+ },
+ {
+  "id": 398,
+  "h": "P",
+  "place": "Cherry Hill Campground",
+  "city": "Kaysville"
+ },
+ {
+  "id": 399,
+  "h": "P",
+  "place": "Goblin Valley State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 400,
+  "h": "P",
+  "place": "Bear Lake",
+  "city": "Garden City"
+ },
+ {
+  "id": 401,
+  "h": "P",
+  "place": "Natural Bridges National Monument",
+  "city": "Utah"
+ },
+ {
+  "id": 402,
+  "h": "P",
+  "place": "The Subway",
+  "city": "Zion National Park"
+ },
+ {
+  "id": 403,
+  "h": "P",
+  "place": "Mystic Hot Springs",
+  "city": "Monroe"
+ },
+ {
+  "id": 404,
+  "h": "P",
+  "place": "Bonneville Salt Flats",
+  "city": "Utah"
+ },
+ {
+  "id": 405,
+  "h": "P",
+  "place": "Upper Calf Creek Falls",
+  "city": "Escalante"
+ },
+ {
+  "id": 406,
+  "h": "P",
+  "place": "Goblin Valley State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 407,
+  "h": "P",
+  "place": "Island in the Sky",
+  "city": "Canyonlands National Park"
+ },
+ {
+  "id": 408,
+  "h": "M",
+  "place": "Colorado River rafting",
+  "city": "Moab"
+ },
+ {
+  "id": 409,
+  "h": "P",
+  "place": "Red Canyon",
+  "city": "Panguitch"
+ },
+ {
+  "id": 410,
+  "h": "P",
+  "place": "Coral Pink Sand Dunes State Park",
+  "city": "Kanab"
+ },
+ {
+  "id": 411,
+  "h": "P",
+  "place": "Delicate Arch",
+  "city": "Arches National Park"
+ },
+ {
+  "id": 412,
+  "h": "P",
+  "place": "Antelope Island State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 413,
+  "h": "P",
+  "place": "Sand Mountain",
+  "city": "Ibapah"
+ },
+ {
+  "id": 414,
+  "h": "P",
+  "place": "Paria",
+  "city": "Utah"
+ },
+ {
+  "id": 415,
+  "h": "P",
+  "place": "Fish Lake",
+  "city": "Utah"
+ },
+ {
+  "id": 416,
+  "h": "P",
+  "place": "Dead Horse Point State Park",
+  "city": "Utah"
+ },
+ {
+  "id": 417,
+  "h": "P",
+  "place": "Escalante Petrified Forest State Park",
+  "city": "Escalante"
+ },
+ {
+  "id": 418,
+  "h": "P",
+  "place": "Courthouse Wash Rock Art Panel",
+  "city": "Moab"
+ },
+ {
+  "id": 419,
+  "h": "P",
+  "place": "Crystal Geyser",
+  "city": "Green River"
+ },
+ {
+  "id": 420,
+  "h": "P",
+  "place": "Sand Hollow State Park",
+  "city": "Hurricane"
+ },
+ {
+  "id": 421,
+  "h": "P",
+  "place": "Boulder Mountain",
+  "city": "Utah"
+ },
+ {
+  "id": 422,
+  "h": "P",
+  "place": "Goosenecks State Park",
+  "city": "Mexican Hat"
+ },
+ {
+  "id": 423,
+  "h": "P",
+  "place": "Bear Lake Marina",
+  "city": "Garden City"
+ },
+ {
+  "id": 424,
+  "h": "M",
+  "place": "Huntington Canyon Scenic Byway",
+  "city": "Utah"
+ },
+ {
+  "id": 425,
+  "h": "I",
+  "place": "Great Basin National Park",
+  "city": "Nevada"
+ },
+ {
+  "id": 426,
+  "h": "P",
+  "place": "Newspaper Rock",
+  "city": "Utah",
+  "variants": [
+   "Newspaper Rock State Historic Monument, Utah",
+   "Newspaper Rock, San Juan County, Utah"
+  ],
+  "notes": "Newspaper Rock is the SR-211 site in San Juan County (near Monticello), not the St. George one"
+ },
+ {
+  "id": 427,
+  "h": "P",
+  "place": "Piute Reservoir",
+  "city": "Utah"
+ },
+ {
+  "id": 692,
+  "h": "X",
+  "place": "",
+  "city": ""
+ },
+ {
+  "id": 1024,
+  "h": "M",
+  "place": "country dancing",
+  "city": "Provo"
+ },
+ {
+  "id": 1025,
+  "h": "M",
+  "place": "country dancing",
+  "city": "Salt Lake City"
+ },
+ {
+  "id": 1026,
+  "h": "M",
+  "place": "swing dancing",
+  "city": "Provo"
+ },
+ {
+  "id": 1082,
+  "h": "X",
+  "place": "",
+  "city": ""
+ },
+ {
+  "id": 1428,
+  "h": "M",
+  "place": "roadside",
+  "city": "Logan"
+ },
+ {
+  "id": 1808,
+  "h": "X",
+  "place": "",
+  "city": ""
+ },
+ {
+  "id": 1830,
+  "h": "P",
+  "place": "Rockwell Ice Cream",
+  "city": "Provo"
+ },
+ {
+  "id": 1831,
+  "h": "P",
+  "place": "BYU Creamery on Ninth",
+  "city": "Provo"
+ },
+ {
+  "id": 1832,
+  "h": "P",
+  "place": "Mora Iced Creamery",
+  "city": "Provo"
+ },
+ {
+  "id": 1833,
+  "h": "P",
+  "place": "Leatherby's Family Creamery",
+  "city": "Orem"
+ },
+ {
+  "id": 1834,
+  "h": "P",
+  "place": "Cold Stone Creamery",
+  "city": "Provo"
+ },
+ {
+  "id": 1835,
+  "h": "P",
+  "place": "Brooker's Founding Flavors",
+  "city": "Provo"
+ },
+ {
+  "id": 1836,
+  "h": "P",
+  "place": "Sub Zero Ice Cream",
+  "city": "Provo"
+ },
+ {
+  "id": 1837,
+  "h": "P",
+  "place": "Bahama Buck's",
+  "city": "Provo",
+  "address": "2265 N University Pkwy, Provo, UT 84604",
+  "variants": [
+   "Bahama Buck's, Provo, Utah",
+   "2265 North University Parkway, Provo, Utah"
+  ],
+  "source": "https://bahamabucks.com/shop/provo/",
+  "notes": "Provo location"
+ },
+ {
+  "id": 1838,
+  "h": "P",
+  "place": "Peace on Earth Coffee",
+  "city": "Provo"
+ },
+ {
+  "id": 1839,
+  "h": "P",
+  "place": "Java Junkie",
+  "city": "Provo"
+ },
+ {
+  "id": 1840,
+  "h": "P",
+  "place": "James & Joan",
+  "city": "Provo"
+ },
+ {
+  "id": 1841,
+  "h": "P",
+  "place": "Juice and Java",
+  "city": "Provo"
+ },
+ {
+  "id": 1842,
+  "h": "P",
+  "place": "Great Basin Coffee Company",
+  "city": "Provo"
+ },
+ {
+  "id": 1843,
+  "h": "P",
+  "place": "Kings Peak Coffee Roasters",
+  "city": "Provo"
+ },
+ {
+  "id": 1844,
+  "h": "P",
+  "place": "Rugged Grounds",
+  "city": "Provo"
+ },
+ {
+  "id": 1845,
+  "h": "P",
+  "place": "Coffee Pod",
+  "city": "Provo"
+ },
+ {
+  "id": 1846,
+  "h": "P",
+  "place": "Pink Axolotl",
+  "city": "Orem"
+ },
+ {
+  "id": 1847,
+  "h": "P",
+  "place": "Xocokafe",
+  "city": "Provo"
+ },
+ {
+  "id": 1848,
+  "h": "P",
+  "place": "The Rush Funplex",
+  "city": "Orem",
+  "address": "575 E University Pkwy H-142, Orem, UT 84097",
+  "variants": [
+   "The Rush Funplex, Orem, Utah",
+   "575 East University Parkway, Orem, Utah"
+  ],
+  "source": "https://www.therushfunplex.com/orem/",
+  "notes": "Orem location at University Place"
+ },
+ {
+  "id": 1849,
+  "h": "P",
+  "place": "Provo Beach Resort",
+  "city": "Provo"
+ },
+ {
+  "id": 1850,
+  "h": "P",
+  "place": "FatCats",
+  "city": "Provo"
+ },
+ {
+  "id": 1851,
+  "h": "P",
+  "place": "Peaks Ice Arena",
+  "city": "Provo"
+ },
+ {
+  "id": 1852,
+  "h": "P",
+  "place": "Red Giant",
+  "city": "Orem"
+ },
+ {
+  "id": 1853,
+  "h": "P",
+  "place": "Red Giant",
+  "city": "Orem"
+ },
+ {
+  "id": 1854,
+  "h": "P",
+  "place": "Heber Hatchets",
+  "city": "Provo",
+  "address": "261 N University Ave, Provo, UT 84601",
+  "variants": [
+   "261 North University Avenue, Provo, Utah"
+  ],
+  "source": "https://heberhatchets.com/ ; https://www.mapquest.com/us/utah/heber-hatchets-axe-throwing-heber-city-heber-city-443598294",
+  "notes": "Heber City location (1969 Wendell Ln) is closed. Current Utah venue is 261 N University Ave, Provo, UT 84601. Pin is that street address; the OSM node at the house number is named BACKDOOR BRGR"
+ },
+ {
+  "id": 1855,
+  "h": "P",
+  "place": "Vizzini's Escape Rooms",
+  "city": "Provo"
+ },
+ {
+  "id": 1856,
+  "h": "P",
+  "place": "Kyhv Peak",
+  "city": "Provo"
+ },
+ {
+  "id": 1857,
+  "h": "P",
+  "place": "Rock Canyon Trail",
+  "city": "Provo"
+ },
+ {
+  "id": 1858,
+  "h": "P",
+  "place": "Bonneville Shoreline Trail",
+  "city": "Provo"
+ },
+ {
+  "id": 1859,
+  "h": "P",
+  "place": "Bridal Veil Falls",
+  "city": "Provo Canyon"
+ },
+ {
+  "id": 1860,
+  "h": "P",
+  "place": "Provo River Parkway",
+  "city": "Provo"
+ },
+ {
+  "id": 1861,
+  "h": "P",
+  "place": "Vivian Park",
+  "city": "Provo Canyon"
+ },
+ {
+  "id": 1862,
+  "h": "P",
+  "place": "Utah Lake State Park",
+  "city": "Provo"
+ },
+ {
+  "id": 1863,
+  "h": "P",
+  "place": "Stewart Falls",
+  "city": "Sundance"
+ },
+ {
+  "id": 1864,
+  "h": "P",
+  "place": "Kelly's Grove",
+  "city": "Springville"
+ },
+ {
+  "id": 1865,
+  "h": "P",
+  "place": "Currant Creek Nature Trail",
+  "city": "Utah"
+ },
+ {
+  "id": 1866,
+  "h": "P",
+  "place": "Timpanogos Cave National Monument",
+  "city": "American Fork"
+ },
+ {
+  "id": 1867,
+  "h": "P",
+  "place": "Deseret Industries",
+  "city": "Provo"
+ },
+ {
+  "id": 1868,
+  "h": "P",
+  "place": "Indy Clover",
+  "city": "Provo",
+  "address": "2255 N University Pkwy, Suites 7 & 9, Provo, UT 84604",
+  "variants": [
+   "Indy Clover, Provo, Utah",
+   "2255 North University Parkway, Provo, Utah"
+  ],
+  "source": "https://www.indyclover.com/location/provo",
+  "notes": "Provo location"
+ },
+ {
+  "id": 1869,
+  "h": "P",
+  "place": "Curveture",
+  "city": "Provo"
+ },
+ {
+  "id": 1870,
+  "h": "P",
+  "place": "Sad Boi Thrift",
+  "city": "Provo"
+ },
+ {
+  "id": 1871,
+  "h": "P",
+  "place": "Uptown Cheapskate",
+  "city": "Orem"
+ },
+ {
+  "id": 1872,
+  "h": "P",
+  "place": "Plato's Closet",
+  "city": "Orem"
+ },
+ {
+  "id": 1873,
+  "h": "P",
+  "place": "Black Sheep Cafe",
+  "city": "Provo"
+ },
+ {
+  "id": 1874,
+  "h": "P",
+  "place": "Umami",
+  "city": "Vineyard"
+ },
+ {
+  "id": 1875,
+  "h": "P",
+  "place": "Communal",
+  "city": "Provo"
+ },
+ {
+  "id": 1876,
+  "h": "P",
+  "place": "Slate",
+  "city": "Provo",
+  "address": "101 W 100 N, Provo, UT 84601",
+  "variants": [
+   "101 West 100 North, Provo, Utah"
+  ],
+  "source": "https://www.slateprovo.com/contact-location ; https://www.marriott.com/en-us/hotels/slcvo-provo-marriott-hotel-and-conference-center/dining/",
+  "notes": "Inside the Provo Marriott at 101 W 100 N. Indoor modern American restaurant; no rooftop"
+ },
+ {
+  "id": 1877,
+  "h": "P",
+  "place": "La Jolla Groves",
+  "city": "Orem"
+ },
+ {
+  "id": 1878,
+  "h": "P",
+  "place": "Block Restaurant",
+  "city": "Orem"
+ },
+ {
+  "id": 1879,
+  "h": "P",
+  "place": "Mozz",
+  "city": "Provo"
+ },
+ {
+  "id": 1880,
+  "h": "P",
+  "place": "Via 313",
+  "city": "Orem"
+ },
+ {
+  "id": 1881,
+  "h": "P",
+  "place": "Bombay House",
+  "city": "Provo"
+ },
+ {
+  "id": 1882,
+  "h": "P",
+  "place": "India Palace",
+  "city": "Provo"
+ },
+ {
+  "id": 1883,
+  "h": "P",
+  "place": "Kohinoor",
+  "city": "Orem"
+ },
+ {
+  "id": 1884,
+  "h": "P",
+  "place": "Bangkok Wasabi",
+  "city": "Orem"
+ },
+ {
+  "id": 1885,
+  "h": "P",
+  "place": "Happy Sumo",
+  "city": "Provo"
+ },
+ {
+  "id": 1886,
+  "h": "P",
+  "place": "Slackwater",
+  "city": "Provo"
+ },
+ {
+  "id": 1887,
+  "h": "P",
+  "place": "Two Jacks Pizza",
+  "city": "Provo",
+  "address": "80 W Center St, Provo, UT 84601",
+  "variants": [
+   "Two Jacks Pizza, Provo, Utah",
+   "80 West Center Street, Provo, Utah"
+  ],
+  "source": "https://www.twojackspizza.com/locations/ ; https://www.yelp.com/biz/two-jacks-pizza-provo",
+  "notes": "Provo location"
+ },
+ {
+  "id": 1888,
+  "h": "P",
+  "place": "Covey Center for the Arts",
+  "city": "Provo"
+ },
+ {
+  "id": 1889,
+  "h": "P",
+  "place": "SCERA Center for the Arts",
+  "city": "Orem"
+ },
+ {
+  "id": 1890,
+  "h": "P",
+  "place": "Velour",
+  "city": "Provo"
+ },
+ {
+  "id": 1891,
+  "h": "P",
+  "place": "Cinemark Provo Town Centre",
+  "city": "Provo"
+ },
+ {
+  "id": 1892,
+  "h": "P",
+  "place": "Glen Ray's",
+  "city": "Spanish Fork"
+ },
+ {
+  "id": 1893,
+  "h": "P",
+  "place": "Cornbelly's",
+  "city": "Lehi"
+ },
+ {
+  "id": 1894,
+  "h": "P",
+  "place": "Vineyard Garden Center",
+  "city": "Orem"
+ },
+ {
+  "id": 1895,
+  "h": "P",
+  "place": "Hee Haw Farms",
+  "city": "Pleasant Grove"
+ },
+ {
+  "id": 1896,
+  "h": "P",
+  "place": "Jaker's Jack-o-Lanterns",
+  "city": "Springville"
+ },
+ {
+  "id": 1897,
+  "h": "P",
+  "place": "Pioneer Park",
+  "city": "Provo"
+ },
+ {
+  "id": 1898,
+  "h": "M",
+  "place": "Orem Sunset Farmers Market",
+  "city": "Orem"
+ },
+ {
+  "id": 1899,
+  "h": "P",
+  "place": "Heber Valley Railroad",
+  "city": "Heber City"
+ },
+ {
+  "id": 1900,
+  "h": "P",
+  "place": "Brigham Young University",
+  "city": "Provo"
+ },
+ {
+  "id": 1901,
+  "h": "M",
+  "place": "Alpine Loop Scenic Byway",
+  "city": "Utah"
+ },
+ {
+  "id": 1902,
+  "h": "P",
+  "place": "Provo City Center Temple",
+  "city": "Provo"
+ },
+ {
+  "id": 1903,
+  "h": "P",
+  "place": "Monte L. Bean Life Science Museum",
+  "city": "Provo"
+ },
+ {
+  "id": 1904,
+  "h": "P",
+  "place": "Sundance Mountain Resort",
+  "city": "Sundance"
+ },
+ {
+  "id": 1905,
+  "h": "P",
+  "place": "Sundance Mountain Resort",
+  "city": "Sundance"
+ },
+ {
+  "id": 1906,
+  "h": "P",
+  "place": "Cascade Springs",
+  "city": "Utah"
+ },
+ {
+  "id": 1907,
+  "h": "P",
+  "place": "All Together Playground",
+  "city": "Orem"
+ },
+ {
+  "id": 1908,
+  "h": "P",
+  "place": "Get Air",
+  "city": "Orem",
+  "address": "1340 S Sandhill Rd, Orem, UT 84058",
+  "variants": [
+   "1340 Sandhill Road, Orem, Utah",
+   "Hang Time, Orem, Utah"
+  ],
+  "source": "https://hangtimeadventure.com/waiver/ ; https://www.mapquest.com/us/utah/get-air-hang-time-430951885",
+  "notes": "Get Air Hang Time, now branded Hang Time Adventure Park"
+ },
+ {
+  "id": 1909,
+  "h": "P",
+  "place": "University Place",
+  "city": "Orem"
+ },
+ {
+  "id": 1910,
+  "h": "P",
+  "place": "The Orchard at University Place",
+  "city": "Orem"
+ },
+ {
+  "id": 1911,
+  "h": "P",
+  "place": "Murdock Canal Trail",
+  "city": "Utah"
+ },
+ {
+  "id": 1912,
+  "h": "P",
+  "place": "SCERA Shell Outdoor Theatre",
+  "city": "Orem"
+ },
+ {
+  "id": 1913,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1914,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1915,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1916,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1917,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1918,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1919,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1920,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1921,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1922,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1923,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1924,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1925,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1926,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1927,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1928,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1929,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1930,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1931,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1932,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1933,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1934,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1935,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1936,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1937,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1938,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1939,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1940,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1941,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1942,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1943,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1944,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1945,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1946,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1947,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1948,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1949,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1950,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1951,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1952,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1953,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1954,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1955,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1956,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1957,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1958,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1959,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1960,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1961,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1962,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1963,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1964,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1965,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1966,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1967,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1968,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1969,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1970,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1971,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1972,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1973,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1974,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1975,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1976,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1977,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1978,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1979,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1980,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1981,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1982,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1983,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1984,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1985,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1986,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1987,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1988,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1989,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1990,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1991,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1992,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1993,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1994,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1995,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1996,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1997,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1998,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 1999,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ },
+ {
+  "id": 2000,
+  "h": "M",
+  "place": "generic/multi-venue",
+  "city": "Utah County"
+ }
+]

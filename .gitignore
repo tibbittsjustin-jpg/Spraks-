@@ -10,3 +10,8 @@ work/*.js.before_agents
 work/data.js.prev
 work/data.js.pre_motif_test
 work/ideas_input.json
+
+# Full geocoder dumps include unresolved ideas. The published pins are data/coords/utah.json.
+data/geo/utah_coords.json
+data/geo/utah_geocoded.json
+data/geo/utah_geocoded.csv

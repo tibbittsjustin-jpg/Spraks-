@@ -1,0 +1,109 @@
+{
+ "241": {
+  "variants": [
+   "Provo Canyon",
+   "Provo Canyon, Utah",
+   "Provo Canyon, Utah County, Utah"
+  ],
+  "accept": [
+   "natural/valley",
+   "natural/gorge",
+   "place/locality"
+  ],
+  "notes": "query as canyon/valley feature"
+ },
+ "245": {
+  "variants": [
+   "Provo Canyon",
+   "Provo Canyon, Utah",
+   "Provo Canyon, Utah County, Utah"
+  ],
+  "accept": [
+   "natural/valley",
+   "natural/gorge",
+   "place/locality"
+  ],
+  "notes": "query as canyon/valley feature"
+ },
+ "340": {
+  "status": "venue_closed",
+  "address": "168 S 1200 W, Orem, UT 84058",
+  "source": "https://gregjonesorg.wordpress.com/2015/12/20/demolition-of-trafalga-family-fun-center-in-orem-utah/ ; https://www.yelp.com/biz/trafalga-family-fun-center-orem (listed CLOSED)",
+  "notes": "Trafalga Family Fun Center was demolished Dec 2015; idea needs a replacement mini-golf venue (content fix), not a pin"
+ },
+ "368": {
+  "variants": [
+   "Newspaper Rock State Historic Monument, Utah",
+   "Newspaper Rock, San Juan County, Utah"
+  ],
+  "notes": "Newspaper Rock is the SR-211 site in San Juan County (near Monticello), not the St. George one"
+ },
+ "426": {
+  "variants": [
+   "Newspaper Rock State Historic Monument, Utah",
+   "Newspaper Rock, San Juan County, Utah"
+  ],
+  "notes": "Newspaper Rock is the SR-211 site in San Juan County (near Monticello), not the St. George one"
+ },
+ "1837": {
+  "address": "2265 N University Pkwy, Provo, UT 84604",
+  "variants": [
+   "Bahama Buck's, Provo, Utah",
+   "2265 North University Parkway, Provo, Utah"
+  ],
+  "source": "https://bahamabucks.com/shop/provo/",
+  "notes": "Provo location"
+ },
+ "1848": {
+  "address": "575 E University Pkwy H-142, Orem, UT 84097",
+  "variants": [
+   "The Rush Funplex, Orem, Utah",
+   "575 East University Parkway, Orem, Utah"
+  ],
+  "source": "https://www.therushfunplex.com/orem/",
+  "notes": "Orem location at University Place"
+ },
+ "1854": {
+  "address": "261 N University Ave, Provo, UT 84601",
+  "variants": [
+   "261 North University Avenue, Provo, Utah"
+  ],
+  "source": "https://heberhatchets.com/ ; https://www.mapquest.com/us/utah/heber-hatchets-axe-throwing-heber-city-heber-city-443598294",
+  "notes": "Heber City location (1969 Wendell Ln) is closed. Current Utah venue is 261 N University Ave, Provo, UT 84601. Pin is that street address; the OSM node at the house number is named BACKDOOR BRGR"
+ },
+ "1868": {
+  "address": "2255 N University Pkwy, Suites 7 & 9, Provo, UT 84604",
+  "variants": [
+   "Indy Clover, Provo, Utah",
+   "2255 North University Parkway, Provo, Utah"
+  ],
+  "source": "https://www.indyclover.com/location/provo",
+  "notes": "Provo location"
+ },
+ "1876": {
+  "address": "101 W 100 N, Provo, UT 84601",
+  "variants": [
+   "101 West 100 North, Provo, Utah"
+  ],
+  "source": "https://www.slateprovo.com/contact-location ; https://www.marriott.com/en-us/hotels/slcvo-provo-marriott-hotel-and-conference-center/dining/",
+  "notes": "Inside the Provo Marriott at 101 W 100 N. Indoor modern American restaurant; no rooftop"
+ },
+ "1887": {
+  "address": "80 W Center St, Provo, UT 84601",
+  "variants": [
+   "Two Jacks Pizza, Provo, Utah",
+   "80 West Center Street, Provo, Utah"
+  ],
+  "source": "https://www.twojackspizza.com/locations/ ; https://www.yelp.com/biz/two-jacks-pizza-provo",
+  "notes": "Provo location"
+ },
+ "1908": {
+  "address": "1340 S Sandhill Rd, Orem, UT 84058",
+  "variants": [
+   "1340 Sandhill Road, Orem, Utah",
+   "Hang Time, Orem, Utah"
+  ],
+  "source": "https://hangtimeadventure.com/waiver/ ; https://www.mapquest.com/us/utah/get-air-hang-time-430951885",
+  "notes": "Get Air Hang Time, now branded Hang Time Adventure Park"
+ }
+}

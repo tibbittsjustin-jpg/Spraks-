@@ -78,6 +78,13 @@ function loadApp(storage) {
     getInviteLink: getInviteLink,
     commitFriendPick: commitFriendPick,
     planShareState: planShareState,
+    validateUsername: validateUsername,
+    profileUsernameLine: profileUsernameLine,
+    submittedIdeasLabel: submittedIdeasLabel,
+    renderProfileHeader: renderProfileHeader,
+    applyProfileEdits: applyProfileEdits,
+    recordSubmittedIdea: recordSubmittedIdea,
+    buildEditProfileSubpanel: buildEditProfileSubpanel,
     get navigator(){ return navigator; },
     get document(){ return document; },
   };

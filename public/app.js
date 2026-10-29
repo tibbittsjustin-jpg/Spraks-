@@ -193,11 +193,45 @@
     };
   }
 
+  // One object for who this browser is. userId stays null until a server
+  // profile (email magic link) exists. localId is minted once per device.
+  function newLocalId(){
+    var alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+    var out = "loc_";
+    for(var i = 0; i < 20; i++) out += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+    return out;
+  }
+
+  function normalizeStoredIdentity(raw){
+    var localId = "";
+    var username = null;
+    var userId = null;
+    if(raw && typeof raw === "object"){
+      if(typeof raw.localId === "string" && raw.localId.trim()) localId = raw.localId.trim();
+      if(typeof raw.userId === "string" && raw.userId.trim()) userId = raw.userId.trim();
+      if(typeof raw.username === "string" && raw.username.trim()){
+        var checked = SparkUtil.validateUsername(raw.username);
+        if(checked.ok) username = checked.username;
+      }
+    }
+    if(!localId) localId = newLocalId();
+    return { localId: localId, username: username, userId: userId };
+  }
+
+  function storedIdentityNeedsWrite(raw, next){
+    if(!raw || typeof raw !== "object") return true;
+    if(raw.localId !== next.localId) return true;
+    if(!Object.prototype.hasOwnProperty.call(raw, "username") || raw.username !== next.username) return true;
+    if(!Object.prototype.hasOwnProperty.call(raw, "userId") || raw.userId !== next.userId) return true;
+    return false;
+  }
+
   function defaultState(){
     return {
       onboarded:false,
       hasSeenTutorial:false,
       profile:{ name:"", gender:"Woman", photo:null, ageConfirmedAt:null },
+      identity: normalizeStoredIdentity(null),
       datePlans:[],      // [{id, name, date, createdAt, ideaIds:[], friendPicks:[{id,friendName,avatarEmoji,avatarColor,ideaId}]}] — named/dated planning sessions
       somedayIds:[],     // ideas saved with no active plan, or via the dedicated "Someday" button
       doneIds:[],       // [{id, date}]
@@ -213,6 +247,7 @@
   }
 
   var pendingDobScrub = false;
+  var pendingIdentitySave = false;
   var state = loadState();
 
   function loadState(){
@@ -220,6 +255,7 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return defaultState();
       var parsed = JSON.parse(raw);
+      var storedIdentity = parsed.identity;
       var d = defaultState();
       for(var k in d){ if(!(k in parsed)) parsed[k] = d[k]; }
       // Deep-merge filters specifically, so older saved states (from before a new
@@ -276,6 +312,15 @@
         parsed.onboarded = false;
       }
       if(scrubProfileDob(parsed.profile)) pendingDobScrub = true;
+      // Older saves have no identity. Mint localId once and keep it.
+      // submittedIdeas are not rewritten; only new submissions get submittedBy.
+      var normalizedIdentity = normalizeStoredIdentity(storedIdentity);
+      if(storedIdentityNeedsWrite(storedIdentity, normalizedIdentity)){
+        parsed.identity = normalizedIdentity;
+        pendingIdentitySave = true;
+      } else {
+        parsed.identity = storedIdentity;
+      }
       return parsed;
     }catch(e){ return defaultState(); }
   }
@@ -387,8 +432,9 @@
   }
 
   rehydrateRealIdeas();
-  if(pendingDobScrub){
+  if(pendingDobScrub || pendingIdentitySave){
     pendingDobScrub = false;
+    pendingIdentitySave = false;
     saveState();
   }
 
@@ -649,6 +695,7 @@
   // Pure helpers live in util.js. Wrappers keep the call sites, and the
   // names the test harness reads, inside this IIFE.
   function escapeHtml(s){ return SparkUtil.escapeHtml(s); }
+  function validateUsername(value){ return SparkUtil.validateUsername(value); }
   var toastTimer = null;
   function showToast(msg){
     var t = $("#toast");
@@ -2473,10 +2520,30 @@
   });
   $("#profile-close").addEventListener("click", function(){ closeOverlay("#profile-overlay"); });
 
+  function profileUsernameLine(){
+    var name = state.identity && state.identity.username;
+    if(name) return "@" + name;
+    return "Add a username";
+  }
+
+  function submittedIdeasLabel(count){
+    var n = typeof count === "number" ? count : (Array.isArray(state.submittedIdeas) ? state.submittedIdeas.length : 0);
+    if(n === 1) return "1 idea submitted";
+    return n + " ideas submitted";
+  }
+
   function renderProfileHeader(){
     var av = $("#profile-avatar-big");
     av.innerHTML = state.profile.photo ? '<img src="' + state.profile.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : icon("user");
     $("#profile-name-big").textContent = state.profile.name || "You";
+    var usernameEl = $("#profile-username");
+    if(usernameEl){
+      var handle = state.identity && state.identity.username;
+      usernameEl.textContent = profileUsernameLine();
+      if(usernameEl.classList) usernameEl.classList.toggle("missing", !handle);
+    }
+    var ideasEl = $("#profile-ideas");
+    if(ideasEl) ideasEl.textContent = submittedIdeasLabel(Array.isArray(state.submittedIdeas) ? state.submittedIdeas.length : 0);
     $("#profile-sub").textContent = state.profile.gender || "";
     $("#done-count-label").textContent = state.doneIds.length + " dates completed";
     var toggle = $("#auto-dark-toggle");
@@ -2578,6 +2645,30 @@
     return wrap;
   }
 
+  function recordSubmittedIdea(fields){
+    fields = fields || {};
+    var title = String(fields.title == null ? "" : fields.title).trim();
+    var description = String(fields.description == null ? "" : fields.description).trim();
+    if(!title || !description) return null;
+    if(!state.identity || typeof state.identity !== "object" || typeof state.identity.localId !== "string" || !state.identity.localId){
+      state.identity = normalizeStoredIdentity(state.identity);
+    }
+    var row = {
+      title: title,
+      category: fields.category == null ? "" : String(fields.category),
+      description: description,
+      vibe: Array.isArray(fields.vibe) ? fields.vibe.slice() : [],
+      submittedAt: todayISO(),
+      submittedBy: {
+        localId: state.identity.localId,
+        username: state.identity.username || null
+      }
+    };
+    if(!Array.isArray(state.submittedIdeas)) state.submittedIdeas = [];
+    state.submittedIdeas.push(row);
+    return row;
+  }
+
   function buildIdeaSubmitSubpanel(){
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Got an Idea?"));
@@ -2614,14 +2705,15 @@
       var titleVal = $("#idea-title", form).value.trim();
       var descVal = $("#idea-desc", form).value.trim();
       if(!titleVal || !descVal) return;
-      state.submittedIdeas.push({
+      var savedIdea = recordSubmittedIdea({
         title: titleVal,
         category: $("#idea-category", form).value,
         description: descVal,
-        vibe: selectedVibes.slice(),
-        submittedAt: todayISO()
+        vibe: selectedVibes.slice()
       });
+      if(!savedIdea) return;
       saveState();
+      renderProfileHeader();
       showToast("Thanks! Your idea was submitted!");
       openSubpage("idea");
     });
@@ -2641,12 +2733,37 @@
     return wrap;
   }
 
+  function applyProfileEdits(fields){
+    fields = fields || {};
+    if(!state.identity || typeof state.identity !== "object" || typeof state.identity.localId !== "string" || !state.identity.localId){
+      state.identity = normalizeStoredIdentity(state.identity);
+    }
+    var rawUsername = fields.username == null ? "" : String(fields.username);
+    if(rawUsername.trim()){
+      var checked = validateUsername(rawUsername);
+      if(!checked.ok) return { ok:false, error: checked.message, code: checked.error };
+      state.identity.username = checked.username;
+      if(!Object.prototype.hasOwnProperty.call(state.identity, "userId") || state.identity.userId == null) state.identity.userId = null;
+    }
+    var name = fields.name == null ? "" : String(fields.name).trim();
+    if(name) state.profile.name = name;
+    if(fields.gender) state.profile.gender = fields.gender;
+    if(fields.photo) state.profile.photo = fields.photo;
+    scrubProfileDob(state.profile);
+    saveState();
+    return { ok:true };
+  }
+
   function buildEditProfileSubpanel(){
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Edit Profile"));
     var form = el("form", "idea-form");
+    var usernameNow = (state.identity && state.identity.username) || "";
     form.innerHTML =
       '<label>Name</label><input type="text" id="ep-name" value="' + escapeHtml(state.profile.name) + '" required>' +
+      '<label>Username</label><input type="text" id="ep-username" value="' + escapeHtml(usernameNow) + '" placeholder="letters, numbers, underscores" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" aria-describedby="ep-username-note ep-username-error">' +
+      '<p class="field-hint" id="ep-username-note">Saved on this device only for now. It is not reserved or unique yet.</p>' +
+      '<p class="field-error" id="ep-username-error" hidden></p>' +
       '<label>Gender</label><select id="ep-gender">' +
         ["Woman","Man","Nonbinary","Prefer not to say"].map(function(g){
           return '<option value="' + g + '"' + (g === state.profile.gender ? " selected" : "") + '>' + g + '</option>';
@@ -2658,6 +2775,19 @@
     form.appendChild(saveBtn);
     wrap.appendChild(form);
 
+    function showUsernameError(message){
+      var errEl = $("#ep-username-error", form);
+      var input = $("#ep-username", form);
+      if(errEl){
+        errEl.textContent = message || "";
+        errEl.hidden = !message;
+      }
+      if(input){
+        input.classList.toggle("invalid", !!message);
+        input.setAttribute("aria-invalid", message ? "true" : "false");
+      }
+    }
+
     var newPhoto = null;
     $("#ep-photo", form).addEventListener("change", function(e){
       var file = e.target.files && e.target.files[0];
@@ -2666,14 +2796,23 @@
       reader.onload = function(ev){ newPhoto = ev.target.result; };
       reader.readAsDataURL(file);
     });
+    $("#ep-username", form).addEventListener("input", function(){ showUsernameError(""); });
 
     form.addEventListener("submit", function(e){
       e.preventDefault();
-      state.profile.name = $("#ep-name", form).value.trim() || state.profile.name;
-      state.profile.gender = $("#ep-gender", form).value;
-      if(newPhoto) state.profile.photo = newPhoto;
-      scrubProfileDob(state.profile);
-      saveState();
+      var outcome = applyProfileEdits({
+        name: $("#ep-name", form).value,
+        gender: $("#ep-gender", form).value,
+        username: $("#ep-username", form).value,
+        photo: newPhoto
+      });
+      if(!outcome.ok){
+        showUsernameError(outcome.error);
+        var usernameInput = $("#ep-username", form);
+        if(usernameInput && usernameInput.focus) usernameInput.focus();
+        return;
+      }
+      showUsernameError("");
       renderTopbarAvatar();
       renderProfileHeader();
       showToast("Profile updated!");

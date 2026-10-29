@@ -71,6 +71,15 @@ function loadApp(storage) {
     finishOnboarding: finishOnboarding, ageGateSatisfied: ageGateSatisfied,
     MINIMUM_AGE: MINIMUM_AGE, parseProfileAge: parseProfileAge,
     setFetch: function(fn){ __net.fetch = fn; },
+    copyText: copyText,
+    shareOrCopy: shareOrCopy,
+    presentCopy: presentCopy,
+    presentShare: presentShare,
+    getInviteLink: getInviteLink,
+    commitFriendPick: commitFriendPick,
+    planShareState: planShareState,
+    get navigator(){ return navigator; },
+    get document(){ return document; },
   };
 `;
   const anchor = "\n  boot();\n})();";

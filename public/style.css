@@ -508,6 +508,7 @@ transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,.25);
 .tip-row .t-icon svg{ width:18px; height:18px; }
 .tip-row .t-text{ font-size:13px; color:var(--text); line-height:1.45; }
 
+.idea-form{ position:relative; }
 .idea-form label{ display:block; font-size:12px; font-weight:700; color:var(--text-soft); margin:12px 0 5px; text-transform:uppercase;}
 .idea-form textarea{ resize:vertical; min-height:80px; }
 .idea-form select, .idea-form input, .idea-form textarea{
@@ -515,6 +516,33 @@ width:100%; padding:11px 13px; border-radius:12px; border:1.5px solid var(--bord
 background:var(--surface-soft); color:var(--text); font-family:inherit;
 }
 .idea-form input.invalid{ border-color:var(--danger); }
+.idea-form .field-invalid, .idea-send-row input.field-invalid{ border-color:var(--danger); }
+.idea-form .chip-select.field-invalid{ box-shadow:0 0 0 1.5px var(--danger); border-radius:12px; }
+.idea-check{
+display:flex; align-items:center; gap:8px; margin-top:14px; font-size:14px; font-weight:600; color:var(--text);
+text-transform:none;
+}
+.idea-check input{ width:auto; margin:0; }
+.idea-hint{ font-size:12px; color:var(--text-soft); margin:6px 2px 0; line-height:1.4; font-weight:500; text-transform:none; }
+.idea-banner{
+background:var(--surface-soft); border-radius:14px; padding:12px 14px; margin:4px 0 8px;
+}
+.idea-banner p{ margin:0; font-size:13.5px; line-height:1.45; color:var(--text); }
+.idea-saved{ margin-bottom:10px; }
+.idea-send-row{ display:flex; gap:8px; align-items:center; margin:-2px 0 12px; }
+.idea-send-row input{
+flex:1; min-width:0; padding:10px 12px; border-radius:12px; border:1.5px solid var(--border);
+background:var(--surface-soft); color:var(--text); font:inherit; font-size:14px;
+}
+.idea-send-row .btn-outline{ width:auto; padding:10px 14px; margin:0; }
+.hp-field{
+position:absolute; top:0; left:0; width:1px; height:1px; margin:0; padding:0; overflow:hidden;
+clip:rect(0 0 0 0); border:0; white-space:nowrap;
+}
+.btn-primary:disabled{ opacity:.55; cursor:default; }
+.toast.toast-wrap{
+white-space:normal; text-align:center; width:min(320px, calc(100% - 36px)); line-height:1.35;
+}
 .chip-select{ display:flex; flex-wrap:wrap; gap:7px; }
 .chip-select .chip{
 padding:8px 13px; border-radius:16px; background:var(--surface-soft); font-size:12.5px; font-weight:700; color:var(--text-soft); cursor:pointer;

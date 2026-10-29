@@ -31,6 +31,25 @@ function request(port, urlPath) {
   });
 }
 
+function postJson(port, urlPath, payload) {
+  const data = Buffer.from(JSON.stringify(payload));
+  return new Promise((resolve, reject) => {
+    const req = http.request({
+      port: port, path: urlPath, method: "POST",
+      headers: { "Content-Type": "application/json", "Content-Length": data.length }
+    }, res => {
+      const chunks = [];
+      res.on("data", c => chunks.push(c));
+      res.on("end", () => resolve({
+        status: res.statusCode,
+        body: Buffer.concat(chunks).toString("utf8")
+      }));
+    });
+    req.on("error", reject);
+    req.end(data);
+  });
+}
+
 function matchesFilters(idea, f) {
   if (f.duration.length && f.duration.indexOf(idea.duration) === -1) return false;
   if (f.cost.length && f.cost.indexOf(idea.cost) === -1) return false;
@@ -834,6 +853,62 @@ async function main() {
     check("20 filter combos match matchesFilters", parityBad === 0, parityBad + " differed");
     const leaked = (await fetchAll(port, "")).some(item => item.status || JSON.stringify(item).indexOf("submitter_email") !== -1);
     check("public items never include status or submitter_email", !leaked);
+
+    const submitEmail = "submission-route-test@example.com";
+    const activityCount = await pool.query("select count(*)::int as n from activities");
+    const submitted = await postJson(port, "/api/submissions", {
+      email: "Submission-Route-Test@Example.com",
+      ageConfirmed: true,
+      title: "Evening board game",
+      description: "Pick a short game and play one round at the kitchen table.",
+      category: "Games, Contests & Scavenger Hunts",
+      city: "Provo",
+      sourceUrl: "https://example.com/board-game",
+      lat: 40.23,
+      lng: -111.66,
+      localId: "device-local",
+      submittedBy: "phone",
+      deviceId: "abc",
+      dob: "1990-01-01"
+    });
+    const submittedBody = JSON.parse(submitted.body);
+    check("submission route accepts a valid idea",
+      submitted.status === 201 && submittedBody.ok === true && submittedBody.status === "pending" &&
+      !submittedBody.id && submitted.body.indexOf(submitEmail) === -1 && submitted.body.indexOf("1990-01-01") === -1,
+      submitted.status + " " + submitted.body);
+    const stored = await pool.query(
+      "select status::text as status, activity_id, submitter_email, payload from submissions where submitter_email = $1",
+      [submitEmail]
+    );
+    let storedPayload = stored.rows[0] && stored.rows[0].payload;
+    if (typeof storedPayload === "string") storedPayload = JSON.parse(storedPayload);
+    const payloadText = JSON.stringify(storedPayload || {});
+    check("submission lands pending, unlinked, and lowercased",
+      stored.rows.length === 1 && stored.rows[0].status === "pending" && stored.rows[0].activity_id == null &&
+      stored.rows[0].submitter_email === submitEmail && storedPayload && storedPayload.schemaVersion === 1 &&
+      storedPayload.city === "Provo" && storedPayload.sourceUrl === "https://example.com/board-game" &&
+      payloadText.indexOf(submitEmail) === -1 && payloadText.indexOf("device-local") === -1 &&
+      !storedPayload.lat && !storedPayload.localId && !storedPayload.submittedBy && !storedPayload.deviceId && !storedPayload.dob &&
+      !Object.prototype.hasOwnProperty.call(storedPayload, "status"),
+      JSON.stringify(stored.rows[0] || {}).slice(0, 300));
+    const afterActivities = await pool.query("select count(*)::int as n from activities");
+    check("submission does not create or publish an activity",
+      afterActivities.rows[0].n === activityCount.rows[0].n);
+    const publicList = await request(port, "/api/activities?limit=50");
+    const publicDetail = await request(port, "/api/activities/2");
+    check("public activity responses do not echo the submitter",
+      publicList.body.indexOf(submitEmail) === -1 && publicList.body.indexOf("submitter_email") === -1 &&
+      publicDetail.body.indexOf(submitEmail) === -1 && publicDetail.body.indexOf("submitter_email") === -1);
+    let badEmailCode = null;
+    try {
+      await pool.query(
+        "insert into submissions (payload, submitter_email) values ($1, $2)",
+        [JSON.stringify({ schemaVersion: 1, title: "Nope title", description: "Long enough to be a description." }), "not-an-email"]
+      );
+    } catch (err) {
+      badEmailCode = err.code;
+    }
+    check("database email check rejects a bad address", badEmailCode === "23514", badEmailCode);
   } catch (err) {
     check("integration suite", false, (err && (err.stack || err.message) || String(err)).slice(0, 500));
   } finally {

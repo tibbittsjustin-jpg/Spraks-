@@ -16,8 +16,8 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
-const eventsSource = require("./events-source");
 const db = require("./db");
+const { checkAge } = require("./public/util");
 const { createActivitiesRouter } = require("./routes/activities");
 
 const app = express();
@@ -25,24 +25,23 @@ const publicDir = path.join(__dirname, "public");
 app.use(express.json());
 app.use(express.static(publicDir, { dotfiles: "ignore", index: "index.html" }));
 
-const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || "";
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || "";
 const PORT = process.env.PORT || 3000;
 
-// Ticketmaster's terms require crediting them as the source and linking back
-// to their listing for tickets. Spark never sells anything itself — every
-// event card carries this and the event's own ticketUrl.
-const TICKETMASTER_ATTRIBUTION = {
-text: "Event data provided by Ticketmaster",
-url: "https://www.ticketmaster.com/"
-};
+function googlePlacesKey(){ return process.env.GOOGLE_PLACES_API_KEY || ""; }
+function anthropicKey(){ return process.env.ANTHROPIC_API_KEY || ""; }
+
+/* About 1 km. Applied to the user's location before it leaves the server. */
+function roundUserCoord(value){
+var n = typeof value === "number" ? value : Number(value);
+if(!Number.isFinite(n)) return null;
+return Math.round(n * 100) / 100;
+}
 
 /* ---------- Status: lets the frontend know what's configured ---------- */
 app.get("/api/status", (req, res) => {
 res.json({
-placesConfigured: !!GOOGLE_PLACES_API_KEY,
-aiConfigured: !!ANTHROPIC_API_KEY,
-eventsConfigured: eventsSource.isConfigured(),
+placesConfigured: !!googlePlacesKey(),
+aiConfigured: !!anthropicKey(),
 dbConfigured: db.isConfigured()
 });
 });
@@ -61,17 +60,32 @@ return 24000; // ~15 mi default when no length is specified
 }
 
 async function searchNearbyPlaces(lat, lng, query, radius) {
-if (!GOOGLE_PLACES_API_KEY) return [];
+var key = googlePlacesKey();
+if (!key) return [];
 var url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
 + "?query=" + encodeURIComponent(query)
 + "&location=" + lat + "," + lng
 + "&radius=" + radius
-+ "&key=" + GOOGLE_PLACES_API_KEY;
-var resp = await fetch(url);
-var data = await resp.json();
++ "&key=" + key;
+var resp;
+try {
+resp = await fetch(url);
+} catch (e) {
+var net = new Error("places_unavailable");
+net.code = "PLACES_UNREACHABLE";
+throw net;
+}
+var data;
+try {
+data = await resp.json();
+} catch (e) {
+var bad = new Error("places_unavailable");
+bad.code = "PLACES_BAD_RESPONSE";
+throw bad;
+}
 if (data.status && data.status !== "OK" && data.status !== "ZERO_RESULTS") {
-var err = new Error("Google Places error: " + data.status + (data.error_message ? " — " + data.error_message : ""));
-err.code = "PLACES_" + data.status;
+var err = new Error("places_unavailable");
+err.code = "PLACES_ERROR";
 throw err;
 }
 var results = data.results || [];
@@ -128,9 +142,10 @@ return out;
 // Sends the whole candidate list to Claude ONCE and asks it to pick the best
 // subset and turn each into a Spark-style idea card. Returns an array of
 // { placeIndex, title, description, icon, cost, setting, vibe, food, durationGuess }.
+// The prompt names venues. It does not include the user's coordinates.
 async function generateNearbyIdeaCards(candidates, count) {
 var Anthropic = require("@anthropic-ai/sdk");
-var client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+var client = new Anthropic({ apiKey: anthropicKey() });
 
 var placesList = candidates.map(function (p, i) {
 return (i + 1) + ". " + p.name + (p.address ? " — " + p.address : "") + (p.rating ? " (rating " + p.rating + ")" : "");
@@ -166,12 +181,14 @@ return m ? JSON.parse(m[0]) : [];
 app.post("/api/nearby-ideas", async (req, res) => {
 try {
 var body = req.body || {};
-var lat = body.lat, lng = body.lng, filters = body.filters || {};
+var lat = roundUserCoord(body.lat);
+var lng = roundUserCoord(body.lng);
+var filters = body.filters || {};
 var count = Math.max(1, Math.min(15, body.count || 12));
-if (lat == null || lng == null) {
+if (lat == null || lng == null || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
 return res.status(400).json({ error: "missing lat/lng" });
 }
-if (!GOOGLE_PLACES_API_KEY || !ANTHROPIC_API_KEY) {
+if (!googlePlacesKey() || !anthropicKey()) {
 return res.json({ ideas: [], reason: "not_configured" });
 }
 
@@ -209,42 +226,22 @@ rating: place.rating
 
 res.json({ ideas: ideas });
 } catch (err) {
-console.error("[nearby-ideas]", err);
+console.error("[nearby-ideas] request_failed");
 res.json({ ideas: [], reason: "error" });
 }
 });
 
-/* ---------- Local events (Ticketmaster) ----------
-* Returns real nearby events, already translated into Spark's own shape by
-* events-map.js and sorted soonest-first.
-*
-* POST rather than GET on purpose: the body carries the user's coordinates,
-* and keeping them out of the URL keeps them out of proxy logs, browser
-* history and Referer headers. Location is the most sensitive thing this app
-* handles, so it never travels as a query string. */
-app.post("/api/events", async (req, res) => {
-var body = req.body || {};
+/* Date of birth is checked and discarded. Nothing here is logged or stored. */
+app.post("/api/age-check", (req, res) => {
 try {
-var result = await eventsSource.fetchEvents({
-lat: typeof body.lat === "number" ? body.lat : undefined,
-lng: typeof body.lng === "number" ? body.lng : undefined,
-postalCode: body.postalCode,
-radiusMiles: body.radiusMiles,
-windowDays: body.windowDays
-});
-res.json({
-events: result.events,
-cached: result.cached,
-attribution: TICKETMASTER_ATTRIBUTION
-});
-} catch (err) {
-var code = err.code || "ERROR";
-// No key yet is a normal state, not a failure — the app is expected to run
-// fine without one, exactly like the Google Places feature above.
-if (code === "NOT_CONFIGURED") return res.json({ events: [], reason: "not_configured" });
-if (code === "NO_LOCATION") return res.status(400).json({ events: [], reason: code });
-console.error("[events]", code, err.message);
-res.status(502).json({ events: [], reason: code, message: err.message });
+var raw = req.body && typeof req.body.dob === "string" ? req.body.dob : "";
+var result = checkAge(raw, new Date());
+if (result.error) return res.status(400).json({ ok: false, error: "invalid_date" });
+if (!result.ok) return res.json({ ok: false, blocked: true });
+return res.json({ ok: true });
+} catch (e) {
+console.error("[age-check] request_failed");
+return res.status(400).json({ ok: false, error: "invalid_date" });
 }
 });
 
@@ -277,11 +274,8 @@ module.exports = app;
 if (require.main === module) {
 app.listen(PORT, () => {
 console.log("Spark server running at http://localhost:" + PORT);
-if (!GOOGLE_PLACES_API_KEY || !ANTHROPIC_API_KEY) {
+if (!googlePlacesKey() || !anthropicKey()) {
 console.log("(Real nearby-place matching is OFF — add GOOGLE_PLACES_API_KEY and ANTHROPIC_API_KEY to .env to enable it. See SETUP.md.)");
-}
-if (!eventsSource.isConfigured()) {
-console.log("(Local events are OFF — add TICKETMASTER_API_KEY to .env to enable them. See SETUP.md.)");
 }
 if (!db.isConfigured()) {
 console.log("(Activities database is OFF — the built-in catalog still works. Add DATABASE_URL to enable GET /api/activities. See SETUP.md.)");

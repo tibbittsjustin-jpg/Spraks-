@@ -33,9 +33,10 @@ function makeSandbox(storage) {
       setItem(k, v){ this._d[k] = String(v); },
       removeItem(k){ delete this._d[k]; },
     },
-    fetch: () => new Promise(() => {}),        // never resolves: no network in tests
+    __net: { fetch: function(){ return new Promise(function(){}); } },
     setTimeout(){}, setInterval(){}, clearTimeout(){}, clearInterval(){},
     console, Math, Date, JSON, Object, Array, String, Number, Boolean, isNaN, parseInt, parseFloat,
+    fetch: function(){ return sandbox.__net.fetch.apply(null, arguments); },
   };
   sandbox.globalThis = sandbox;
   sandbox.self = sandbox;
@@ -60,14 +61,14 @@ function loadApp(storage) {
     addIdeaToBucket: addIdeaToBucket, removeIdeaFromBucket: removeIdeaFromBucket,
     totalSavedCount: totalSavedCount,
     isRealId: (typeof isRealId === "function") ? isRealId : function(id){ return typeof id==="number" && id>=9000000 && id<10000000; },
-    hydrateEventIdea: hydrateEventIdea, isPastEvent: isPastEvent,
-    upcomingEvents: upcomingEvents, displayCost: displayCost,
-    localDateISO: localDateISO, eventRadius: eventRadius,
+    displayCost: displayCost,
+    localDateISO: localDateISO,
     computeDeck: computeDeck, matchesFilters: matchesFilters,
-    buildSwipeCard: buildSwipeCard, ideaPhoto: ideaPhoto,
-    EVENTS_IN_DECK: EVENTS_IN_DECK,
-    get EVENT_IDEAS_RUNTIME(){ return EVENT_IDEAS_RUNTIME; },
-    set EVENT_IDEAS_RUNTIME(v){ EVENT_IDEAS_RUNTIME = v; },
+    buildSwipeCard: buildSwipeCard, buildIdeaRow: buildIdeaRow,
+    buildDetailScreen: buildDetailScreen, ideaPhoto: ideaPhoto,
+    finishOnboarding: finishOnboarding, ageGateSatisfied: ageGateSatisfied,
+    MINIMUM_AGE: MINIMUM_AGE, parseProfileAge: parseProfileAge,
+    setFetch: function(fn){ __net.fetch = fn; },
   };
 `;
   const anchor = "\n  boot();\n})();";

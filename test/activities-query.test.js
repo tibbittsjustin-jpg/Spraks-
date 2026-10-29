@@ -63,6 +63,15 @@ section("filters become parameters", () => {
   check("bad vibe throws", throwsFilter({ vibe: "Chill,Nope" }, "vibe"));
   check("bad food throws", throwsFilter({ food: "yes" }, "food"));
   check("bad category throws", throwsFilter({ category: "Not A Category" }, "category"));
+  const over = buildListQuery({ cost: "Over $100" });
+  check("Over $100 is an accepted cost",
+    over.text.indexOf("cost = ANY(") !== -1 && JSON.stringify(over.values).indexOf("Over $100") !== -1);
+  check("Over $100 stays out of the SQL text", over.text.indexOf("Over $100") === -1);
+  const hidden = buildListQuery({ hide21: "true" });
+  check("hide21=true keeps age21 rows out", hidden.text.indexOf("age21 = false") !== -1);
+  check("hide21=true does not interpolate the query string", hidden.text.indexOf("true") === -1);
+  check("hide21=false does not add the age21 predicate", buildListQuery({ hide21: "false" }).text.indexOf("age21 = false") === -1);
+  check("hide21=maybe throws", throwsFilter({ hide21: "maybe" }, "hide21"));
 });
 
 section("location, radius, page clamps", () => {

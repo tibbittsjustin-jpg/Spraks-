@@ -14,7 +14,7 @@ const DRY = process.argv.indexOf("--dry") !== -1;
 
 const SCENES = ["mountains","forest","water","snow","park","field","city","citynight","stage","cinema","kitchen","indoor","sunset","confetti"];
 const DURATIONS = ["Quick (under 1 hr)","Short (1-2 hrs)","Half-day (2-5 hrs)","Full day","Overnight"];
-const COSTS = ["Free","$1-$10","$20-$30","$100 and under"];
+const COSTS = ["Free","$1-$10","$20-$30","$100 and under","Over $100"];
 const SETTINGS = ["Indoor","Outdoor","Both"];
 const SEASONS = ["Spring","Summer","Fall","Winter"];
 const TIMES = ["Morning","Afternoon","Evening","Night"];

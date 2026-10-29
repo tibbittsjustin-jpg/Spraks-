@@ -106,9 +106,12 @@ To turn it on with Supabase:
    npm run db:migrate && npm run db:seed
    ```
 
-`npm run db:seed` loads `public/data.js` and, when `data/coords/*.json` is
-present, the coordinate files. It is safe to run again. Curated ideas that
-were removed from `data.js` are archived, not deleted.
+   `npm run db:migrate` applies every file in `db/migrations/`, including
+   `002_over100_age21.sql`, which allows the `Over $100` cost and adds the
+   `age21` column. `npm run db:seed` loads `public/data.js` and, when
+   `data/coords/*.json` is present, the coordinate files. It is safe to run
+   again. Curated ideas that were removed from `data.js` are archived, not
+   deleted. A missing `age21` on an idea is stored as false.
 
 For a local Postgres without TLS, set `PGSSLMODE=disable`. Integration tests
 use `TEST_DATABASE_URL` and never point at the Supabase project.

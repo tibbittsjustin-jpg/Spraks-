@@ -6,9 +6,10 @@ const ROOT = process.env.SPARK_ROOT || path.join(__dirname, "..", "public");
 
 function fakeEl() {
   const e = {
-    style: {}, dataset: {}, value: "", textContent: "", innerHTML: "",
+    style: {}, dataset: {}, value: "", textContent: "", innerHTML: "", children: [],
     classList: { add(){}, remove(){}, toggle(){}, contains(){ return false; } },
-    addEventListener(){}, removeEventListener(){}, appendChild(){}, setAttribute(){},
+    addEventListener(){}, removeEventListener(){},
+    appendChild(child){ this.children.push(child); return child; }, setAttribute(){},
     getAttribute(){ return null; }, replaceChild(){}, querySelector(){ return fakeEl(); },
     querySelectorAll(){ return []; }, insertBefore(){}, remove(){}, focus(){}, click(){},
     get parentNode(){ return fakeEl(); }, get firstChild(){ return null; },
@@ -66,6 +67,7 @@ function loadApp(storage) {
     computeDeck: computeDeck, matchesFilters: matchesFilters,
     buildSwipeCard: buildSwipeCard, buildIdeaRow: buildIdeaRow,
     buildDetailScreen: buildDetailScreen, ideaPhoto: ideaPhoto,
+    FILTER_DEFS: FILTER_DEFS, activeFilterCount: activeFilterCount,
     finishOnboarding: finishOnboarding, ageGateSatisfied: ageGateSatisfied,
     MINIMUM_AGE: MINIMUM_AGE, parseProfileAge: parseProfileAge,
     setFetch: function(fn){ __net.fetch = fn; },

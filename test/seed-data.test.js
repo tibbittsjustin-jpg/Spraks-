@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { loadIdeas } = require("../db/seed");
+const { loadIdeas, validateIdeas } = require("../db/seed");
 const filters = require("../shared/filters");
 
 let pass = 0, fail = 0;
@@ -30,12 +30,22 @@ section("catalog", () => {
     if (filters.duration.indexOf(idea.duration) === -1) bad.push(idea.id + " duration");
     if (filters.category.indexOf(idea.category) === -1) bad.push(idea.id + " category");
     if (typeof idea.food !== "boolean") bad.push(idea.id + " food");
+    if (idea.age21 != null && filters.age21.indexOf(idea.age21) === -1) bad.push(idea.id + " age21");
     ["season", "time", "vibe", "stage", "dateType"].forEach(key => {
       const values = idea[key];
       if (!Array.isArray(values) || values.some(value => filters[key].indexOf(value) === -1)) bad.push(idea.id + " " + key);
     });
   });
   check("every value is in shared/filters.js", bad.length === 0, bad.slice(0, 8).join(", "));
+  let seedOk = true;
+  let seedErr = "";
+  try { validateIdeas(ideas); }
+  catch (err) { seedOk = false; seedErr = err.message || String(err); }
+  check("seed validateIdeas accepts the catalog", seedOk, seedErr.slice(0, 180));
+  let rejected = false;
+  try { validateIdeas([Object.assign({}, ideas[0], { age21: "yes" })]); }
+  catch (err) { rejected = err.code === "invalid_ideas"; }
+  check("a non-boolean age21 is rejected", rejected);
 });
 
 section("moderation switch is schema-only", () => {

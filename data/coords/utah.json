@@ -175,25 +175,6 @@
   "address_source": null,
   "notes": "name match 1.00; city verified"
  },
- "336": {
-  "id": 336,
-  "status": "confident",
-  "place": "Thanksgiving Point",
-  "address": "Thanksgiving Point, Triumph Boulevard, Lehi, Utah County, Utah, 84048, United States",
-  "lat": 40.424158,
-  "lng": -111.886556,
-  "city": "Lehi",
-  "state": "Utah",
-  "source": "nominatim",
-  "osm_type": "way",
-  "osm_id": 1459145984,
-  "osm_class_type": "tourism/theme_park",
-  "confidence": "high",
-  "locked": false,
-  "resolvedAt": "2026-10-29T19:24:23.915Z",
-  "address_source": null,
-  "notes": "name match 1.00"
- },
  "337": {
   "id": 337,
   "status": "confident",

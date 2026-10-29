@@ -88,6 +88,7 @@ async function main() {
       check("two items", body.items.length === 2);
       const item = body.items[0];
       check("date_type maps to dateType", Array.isArray(item.dateType) && item.dateType[0] === "Solo/Couple");
+      check("missing age21 maps to false", item.age21 === false);
       check("affiliate_url maps to affiliateUrl", item.affiliateUrl === "https://example.com/out");
       check("status is not exposed", !Object.prototype.hasOwnProperty.call(item, "status") && res.body.indexOf("\"status\"") === -1);
       check("submitter_email is not exposed", res.body.indexOf("submitter_email") === -1);

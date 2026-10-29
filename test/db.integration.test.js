@@ -44,6 +44,7 @@ function matchesFilters(idea, f) {
   if (f.stage.length && !idea.stage.some(function (s) { return f.stage.indexOf(s) !== -1; })) return false;
   if (f.dateType.length && !idea.dateType.some(function (d) { return f.dateType.indexOf(d) !== -1; })) return false;
   if (f.food !== null && idea.food !== f.food) return false;
+  if (f.hide21 && idea.age21 === true) return false;
   return true;
 }
 
@@ -94,6 +95,7 @@ function encodeFilters(f) {
     if (f[key] && f[key].length) parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(f[key].join(",")));
   });
   if (f.food !== null && f.food !== undefined) parts.push("food=" + (f.food ? "true" : "false"));
+  if (f.hide21) parts.push("hide21=true");
   return parts.join("&");
 }
 
@@ -131,7 +133,38 @@ async function main() {
     const first = await migrate({ pool: pool, connectionString: connectionString });
     const second = await migrate({ pool: pool, connectionString: connectionString });
     check("migration applied", first.applied.indexOf("001_init.sql") !== -1, first.applied.join(","));
-    check("second migrate is a no-op", second.applied.length === 0 && second.skipped.indexOf("001_init.sql") !== -1);
+    check("migration 002 applied", first.applied.indexOf("002_over100_age21.sql") !== -1, first.applied.join(","));
+    check("second migrate is a no-op",
+      second.applied.length === 0 &&
+      second.skipped.indexOf("001_init.sql") !== -1 &&
+      second.skipped.indexOf("002_over100_age21.sql") !== -1);
+
+    const overCost = await pool.query(
+      "insert into activities (title, category, setting, cost, duration, status, source, tier) " +
+      "values ('Over', 'Hiking & Nature', 'Outdoor', 'Over $100', 'Full day', 'approved', 'community', 'free') " +
+      "returning id, age21, cost"
+    );
+    check("Over $100 is allowed and age21 defaults to false",
+      overCost.rows[0] && overCost.rows[0].cost === "Over $100" && overCost.rows[0].age21 === false);
+    let costCode = null;
+    try {
+      await pool.query(
+        "insert into activities (title, category, setting, cost, duration) " +
+        "values ('Too much', 'Hiking & Nature', 'Outdoor', '$500', 'Quick (under 1 hr)')"
+      );
+    } catch (err) {
+      costCode = err.code;
+    }
+    check("a cost outside the check is rejected", costCode === "23514", costCode);
+    const ageCol = await pool.query(
+      "select is_nullable, column_default from information_schema.columns " +
+      "where table_schema = 'public' and table_name = 'activities' and column_name = 'age21'"
+    );
+    check("age21 is boolean not null default false",
+      ageCol.rows[0] && ageCol.rows[0].is_nullable === "NO" &&
+      String(ageCol.rows[0].column_default).indexOf("false") !== -1,
+      JSON.stringify(ageCol.rows[0]));
+    await pool.query("delete from activities where id = $1", [overCost.rows[0].id]);
 
     const app = require("../server");
     server = await new Promise(resolve => {
@@ -325,6 +358,14 @@ async function main() {
     check("#340 is absent from IDEAS_DATA", !byId[340]);
     const trafalga = await request(port, "/api/activities/340");
     check("GET /api/activities/340 is 404", trafalga.status === 404 && JSON.parse(trafalga.body).error === "not_found");
+    const ageCount = await pool.query(
+      "select count(*)::int as n from activities where source = 'curated' and status = 'approved' and age21"
+    );
+    check("seeded age21 ideas are the 16 alcohol-centered rows", ageCount.rows[0].n === 16, String(ageCount.rows[0].n));
+    for (const goneId of [336, 778, 1424, 1548]) {
+      const goneRes = await request(port, "/api/activities/" + goneId);
+      check("removed #" + goneId + " is 404", goneRes.status === 404 && JSON.parse(goneRes.body).error === "not_found");
+    }
     for (const id of [1854, 1876]) {
       const row = await pool.query("select title, description, setting from activities where id = $1", [id]);
       const idea = byId[id];
@@ -353,7 +394,8 @@ async function main() {
         season: pickSome(rand, filters.season),
         stage: pickSome(rand, filters.stage),
         dateType: pickSome(rand, filters.dateType),
-        food: rand() < 0.33 ? null : rand() < 0.5
+        food: rand() < 0.33 ? null : rand() < 0.5,
+        hide21: rand() < 0.5
       });
     }
     for (const combo of combos) {

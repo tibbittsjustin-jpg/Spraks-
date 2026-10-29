@@ -5,7 +5,7 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { normalizeCoords, readCoordsFile, loadCoordsFromDir, KNOWN_STATUSES } = require("../db/coords");
+const { normalizeCoords, readCoordsFile, loadCoordsFromDir, applyCoords, KNOWN_STATUSES } = require("../db/coords");
 const { loadIdeas } = require("../db/seed");
 
 let pass = 0, fail = 0;
@@ -217,4 +217,93 @@ section("real data/coords/utah.json", () => {
   check("locked hand pins become points", handBad.length === 0, handBad.join(","));
 });
 
-module.exports = { pass: pass, fail: fail };
+function lockedEntry(city) {
+  return {
+    kind: "apply",
+    id: 1876,
+    pin: true,
+    address: "101 W 100 N, Provo, UT",
+    setAddress: true,
+    lat: 40.233,
+    lng: -111.658,
+    coordsLocked: true,
+    geoStatus: "confident",
+    geoConfidence: "manual",
+    geoSource: "manual",
+    geoResolvedAt: "2026-10-29T00:00:00.000Z",
+    city: city
+  };
+}
+
+function mockDb(rows) {
+  const calls = [];
+  return {
+    calls: calls,
+    async query(sql, params) {
+      calls.push({ sql: sql, params: params });
+      if (sql.indexOf("set city") !== -1) {
+        const id = params[0];
+        if (!rows[id]) return { rowCount: 0, rows: [] };
+        rows[id].city = params[1];
+        return { rowCount: 1, rows: [] };
+      }
+      if (sql.indexOf("coords_locked = false") !== -1) {
+        const id = params[0];
+        const row = rows[id];
+        if (!row || row.coords_locked) return { rowCount: 0, rows: [] };
+        row.location = params;
+        return { rowCount: 1, rows: [] };
+      }
+      if (sql.indexOf("select coords_locked") !== -1) {
+        const row = rows[params[0]];
+        if (!row) return { rowCount: 0, rows: [] };
+        return { rowCount: 1, rows: [{ coords_locked: row.coords_locked }] };
+      }
+      throw new Error("unexpected sql " + sql);
+    }
+  };
+}
+
+async function applySection() {
+  console.log("\nlocked row city update");
+  const lockedRows = { 1876: { coords_locked: true, city: "Old City" } };
+  const lockedDb = mockDb(lockedRows);
+  const lockedCounts = await applyCoords([lockedEntry("Provo")], lockedDb);
+  const cityCall = lockedDb.calls.find(call => call.sql.indexOf("set city") !== -1);
+  const coordCall = lockedDb.calls.find(call => call.sql.indexOf("coords_locked = false") !== -1);
+  check("locked entry updates city by id",
+    cityCall && cityCall.params[0] === 1876 && cityCall.params[1] === "Provo" &&
+    cityCall.sql.indexOf("city is distinct from") !== -1 &&
+    lockedRows[1876].city === "Provo");
+  check("locked entry skips the coordinate update",
+    coordCall && coordCall.sql.indexOf("city") === -1 &&
+    coordCall.params[0] === 1876 && lockedCounts.skipped_locked === 1 &&
+    lockedCounts.applied === 0 && lockedCounts.metadata === 0,
+    JSON.stringify(lockedCounts));
+
+  const openRows = { 187: { coords_locked: false, city: null } };
+  const openDb = mockDb(openRows);
+  const openEntry = lockedEntry("Sundance");
+  openEntry.id = 187;
+  openEntry.coordsLocked = false;
+  const openCounts = await applyCoords([openEntry], openDb);
+  const openCoord = openDb.calls.find(call => call.sql.indexOf("coords_locked = false") !== -1);
+  check("unlocked entry still applies coordinates and city",
+    openRows[187].city === "Sundance" && openCoord && openCounts.applied === 1 &&
+    openCounts.skipped_locked === 0);
+
+  const missingDb = mockDb({});
+  const missingCounts = await applyCoords([lockedEntry("Provo")], missingDb);
+  check("missing id stays unknown_id after the city statement",
+    missingCounts.unknown_id === 1 && missingCounts.skipped_locked === 0 &&
+    missingDb.calls.some(call => call.sql.indexOf("set city") !== -1));
+}
+
+module.exports = (async function () {
+  try {
+    await applySection();
+  } catch (e) {
+    check("applyCoords unit tests", false, String(e.stack || e.message).slice(0, 400));
+  }
+  return { pass: pass, fail: fail };
+})();

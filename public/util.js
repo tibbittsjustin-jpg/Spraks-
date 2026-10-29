@@ -32,8 +32,7 @@
   function todayISO(){ return new Date().toISOString().slice(0,10); }
 
   // todayISO() is UTC, so west of Greenwich it rolls over to tomorrow during
-  // the evening — which would make an event vanish from the list hours before
-  // it actually starts. Events compare against the LOCAL calendar day instead.
+  // the evening. localDateISO stays on the local calendar day.
   function pad2(n){ return (n < 10 ? "0" : "") + n; }
   function localDateISO(d){
     d = d || new Date();
@@ -45,6 +44,33 @@
     s = String(s || "");
     for(var i = 0; i < s.length; i++){ h = (Math.imul(31, h) + s.charCodeAt(i)) | 0; }
     return h;
+  }
+
+  // Calendar age in UTC. A date of birth is only compared, never stored.
+  function parseDobParts(value){
+    if(typeof value !== "string") return null;
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+    if(!m) return null;
+    var y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+    if(mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    var dt = new Date(Date.UTC(y, mo - 1, d));
+    if(dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+    return { y: y, mo: mo, d: d };
+  }
+
+  function utcParts(now){
+    var dt = now || new Date();
+    return { y: dt.getUTCFullYear(), mo: dt.getUTCMonth() + 1, d: dt.getUTCDate() };
+  }
+
+  function checkAge(dob, now){
+    var parsed = parseDobParts(dob);
+    if(!parsed) return { ok: false, error: "invalid_date" };
+    var today = utcParts(now);
+    var age = today.y - parsed.y;
+    if(today.mo < parsed.mo || (today.mo === parsed.mo && today.d < parsed.d)) age--;
+    if(age < 18) return { ok: false, blocked: true };
+    return { ok: true };
   }
 
   function mulberry32(seed){
@@ -64,6 +90,7 @@
     pad2: pad2,
     localDateISO: localDateISO,
     hashStr: hashStr,
+    checkAge: checkAge,
     mulberry32: mulberry32
   };
 });

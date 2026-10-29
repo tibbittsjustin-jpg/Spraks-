@@ -6,9 +6,10 @@ const ROOT = process.env.SPARK_ROOT || path.join(__dirname, "..", "public");
 
 function fakeEl() {
   const e = {
-    style: {}, dataset: {}, value: "", textContent: "", innerHTML: "",
+    style: {}, dataset: {}, value: "", textContent: "", innerHTML: "", children: [],
     classList: { add(){}, remove(){}, toggle(){}, contains(){ return false; } },
-    addEventListener(){}, removeEventListener(){}, appendChild(){}, setAttribute(){},
+    addEventListener(){}, removeEventListener(){},
+    appendChild(child){ this.children.push(child); return child; }, setAttribute(){},
     getAttribute(){ return null; }, replaceChild(){}, querySelector(){ return fakeEl(); },
     querySelectorAll(){ return []; }, insertBefore(){}, remove(){}, focus(){}, click(){},
     get parentNode(){ return fakeEl(); }, get firstChild(){ return null; },
@@ -33,9 +34,10 @@ function makeSandbox(storage) {
       setItem(k, v){ this._d[k] = String(v); },
       removeItem(k){ delete this._d[k]; },
     },
-    fetch: () => new Promise(() => {}),        // never resolves: no network in tests
+    __net: { fetch: function(){ return new Promise(function(){}); } },
     setTimeout(){}, setInterval(){}, clearTimeout(){}, clearInterval(){},
     console, Math, Date, JSON, Object, Array, String, Number, Boolean, isNaN, parseInt, parseFloat,
+    fetch: function(){ return sandbox.__net.fetch.apply(null, arguments); },
   };
   sandbox.globalThis = sandbox;
   sandbox.self = sandbox;
@@ -60,14 +62,15 @@ function loadApp(storage) {
     addIdeaToBucket: addIdeaToBucket, removeIdeaFromBucket: removeIdeaFromBucket,
     totalSavedCount: totalSavedCount,
     isRealId: (typeof isRealId === "function") ? isRealId : function(id){ return typeof id==="number" && id>=9000000 && id<10000000; },
-    hydrateEventIdea: hydrateEventIdea, isPastEvent: isPastEvent,
-    upcomingEvents: upcomingEvents, displayCost: displayCost,
-    localDateISO: localDateISO, eventRadius: eventRadius,
+    displayCost: displayCost,
+    localDateISO: localDateISO,
     computeDeck: computeDeck, matchesFilters: matchesFilters,
-    buildSwipeCard: buildSwipeCard, ideaPhoto: ideaPhoto,
-    EVENTS_IN_DECK: EVENTS_IN_DECK,
-    get EVENT_IDEAS_RUNTIME(){ return EVENT_IDEAS_RUNTIME; },
-    set EVENT_IDEAS_RUNTIME(v){ EVENT_IDEAS_RUNTIME = v; },
+    buildSwipeCard: buildSwipeCard, buildIdeaRow: buildIdeaRow,
+    buildDetailScreen: buildDetailScreen, ideaPhoto: ideaPhoto,
+    FILTER_DEFS: FILTER_DEFS, activeFilterCount: activeFilterCount,
+    finishOnboarding: finishOnboarding, ageGateSatisfied: ageGateSatisfied,
+    MINIMUM_AGE: MINIMUM_AGE, parseProfileAge: parseProfileAge,
+    setFetch: function(fn){ __net.fetch = fn; },
     copyText: copyText,
     shareOrCopy: shareOrCopy,
     presentCopy: presentCopy,

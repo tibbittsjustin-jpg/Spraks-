@@ -24,7 +24,6 @@ exactly like before either way.**
    Then open `.env` in a text editor and fill in whichever keys you want.
    Every one of them is optional and each feature stays off until its key is
    present:
-   - `TICKETMASTER_API_KEY` — from the [Ticketmaster developer portal](https://developer-acct.ticketmaster.com/). Powers the **local events** list. Free tier.
    - `GOOGLE_PLACES_API_KEY` — from the [Google Cloud Console](https://console.cloud.google.com/), with the **Places API** enabled for your project.
    - `ANTHROPIC_API_KEY` — from [console.anthropic.com](https://console.anthropic.com/).
 
@@ -52,28 +51,22 @@ Then open **http://localhost:3000** in your browser. That's the app.
 4. No keys yet? You'll instead see a small note letting you know real
    nearby matching isn't turned on yet — everything else still works normally.
 
-## What's on near you (events)
+## Age check
 
-Once `TICKETMASTER_API_KEY` is set, the server exposes:
+Onboarding asks for a date of birth and will not continue unless the person is
+18 or older. The page checks the date, then posts it to:
 
-    POST /api/events
-    { "lat": 40.2338, "lng": -111.6585, "radiusMiles": 25 }
+    POST /api/age-check
+    { "dob": "YYYY-MM-DD" }
 
-or, for anyone who declines location access:
+The route answers `{ "ok": true }` or `{ "ok": false, "blocked": true }`. A
+malformed date is `{ "ok": false, "error": "invalid_date" }` with status 400.
+The date is not written to disk, the database, or the log, and it is not
+echoed back. The browser stores only `ageConfirmedAt`.
 
-    POST /api/events
-    { "postalCode": "84601", "radiusMiles": 10 }
-
-It returns real events near that location, already translated into Spark's own
-shape (vibe, date stage, budget band, time of day, season) and sorted
-soonest-first. `radiusMiles` is the 5 / 10 / 25 the radius picker offers.
-
-It's a POST rather than a GET on purpose: the body carries the user's
-coordinates, and keeping them out of the URL keeps them out of proxy logs,
-browser history and `Referer` headers.
-
-Without a key the route replies `{ "events": [], "reason": "not_configured" }`
-rather than failing, so the rest of the app carries on as normal.
+Nearby-place search rounds the user's coordinates to two decimal places
+(about a kilometre) before calling Google. The model prompt does not include
+coordinates. Failures return a generic reason, not the upstream message.
 
 ## Notes
 
@@ -84,12 +77,8 @@ rather than failing, so the rest of the app carries on as normal.
   JS.
 - Google Places and Anthropic API usage may incur costs on your account
   depending on your plan — check their pricing pages before heavy use.
-- Event searches are cached on the server for a few hours (tune with
-  `EVENTS_CACHE_TTL_MINUTES`). The cache is keyed on a coordinate rounded to
-  about a kilometre, so everyone in a neighbourhood shares one entry and no
-  precise location is ever used as a lookup key.
-- Ticketmaster's terms require crediting them as the source and linking back to
-  their listing for tickets. Spark does both, and never sells tickets itself.
+- Precise coordinates are not a cache key and are not logged. The Places
+  request uses the rounded pair only.
 
 ## Database (optional)
 
@@ -117,9 +106,12 @@ To turn it on with Supabase:
    npm run db:migrate && npm run db:seed
    ```
 
-`npm run db:seed` loads `public/data.js` and, when `data/coords/*.json` is
-present, the coordinate files. It is safe to run again. Curated ideas that
-were removed from `data.js` are archived, not deleted.
+   `npm run db:migrate` applies every file in `db/migrations/`, including
+   `002_over100_age21.sql`, which allows the `Over $100` cost and adds the
+   `age21` column. `npm run db:seed` loads `public/data.js` and, when
+   `data/coords/*.json` is present, the coordinate files. It is safe to run
+   again. Curated ideas that were removed from `data.js` are archived, not
+   deleted. A missing `age21` on an idea is stored as false.
 
 For a local Postgres without TLS, set `PGSSLMODE=disable`. Integration tests
 use `TEST_DATABASE_URL` and never point at the Supabase project.

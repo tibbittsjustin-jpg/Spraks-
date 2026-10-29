@@ -21,7 +21,7 @@
 --color-success:#22A06B;
 --color-danger:#E5484D;
 /* Sheet scrim. The same tint in both themes. Other ink alphas
-   (badge shadow, event chip) are different paints — see the doc. */
+   (badge shadow, open-now chip) are different paints — see the doc. */
 --color-overlay:rgba(20,20,26,.45);
 /* Elevation. The accent glow is the light-coral rgba in both themes,
    which is what .btn-primary paints today. */
@@ -312,7 +312,6 @@ content:""; width:7px; height:7px; border-radius:50%; flex-shrink:0;
 background:#3FBE8C; box-shadow:0 0 0 3px rgba(63,190,140,.3);
 }
 .swipe-card.has-photo .real-badge{ z-index:3; color:#1F2328; }
-.swipe-card.has-photo .event-badge{ color:var(--color-on-accent); background:rgba(24,26,32,.82); }
 .swipe-card.has-photo .card-photo-overlay{
 position:absolute; left:0; right:0; bottom:0; z-index:2;
 padding:18px 18px 22px; color:var(--color-on-accent);
@@ -652,6 +651,16 @@ box-shadow:0 2px 6px rgba(20,20,26,.12); display:flex; align-items:center; gap:4
 }
 .real-badge svg{ width:12px; height:12px; }
 
+/* 21+ marker on the swipe card and the detail title. Accent fill with
+   white type stays readable on the classic card, the photo scrim, and
+   the detail screen in both themes. */
+.badge-21{
+display:inline-block; margin-left:var(--sp-3); padding:2px 7px; border-radius:999px;
+background:var(--color-accent); color:var(--color-on-accent);
+font-size:var(--fs-11); font-weight:var(--fw-heavy); letter-spacing:var(--ls-label);
+line-height:var(--lh-tight); vertical-align:middle; text-shadow:none;
+}
+
 /* ---------- Detail screen: real-place info block ---------- */
 .detail-real-block{
 background:var(--surface-soft); border:1.5px solid var(--border); border-radius:14px; padding:14px; margin:-6px 0 16px;
@@ -661,53 +670,4 @@ background:var(--surface-soft); border:1.5px solid var(--border); border-radius:
 .detail-real-name{ font-size:14px; font-weight:700; color:var(--accent-dark); margin-bottom:2px; }
 .detail-real-addr{ font-size:12.5px; color:var(--text-soft); margin-bottom:10px; }
 .detail-real-link svg{ width:15px; height:15px; }
-/* ---------- Local events ---------- */
-.events-screen .section-title{ margin-top:18px; }
-
-/* Radius picker */
-.radius-row{ display:flex; align-items:center; gap:8px; margin:4px 0 14px; flex-wrap:wrap; }
-.radius-label{ font-size:12.5px; font-weight:700; color:var(--text-soft); }
-.radius-chip{
-background:var(--surface); border:1.5px solid var(--border); color:var(--text);
-padding:7px 14px; border-radius:20px; font-size:13px; font-weight:700; cursor:pointer;
-}
-.radius-chip.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
-
-/* Zip-code fallback for anyone who declines location */
-.zip-fallback{
-background:var(--surface); border:1px solid var(--border); border-radius:16px;
-padding:14px; margin-bottom:16px;
-}
-.zip-fallback-title{ display:flex; align-items:center; gap:7px; font-weight:800; font-size:14px; color:var(--text); }
-.zip-fallback-title svg{ width:16px; height:16px; color:var(--accent); }
-.zip-fallback-sub{ font-size:12px; color:var(--text-soft); margin:6px 0 12px; line-height:1.5; }
-.zip-form{ display:flex; gap:8px; align-items:stretch; }
-.zip-form .zip-input{ flex:1; margin:0; }
-.zip-form .btn-primary{ flex-shrink:0; padding:12px 16px; font-size:14px; box-shadow:none; }
-.events-origin{ margin-bottom:16px; }
-
-/* Day-grouped event list */
-.event-day-header{
-font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
-color:var(--text-soft); margin:16px 0 8px;
-}
-.event-row .ir-price{ font-size:12px; font-weight:700; color:var(--accent); margin-top:3px; }
-/* Dark chip so the date reads against the card art, and so it stays
-   distinct from the white "Real spot" badge. Text is explicitly white rather
-   than var(--text), which would be near-black in light mode. */
-.event-badge{ background:rgba(24,26,32,.82); color:#fff; }
-
-/* A saved event whose date has already gone by */
-.idea-row.past-event{ opacity:.55; }
-.idea-row.past-event .ir-title{ text-decoration:line-through; }
-
-/* Detail screen */
-.detail-event-block .detail-event-when{ font-weight:800; font-size:15px; color:var(--text); margin-top:4px; }
-.detail-event-block .detail-event-price{ font-size:13px; font-weight:700; color:var(--accent); margin-top:6px; }
-
-/* Ticketmaster attribution — required by their terms wherever events show */
-.events-attribution{
-font-size:11px; color:var(--text-soft); text-align:center; margin-top:14px; padding-bottom:4px;
-}
-.events-attribution a{ color:var(--text-soft); }
-.zip-change{ flex-shrink:0; font-size:12px; font-weight:700; padding:0; }
+.idea-row.unavailable-item .ir-sub{ color:var(--text-soft); }

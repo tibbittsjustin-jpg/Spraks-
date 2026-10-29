@@ -1942,12 +1942,108 @@
     wrap.addEventListener("pointerleave", function(e){ if(dragging && e.buttons === 0) onUp(e); });
   }
 
+  /* ---------- Copy and share ----------
+     The clipboard and the phone share sheet are the only channels that
+     exist here. A missing or failed clipboard falls back to a hidden
+     textarea. Cancelling the share sheet is not an error. */
+  function copyText(text){
+    var value = text == null ? "" : String(text);
+    if(navigator.clipboard && typeof navigator.clipboard.writeText === "function"){
+      try{
+        var pending = navigator.clipboard.writeText(value);
+        return Promise.resolve(pending).catch(function(){
+          return fallbackCopyText(value);
+        });
+      }catch(err){
+        return fallbackCopyText(value);
+      }
+    }
+    return fallbackCopyText(value);
+  }
+  function fallbackCopyText(value){
+    return new Promise(function(resolve, reject){
+      var ta = null;
+      try{
+        ta = document.createElement("textarea");
+        ta.value = value;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        if(document.body) document.body.appendChild(ta);
+        if(typeof ta.focus === "function") ta.focus();
+        if(typeof ta.select === "function") ta.select();
+        if(typeof ta.setSelectionRange === "function") ta.setSelectionRange(0, value.length);
+        var ok = document.execCommand("copy");
+        if(ok) resolve();
+        else reject(new Error("copy failed"));
+      }catch(err){
+        reject(err || new Error("copy failed"));
+      }finally{
+        if(ta && ta.parentNode && typeof ta.parentNode.removeChild === "function"){
+          try{ ta.parentNode.removeChild(ta); }catch(e){}
+        }
+      }
+    });
+  }
+  function shareOrCopy(data){
+    data = data || {};
+    var payload = {};
+    if(data.title) payload.title = String(data.title);
+    if(data.text) payload.text = String(data.text);
+    if(data.url) payload.url = String(data.url);
+    var fallback = payload.url || payload.text || payload.title || "";
+    if(typeof navigator.share === "function"){
+      var pending;
+      try{
+        pending = navigator.share(payload);
+      }catch(err){
+        if(err && err.name === "AbortError") return Promise.resolve({ aborted: true });
+        pending = Promise.reject(err);
+      }
+      return Promise.resolve(pending).then(function(){
+        return { method: "share" };
+      }).catch(function(err){
+        if(err && err.name === "AbortError") return { aborted: true };
+        return copyText(fallback).then(function(){ return { method: "copy" }; });
+      });
+    }
+    return copyText(fallback).then(function(){ return { method: "copy" }; });
+  }
+  function presentCopy(text){
+    return copyText(text).then(function(){
+      showToast("Copied");
+    }).catch(function(){
+      showToast("Couldn't copy");
+    });
+  }
+  function presentShare(data){
+    return shareOrCopy(data).then(function(result){
+      if(result && result.method === "copy") showToast("Copied");
+    }).catch(function(){
+      showToast("Couldn't copy");
+    });
+  }
+
   /* ---------- Share overlay ---------- */
   var shareTargetIdeaId = null;
+  function ideaShareData(ideaId){
+    var idea = IDEAS_BY_ID[ideaId];
+    if(!idea) return { title: "Spark", text: "A date idea on Spark" };
+    var text = idea.title;
+    if(idea.description) text += " — " + idea.description;
+    return { title: idea.title, text: text };
+  }
   function openShareOverlay(ideaId){
     shareTargetIdeaId = ideaId;
     var list = $("#share-friend-list");
     list.innerHTML = "";
+    var shareBtn = el("button", "btn-secondary btn-block", icon("share") + " Share");
+    shareBtn.type = "button";
+    shareBtn.addEventListener("click", function(){
+      presentShare(ideaShareData(ideaId));
+    });
+    list.appendChild(shareBtn);
+    list.appendChild(el("p", "field-hint", "Demo friends stay on this device."));
     DEMO_FRIENDS.forEach(function(f){
       var row = el("div", "share-friend-row");
       row.innerHTML =
@@ -1955,7 +2051,7 @@
         '<span class="friend-name">' + escapeHtml(f.name) + '</span>';
       row.addEventListener("click", function(){
         closeOverlay("#share-overlay");
-        showToast("Shared with " + f.name + "!");
+        presentShare(ideaShareData(ideaId));
       });
       list.appendChild(row);
     });
@@ -2028,8 +2124,7 @@
     plan.friendPicks.push({ id: genId("pick"), friendName: f.name, avatarEmoji: f.avatarEmoji, avatarColor: f.avatarColor, ideaId: ideaId });
     saveState();
     closeOverlay("#plan-share-overlay");
-    var idea = IDEAS_BY_ID[ideaId];
-    showToast(f.name + " picked \"" + (idea ? idea.title : "that idea") + "\" as their favorite!");
+    showToast("Saved locally");
     renderContent();
   }
   $("#plan-share-close").addEventListener("click", function(){ closeOverlay("#plan-share-overlay"); });
@@ -2812,6 +2907,9 @@
     var code = Math.abs(hashStr(state.profile.name || "friend") ^ hashStr(state.profile.birthday || "")).toString(36).slice(0, 6);
     return "https://spark-dates.app/invite/" + slug + "-" + code;
   }
+  function inviteShareData(){
+    return { title: "Join me on Spark", text: "Add me on Spark", url: getInviteLink() };
+  }
 
   function buildAddFriendsSubpanel(){
     var wrap = el("div", null);
@@ -2834,12 +2932,18 @@
     var copyBtn = el("button", "btn-secondary btn-block", icon("copy") + " Copy Invite Link");
     copyBtn.type = "button";
     copyBtn.addEventListener("click", function(){
-      showToast("Invite link copied!");
+      presentCopy(getInviteLink());
     });
     wrap.appendChild(copyBtn);
+    var shareLinkBtn = el("button", "btn-secondary btn-block", icon("share") + " Share Invite Link");
+    shareLinkBtn.type = "button";
+    shareLinkBtn.addEventListener("click", function(){
+      presentShare(inviteShareData());
+    });
+    wrap.appendChild(shareLinkBtn);
 
     wrap.appendChild(el("div", "section-title", "Add From Contacts"));
-    wrap.appendChild(el("p", null, "Tap a contact to send them your invite link."));
+    wrap.appendChild(el("p", null, "Tap a contact to share your invite link."));
     MOCK_CONTACTS.forEach(function(c){
       var initials = c.name.split(" ").map(function(n){ return n[0]; }).join("");
       var row = el("div", "contact-row");
@@ -2847,10 +2951,10 @@
         '<span class="contact-avatar">' + escapeHtml(initials) + '</span>' +
         '<span class="contact-info"><div class="contact-name">' + escapeHtml(c.name) + '</div>' +
         '<div class="contact-phone">' + escapeHtml(c.phone) + '</div></span>' +
-        '<button type="button" class="btn-outline contact-send-btn">Send Link</button>';
+        '<button type="button" class="btn-outline contact-send-btn">Share</button>';
       $(".contact-send-btn", row).addEventListener("click", function(ev){
         ev.stopPropagation();
-        showToast("Link sent to " + c.name.split(" ")[0] + "!");
+        presentShare(inviteShareData());
       });
       wrap.appendChild(row);
     });

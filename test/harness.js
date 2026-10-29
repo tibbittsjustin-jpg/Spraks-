@@ -68,6 +68,15 @@ function loadApp(storage) {
     EVENTS_IN_DECK: EVENTS_IN_DECK,
     get EVENT_IDEAS_RUNTIME(){ return EVENT_IDEAS_RUNTIME; },
     set EVENT_IDEAS_RUNTIME(v){ EVENT_IDEAS_RUNTIME = v; },
+    copyText: copyText,
+    shareOrCopy: shareOrCopy,
+    presentCopy: presentCopy,
+    presentShare: presentShare,
+    getInviteLink: getInviteLink,
+    commitFriendPick: commitFriendPick,
+    planShareState: planShareState,
+    get navigator(){ return navigator; },
+    get document(){ return document; },
   };
 `;
   const anchor = "\n  boot();\n})();";

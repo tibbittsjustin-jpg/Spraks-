@@ -158,8 +158,47 @@
     return { kind: "time", label: label };
   }
 
+  // A public website link. Parse with URL and keep only https:// pages
+  // that have a host and no username or password. http, javascript:, data:,
+  // blank, and anything URL cannot parse are dropped.
+  function httpsPageUrl(value){
+    if(typeof value !== "string") return "";
+    var trimmed = value.trim();
+    if(!trimmed || /\s/.test(trimmed)) return "";
+    if(!/^https:\/\//i.test(trimmed)) return "";
+    var parsed;
+    try {
+      parsed = new URL(trimmed);
+    } catch (err) {
+      return "";
+    }
+    if(parsed.protocol !== "https:") return "";
+    if(parsed.username || parsed.password) return "";
+    if(!parsed.hostname) return "";
+    if(parsed.href.slice(0, 8).toLowerCase() !== "https://") return "";
+    return parsed.href;
+  }
+
+  // Prefer source_url. An invalid source_url does not fall through.
+  // sourceUrl is the same field from the activities API. url is the
+  // optional website on a built-in idea.
+  function activityWebsite(idea){
+    if(!idea || typeof idea !== "object") return "";
+    function present(key){
+      if(!Object.prototype.hasOwnProperty.call(idea, key)) return false;
+      var value = idea[key];
+      return value != null && String(value).trim() !== "";
+    }
+    if(present("source_url")) return httpsPageUrl(idea.source_url);
+    if(present("sourceUrl")) return httpsPageUrl(idea.sourceUrl);
+    if(present("url")) return httpsPageUrl(idea.url);
+    return "";
+  }
+
   return {
     escapeHtml: escapeHtml,
+    httpsPageUrl: httpsPageUrl,
+    activityWebsite: activityWebsite,
     fmtDate: fmtDate,
     todayISO: todayISO,
     pad2: pad2,

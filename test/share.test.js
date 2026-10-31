@@ -73,7 +73,7 @@ await section("wording does not claim a message was sent", () => {
   const appSrc = fs.readFileSync(path.join(__dirname, "../public/app.js"), "utf8");
   const html = fs.readFileSync(path.join(__dirname, "../public/index.html"), "utf8");
   const share = between(appSrc, "/* ---------- Copy and share ----------", "/* ---------- Saved / Done screens ---------- */");
-  const invite = between(appSrc, "/* ---------- Add Friends (QR code + mock contacts) ---------- */", "/* ---------- Dark mode (auto, 9pm-6am) ---------- */");
+  const invite = between(appSrc, "/* ---------- Add Friends (QR code + mock contacts) ---------- */", "/* ---------- Dark mode ----------");
   const markup = between(html, "<!-- ===================== SHARE OVERLAY ===================== -->", '<div id="toast"');
   const flows = share + "\n" + invite + "\n" + markup;
 

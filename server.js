@@ -191,11 +191,11 @@ return (i + 1) + ". " + p.name + (p.address ? " — " + p.address : "") + (p.rat
 }).join("\n");
 
 var prompt = "You are turning REAL nearby places into short, fun date-idea cards for a dating-inspiration "
-+ "app called Spark.\n\n"
++ "app called Jaderoo.\n\n"
 + "Here are real nearby places found via Google Places search:\n" + placesList + "\n\n"
 + "Pick the best " + count + " of these (skip anything low-quality, redundant, or not really date-worthy — "
 + "it's fine to return fewer than " + count + " if there aren't enough good ones). For EACH place you pick, "
-+ "write a short, catchy Spark-style date idea card.\n\n"
++ "write a short, catchy Jaderoo-style date idea card.\n\n"
 + "Respond ONLY with strict JSON, no markdown fencing, as an array in exactly this shape:\n"
 + "[{\"placeIndex\": 1, \"title\": \"short catchy activity title mentioning the place (<=8 words)\", "
 + "\"description\": \"2-3 friendly sentences on how to do this date at this venue\", \"icon\": \"a single relevant emoji\", "

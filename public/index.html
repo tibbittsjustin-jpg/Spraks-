@@ -3,7 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>Spark – Date Idea Finder</title>
+<title>Jaderoo</title>
+<meta name="application-name" content="Jaderoo">
+<meta name="apple-mobile-web-app-title" content="Jaderoo">
+<meta name="description" content="Things to do, near you.">
+<meta name="theme-color" content="#FFFBF2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121614" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script>
+(function(){
+  try{
+    var dark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var auto = true;
+    var raw = localStorage.getItem("spark_state_v1");
+    if(raw){
+      var parsed = JSON.parse(raw);
+      if(parsed && parsed.settings && parsed.settings.autoDarkMode === false) auto = false;
+    }
+    var hr = new Date().getHours();
+    if(auto && (hr >= 21 || hr < 6)) dark = true;
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  }catch(err){}
+})();
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,9 +40,9 @@
 <div id="view-onboarding" class="view onboarding-view">
 <div class="onboarding-scroll">
 <div class="brand-mark">
-<div class="brand-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" fill="currentColor" stroke="none"/></svg></div>
-<h1>Spark</h1>
-<p class="tagline">Swipe your way to your next great date.</p>
+<img class="splash-icon" src="icons/icon.svg" alt="" width="132" height="132">
+<h1 class="wordmark">JADEROO</h1>
+<p class="tagline">Things to do, near you</p>
 </div>
 
 <form id="onboarding-form" class="onboarding-form">
@@ -57,7 +82,10 @@
 
 <!-- Top bar -->
 <div class="topbar">
-<div class="topbar-title" id="topbar-title">Discover</div>
+<div class="topbar-lockup">
+<img id="topbar-icon" class="brand-icon" src="icons/icon.svg" alt="" width="36" height="36">
+<div class="topbar-title wordmark" id="topbar-title">JADEROO</div>
+</div>
 <button id="profile-btn" class="avatar-btn" title="Profile">
 <span id="topbar-avatar" class="topbar-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
 </button>
@@ -129,7 +157,7 @@
 
 <div class="profile-setting-row">
 <span class="pmi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z"/></svg></span>
-<span class="pmi-text"><b>Night Mode</b><br><small>Auto dark theme, 9pm–6am</small></span>
+<span class="pmi-text"><b>Night Mode</b><br><small>9pm–6am, and when your device is in dark mode</small></span>
 <label class="toggle-switch">
 <input type="checkbox" id="auto-dark-toggle">
 <span class="toggle-slider"></span>
@@ -154,7 +182,7 @@
 <div class="overlay-sheet filter-sheet">
 <div class="overlay-handle"></div>
 <button class="overlay-close" id="filter-close">✕</button>
-<h2 class="sheet-title">Filter Ideas</h2>
+<h2 class="sheet-title display-title">Filters</h2>
 <div class="filter-scroll" id="filter-body"></div>
 <div class="filter-actions">
 <button id="filter-reset" class="btn-secondary">Reset</button>
@@ -229,7 +257,7 @@
 <div class="overlay-handle"></div>
 <button class="overlay-close" id="plan-link-close">✕</button>
 <h2 class="sheet-title">Share plan</h2>
-<p class="sheet-subtitle">The link includes the plan name, the date, and ideas that ship with Spark.</p>
+<p class="sheet-subtitle">The link includes the plan name, the date, and ideas that ship with Jaderoo.</p>
 <div id="plan-link-body" class="plan-link-body"></div>
 </div>
 </div>

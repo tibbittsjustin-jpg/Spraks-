@@ -8,7 +8,7 @@
   IDEAS_DATA.forEach(function(i){ IDEAS_BY_ID[i.id] = i; });
   // photos.json (loaded as IDEA_PHOTOS) supplies { url, credit } for each
   // idea. License and source links stay on the credits page. Ideas with no
-  // entry, and the four removed catalog ids, keep the generated cover.
+  // entry keep the generated cover.
   applyIdeaPhotos(typeof IDEA_PHOTOS === "undefined" ? null : IDEA_PHOTOS);
 
   function applyIdeaPhotos(map){
@@ -1071,7 +1071,7 @@
       photo: obPhotoData
     }).then(function(ok){
       if(!ok){
-        showToast("You must be 18 or older to use Spark.");
+        showToast("You must be 18 or older to use Jaderoo.");
         return;
       }
       if(state.hasSeenTutorial){ enterApp(); } else { showTutorial(); }
@@ -1163,10 +1163,28 @@
 
   var TAB_TITLES = { discover:"Discover", friends:"Friends", saved:"Saved", done:"Done" };
 
+  function applyTopbarTitle(text){
+    var title = $("#topbar-title");
+    var icon = $("#topbar-icon");
+    if(!title) return;
+    var brand = text === "Discover" || text === "Jaderoo";
+    if(brand){
+      title.textContent = "JADEROO";
+      title.classList.add("wordmark");
+      title.classList.remove("display-title");
+      if(icon) icon.hidden = false;
+    } else {
+      title.textContent = text;
+      title.classList.remove("wordmark");
+      title.classList.add("display-title");
+      if(icon) icon.hidden = true;
+    }
+  }
+
   function switchTab(tab){
     ui.tab = tab; ui.screen = "list"; ui.detailIdeaId = null; ui.detailFriendId = null; ui.savedBucket = null;
     $all(".nav-btn").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-tab") === tab); });
-    $("#topbar-title").textContent = TAB_TITLES[tab] || "Spark";
+    applyTopbarTitle(TAB_TITLES[tab] || "Jaderoo");
     renderContent();
   }
 
@@ -1174,16 +1192,16 @@
     var content = $("#content");
     content.innerHTML = "";
     if(ui.screen === "detail"){
-      $("#topbar-title").textContent = "Date Idea";
+      applyTopbarTitle("Date Idea");
       content.appendChild(buildDetailScreen(ui.detailIdeaId));
     } else if(ui.screen === "friendDetail"){
-      $("#topbar-title").textContent = "Friend";
+      applyTopbarTitle("Friend");
       content.appendChild(buildFriendDetailScreen(ui.detailFriendId));
     } else {
       if(ui.tab === "saved" && ui.savedBucket){
-        $("#topbar-title").textContent = bucketLabel(ui.savedBucket);
+        applyTopbarTitle(bucketLabel(ui.savedBucket));
       } else {
-        $("#topbar-title").textContent = TAB_TITLES[ui.tab] || "Spark";
+        applyTopbarTitle(TAB_TITLES[ui.tab] || "Jaderoo");
       }
       if(ui.tab === "discover") content.appendChild(buildDiscoverScreen());
       else if(ui.tab === "friends") content.appendChild(buildFriendsScreen());
@@ -1810,7 +1828,13 @@
     attachDetailEdgeSwipeBack(wrap, ideaId);
 
     var hero = el("div", "detail-hero");
-    hero.setAttribute("style", getCoverArtStyle(idea));
+    var heroPhoto = ideaPhoto(idea);
+    if(heroPhoto){
+      hero.classList.add("has-photo");
+      hero.style.backgroundImage = "url(\"" + heroPhoto.url.replace(/"/g, "") + "\")";
+    } else {
+      hero.setAttribute("style", getCoverArtStyle(idea));
+    }
     hero.innerHTML = '<div class="dh-icon">' + ideaIcon(idea) + '</div><div class="dh-cat">' + escapeHtml(idea.category) + '</div>' +
       '<div class="dh-swipe-hint">' + icon("chevron-up") + ' Swipe up to save</div>';
     wrap.appendChild(hero);
@@ -2115,7 +2139,7 @@
   var shareTargetIdeaId = null;
   function ideaShareData(ideaId){
     var idea = IDEAS_BY_ID[ideaId];
-    if(!idea) return { title: "Spark", text: "A date idea on Spark" };
+    if(!idea) return { title: "Jaderoo", text: "A date idea on Jaderoo" };
     var text = idea.title;
     if(idea.description) text += " — " + idea.description;
     return { title: idea.title, text: text };
@@ -2802,7 +2826,7 @@
     wrap.appendChild(el("div", "section-title", "You"));
     var meCard = el("div", "friend-card");
     meCard.innerHTML =
-      '<span class="friend-avatar" style="background:#FF6B6B">' + (state.profile.photo ? '' : icon("user")) + '</span>' +
+      '<span class="friend-avatar" style="background:#0B6E4F">' + (state.profile.photo ? '' : icon("user")) + '</span>' +
       '<span><div class="friend-name">' + escapeHtml(state.profile.name || "You") + '</div>' +
       '<div class="friend-stats">' + state.doneIds.length + ' done · ' + totalSavedCount() + ' saved</div></span>';
     if(state.profile.photo){
@@ -3240,7 +3264,7 @@
 
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Got an Idea?"));
-    wrap.appendChild(el("p", null, "Share a new date idea and give a short description of how to do it — great ideas may get added to Spark!"));
+    wrap.appendChild(el("p", null, "Share a new date idea and give a short description of how to do it — great ideas may get added to Jaderoo!"));
 
     if(SparkSubmit.shouldShowIdeaSendBanner(state)){
       var banner = el("div", "idea-banner");
@@ -3470,13 +3494,13 @@
     return "https://spark-dates.app/invite/" + slug + "-" + code;
   }
   function inviteShareData(){
-    return { title: "Join me on Spark", text: "Add me on Spark", url: getInviteLink() };
+    return { title: "Join me on Jaderoo", text: "Add me on Jaderoo", url: getInviteLink() };
   }
 
   function buildAddFriendsSubpanel(){
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Your Invite QR Code"));
-    wrap.appendChild(el("p", null, "Have a friend scan this with their phone's camera to add you on Spark."));
+    wrap.appendChild(el("p", null, "Have a friend scan this with their phone's camera to add you on Jaderoo."));
 
     var link = getInviteLink();
     var qrWrap = el("div", "qr-wrap");
@@ -3525,19 +3549,27 @@
   }
 
   $("#reset-app-btn").addEventListener("click", function(){
-    if(confirm("Reset all Spark data on this device? This can't be undone.")){
+    if(confirm("Reset all Jaderoo data on this device? This can't be undone.")){
       localStorage.removeItem(STORAGE_KEY);
       window.location.reload();
     }
   });
 
-  /* ---------- Dark mode (auto, 9pm-6am) ---------- */
+  /* ---------- Dark mode ----------
+     The system preference is the base. The existing night-mode toggle, when
+     on, also uses dark from 9pm to 6am even if the device theme is light. */
   function isNightHours(){
     var hr = new Date().getHours();
     return hr >= 21 || hr < 6; // 9pm - 6am
   }
+  function systemPrefersDark(){
+    try{
+      return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    }catch(err){ return false; }
+  }
   function applyTheme(){
-    var dark = !!(state.settings && state.settings.autoDarkMode) && isNightHours();
+    var clockDark = !!(state.settings && state.settings.autoDarkMode) && isNightHours();
+    var dark = clockDark || systemPrefersDark();
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
   }
   var autoDarkToggle = $("#auto-dark-toggle");
@@ -3550,6 +3582,12 @@
   }
   applyTheme();
   setInterval(applyTheme, 60000);
+  if(window.matchMedia){
+    var themeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    var onThemeChange = function(){ applyTheme(); };
+    if(themeQuery.addEventListener) themeQuery.addEventListener("change", onThemeChange);
+    else if(themeQuery.addListener) themeQuery.addListener(onThemeChange);
+  }
 
   function prefillOnboarding(){
     $("#ob-name").value = (state.profile && state.profile.name) || "";

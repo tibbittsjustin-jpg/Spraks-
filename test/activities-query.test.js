@@ -103,8 +103,19 @@ section("location, radius, page clamps", () => {
   check("rounded values are not written into the SQL",
     q.text.indexOf("40.76") === -1 && q.text.indexOf("-111.89") === -1);
   check("radius clamped to 100 miles", q.values.indexOf(100 * METERS_PER_MILE) !== -1);
-  check("within distance and order by distance",
-    q.text.indexOf("ST_DWithin") !== -1 && q.text.indexOf("ORDER BY location <->") !== -1 && q.located === true);
+  check("within distance of the point",
+    q.text.indexOf("ST_DWithin") !== -1 && q.located === true);
+  check("free near-me keeps general ideas and sorts pins first",
+    q.text.indexOf("(location IS NULL OR ST_DWithin") !== -1 &&
+    q.text.indexOf("ORDER BY CASE WHEN location IS NULL THEN 1 ELSE 0 END, location <->") !== -1 &&
+    q.text.indexOf("NULLS LAST, id") !== -1 &&
+    q.text.indexOf("location IS NOT NULL") === -1 &&
+    q.localOnly === false);
+  check("distance_miles is null for general ideas",
+    q.text.indexOf("CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance") !== -1);
+  check("one limit and offset page both groups",
+    q.text.split(" LIMIT ").length === 2 && q.text.split(" OFFSET ").length === 2 &&
+    q.limit === 200 && q.offset === 0);
   check("limit clamped to 200", q.limit === 200);
   check("offset clamped to 0", q.offset === 0);
   const page = buildListQuery({ limit: "0", offset: "999999", cursor: "3" });
@@ -114,6 +125,44 @@ section("location, radius, page clamps", () => {
   check("cursor is the offset when offset is absent", cursor.offset === 25);
   const defRadius = buildListQuery({ lat: 40.76, lng: -111.89 });
   check("radius defaults to 25 miles", defRadius.values.indexOf(25 * METERS_PER_MILE) !== -1);
+  const paged = buildListQuery({ lat: 40.76, lng: -111.89, limit: "10", offset: "15" });
+  check("located limit and offset stay the last parameters",
+    paged.values[paged.values.length - 2] === 10 && paged.values[paged.values.length - 1] === 15 &&
+    paged.text.indexOf("LIMIT $" + (paged.values.length - 1)) !== -1 &&
+    paged.text.indexOf("OFFSET $" + paged.values.length) !== -1);
+});
+
+section("localOnly restores pinned-only", () => {
+  const free = buildListQuery({ lat: 40.76, lng: -111.89 });
+  check("omitted localOnly includes general ideas",
+    free.localOnly === false && free.text.indexOf("(location IS NULL OR ST_DWithin") !== -1);
+  const off = buildListQuery({ lat: 40.76, lng: -111.89, localOnly: "0" });
+  check("localOnly=0 matches the free near-me query",
+    off.localOnly === false && off.text === free.text);
+  check("localOnly false and 0 stay off",
+    buildListQuery({ lat: 1, lng: 2, localOnly: false }).localOnly === false &&
+    buildListQuery({ lat: 1, lng: 2, localOnly: 0 }).localOnly === false);
+  const only = buildListQuery({ lat: "40.76049", lng: "-111.891", localOnly: "1" });
+  check("localOnly=1 requires a pin inside the radius",
+    only.localOnly === true && only.located === true &&
+    only.text.indexOf("location IS NOT NULL") !== -1 &&
+    only.text.indexOf("ST_DWithin") !== -1 &&
+    only.text.indexOf("location IS NULL OR") === -1);
+  check("localOnly=1 orders by distance the old way",
+    only.text.indexOf("ORDER BY location <->") !== -1 &&
+    only.text.indexOf("CASE WHEN location IS NULL THEN 1 ELSE 0 END") === -1);
+  check("localOnly flag is not interpolated",
+    only.text.indexOf("localOnly") === -1 && only.values.indexOf("1") === -1 && only.values.indexOf(1) === -1);
+  check("boolean localOnly true is the same predicate",
+    buildListQuery({ lat: 40.76, lng: -111.89, localOnly: true }).text.indexOf("location IS NOT NULL") !== -1);
+  const bare = buildListQuery({ localOnly: "1" });
+  check("localOnly without a point stays an unlocated catalog query",
+    bare.located === false && bare.localOnly === true && bare.text.indexOf("ST_DWithin") === -1 &&
+    bare.text.indexOf("ORDER BY id") !== -1);
+  ["2", "true", "yes", "1.0", " 1", "01", 1.5, ["1"]].forEach(value => {
+    check("localOnly " + JSON.stringify(value) + " is rejected", throwsFilter({ localOnly: value, lat: 40, lng: -111 }, "localOnly"));
+  });
+  check("invalid localOnly is rejected without coordinates", throwsFilter({ localOnly: "yes" }, "localOnly"));
 });
 
 section("paid rows stay gated", () => {
@@ -136,6 +185,10 @@ section("mapRow materials", () => {
   check("materials pass through",
     JSON.stringify(mapRow(Object.assign({}, base, { materials: ["Boots", "Water"] }), false).materials) ===
     JSON.stringify(["Boots", "Water"]));
+  const general = mapRow(Object.assign({}, base, { distance_miles: null, lat: null, lng: null }), true);
+  check("null distance_miles stays off a general idea", general.distanceMiles === undefined && general.lat == null);
+  const pin = mapRow(Object.assign({}, base, { distance_miles: "4.2", lat: 40.2, lng: -111.6 }), true);
+  check("a pin distance is copied", pin.distanceMiles === 4.2 && pin.lat === 40.2);
 });
 
 module.exports = { pass: pass, fail: fail };

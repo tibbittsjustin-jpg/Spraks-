@@ -49,6 +49,17 @@ function round2(n) {
   return Math.round(n * 100) / 100;
 }
 
+// Reserved for a future paid "local events only" filter. Off unless the
+// value is exactly 1. Not subscription-gated yet.
+// TODO: subscription-gate localOnly before any UI exposes it.
+function localOnlyFlag(value) {
+  if (value == null || value === "") return false;
+  if (Array.isArray(value)) throw invalidFilter("localOnly");
+  if (value === true || value === 1 || value === "1") return true;
+  if (value === false || value === 0 || value === "0") return false;
+  throw invalidFilter("localOnly");
+}
+
 function clamp(n, min, max) {
   return Math.min(max, Math.max(min, n));
 }
@@ -113,14 +124,18 @@ function buildListQuery(params) {
   const lngMissing = params.lng == null || params.lng === "";
   if (latMissing !== lngMissing) throw invalidFilter(latMissing ? "lat" : "lng");
 
+  const localOnly = localOnlyFlag(params.localOnly);
+
   let located = false;
   let lngIdx = null;
   let latIdx = null;
+  let pointSql = "";
   if (!latMissing) {
     let lat = asNumber(params.lat);
     let lng = asNumber(params.lng);
     if (!Number.isFinite(lat) || lat < -90 || lat > 90) throw invalidFilter("lat");
     if (!Number.isFinite(lng) || lng < -180 || lng > 180) throw invalidFilter("lng");
+    // Rounded before they are bound. Never interpolated into the SQL text.
     lat = round2(lat);
     lng = round2(lng);
     let radiusMiles;
@@ -136,10 +151,13 @@ function buildListQuery(params) {
     latIdx = values.length;
     values.push(radiusMiles * METERS_PER_MILE);
     const metersIdx = values.length;
-    where.push("location IS NOT NULL");
-    where.push(
-      "ST_DWithin(location, ST_MakePoint($" + lngIdx + ", $" + latIdx + ")::geography, $" + metersIdx + ")"
-    );
+    pointSql = "ST_MakePoint($" + lngIdx + ", $" + latIdx + ")::geography";
+    if (localOnly) {
+      where.push("location IS NOT NULL");
+      where.push("ST_DWithin(location, " + pointSql + ", $" + metersIdx + ")");
+    } else {
+      where.push("(location IS NULL OR ST_DWithin(location, " + pointSql + ", $" + metersIdx + "))");
+    }
     located = true;
   }
 
@@ -163,9 +181,16 @@ function buildListQuery(params) {
   let order = "ORDER BY id";
   let distanceSql = "";
   if (located) {
-    order = "ORDER BY location <-> ST_MakePoint($" + lngIdx + ", $" + latIdx + ")::geography, id";
-    distanceSql = ", ROUND((ST_Distance(location, ST_MakePoint($" + lngIdx + ", $" + latIdx +
-      ")::geography) / 1609.344)::numeric, 1) AS distance_miles";
+    // One LIMIT/OFFSET follows this order, so a page can start on pins and
+    // continue into general ideas. <-> stays a bare sort key (GiST KNN);
+    // NULLS LAST keeps a null distance from sorting ahead of a real one.
+    if (localOnly) {
+      order = "ORDER BY location <-> " + pointSql + ", id";
+    } else {
+      order = "ORDER BY CASE WHEN location IS NULL THEN 1 ELSE 0 END, location <-> " + pointSql + " NULLS LAST, id";
+    }
+    distanceSql = ", CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance(location, " + pointSql +
+      ") / 1609.344)::numeric, 1) END AS distance_miles";
   }
 
   values.push(limit);
@@ -178,7 +203,7 @@ function buildListQuery(params) {
     " " + order +
     " LIMIT $" + limitIdx + " OFFSET $" + offsetIdx;
 
-  return { text: text, values: values, limit: limit, offset: offset, located: located };
+  return { text: text, values: values, limit: limit, offset: offset, located: located, localOnly: localOnly };
 }
 
 function mapRow(row, located) {

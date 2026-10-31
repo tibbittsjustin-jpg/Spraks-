@@ -1,6 +1,7 @@
 /* Free near-me deck rule on top of the radius slider.
-   Unpinned ideas stay. Pins farther than filters.radiusMiles drop.
-   The slider already stores that radius (default 10). No second filter. */
+   The radius applies only while filters.localOnly is on. Then pins farther
+   than filters.radiusMiles drop, and ideas with no place drop too.
+   Local off skips the radius. The slider stores that radius (default 10). */
 "use strict";
 
 const radius = require("../public/radius.js");
@@ -40,17 +41,24 @@ section("computeDeck reads the radius already in state", () => {
   check("a pinned built-in carries lat/lng from the pin table",
     t.IDEAS_BY_ID[187].lat === 40.386169 && t.IDEAS_BY_ID[187].lng === -111.604634);
   check("the slider default is the radius in state", t.state.filters.radiusMiles === radius.RADIUS_DEFAULT);
+  check("local events start off", t.state.filters.localOnly === false);
   t.state.location = { lat: PROVO.lat, lng: PROVO.lng };
   let deck = t.computeDeck();
-  check("default radius keeps an idea with no coordinates", deck.remaining.indexOf(2) !== -1);
-  check("default radius drops the far pin", deck.remaining.indexOf(187) === -1);
+  check("local off keeps an idea with no coordinates", deck.remaining.indexOf(2) !== -1);
+  check("local off keeps the far pin", deck.remaining.indexOf(187) !== -1);
+  t.state.filters.localOnly = true;
+  deck = t.computeDeck();
+  check("local on drops an idea with no coordinates", deck.remaining.indexOf(2) === -1);
+  check("local on drops the far pin", deck.remaining.indexOf(187) === -1);
   t.state.filters.radiusMiles = 25;
   deck = t.computeDeck();
-  check("filters.radiusMiles keeps that pin", deck.remaining.indexOf(187) !== -1 && deck.remaining.indexOf(2) !== -1);
+  check("filters.radiusMiles keeps that pin and still drops the unpinned idea",
+    deck.remaining.indexOf(187) !== -1 && deck.remaining.indexOf(2) === -1);
   t.state.location = null;
   t.state.filters.radiusMiles = 1;
   deck = t.computeDeck();
-  check("unknown location shows the far pin", deck.remaining.indexOf(187) !== -1 && deck.remaining.indexOf(2) !== -1);
+  check("unknown location shows the far pin and still hides the unpinned idea",
+    deck.remaining.indexOf(187) !== -1 && deck.remaining.indexOf(2) === -1);
 });
 
 module.exports = { pass: pass, fail: fail };

@@ -140,10 +140,15 @@ section("deck uses one persisted radius", () => {
 
   const fresh = loadApp({});
   check("a new state defaults to 10 miles", fresh.state.filters.radiusMiles === 10);
-  check("10 miles is not an extra badge", fresh.activeFilterCount(fresh.state.filters) === 0);
+  check("local events start off", fresh.state.filters.localOnly === false);
+  check("10 miles is not an extra badge while local is off", fresh.activeFilterCount(fresh.state.filters) === 0);
   const tight = Object.assign({}, fresh.state.filters, { radiusMiles: 5 });
-  check("a non-default radius counts as a filter",
-    fresh.activeFilterCount(tight) === fresh.activeFilterCount(fresh.state.filters) + 1);
+  check("a non-default radius does not count while local is off",
+    fresh.activeFilterCount(tight) === fresh.activeFilterCount(fresh.state.filters));
+  const local = Object.assign({}, fresh.state.filters, { localOnly: true });
+  check("local on counts at the default radius", fresh.activeFilterCount(local) === 1);
+  check("a non-default radius counts while local is on",
+    fresh.activeFilterCount(Object.assign({}, local, { radiusMiles: 5 })) === 2);
   check("idea 2 has no pin", fresh.IDEAS_BY_ID[2].lat == null && fresh.IDEAS_BY_ID[2].lng == null);
   check("a Provo pin is attached",
     fresh.IDEAS_BY_ID[1854].lat === 40.237206 && fresh.IDEAS_BY_ID[1854].lng === -111.658938);
@@ -151,14 +156,19 @@ section("deck uses one persisted radius", () => {
 
   fresh.state.location = { lat: PROVO.lat, lng: PROVO.lng };
   fresh.state.filters.radiusMiles = 10;
+  fresh.state.filters.localOnly = false;
+  check("local off keeps Sundance at 10 miles", fresh.matchesFilters(fresh.IDEAS_BY_ID[187], fresh.state.filters) === true);
+  check("local off keeps an idea without a pin", fresh.matchesFilters(fresh.IDEAS_BY_ID[2], fresh.state.filters) === true);
+  fresh.state.filters.localOnly = true;
   check("10 miles keeps the Provo idea", fresh.matchesFilters(fresh.IDEAS_BY_ID[1854], fresh.state.filters) === true);
   check("10 miles drops Sundance", fresh.matchesFilters(fresh.IDEAS_BY_ID[187], fresh.state.filters) === false);
-  check("an idea without a pin stays", fresh.matchesFilters(fresh.IDEAS_BY_ID[2], fresh.state.filters) === true);
+  check("an idea without a pin drops when local is on", fresh.matchesFilters(fresh.IDEAS_BY_ID[2], fresh.state.filters) === false);
   const deck = fresh.computeDeck();
-  check("the deck is smaller than the full catalog and still includes the unpinned idea",
-    deck.total < 1994 && deck.total > 1994 - 164 && deck.remaining.indexOf(2) !== -1,
-    String(deck.total));
+  check("local on makes the deck smaller than the full catalog",
+    deck.total < 1994 && deck.total > 0, String(deck.total));
+  check("the unpinned idea is not in the local deck", deck.remaining.indexOf(2) === -1);
   check("Sundance is not in the 10 mile deck", deck.remaining.indexOf(187) === -1);
+  check("the Provo idea stays in the 10 mile deck", deck.remaining.indexOf(1854) !== -1);
 
   fresh.state.filters.radiusMiles = 11;
   check("11 miles keeps Sundance", fresh.matchesFilters(fresh.IDEAS_BY_ID[187], fresh.state.filters) === true);
@@ -167,8 +177,10 @@ section("deck uses one persisted radius", () => {
   check("clearing location brings Sundance back", fresh.matchesFilters(fresh.IDEAS_BY_ID[187], fresh.state.filters) === true);
 
   const milesOnly = Object.assign({}, fresh.IDEAS_BY_ID[2], { distanceMiles: 40 });
-  check("distanceMiles filters an idea that has no pin",
-    fresh.matchesFilters(milesOnly, Object.assign({}, fresh.state.filters, { radiusMiles: 10 })) === false);
+  check("distanceMiles filters an idea that has no pin when local is on",
+    fresh.matchesFilters(milesOnly, Object.assign({}, fresh.state.filters, { radiusMiles: 10, localOnly: true })) === false);
+  check("distanceMiles does not filter while local is off",
+    fresh.matchesFilters(milesOnly, Object.assign({}, fresh.state.filters, { radiusMiles: 10, localOnly: false })) === true);
   check("the label is Near you without a fix", fresh.placeLabel() === "Near you");
   fresh.state.location = { lat: PROVO.lat, lng: PROVO.lng };
   check("a Provo fix is labeled Provo", fresh.placeLabel() === "Provo");
@@ -194,6 +206,7 @@ section("deck uses one persisted radius", () => {
   });
   const backfilled = loadApp(legacy);
   check("an older save gains the 10 mile default", backfilled.state.filters.radiusMiles === 10);
+  check("an older save leaves local events off", backfilled.state.filters.localOnly === false);
 
   const zero = {};
   zero[KEY] = JSON.stringify({

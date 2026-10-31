@@ -22,7 +22,7 @@ const MUST_404 = [
   "/db/migrations/001_init.sql",
   "/data/coords/utah.json"
 ];
-const MUST_200 = ["/", "/app.js", "/data.js", "/style.css", "/motifs.js", "/qrcode.lib.js", "/util.js", "/photos.js", "/photos.json", "/CREDITS.md", "/credits.html", "/submit.js", "/api/status"];
+const MUST_200 = ["/", "/app.js", "/data.js", "/style.css", "/motifs.js", "/qrcode.lib.js", "/util.js", "/radius.js", "/pins.js", "/photos.js", "/photos.json", "/CREDITS.md", "/credits.html", "/submit.js", "/api/status"];
 
 function request(port, urlPath) {
   return new Promise((resolve, reject) => {

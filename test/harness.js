@@ -53,7 +53,7 @@ function makeSandbox(storage) {
 function loadApp(storage) {
   const sandbox = makeSandbox(storage);
   vm.createContext(sandbox);
-  ["data.js", "motifs.js", "util.js", "photos.js", "submit.js"].forEach(f => {
+  ["data.js", "motifs.js", "util.js", "radius.js", "pins.js", "photos.js", "submit.js"].forEach(f => {
     vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), sandbox, { filename: f });
   });
   let src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
@@ -67,7 +67,7 @@ function loadApp(storage) {
     isRealId: (typeof isRealId === "function") ? isRealId : function(id){ return typeof id==="number" && id>=9000000 && id<10000000; },
     displayCost: displayCost,
     localDateISO: localDateISO,
-    computeDeck: computeDeck, matchesFilters: matchesFilters,
+    computeDeck: computeDeck, matchesFilters: matchesFilters, placeLabel: placeLabel,
     buildSwipeCard: buildSwipeCard, buildIdeaRow: buildIdeaRow,
     buildSavedCard: buildSavedCard, buildSavedScreen: buildSavedScreen,
     get ui(){ return ui; },

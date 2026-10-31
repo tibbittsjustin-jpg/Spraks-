@@ -43,7 +43,7 @@ Day follows K1 v4: cream page, white surfaces, deep jade actions, forest type. N
 
 `--color-on-photo` and `--color-ink` sit on photographs and do not flip. The photo card title, tiles, and credit use `--color-on-photo`. The category pill uses `--color-ink` (`#0F4D3A`) on white.
 
-`--color-coral` is `#FF5A5F`. It is not applied to text. The app has no radius slider, so the token is reserved and unused.
+`--color-coral` is `#FF5A5F`. It is not applied to text. The Discover distance thumb uses it, with a white ring.
 
 `--color-yellow` is reserved for a "Happening tonight" chip and time badges. Those controls are not in the current screens, so the token is unused. Stat tiles are not yellow.
 

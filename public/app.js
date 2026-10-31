@@ -10,6 +10,7 @@
   // idea. License and source links stay on the credits page. Ideas with no
   // entry keep the generated cover.
   applyIdeaPhotos(typeof IDEA_PHOTOS === "undefined" ? null : IDEA_PHOTOS);
+  applyIdeaPins(typeof IDEA_PINS === "undefined" ? null : IDEA_PINS);
 
   function applyIdeaPhotos(map){
     if(!map || typeof map !== "object") return;
@@ -20,6 +21,20 @@
       if(!url) return;
       var credit = typeof entry.credit === "string" ? entry.credit : "";
       idea.photo = { url: url, credit: credit };
+    });
+  }
+
+  // Confident pins only. An idea that already has a point keeps it.
+  // City stays on the pin table and is not copied onto the idea.
+  function applyIdeaPins(map){
+    if(!map || typeof map !== "object") return;
+    IDEAS_DATA.forEach(function(idea){
+      if(SparkRadius.ideaPoint(idea)) return;
+      var pin = map[idea.id] != null ? map[idea.id] : map[String(idea.id)];
+      var point = SparkRadius.ideaPoint(pin);
+      if(!point) return;
+      idea.lat = point.lat;
+      idea.lng = point.lng;
     });
   }
 
@@ -253,7 +268,7 @@
       doneIds:[],       // [{id, date}]
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, radiusMiles:SparkRadius.RADIUS_DEFAULT },
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
@@ -279,6 +294,7 @@
       // filter category like "dateType" existed) don't end up missing a nested key.
       parsed.filters = parsed.filters || {};
       for(var fk in d.filters){ if(!(fk in parsed.filters)) parsed.filters[fk] = d.filters[fk]; }
+      parsed.filters.radiusMiles = SparkRadius.clampRadiusMiles(parsed.filters.radiusMiles);
       // Same backfill treatment for settings (e.g. older saved states from
       // before the night-mode toggle existed won't have this key yet).
       parsed.settings = parsed.settings || {};
@@ -475,6 +491,8 @@
       saveState();
       if(!opts.silent) showToast("Location enabled!");
       updateLocationBar();
+      updateRadiusPlace();
+      refreshDeckAfterRadius();
       fetchNearbyIdeas();
     }, function(err){
       if(!opts.silent) showToast("Couldn't get your location: " + (err && err.message ? err.message : "permission denied"));
@@ -1233,6 +1251,7 @@
     if(f.dateType.length && !idea.dateType.some(function(d){ return f.dateType.indexOf(d) !== -1; })) return false;
     if(f.food !== null && idea.food !== f.food) return false;
     if(f.hide21 && idea.age21 === true) return false;
+    if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
     return true;
   }
 
@@ -1241,6 +1260,7 @@
     ["duration","cost","time","setting","vibe","season","stage","dateType"].forEach(function(k){ n += f[k].length; });
     if(f.food !== null) n += 1;
     if(f.hide21) n += 1;
+    if(SparkRadius.clampRadiusMiles(f.radiusMiles) !== SparkRadius.RADIUS_DEFAULT) n += 1;
     return n;
   }
 
@@ -1260,7 +1280,10 @@
 
     // Rebuild the order only when the deck's *contents* change — a new filter
     // set, or a fresh batch of real spots arriving. Swiping doesn't change it.
-    var signature = JSON.stringify(state.filters) + "|" + builtinIds.length + "|" + extraIds.join(",");
+    var loc = state.location;
+    var locKey = (loc && typeof loc.lat === "number" && typeof loc.lng === "number")
+      ? (loc.lat + "," + loc.lng) : "";
+    var signature = JSON.stringify(state.filters) + "|" + locKey + "|" + builtinIds.length + "|" + extraIds.join(",");
     if(!deckOrderCache || deckOrderCache.signature !== signature){
       deckOrderCache = { signature: signature, ids: interleaveIds(builtinIds, extraIds) };
     }
@@ -1272,8 +1295,168 @@
   }
 
   /* ---------- Discover screen ---------- */
+  // City on the saved fix, else the nearest confident pin within 15 miles,
+  // else "Near you". A denied or missing fix stays on the fallback. No
+  // second permission prompt.
+  function placeLabel(){
+    var loc = state.location;
+    if(loc && typeof loc.city === "string" && loc.city.trim()) return loc.city.trim();
+    if(loc && typeof loc.label === "string" && loc.label.trim()) return loc.label.trim();
+    var pins = (typeof IDEA_PINS === "undefined") ? null : IDEA_PINS;
+    var inferred = SparkRadius.nearestPlaceLabel(loc, pins, SparkRadius.NEAREST_LABEL_MILES);
+    return inferred || "Near you";
+  }
+
+  function setSliderPct(slider, pct){
+    if(slider.style && typeof slider.style.setProperty === "function") slider.style.setProperty("--radius-pct", pct);
+    else if(slider.style) slider.style["--radius-pct"] = pct;
+  }
+
+  function syncRadiusSlider(slider, miles){
+    var pos = SparkRadius.milesToSlider(miles);
+    var clamped = SparkRadius.clampRadiusMiles(miles);
+    slider.value = String(pos);
+    setSliderPct(slider, (pos / SparkRadius.RADIUS_SLIDER_MAX * 100) + "%");
+    slider.setAttribute("aria-valuenow", String(clamped));
+    slider.setAttribute("aria-valuetext", clamped + " miles");
+  }
+
+  function sliderFillPct(slider){
+    var pos = Number(slider.value);
+    if(!isFinite(pos)) pos = 0;
+    return (pos / SparkRadius.RADIUS_SLIDER_MAX * 100) + "%";
+  }
+
+  function makeRadiusSlider(className, label){
+    var slider = document.createElement("input");
+    slider.type = "range";
+    slider.className = "radius-slider " + className;
+    slider.min = "0";
+    slider.max = String(SparkRadius.RADIUS_SLIDER_MAX);
+    slider.step = "1";
+    slider.setAttribute("aria-label", label);
+    slider.setAttribute("aria-valuemin", String(SparkRadius.RADIUS_MIN));
+    slider.setAttribute("aria-valuemax", String(SparkRadius.RADIUS_MAX));
+    return slider;
+  }
+
+  function buildRadiusRow(){
+    var row = el("div", "radius-row");
+    var place = el("div", "radius-place");
+    place.innerHTML = icon("map-pin") + '<span class="radius-place-name" id="radius-place-name"></span>';
+    place.querySelector(".radius-place-name").textContent = placeLabel();
+    var miles = SparkRadius.clampRadiusMiles(state.filters.radiusMiles);
+    var slider = makeRadiusSlider("radius-slider-discover", "How far");
+    syncRadiusSlider(slider, miles);
+    var readout = el("span", "radius-readout");
+    readout.id = "radius-readout";
+    readout.textContent = SparkRadius.radiusLabel(miles);
+    slider.addEventListener("input", function(){
+      var next = SparkRadius.sliderToMiles(slider.value);
+      state.filters.radiusMiles = next;
+      readout.textContent = SparkRadius.radiusLabel(next);
+      setSliderPct(slider, sliderFillPct(slider));
+      slider.setAttribute("aria-valuenow", String(next));
+      slider.setAttribute("aria-valuetext", next + " miles");
+      saveState();
+      refreshDeckAfterRadius();
+      updateFilterBadge();
+    });
+    row.appendChild(place);
+    row.appendChild(slider);
+    row.appendChild(readout);
+    return row;
+  }
+
+  function updateRadiusPlace(){
+    var name = document.getElementById("radius-place-name");
+    if(name) name.textContent = placeLabel();
+  }
+
+  function refreshDeckAfterRadius(){
+    var deckEl = $("#deck");
+    if(!deckEl) return;
+    renderDeckCards(deckEl);
+    updateResultCount();
+  }
+
+  function updateFilterBadge(){
+    var btn = $(".filter-chip-btn");
+    if(!btn) return;
+    var count = activeFilterCount(state.filters);
+    var badge = $(".badge", btn);
+    if(!count){
+      if(badge && badge.remove) badge.remove();
+      return;
+    }
+    if(!badge){
+      badge = el("span", "badge");
+      btn.appendChild(badge);
+    }
+    badge.textContent = String(count);
+  }
+
+  function radiusDiagram(){
+    function arc(r, cls, fill){
+      var d = "M" + (160 - r) + ",142 A" + r + "," + r + " 0 0 1 " + (160 + r) + ",142";
+      if(fill) d += " L160,142 Z";
+      return '<path class="' + cls + '" d="' + d + '"/>';
+    }
+    var wrap = el("div", "radius-diagram-wrap");
+    wrap.innerHTML =
+      '<svg class="radius-diagram" viewBox="0 0 320 150" aria-hidden="true">' +
+        arc(126, "radius-fill radius-fill-a", true) +
+        arc(92, "radius-fill radius-fill-b", true) +
+        arc(58, "radius-fill radius-fill-c", true) +
+        arc(126, "radius-ring radius-ring-outer", false) +
+        arc(92, "radius-ring radius-ring-mid", false) +
+        arc(58, "radius-ring", false) +
+        arc(32, "radius-ring", false) +
+        '<g class="radius-pin" transform="translate(148,120)">' +
+          '<path d="M12 22s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/>' +
+          '<circle class="radius-pin-dot" cx="12" cy="10" r="2.3"/>' +
+        '</g>' +
+      '</svg>';
+    return wrap;
+  }
+
+  function buildHowFarGroup(){
+    var group = el("div", "filter-group how-far-group");
+    var card = el("div", "how-far");
+    var head = el("div", "how-far-head");
+    var miles = SparkRadius.clampRadiusMiles(ui.filterDraft.radiusMiles);
+    head.innerHTML = '<span class="how-far-label">How far?</span><span class="how-far-value"></span>';
+    head.querySelector(".how-far-value").textContent = SparkRadius.radiusLabel(miles);
+    var slider = makeRadiusSlider("radius-slider-panel", "How far, in miles");
+    syncRadiusSlider(slider, miles);
+    slider.addEventListener("input", function(){
+      var next = SparkRadius.sliderToMiles(slider.value);
+      ui.filterDraft.radiusMiles = next;
+      var value = head.querySelector(".how-far-value");
+      if(value) value.textContent = SparkRadius.radiusLabel(next);
+      setSliderPct(slider, sliderFillPct(slider));
+      slider.setAttribute("aria-valuenow", String(next));
+      slider.setAttribute("aria-valuetext", next + " miles");
+    });
+    var ticks = el("div", "radius-ticks");
+    ticks.setAttribute("aria-hidden", "true");
+    [[0, "1"], [25, "5"], [50, "10"], [75, "25"], [100, "50 mi"]].forEach(function(pair){
+      var tick = el("span", "radius-tick", pair[1]);
+      tick.style.left = pair[0] + "%";
+      ticks.appendChild(tick);
+    });
+    card.appendChild(head);
+    card.appendChild(radiusDiagram());
+    card.appendChild(slider);
+    card.appendChild(ticks);
+    group.appendChild(card);
+    return group;
+  }
+
   function buildDiscoverScreen(){
     var wrap = el("div", "screen discover-screen");
+
+    wrap.appendChild(buildRadiusRow());
 
     var bar = el("div", "filter-bar");
     var fbtn = el("button", "filter-chip-btn");
@@ -1407,10 +1590,11 @@
      photo keeps the generated cover.
 
      The H1 overlay reads a few other optional facts when a photo is present.
-     They are not filters and they are not invented when missing:
-       distanceMiles  → "6.4 mi" / "from you"
+     Missing facts are left blank. They are not invented.
+       distanceMiles  → "6.4 mi" / "from you". The radius filter also
+                        reads it when the idea has no coordinates.
        closesAt       → "10 pm" / "lot closes"   (a short clock time)
-       conditions     → the coral line under the chips
+       conditions     → the line under the chips
        openNow        → true shows the Open now badge */
   function ideaPhoto(idea){
     var photo = idea && idea.photo;
@@ -1664,6 +1848,7 @@
   function renderFilterBody(){
     var body = $("#filter-body");
     body.innerHTML = "";
+    body.appendChild(buildHowFarGroup());
 
     FILTER_DEFS.forEach(function(def){
       var group = el("div", "filter-group");

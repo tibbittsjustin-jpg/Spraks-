@@ -51,7 +51,9 @@ section("No photo keeps the cover-art card", () => {
         card.html.indexOf("has-photo") === -1);
   check("still carries both swipe stamps",
         card.html.indexOf('class="stamp yes"') !== -1 && card.html.indexOf('class="stamp no"') !== -1);
-  check("keeps the category badge", card.html.indexOf("Winter &amp; Snow Adventures") !== -1);
+  check("does not render the category pill",
+        card.html.indexOf("card-cat-tag") === -1 &&
+        card.html.indexOf("Winter &amp; Snow Adventures") === -1);
 });
 
 section("A photo url switches to the H1 card", () => {
@@ -100,8 +102,10 @@ section("A photo url switches to the H1 card", () => {
         card.html.indexOf(">Half-day (2-5 hrs)<") === -1);
   check("coral conditions line", card.html.indexOf("Fresh snow last night") !== -1);
   check("photo credit", card.html.indexOf("Photo: Eric Ward, CC BY-SA 2.0") !== -1);
-  check("category and Open now badges",
-        card.html.indexOf("Winter &amp; Snow Adventures") !== -1 && card.html.indexOf("Open now") !== -1);
+  check("Open now badge stays and the category pill is gone",
+        card.html.indexOf("card-cat-tag") === -1 &&
+        card.html.indexOf("Winter &amp; Snow Adventures") === -1 &&
+        card.html.indexOf("Open now") !== -1);
   check("swipe stamps still in the photo card",
         card.html.indexOf('class="stamp yes"') !== -1 && card.html.indexOf('class="stamp no"') !== -1);
   var threw = false;

@@ -1548,7 +1548,6 @@
       : "";
     return '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
       '<div class="card-photo-scrim"></div>' +
-      '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
       photoTopRightHtml(idea) +
       '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '<div class="card-photo-overlay">' + photoOverlayHtml(idea) + '</div>' +
@@ -1557,7 +1556,6 @@
 
   function classicSwipeCardHtml(idea){
     return '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
-        '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
         (idea.isReal ? '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>' : '') +
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '</div>' +

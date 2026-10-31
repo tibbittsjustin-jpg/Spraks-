@@ -64,8 +64,78 @@ section("with no plan date, events show until expires_at in Denver", () => {
   check("just after Denver midnight the previous end date is over",
     occ.visibleOnPlan({ expires_at: "2026-07-14" }, "", new Date("2026-07-15T06:00:00.000Z")) === false);
   check("no end date stays visible", occ.visibleOnPlan(ANYTIME, "", late) === true);
+  const elevenThirty = new Date("2026-11-01T05:30:00.000Z");
+  check("11:30pm Denver is still today even though UTC is already tomorrow",
+    occ.denverToday(elevenThirty) === "2026-10-31", occ.denverToday(elevenThirty));
+  check("an idea ending today in Denver still shows at 11:30pm",
+    occ.visibleOnPlan({ expires_at: "2026-10-31", occurrences: null }, "", elevenThirty) === true);
+  check("an idea that ended yesterday is hidden at 11:30pm Denver",
+    occ.visibleOnPlan({ expiresAt: "2026-10-30" }, "", elevenThirty) === false);
+  check("just after Denver midnight that end date is over",
+    occ.visibleOnPlan({ expires_at: "2026-10-31" }, "", new Date("2026-11-01T06:00:00.000Z")) === false);
+  check("a past list of dates with no end date is hidden",
+    occ.visibleOnPlan({
+      expires_at: null,
+      occurrences: { kind: "dates", dates: [{ date: "2026-10-30", start: "19:00" }] }
+    }, "", elevenThirty) === false);
+  check("a date list whose last day is today still shows at 11:30pm Denver",
+    occ.visibleOnPlan({
+      expires_at: null,
+      occurrences: { kind: "dates", dates: [{ date: "2026-10-30" }, { date: "2026-10-31" }] }
+    }, "", elevenThirty) === true);
+  check("an ongoing weekday pattern with no end date stays visible",
+    occ.visibleOnPlan({
+      expires_at: null,
+      occurrences: { kind: "weekly", start: "2026-01-01", weekdays: ["Thu"] }
+    }, "", elevenThirty) === true);
+  check("a finished weekday range still relies on expires_at when that is empty",
+    occ.visibleOnPlan({
+      expires_at: null,
+      occurrences: { kind: "weekly", start: "2026-01-01", end: "2026-02-01", weekdays: ["Mon"] }
+    }, "", elevenThirty) === true);
   check("an anytime idea still shows on a plan date after its end date",
     occ.visibleOnPlan({ occurrences: null, expires_at: "2020-01-01" }, "2026-10-26", late) === true);
+});
+
+section("research ranges become a stored schedule", () => {
+  const ongoing = occ.normalizeOccurrences([{
+    start_date: "2026-10-31",
+    end_date: null,
+    weekdays: ["Thu", "Sat"],
+    start: "21:00",
+    end: "00:00",
+    exclude: ["2026-12-24", "2026-12-26"]
+  }]);
+  check("an open weekday range stays weekly and keeps days off",
+    ongoing.ok && ongoing.value.kind === "weekly" && ongoing.value.end == null &&
+    ongoing.value.weekdays.join(",") === "Thu,Sat" &&
+    ongoing.value.exclude.join(",") === "2026-12-24,2026-12-26");
+  check("a day off is not a show day", occ.occursOn(ongoing.value, "2026-12-24") === false);
+  check("a later Thursday still happens", occ.occursOn(ongoing.value, "2026-12-17") === true);
+  const firstFriday = occ.normalizeOccurrences([{
+    start_date: "2026-10-31",
+    end_date: null,
+    weekdays: ["Fri"],
+    week_of_month: [1],
+    start: "18:00",
+    end: "21:00"
+  }]);
+  check("the first Friday of November happens",
+    firstFriday.ok && occ.occursOn(firstFriday.value, "2026-11-06") === true);
+  check("the second Friday does not", occ.occursOn(firstFriday.value, "2026-11-13") === false);
+  const gap = occ.normalizeOccurrences([
+    { start_date: "2026-11-21", end_date: "2026-12-19", weekdays: ["Sat"], start: "10:00", end: "15:00" },
+    { start_date: "2027-01-09", end_date: "2027-01-09", weekdays: ["Sat"], start: "10:00", end: "15:00" }
+  ]);
+  check("two bounded ranges become the show days, not the gap",
+    gap.ok && gap.value.kind === "dates" &&
+    gap.value.dates.map(item => item.date).join(",") === "2026-11-21,2026-11-28,2026-12-05,2026-12-12,2026-12-19,2027-01-09");
+  const shows = occ.normalizeOccurrences([
+    { date: "2026-12-04", start: "19:00", end: null },
+    { date: "2026-12-04", start: "13:00", end: null }
+  ]);
+  check("two times on one date are both kept, earliest first",
+    shows.ok && shows.value.dates.map(item => item.start).join(",") === "13:00,19:00");
 });
 
 section("the discover deck uses the active plan date", () => {

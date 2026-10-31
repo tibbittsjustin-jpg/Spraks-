@@ -2,7 +2,7 @@
    No database. */
 "use strict";
 
-const { buildListQuery, mapRow, METERS_PER_MILE } = require("../db/activities-repo");
+const { buildListQuery, mapRow, METERS_PER_MILE, STILL_SHOWING_SQL } = require("../db/activities-repo");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -36,6 +36,12 @@ section("defaults", () => {
     q.text.indexOf("source_url") !== -1 && q.text.indexOf("status = 'approved'") !== -1);
   check("occurrences are selected for approved rows only",
     q.text.indexOf("occurrences") !== -1 && q.text.indexOf("status = 'approved'") !== -1);
+  check("expires_at is selected as a calendar day, not a timestamp",
+    q.text.indexOf("to_char(expires_at, 'YYYY-MM-DD') AS expires_at") !== -1);
+  check("finished rows are left out using Denver's date",
+    q.text.indexOf(STILL_SHOWING_SQL) !== -1 &&
+    q.text.indexOf("(expires_at IS NULL OR expires_at >= (now() AT TIME ZONE 'America/Denver')::date)") !== -1 &&
+    q.text.indexOf("occurrences->>'kind' IS DISTINCT FROM 'dates'") !== -1);
   check("limit and offset are parameters",
     q.values[q.values.length - 2] === 50 && q.values[q.values.length - 1] === 0);
 });
@@ -115,6 +121,8 @@ section("location, radius, page clamps", () => {
     q.text.indexOf("NULLS LAST, id") !== -1 &&
     q.text.indexOf("location IS NOT NULL") === -1 &&
     q.localOnly === false);
+  check("near-me still drops finished rows and keeps approved",
+    q.text.indexOf(STILL_SHOWING_SQL) !== -1 && q.text.indexOf("status = 'approved'") !== -1);
   check("distance_miles is null for general ideas",
     q.text.indexOf("CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance") !== -1);
   check("one limit and offset page both groups",
@@ -211,6 +219,20 @@ section("mapRow materials", () => {
   check("occurrences pass through for an approved row",
     sched.occurrences && sched.occurrences.kind === "dates" && sched.occurrences.dates[0].date === "2026-10-27");
   check("a missing occurrences map to null", mapRow(base, false).occurrences === null);
+  const dated = mapRow(Object.assign({}, base, { expires_at: "2026-10-31" }), false);
+  check("expires_at is returned as both names, still a calendar day",
+    dated.expiresAt === "2026-10-31" && dated.expires_at === "2026-10-31");
+  const zoned = mapRow(Object.assign({}, base, { expires_at: "2026-11-01T05:30:00.000Z" }), false);
+  check("a date string is not shifted by a timezone",
+    zoned.expiresAt === "2026-11-01" && zoned.expires_at === "2026-11-01");
+  const localMidnight = mapRow(Object.assign({}, base, { expires_at: new Date(2026, 9, 31) }), false);
+  check("a driver Date uses the calendar day, not UTC",
+    localMidnight.expiresAt === "2026-10-31" && localMidnight.expires_at === "2026-10-31");
+  const open = mapRow(base, false);
+  check("a missing end date is present and null",
+    open.expiresAt === null && open.expires_at === null &&
+    Object.prototype.hasOwnProperty.call(open, "expiresAt") &&
+    Object.prototype.hasOwnProperty.call(open, "expires_at"));
 });
 
 module.exports = { pass: pass, fail: fail };

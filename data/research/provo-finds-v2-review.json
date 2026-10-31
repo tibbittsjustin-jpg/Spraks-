@@ -5,7 +5,18 @@
    "note": "2027 dates not announced; usual July 2–4 pattern. Re-check freedomfestival.org around May 2027.",
    "checked": "2026-10-29"
   },
-  "expires_at_basis": "null: annual July event; 2027 dates not yet published (on hold)"
+  "expires_at_basis": "null: annual July event; 2027 dates not yet published (on hold)",
+  "description_fix_round6": {
+   "old": "Get up before dawn and watch dozens of hot air balloons inflate and lift off at Fox Field during America's Freedom Festival Balloon Fest (July 2–4, 6–8am). The Balloon Glow is July 3, 8:30–10pm. Free.",
+   "why": "Removed yearless \"July 2-4\" so it does not read as a confirmed 2027 date.",
+   "date": "2026-10-31"
+  },
+  "occurrences_status": "flagged (dated event awaiting an official 2027 date); not an anytime item. expires_at null because no confirmed occurrence exists.",
+  "occurrences_flag": {
+   "reason": "Dated event, not anytime. No official 2027 date: the organizer page shows \"July 2 - 4\" with no year, its event page and events API (re-checked 2026-10-31) list only the 2026 run (2026-07-02 06:00 to 07-04 08:00, \"This event has passed\"), and the organizer calendar has nothing in July 2027. The July 2-4 pattern is not applied because no source ties it to 2027 (July 4, 2027 is a Sunday and the page says \"closed on Sunday\"). Provo.com shows Jul 1-3, 2027 but says \"This date is not confirmed\"; unofficial, not used. Re-check when the 2027 schedule posts.",
+   "source": "https://freedomfestival.org/event/balloon-fest/",
+   "checked": "2026-10-31"
+  }
  },
  "Self-Guided Provo River Raft with High Country Adventure": {
   "hold": {
@@ -74,6 +85,11 @@
     -111.590893
    ],
    "correction_m": 212
+  },
+  "occurrences_flag": {
+   "reason": "Page lists 6:30-8:30pm on \"December 26; January 1, 9, and 23; February 6 and 20; March 6 and 13\" with no year and all prices TBA. Those dates are all Fridays (Jan 1 a Thursday) in the 2025-26 season, not 2026-27, so they look stale. Not used.",
+   "source": "https://www.sundanceresort.com/activities/nordic-skiing-snowshoeing/",
+   "checked": "2026-10-31"
   }
  },
  "Night Skiing at Sundance": {
@@ -102,6 +118,11 @@
     -111.577661
    ],
    "correction_m": 13
+  },
+  "occurrences_flag": {
+   "reason": "Night skiing is Mon/Wed/Fri/Sat 4:30-9pm \"during the winter season\", but \"Night skiing for the 2026/2027 season opens when conditions permit\" - no opening or closing date on the page.",
+   "source": "https://www.sundanceresort.com/activities/skiing-snowboarding/",
+   "checked": "2026-10-31"
   }
  },
  "Snowshoe the Sundance Nordic Center Trails": {
@@ -136,7 +157,16 @@
    "basis": "per person",
    "evidence": "$25 resident, $35 non-resident (provo.gov/483)"
   },
-  "expires_at_basis": "Ravioli Night is Dec 2; source page lists Christmas Pizza Wreath Night Dec 9 as the last one-night class"
+  "expires_at_basis": "Ravioli Night is Dec 2; source page lists Christmas Pizza Wreath Night Dec 9 as the last one-night class",
+  "description_fix_round5": {
+   "old": "Make fresh pasta dough and holiday-shaped ravioli at a one-night Provo Recreation cooking class on Wed, Dec 2, 5:30–7:30pm. Ages 14+; $25 residents and $35 non-residents. A Christmas Pizza Wreath Night follows on Dec 9.",
+   "why": "Follow-on class is listed as \"Christmas Pizza Night\" (Dec 9, 5:30-7pm), not \"Pizza Wreath Night\".",
+   "date": "2026-10-31"
+  },
+  "expires_basis_round5": "= last occurrence date (2026-12-02)",
+  "occurrences_check_round6": "Confirmed one ravioli class only (provo.gov/483 re-fetched 2026-10-31): \"Christmas Ravioli Night - Wednesday, December 2 - 5:30 to 7:30 PM\". The other one-night classes are Pumpkin Pasta Night (Oct 28, past), Pumpkin Cinnamon Roll Night (Nov 4), Thanksgiving Cupcake Decorating (Nov 2) and Christmas Pizza Night (Dec 9). Kept single Dec 2 occurrence.",
+  "occurrences_source": "https://www.provo.gov/483/Cooking-Classes",
+  "occurrences_basis": "\"Christmas Ravioli Night - Wednesday, December 2 - 5:30 to 7:30 PM\". The Dec 9 Christmas Pizza Night is a different class, so expires_at moves from 2026-12-09 to 2026-12-02."
  },
  "Utah Valley Civic Ballet's The Nutcracker": {
   "hold": {
@@ -144,7 +174,9 @@
    "note": "Dec 4–5 & 7, 2026. Remove after Dec 7, 2026.",
    "checked": "2026-10-29"
   },
-  "expires_at_basis": "Dec 4-5 & 7, 2026"
+  "expires_at_basis": "Dec 4-5 & 7, 2026",
+  "occurrences_source": "https://uvcivicballet.org/performances/nutcracker-winter-2026/",
+  "occurrences_basis": "Fri Dec 4 1:00 & 7:00 PM; Sat Dec 5 1:00 & 7:00 PM; Mon Dec 7 1:00 & 7:00 PM (Ashton Auditorium, Orem Library Hall)."
  },
  "Steel Magnolias at BYU's Black Box Theatre": {
   "hold": {
@@ -156,9 +188,12 @@
    "current": "$20-$30",
    "proposed": "$10-$20",
    "basis": "per person",
-   "evidence": "$10–15 tickets (onstage.byu.edu)"
+   "evidence": "$10–15 tickets (onstage.byu.edu)",
+   "note": "Tickets are $10-15 per person; mapped up conservatively to $20-$30 because filters.js @4782b23 has no $10-$20 band."
   },
-  "expires_at_basis": "Dec 3-5, 2026"
+  "expires_at_basis": "Dec 3-5, 2026",
+  "occurrences_source": "https://onstage.byu.edu/arts-entertainment/steel-magnolias-2026-12-04",
+  "occurrences_basis": "\"December 3-5, 7:30 p.m. December 5, 2:00 p.m.\""
  },
  "BYU Theatre Ballet's Reimagined Nutcracker": {
   "hold": {
@@ -172,7 +207,9 @@
    "basis": "per person",
    "evidence": "$25"
   },
-  "expires_at_basis": "Dec 2-5, 2026"
+  "expires_at_basis": "Dec 2-5, 2026",
+  "occurrences_source": "https://onstage.byu.edu/arts-entertainment/theatre-ballet-the-nutcracker-2026-12-05",
+  "occurrences_basis": "\"December 2-4, 7:30 p.m. December 5, 2:00 p.m. and 7:30 p.m.\""
  },
  "BYU Celebration of Christmas Concert": {
   "hold": {
@@ -186,7 +223,9 @@
    "basis": "per person",
    "evidence": "$21–34 (onstage.byu.edu)"
   },
-  "expires_at_basis": "Dec 4-5, 2026"
+  "expires_at_basis": "Dec 4-5, 2026",
+  "occurrences_source": "https://onstage.byu.edu/school-of-music/celebration-of-christmas-2026-12-04",
+  "occurrences_basis": "\"December 4, 7:30 p.m. December 5, 3:00 p.m. and 7:30 p.m.\" (Dec 4 listing shows 7:30-9:30 PM)."
  },
  "The Music Man in Concert at BYU": {
   "hold": {
@@ -194,7 +233,9 @@
    "note": "Nov 6–21, 2026.",
    "checked": "2026-10-29"
   },
-  "expires_at_basis": "Nov 6-21, 2026"
+  "expires_at_basis": "Nov 6-21, 2026",
+  "occurrences_source": "https://onstage.byu.edu/arts-entertainment/meredith-willsons-the-music-man-in-concert-2026-11-06",
+  "occurrences_basis": "\"November 6-7, 7:30 p.m. November 11-14, 18-21, 7:30 p.m. November 14, 21, 2:00 p.m.\" (event page; the item source_url is the season announcement, which gives only Nov 6-21)."
  },
  "Drive the Spanish Fork Festival of Lights": {
   "hold": {
@@ -202,7 +243,15 @@
    "note": "Nov 27, 2026–Jan 1, 2027; tickets on sale Nov 12 (online only).",
    "checked": "2026-10-29"
   },
-  "expires_at_basis": "Nov 27, 2026 - Jan 1, 2027"
+  "expires_at_basis": "Nov 27, 2026 - Jan 1, 2027",
+  "description_fix_round5": {
+   "old": "Cruise through the Spanish Fork Festival of Lights at Canyon View Park with the heater on and cocoa in hand. Open nightly 6–10pm from Nov 27, 2026 to Jan 1, 2027. Tickets must be bought online in advance (sfcitytix.com, on sale Nov 12).",
+   "why": "Page no longer shows 6-10pm; it says \"Open from Thanksgiving day through New Year's Day\" (Thanksgiving = Nov 26, not Nov 27).",
+   "date": "2026-10-31"
+  },
+  "occurrences_source": "https://www.spanishfork.gov/recreation-parks-and-culture/events-and-festivals/festival-of-lights/",
+  "occurrences_basis": "\"Open from Thanksgiving day through New Year's Day\" (Thanksgiving = Thu Nov 26, 2026).",
+  "occurrences_caveat": "The re-fetched page gives no nightly hours (the earlier 6-10pm is no longer shown), so start/end are null and the description no longer states hours. Advance online tickets with entry windows."
  },
  "Walk Luminaria at Thanksgiving Point": {
   "hold": {
@@ -210,7 +259,10 @@
    "note": "Nov 12, 2026–Jan 9, 2027; Mon–Sat only.",
    "checked": "2026-10-29"
   },
-  "expires_at_basis": "Nov 12 - Jan 9"
+  "expires_at_basis": "Nov 12 - Jan 9",
+  "occurrences_source": "https://thanksgivingpoint.org/events/luminaria/",
+  "occurrences_basis": "\"Hours and Entrance Times\" table (time-slot window start-end): Nov 12-24, 30, Dec 1-3, 7-10, 14-17, 29, Jan 1-2 4-9pm; Nov 26 5-9:30pm; Nov 25, 27-28, Dec 4-5, 11-12, 18-28 4-9:30pm; Jan 4-9 5-8:30pm. Closed Sundays, Christmas Eve and Christmas Day.",
+  "occurrences_caveat": "Dec 30-31 do not appear in the hours table, so they are not listed. end = last time slot (last entrance is 15 min later)."
  },
  "Saturday Winter Farmers Market at Provo Towne Centre": {
   "hold": {
@@ -218,7 +270,9 @@
    "note": "Winter market Nov 21–Dec 19, 2026 and Jan 9–Mar 27, 2027.",
    "checked": "2026-10-29"
   },
-  "expires_at_basis": "winter market runs through Mar 27, 2027"
+  "expires_at_basis": "winter market runs through Mar 27, 2027",
+  "occurrences_source": "https://www.provofarmersmarket.com/",
+  "occurrences_basis": "\"winter MARKET SATURDAYS 10 am - 3 pm, Nov 21 - Dec 19; 10 am - 3 pm, Jan 9 - Mar 27, Provo Towne Centre\"."
  },
  "Loop and Picnic at Salem Pond": {
   "hold": {
@@ -262,7 +316,9 @@
     -111.577661
    ],
    "correction_m": 78
-  }
+  },
+  "occurrences_source": "https://www.sundanceresort.com/dining/foundry-grill/",
+  "occurrences_basis": "\"Join us every Sunday year-round ... Hours: Sundays, 9:00am - 2:00pm\"."
  },
  "Evening Class at Harmons Cooking School": {
   "cost_mapping": {
@@ -270,7 +326,11 @@
    "proposed": "may be Over $100 for some classes",
    "basis": "per person",
    "evidence": "$65–$100 per seat (cookingschool.harmonsgrocery.com)"
-  }
+  },
+  "expires_basis_round5": "= last occurrence date (2026-11-24)",
+  "occurrences_source": "https://cookingschool.harmonsgrocery.com/items/category/traverse-mountain-lehi",
+  "occurrences_basis": "Adult 6:00-8:00 PM classes listed for Traverse Mountain: Taco Tuesday Nov 3, Sushi Nov 10, All American Steakhouse Nov 11, Cast Iron Nov 12, Gnocchi Nov 13, Indian Nov 18, Brazilian Steakhouse Nov 19, Tuscan Autumn Nov 23, Thanksgiving Sides Nov 24.",
+  "occurrences_caveat": "Excluded: Junior Chef (kids), Breakfast with Santa (morning, family), Harvest Brunch (late morning) and \"Steakhouse with Red Wine 21+\" (item is not 21+). New classes are added over time."
  },
  "Dinner at Sundance's Tree Room": {
   "cost_mapping": {
@@ -404,5 +464,30 @@
  },
  "_dropped_round4": {
   "Old West Night at Sundance's Owl Bar (21+)": "No Sundance page lists an \"Old West Night\". The Owl Bar page (sundanceresort.com/dining/owl-bar/, fetched 2026-10-29) confirms 21+ and live music many Thu-Sat nights from 8pm, and the events menu shows only an Owl Bar Halloween Party; the \"Old West Night\" framing was not verifiable, so the item was dropped per manager instruction."
- }
+ },
+ "Make Something at the Orem Library Makerspace": {},
+ "Brazilian Churrasco Night at Rodizio Grill": {},
+ "Hibachi Dinner Show at My Tepanyaki": {
+  "description_fix_round6": {
+   "old": "Sit at the grill at My Tepanyaki in Orem and watch the chef cook your hibachi dinner in front of you,.",
+   "why": "Typo: stray comma before the final period.",
+   "date": "2026-10-31"
+  }
+ },
+ "D&D One-Shot at We Geek Together": {},
+ "Wander the Aquarium at Cabela's Lehi": {
+  "category_check_round6": {
+   "current": "Mall & Store Mischief",
+   "decision": "kept",
+   "reasoning": "The item is browsing a big-box store like a free museum (aquarium, gun library, archery range) plus a dare to try on ridiculous camo, which is what \"Mall & Store Mischief\" describes. \"Culture, Community & Local Attractions\" (used by data.js for \"An Afternoon at the Aquarium\") would fit a standalone aquarium, but this one is a store display; \"Sports, Games & Rec\" (data.js \"Try Everything in the Store\") would need a sports activity. No clearly better category."
+  }
+ },
+ "Outlet Challenge at Outlets at Traverse Mountain": {},
+ "Blind-Pick Books at Pioneer Book": {},
+ "Comic Shop Dare at The Dragon's Keep": {},
+ "Riverside Picnic at Nunn's Park": {},
+ "Picnic at Canyon View Park in Provo Canyon": {},
+ "Picnic at Spanish Fork River Park": {},
+ "Country Picnic at Benjamin Park": {},
+ "Free Exhibits at BYU's Museum of Peoples and Cultures": {}
 }

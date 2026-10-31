@@ -36,6 +36,8 @@
   "lng": -111.689655,
   "source_url": "https://www.scorchedstudio.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -74,6 +76,8 @@
   "lng": -111.725,
   "source_url": "https://tandyleather.com/pages/stores/s0171",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -114,6 +118,8 @@
   "lng": -111.694671,
   "source_url": "https://library.orem.gov/makerspace",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -153,6 +159,8 @@
   "lng": -111.57917,
   "source_url": "https://www.sundanceresort.com/activities/art-studio/make-take-projects/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -191,7 +199,55 @@
   "lng": -111.878232,
   "source_url": "https://cookingschool.harmonsgrocery.com/items/category/traverse-mountain-lehi",
   "age21": false,
-  "expires_at": null,
+  "occurrences": [
+   {
+    "date": "2026-11-03",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-10",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-11",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-12",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-13",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-18",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-19",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-23",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-24",
+    "start": "18:00",
+    "end": "20:00"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-11-24",
   "status": "pending"
  },
  {
@@ -231,12 +287,14 @@
   "lng": -111.661573,
   "source_url": "https://sensuoussandwich.com/Build-Your-Own-24-p125880228",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Christmas Ravioli Night Cooking Class",
-  "description": "Make fresh pasta dough and holiday-shaped ravioli at a one-night Provo Recreation cooking class on Wed, Dec 2, 5:30–7:30pm. Ages 14+; $25 residents and $35 non-residents. A Christmas Pizza Wreath Night follows on Dec 9.",
+  "description": "Make fresh pasta dough and holiday-shaped ravioli at a one-night Provo Recreation cooking class on Wed, Dec 2, 5:30–7:30pm. Ages 14+; $25 residents and $35 non-residents. A separate Christmas Pizza Night class follows on Dec 9.",
   "category": "Cooking, Food & Eating Challenges",
   "setting": "Indoor",
   "season": [
@@ -267,7 +325,15 @@
   "lng": -111.66423,
   "source_url": "https://www.provo.gov/483/Cooking-Classes",
   "age21": false,
-  "expires_at": "2026-12-09",
+  "occurrences": [
+   {
+    "date": "2026-12-02",
+    "start": "17:30",
+    "end": "19:30"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-02",
   "status": "pending"
  },
  {
@@ -304,6 +370,27 @@
   "lng": -111.663266,
   "source_url": "https://www.provofarmersmarket.com/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-21",
+    "end_date": "2026-12-19",
+    "weekdays": [
+     "Sat"
+    ],
+    "start": "10:00",
+    "end": "15:00"
+   },
+   {
+    "start_date": "2027-01-09",
+    "end_date": "2027-03-27",
+    "weekdays": [
+     "Sat"
+    ],
+    "start": "10:00",
+    "end": "15:00"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2027-03-27",
   "status": "pending"
  },
@@ -343,12 +430,14 @@
   "lng": -111.657673,
   "source_url": "https://www.rodiziogrill.com/provo-riverwoods/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Hibachi Dinner Show at My Tepanyaki",
-  "description": "Sit at the grill at My Tepanyaki in Orem and watch the chef cook your hibachi dinner in front of you,.",
+  "description": "Sit at the grill at My Tepanyaki in Orem and watch the chef cook your hibachi dinner in front of you.",
   "category": "Themed Nights & Dinners",
   "setting": "Indoor",
   "season": [
@@ -383,6 +472,8 @@
   "lng": -111.676707,
   "source_url": "https://mytepanyaki.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -421,6 +512,8 @@
   "lng": -111.663266,
   "source_url": "https://www.wegeektogether.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -461,6 +554,8 @@
   "lng": -111.888871,
   "source_url": "https://stores.cabelas.com/us/ut/lehi/2502-west-cabelas-boulevard.html",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -500,6 +595,8 @@
   "lng": -111.88439,
   "source_url": "https://www.outletsattraversemountain.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -539,6 +636,8 @@
   "lng": -111.666603,
   "source_url": "https://www.pioneerbook.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -578,6 +677,8 @@
   "lng": -111.658553,
   "source_url": "https://www.dragonskeep.com/locations/provo",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -618,12 +719,14 @@
   "lng": -111.765226,
   "source_url": "https://www.thegrid.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Drive the Spanish Fork Festival of Lights",
-  "description": "Cruise through the Spanish Fork Festival of Lights at Canyon View Park with the heater on and cocoa in hand. Open nightly 6–10pm from Nov 27, 2026 to Jan 1, 2027. Tickets must be bought online in advance (sfcitytix.com, on sale Nov 12).",
+  "description": "Cruise through the Spanish Fork Festival of Lights at Canyon View Park with the heater on and cocoa in hand. It's open from Thanksgiving Day (Nov 26, 2026) through New Year's Day. Advance tickets are required and are sold online only (sfcitytix.com, from Nov 12); there are no gate sales.",
   "category": "Winter & Snow Adventures",
   "setting": "Outdoor",
   "season": [
@@ -655,6 +758,24 @@
   "lng": -111.603459,
   "source_url": "https://www.spanishfork.gov/recreation-parks-and-culture/events-and-festivals/festival-of-lights/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-26",
+    "end_date": "2027-01-01",
+    "weekdays": [
+     "Mon",
+     "Tue",
+     "Wed",
+     "Thu",
+     "Fri",
+     "Sat",
+     "Sun"
+    ],
+    "start": null,
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2027-01-01",
   "status": "pending"
  },
@@ -692,6 +813,244 @@
   "lng": -111.910809,
   "source_url": "https://thanksgivingpoint.org/events/luminaria/",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-12",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-13",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-14",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-16",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-17",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-18",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-19",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-20",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-21",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-23",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-24",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-25",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-26",
+    "start": "17:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-27",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-28",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-30",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-01",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-02",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-03",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-04",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-05",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-07",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-08",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-09",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-10",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-11",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-12",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-14",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-15",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-16",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-17",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-18",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-19",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-21",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-22",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-23",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-26",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-28",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-29",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2027-01-01",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2027-01-02",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2027-01-04",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-05",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-06",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-07",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-08",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-09",
+    "start": "17:00",
+    "end": "20:30"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2027-01-09",
   "status": "pending"
  },
@@ -728,6 +1087,8 @@
   "lng": -111.577511,
   "source_url": "https://www.sundanceresort.com/activities/skiing-snowboarding/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": true,
   "expires_at": null,
   "status": "pending"
  },
@@ -765,6 +1126,8 @@
   "lng": -111.592712,
   "source_url": "https://www.sundanceresort.com/activities/nordic-skiing-snowshoeing/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -801,12 +1164,14 @@
   "lng": -111.592712,
   "source_url": "https://www.sundanceresort.com/activities/nordic-skiing-snowshoeing/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": true,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Sunrise Balloon Launch at Freedom Festival Balloon Fest",
-  "description": "Get up before dawn and watch dozens of hot air balloons inflate and lift off at Fox Field during America's Freedom Festival Balloon Fest (July 2–4, 6–8am). The Balloon Glow is July 3, 8:30–10pm. Free.",
+  "description": "Get up before dawn and watch about 25 hot air balloons inflate and lift off at Fox Field during America's Freedom Festival Balloon Fest, 6–8am on three early-July mornings (July 2–4 in 2026), plus an evening Balloon Glow. Free. The 2027 dates haven't been announced yet.",
   "category": "Big Bucket-List Experiences",
   "setting": "Outdoor",
   "season": [
@@ -837,6 +1202,8 @@
   "lng": -111.663043,
   "source_url": "https://freedomfestival.org/balloon-fest/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": true,
   "expires_at": null,
   "status": "pending"
  },
@@ -875,6 +1242,8 @@
   "lng": -111.899616,
   "source_url": "https://www.saratogasprings-ut.gov/facilities/facility/details/Inlet-Park-6",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -913,6 +1282,8 @@
   "lng": -111.763428,
   "source_url": "https://utahlake.gov/things-to-do-at-utah-lake/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -952,6 +1323,8 @@
   "lng": -111.803102,
   "source_url": "https://publicworks.utahcounty.gov/parks",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -991,6 +1364,8 @@
   "lng": -111.5715,
   "source_url": "https://highcountryadventure.com/tubing/provo-river-tubing/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1027,6 +1402,8 @@
   "lng": -111.642818,
   "source_url": "https://pkkayaks.wordpress.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1067,6 +1444,8 @@
   "lng": -111.612082,
   "source_url": "https://publicworks.utahcounty.gov/parks",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1106,6 +1485,8 @@
   "lng": -111.648178,
   "source_url": "https://publicworks.utahcounty.gov/parks",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1145,6 +1526,8 @@
   "lng": -111.502698,
   "source_url": "https://publicworks.utahcounty.gov/parks",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1185,6 +1568,8 @@
   "lng": -111.674336,
   "source_url": "https://www.salemutah.gov/salem-pond.htm",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1224,6 +1609,8 @@
   "lng": -111.732538,
   "source_url": "https://publicworks.utahcounty.gov/parks",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1259,6 +1646,8 @@
   "lng": -111.578359,
   "source_url": "https://www.sundanceresort.com/dining/tree-room/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1298,6 +1687,18 @@
   "lng": -111.578359,
   "source_url": "https://www.sundanceresort.com/dining/foundry-grill/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Sun"
+    ],
+    "start": "09:00",
+    "end": "14:00"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1336,6 +1737,8 @@
   "lng": -111.910809,
   "source_url": "https://thanksgivingpoint.org/attractions/ashton-gardens/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1375,6 +1778,8 @@
   "lng": -111.887566,
   "source_url": "https://thanksgivingpoint.org/attractions/butterfly-biosphere/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1411,6 +1816,39 @@
   "lng": -111.694885,
   "source_url": "https://uvcivicballet.org/performances/nutcracker-winter-2026/",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-04",
+    "start": "13:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-04",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "13:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-07",
+    "start": "13:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-07",
+    "start": "19:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-07",
   "status": "pending"
  },
@@ -1446,6 +1884,29 @@
   "lng": -111.647988,
   "source_url": "https://onstage.byu.edu/arts-entertainment/steel-magnolias-2026-12-04",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-03",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-05",
   "status": "pending"
  },
@@ -1483,6 +1944,34 @@
   "lng": -111.647988,
   "source_url": "https://onstage.byu.edu/arts-entertainment/theatre-ballet-the-nutcracker-2026-12-05",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-02",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-03",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-05",
   "status": "pending"
  },
@@ -1520,6 +2009,24 @@
   "lng": -111.644036,
   "source_url": "https://onstage.byu.edu/school-of-music/celebration-of-christmas-2026-12-04",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-05",
+    "start": "15:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-05",
   "status": "pending"
  },
@@ -1556,6 +2063,69 @@
   "lng": -111.647988,
   "source_url": "https://onstage.byu.edu/announcing-the-theatre-and-film-2026-27-season",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-06",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-07",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-11",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-12",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-13",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-14",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-14",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-18",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-19",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-20",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-21",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-21",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-11-21",
   "status": "pending"
  },
@@ -1596,6 +2166,8 @@
   "lng": -111.656138,
   "source_url": "https://mpc.byu.edu/plan-your-visit",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1637,6 +2209,8 @@
   "lng": -111.885958,
   "source_url": "https://thanksgivingpoint.org/attractions/museum-of-ancient-life/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1676,6 +2250,8 @@
   "lng": -111.680863,
   "source_url": "https://dreamwalk.com/visit/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  }

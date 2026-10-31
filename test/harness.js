@@ -5,12 +5,15 @@ const fs = require("fs"), vm = require("vm"), path = require("path");
 const ROOT = process.env.SPARK_ROOT || path.join(__dirname, "..", "public");
 
 function fakeEl() {
+  const attrs = {};
   const e = {
     style: {}, dataset: {}, value: "", textContent: "", innerHTML: "", children: [],
     classList: { add(){}, remove(){}, toggle(){}, contains(){ return false; } },
     addEventListener(){}, removeEventListener(){},
-    appendChild(child){ this.children.push(child); return child; }, setAttribute(){},
-    getAttribute(){ return null; }, replaceChild(){}, querySelector(){ return fakeEl(); },
+    appendChild(child){ this.children.push(child); return child; },
+    setAttribute(name, value){ attrs[String(name)] = String(value); },
+    getAttribute(name){ return Object.prototype.hasOwnProperty.call(attrs, String(name)) ? attrs[String(name)] : null; },
+    replaceChild(){}, querySelector(){ return fakeEl(); },
     querySelectorAll(){ return []; }, insertBefore(){}, remove(){}, focus(){}, click(){},
     get parentNode(){ return fakeEl(); }, get firstChild(){ return null; },
   };

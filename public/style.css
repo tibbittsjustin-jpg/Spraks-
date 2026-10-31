@@ -368,7 +368,7 @@ cursor:pointer; padding:0; line-height:1;
 .deck{ position:relative; height:520px; margin-top:4px; }
 .swipe-card{
 position:absolute; inset:0; background:var(--surface); border-radius:26px; box-shadow: var(--shadow);
-display:flex; flex-direction:column; overflow:hidden; touch-action:none; cursor:grab;
+display:flex; flex-direction:column; overflow:hidden; touch-action:pan-y; cursor:grab;
 user-select:none; border:1px solid var(--border);
 }
 .swipe-card:active{ cursor:grabbing; }

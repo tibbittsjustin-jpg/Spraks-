@@ -143,13 +143,26 @@ section("the chip filters the deck and keeps its count honest", () => {
   }
   const offScreen = t.buildDiscoverScreen();
   const offChip = findChip(offScreen)[0];
-  check("the chip reads Happening tonight and the count",
-    !!offChip && offChip.textContent === "Happening tonight \u00b7 " + noonCount, offChip && offChip.textContent);
+  const offCount = offChip && (offChip.innerHTML.match(/tonight-count">(\d+)</) || [])[1];
+  check("the chip shows the count and not the words Happening tonight",
+    !!offChip && offCount === String(noonCount) && offChip.innerHTML.indexOf("Happening tonight") === -1,
+    offChip && offChip.innerHTML);
+  check("the chip keeps a moon icon and no check mark",
+    !!offChip && offChip.innerHTML.indexOf("icon-inline") !== -1 && offChip.innerHTML.indexOf("\u2713") === -1);
+  check("the chip has an accessible happening-tonight label",
+    !!offChip && offChip.getAttribute("aria-label") === "Happening tonight, " + noonCount + " ideas" &&
+    offChip.getAttribute("aria-pressed") === "false",
+    offChip && offChip.getAttribute("aria-label"));
   t.state.filters.tonight = true;
   const onChip = findChip(t.buildDiscoverScreen())[0];
-  check("a pressed chip keeps the yellow label and adds a check",
+  const onCount = onChip && (onChip.innerHTML.match(/tonight-count">(\d+)</) || [])[1];
+  check("a pressed chip keeps the count, the yellow on-state, and the label",
     !!onChip && onChip.className.indexOf("is-on") !== -1 &&
-    onChip.textContent === "\u2713 Happening tonight \u00b7 " + noonCount, onChip && onChip.textContent);
+    onCount === String(noonCount) &&
+    onChip.innerHTML.indexOf("Happening tonight") === -1 &&
+    onChip.getAttribute("aria-pressed") === "true" &&
+    onChip.getAttribute("aria-label") === "Happening tonight, " + noonCount + " ideas",
+    onChip && onChip.getAttribute("aria-label"));
 });
 
 section("badges render on cards and lists only when the data supports them", () => {

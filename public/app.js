@@ -1114,7 +1114,7 @@
 
   /* ---------- How-to tutorial (shown once, right after signup) ---------- */
   var TUTORIAL_SLIDES = [
-    { icon:"zap", title:"Swipe to Discover", text:"Swipe a card up if you're into the idea, or down to pass. Keep swiping to build your deck of favorites." },
+    { icon:"zap", title:"Swipe to Discover", text:"Swipe a card right if you're into the idea, or left to pass. Keep swiping to build your deck of favorites." },
     { icon:"sliders", title:"Filter it Your Way", text:"Tap Filters to narrow ideas down by budget, time of day, vibe, season, and whether it's a solo, double, or group date." },
     { icon:"bookmark", title:"Save & Track", text:"Save ideas you love for later from the Saved tab, and mark dates as Done once you've actually tried them." },
     { icon:"users", title:"Bring Your Friends", text:"Add friends with a QR code or from your contacts, see what they've tried and saved, and share your favorite ideas with them." },
@@ -1629,10 +1629,12 @@
     if(state.filters.localOnly === true) bar.appendChild(buildLocalPill());
 
     var tonightOn = state.filters.tonight === true;
+    var tonightCount = tonightMatchCount();
     var tonightBtn = el("button", "tonight-chip" + (tonightOn ? " is-on" : ""));
     tonightBtn.type = "button";
     tonightBtn.setAttribute("aria-pressed", tonightOn ? "true" : "false");
-    tonightBtn.textContent = (tonightOn ? "\u2713 " : "") + "Happening tonight \u00b7 " + tonightMatchCount();
+    tonightBtn.setAttribute("aria-label", "Happening tonight, " + tonightCount + (tonightCount === 1 ? " idea" : " ideas"));
+    tonightBtn.innerHTML = icon("moon", "icon-inline") + '<span class="tonight-count">' + tonightCount + "</span>";
     tonightBtn.addEventListener("click", function(){
       toggleTonightFilter();
       renderContent();
@@ -1937,7 +1939,7 @@
           '<span class="meta-pill">' + escapeHtml(displayCost(idea)) + '</span>' +
           '<span class="meta-pill">' + escapeHtml(idea.setting) + '</span>' +
         '</div>' +
-        '<div class="card-hint">Tap for details · swipe up to save · down to pass</div>' +
+        '<div class="card-hint">Tap for details · swipe right to save · left to pass</div>' +
       '</div>';
   }
 
@@ -1952,64 +1954,143 @@
     return card;
   }
 
+  function cardSwipeWidth(card){
+    var w = 0;
+    if(card && typeof card.offsetWidth === "number") w = card.offsetWidth;
+    if(!(w > 40) && card && card.getBoundingClientRect){
+      try { w = card.getBoundingClientRect().width; } catch(err){ w = 0; }
+    }
+    return w > 40 ? w : SparkUtil.SWIPE_FALLBACK_WIDTH;
+  }
+
   function attachSwipeHandlers(card, ideaId){
-    var startX = 0, startY = 0, curX = 0, curY = 0, dragging = false, moved = false;
+    var startX = 0, startY = 0, curX = 0, curY = 0, dragging = false, axis = null, pointerId = null;
+    var samples = [];
     var yesStamp = $(".stamp.yes", card), noStamp = $(".stamp.no", card);
 
+    function pointOf(e){
+      if(!e) return null;
+      if(e.touches && e.touches.length) return e.touches[0];
+      if(e.changedTouches && e.changedTouches.length) return e.changedTouches[0];
+      return e;
+    }
+    function noteSample(x, t){
+      samples.push({ x: x, t: t });
+      var cutoff = t - 80;
+      while(samples.length > 1 && samples[0].t < cutoff) samples.shift();
+    }
+    function horizontalVelocity(){
+      if(samples.length < 2) return 0;
+      var a = samples[0], b = samples[samples.length - 1];
+      var dt = b.t - a.t;
+      if(dt < 8) return 0;
+      return (b.x - a.x) / dt;
+    }
+    function setStamp(stamp, value){
+      if(stamp && stamp.style) stamp.style.opacity = value;
+    }
+    function resetVisual(){
+      card.style.transform = "translate(0,0) rotate(0)";
+      setStamp(yesStamp, "0");
+      setStamp(noStamp, "0");
+    }
+    function capturePointer(id){
+      if(id == null || !card.setPointerCapture) return;
+      try { card.setPointerCapture(id); } catch(err){}
+    }
     function onDown(e){
-      dragging = true; moved = false;
-      var pt = e.touches ? e.touches[0] : e;
+      if(e.button != null && e.button !== 0) return;
+      dragging = true;
+      axis = null;
+      samples = [];
+      var pt = pointOf(e);
       startX = pt.clientX; startY = pt.clientY;
-      card.style.transition = "none";
-      card.setPointerCapture && e.pointerId != null && card.setPointerCapture(e.pointerId);
+      curX = 0; curY = 0;
+      pointerId = e.pointerId;
+      noteSample(startX, e.timeStamp || Date.now());
+      // Mouse has no native pan, so capture immediately and keep the drag.
+      // Touch waits until the gesture locks horizontal so a vertical scroll
+      // stays with the browser (touch-action: pan-y on the card).
+      if(e.pointerType === "mouse") capturePointer(pointerId);
     }
     function onMove(e){
       if(!dragging) return;
-      var pt = e.touches ? e.touches[0] : e;
-      curX = pt.clientX - startX; curY = pt.clientY - startY;
-      if(Math.abs(curX) > 6 || Math.abs(curY) > 6) moved = true;
+      if(pointerId != null && e.pointerId != null && e.pointerId !== pointerId) return;
+      var pt = pointOf(e);
+      if(!pt) return;
+      curX = pt.clientX - startX;
+      curY = pt.clientY - startY;
+      noteSample(pt.clientX, e.timeStamp || Date.now());
+      var decision = SparkUtil.resolveCardSwipe({
+        dx: curX, dy: curY, axis: axis, phase: "move"
+      });
+      axis = decision.axis;
+      if(decision.action !== "drag") return;
+      capturePointer(e.pointerId);
+      if(e.preventDefault) e.preventDefault();
+      card.style.transition = "none";
+      var width = cardSwipeWidth(card);
+      var threshold = width * SparkUtil.SWIPE_COMMIT_FRACTION;
       var rot = curX / 20;
-      card.style.transform = "translate(" + curX + "px," + curY + "px) rotate(" + rot + "deg)";
-      var progress = Math.max(-1, Math.min(1, -curY / 140));
-      yesStamp.style.opacity = String(Math.max(0, progress));
-      noStamp.style.opacity = String(Math.max(0, -progress));
-      e.preventDefault && e.preventDefault();
+      card.style.transform = "translate(" + curX + "px,0) rotate(" + rot + "deg)";
+      var progress = Math.max(-1, Math.min(1, curX / threshold));
+      setStamp(yesStamp, String(Math.max(0, progress)));
+      setStamp(noStamp, String(Math.max(0, -progress)));
     }
-    function onUp(){
+    function finishGesture(e, allowCommit){
       if(!dragging) return;
       dragging = false;
+      if(e){
+        var pt = pointOf(e);
+        if(pt && typeof pt.clientX === "number"){
+          curX = pt.clientX - startX;
+          curY = pt.clientY - startY;
+          noteSample(pt.clientX, e.timeStamp || Date.now());
+        }
+      }
       card.style.transition = "transform .3s ease";
-      if(!moved){
-        // Plain tap (no meaningful drag) — open the detail screen.
-        card.style.transform = "translate(0,0) rotate(0)";
-        yesStamp.style.opacity = "0"; noStamp.style.opacity = "0";
-        curX = 0; curY = 0;
+      var decision = SparkUtil.resolveCardSwipe({
+        dx: curX, dy: curY, axis: axis, phase: "end",
+        cardWidth: cardSwipeWidth(card),
+        velocityX: allowCommit ? horizontalVelocity() : 0
+      });
+      axis = null;
+      curX = 0; curY = 0;
+      samples = [];
+      if(!allowCommit || decision.action === "scroll" || decision.action === "snap" || decision.action === "pending"){
+        resetVisual();
+        return;
+      }
+      if(decision.action === "tap"){
+        resetVisual();
         goToDetail(ideaId);
         return;
       }
-      if(curY < -100){
+      if(decision.action === "save"){
         finishSwipe(card, "yes", ideaId);
-      } else if(curY > 100){
-        finishSwipe(card, "no", ideaId);
-      } else {
-        card.style.transform = "translate(0,0) rotate(0)";
-        yesStamp.style.opacity = "0"; noStamp.style.opacity = "0";
+        return;
       }
-      curX = 0; curY = 0;
+      if(decision.action === "pass"){
+        finishSwipe(card, "no", ideaId);
+        return;
+      }
+      resetVisual();
     }
+    function onUp(e){ finishGesture(e, true); }
+    function onCancel(){ finishGesture(null, false); }
 
     card.addEventListener("pointerdown", onDown);
-    card.addEventListener("pointermove", onMove);
+    card.addEventListener("pointermove", onMove, { passive: false });
     card.addEventListener("pointerup", onUp);
-    card.addEventListener("pointercancel", onUp);
-    card.addEventListener("pointerleave", function(e){ if(dragging && e.buttons === 0) onUp(); });
+    card.addEventListener("pointercancel", onCancel);
+    card.addEventListener("pointerleave", function(e){ if(dragging && e.buttons === 0) onUp(e); });
   }
 
   function finishSwipe(card, direction, ideaId){
     card.style.transition = "transform .35s ease, opacity .35s ease";
     card.style.transform = direction === "yes"
-      ? "translate(10px,-620px) rotate(-8deg)"
-      : "translate(-10px,620px) rotate(8deg)";
+      ? "translate(130%,0) rotate(14deg)"
+      : "translate(-130%,0) rotate(-14deg)";
     card.style.opacity = "0";
 
     if(state.seenIds.indexOf(ideaId) === -1) state.seenIds.push(ideaId);
@@ -3276,7 +3357,9 @@
       var pt = e.touches ? e.touches[0] : e;
       var dx = pt.clientX - startX, dy = pt.clientY - startY;
       if(axis === null){
-        if(Math.abs(dx) > 6 || Math.abs(dy) > 6) axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+        var locked = SparkUtil.lockSwipeAxis(dx, dy, null);
+        if(locked === "horizontal") axis = "x";
+        else if(locked === "vertical") axis = "y";
       }
       if(axis === "y"){ return; }
       if(axis === "x"){

@@ -303,16 +303,14 @@ flex-shrink:0;
 font-size:42px; line-height:.95; max-width:none; overflow:visible; text-overflow:clip;
 margin:8px 0 0; color:var(--color-display);
 }
-.avatar-btn{ background:none; border:none; cursor:pointer; padding:0; }
-.topbar-avatar{
-width:38px; height:38px; border-radius:50%; background:var(--surface-soft); display:flex; align-items:center;
-justify-content:center; color:var(--text-soft); border:1.5px solid var(--border); overflow:hidden;
-}
-.topbar-avatar svg{ width:18px; height:18px; }
-.topbar-avatar img{ width:100%; height:100%; object-fit:cover; }
-
 .content{ flex:1; overflow:hidden; position:relative; }
 .screen{ position:absolute; inset:0; overflow-y:auto; padding:6px 20px 20px; }
+/* Discover only: the wordmark sits inside the scrolling screen, so it
+   leaves with the deck. Other screens keep .topbar above .content. */
+.screen.discover-screen{ padding-top:0; }
+.topbar.topbar-in-scroll{
+position:static; margin:0 -20px 6px; background:var(--bg);
+}
 
 /* ---------- Bottom nav ---------- */
 .bottom-nav{

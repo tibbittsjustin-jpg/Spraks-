@@ -1101,7 +1101,6 @@
     $("#view-onboarding").classList.add("hidden");
     $("#view-tutorial").classList.add("hidden");
     $("#view-app").classList.remove("hidden");
-    renderTopbarAvatar();
     switchTab("discover");
     // Ask for location automatically (no button) — the browser's own
     // one-time permission prompt is the only thing the user sees. If they
@@ -1169,14 +1168,32 @@
   }
 
   /* ---------- Topbar / Nav ---------- */
-  function renderTopbarAvatar(){
-    var av = $("#topbar-avatar");
-    av.innerHTML = state.profile.photo ? '<img src="'+state.profile.photo+'" alt="">' : icon("user");
+  // The header is a flex sibling above the scrolling screen, so it stays
+  // put. Discover is the exception: that screen hosts the same header.
+  function parkTopbar(){
+    var topbar = $(".topbar");
+    var shell = $("#view-app");
+    var content = $("#content");
+    if(!topbar || !shell || !content) return;
+    topbar.classList.remove("topbar-in-scroll");
+    if(topbar.parentNode !== shell) shell.insertBefore(topbar, content);
+  }
+  function mountDiscoverHeader(wrap){
+    var topbar = $(".topbar");
+    if(!topbar || !wrap) return;
+    topbar.classList.add("topbar-in-scroll");
+    wrap.insertBefore(topbar, wrap.firstChild);
+  }
+
+  function setNavActive(tab){
+    $all(".nav-btn").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-tab") === tab); });
   }
 
   $all(".nav-btn").forEach(function(btn){
     btn.addEventListener("click", function(){
-      switchTab(btn.getAttribute("data-tab"));
+      var tab = btn.getAttribute("data-tab");
+      if(tab === "profile"){ openProfile(); return; }
+      switchTab(tab);
     });
   });
 
@@ -1204,12 +1221,13 @@
 
   function switchTab(tab){
     ui.tab = tab; ui.screen = "list"; ui.detailIdeaId = null; ui.detailFriendId = null; ui.savedBucket = null;
-    $all(".nav-btn").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-tab") === tab); });
+    setNavActive(tab);
     applyTopbarTitle(TAB_TITLES[tab] || "Jaderoo");
     renderContent();
   }
 
   function renderContent(){
+    parkTopbar();
     var content = $("#content");
     content.innerHTML = "";
     if(ui.screen === "detail"){
@@ -1483,6 +1501,7 @@
 
   function buildDiscoverScreen(){
     var wrap = el("div", "screen discover-screen");
+    mountDiscoverHeader(wrap);
 
     wrap.appendChild(buildRadiusRow());
 
@@ -3251,13 +3270,20 @@
     return row;
   }
 
-  /* ---------- Profile overlay ---------- */
-  $("#profile-btn").addEventListener("click", function(){
+  /* ---------- Profile overlay ----------
+     The bottom Profile tab opens this same sheet. It does not switch the
+     screen underneath, so Saved stays on the folder you had open. */
+  function openProfile(){
     renderProfileHeader();
     ui.profileMenuOpen = null;
     openOverlay("#profile-overlay");
-  });
-  $("#profile-close").addEventListener("click", function(){ closeOverlay("#profile-overlay"); });
+    setNavActive("profile");
+  }
+  function closeProfile(){
+    closeOverlay("#profile-overlay");
+    setNavActive(ui.tab);
+  }
+  $("#profile-close").addEventListener("click", closeProfile);
 
   function profileUsernameLine(){
     var name = state.identity && state.identity.username;
@@ -3377,7 +3403,7 @@
         '<div class="ir-sub">Done ' + fmtDate(entry.date) + '</div></span><span class="ir-chevron">›</span>';
       row.addEventListener("click", function(){
         closeSubpage();
-        closeOverlay("#profile-overlay");
+        closeProfile();
         goToDetail(idea.id);
       });
       wrap.appendChild(row);
@@ -3817,7 +3843,6 @@
         return;
       }
       showUsernameError("");
-      renderTopbarAvatar();
       renderProfileHeader();
       showToast("Profile updated!");
     });

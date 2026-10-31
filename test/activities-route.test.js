@@ -198,6 +198,63 @@ async function main() {
       }
     });
 
+    await section("pending rows stay off every public activities route", async () => {
+      const pending = row(880001, {
+        title: "Secret Pending Picnic",
+        status: "pending",
+        source: "ai",
+        tier: "free",
+        source_url: "https://example.com/pending-find",
+        city: "Provo"
+      });
+      const approved = row(2, { title: "Approved Hike" });
+      function hidesPending(text) {
+        return text.indexOf("status = 'approved'") !== -1 && text.indexOf("tier = 'free'") !== -1;
+      }
+      const gate = {
+        async query(text, values) {
+          const detail = text.indexOf("id = $1") !== -1;
+          if (!hidesPending(text)) {
+            return { rows: detail ? [pending] : [pending, approved] };
+          }
+          if (detail) {
+            if (values && values[0] === pending.id) return { rows: [] };
+            if (values && values[0] === approved.id) return { rows: [approved] };
+            return { rows: [] };
+          }
+          return { rows: [approved] };
+        }
+      };
+      const gated = express();
+      gated.use("/api/activities", createActivitiesRouter({ db: gate, isConfigured: () => true }));
+      const gatedServer = await listen(gated);
+      const gatedPort = gatedServer.address().port;
+      try {
+        const list = await request(gatedPort, "/api/activities?limit=50");
+        const listBody = JSON.parse(list.body);
+        check("listing omits a pending row",
+          list.status === 200 &&
+          listBody.items.length === 1 &&
+          listBody.items[0].id === 2 &&
+          list.body.indexOf("Secret Pending Picnic") === -1 &&
+          list.body.indexOf("880001") === -1);
+        const located = await request(gatedPort, "/api/activities?lat=40.23&lng=-111.66&radiusMiles=10&limit=50");
+        check("radius listing omits a pending row",
+          located.status === 200 && located.body.indexOf("Secret Pending Picnic") === -1);
+        const byCity = await request(gatedPort, "/api/activities?city=Provo&limit=50");
+        check("city listing omits a pending row",
+          byCity.status === 200 && byCity.body.indexOf("Secret Pending Picnic") === -1);
+        const detail = await request(gatedPort, "/api/activities/880001");
+        check("pending detail is 404",
+          detail.status === 404 && JSON.parse(detail.body).error === "not_found" &&
+          detail.body.indexOf("Secret Pending Picnic") === -1);
+        const ok = await request(gatedPort, "/api/activities/2");
+        check("approved detail still loads", ok.status === 200 && JSON.parse(ok.body).id === 2);
+      } finally {
+        await new Promise(resolve => gatedServer.close(resolve));
+      }
+    });
+
     await section("database not configured", async () => {
       const off = express();
       off.use("/api/activities", createActivitiesRouter({

@@ -1,0 +1,2135 @@
+[
+ {
+  "title": "Getout Games Escape Room",
+  "description": "Book one of Getout Games' themed escape rooms (The Heist, Reactor Meltdown, Egyptian Tomb, and more) in downtown Provo and race the clock together. Open Mon–Sat; closed Sundays. Online bookings need 24h notice.",
+  "category": "Games, Contests & Scavenger Hunts",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "283 N University Ave, Provo, UT 84601",
+  "lat": 40.237443,
+  "lng": -111.658766,
+  "source_url": "https://getoutgames.com/provo/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "The Escape Key Escape Rooms",
+  "description": "Solve a themed room at The Escape Key on University Ave, from the CSI Provo murder mystery to the spooky Lair of Lunacy. The venue says its rooms run about $10 less per person than typical escape rooms.",
+  "category": "Games, Contests & Scavenger Hunts",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "225 N University Ave, Provo, UT 84601",
+  "lat": 40.23681,
+  "lng": -111.65877,
+  "source_url": "https://theescapekey.us/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Escapes In Time Escape Rooms",
+  "description": "Take on one of the escape rooms at Escapes In Time in Orem. Adult tickets are listed at $28.99.",
+  "category": "Games, Contests & Scavenger Hunts",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "768 S 400 E, Orem, UT 84097",
+  "lat": 40.282995,
+  "lng": -111.68577,
+  "source_url": "https://escapesintime.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "$2.95 Late-Night Bowling at Miracle Bowl",
+  "description": "Bowl at Orem's Miracle Bowl, where the $2.95 Night special (Mon–Thu after 9pm) covers bowling and shoe rental. The cafe serves Perky's pizza, burgers, and soft serve.",
+  "category": "Sports, Games & Rec",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Silly",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "1585 S State St, Orem, UT 84097",
+  "lat": 40.268225,
+  "lng": -111.68217,
+  "source_url": "https://miracle-bowl.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "16+ Late Skate at Classic Fun Center",
+  "description": "Roller skate at Classic Skating & Fun Center in Orem. Skating is 16+ after 9pm on Thursday and Saturday nights. The fall online special is $11.99 for unlimited activities.",
+  "category": "Sports, Games & Rec",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Night"
+  ],
+  "vibe": [
+   "Silly",
+   "Active"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "250 S State St, Orem, UT 84058",
+  "lat": 40.293282,
+  "lng": -111.695026,
+  "source_url": "https://classicfun.com/hours",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Private Room at Heart & Seoul Karaoke",
+  "description": "Rent a private karaoke room at Heart & Seoul on historic Center Street in downtown Provo, and sing as badly as you like with only your group listening.",
+  "category": "Dancing & Live Entertainment",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Silly",
+   "Spontaneous"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "52 W Center St, Provo, UT 84601",
+  "lat": 40.234075,
+  "lng": -111.659714,
+  "source_url": "https://www.ilovekaraoke.com/provo",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Bouldering at The Quarry",
+  "description": "Get a day pass at The Quarry climbing gym in north Provo and work bouldering problems together, spotting and cheering each other on.",
+  "category": "Outdoor Adventure & Extreme Sports",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Adventurous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "2494 N University Pkwy, Provo, UT 84604",
+  "lat": 40.266925,
+  "lng": -111.670109,
+  "source_url": "https://quarryclimbing.com/hours-location/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Day Pass at the Provo Recreation Center",
+  "description": "Buy day passes ($6.50 adults) to the city-run Provo Recreation Center. Play drop-in pickleball or volleyball, then hit the indoor aquatic center with its slides, lazy river, and rock walls. Open Mon–Sat 5am–10pm.",
+  "category": "Sports, Games & Rec",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "320 W 500 N, Provo, UT 84601",
+  "lat": 40.241679,
+  "lng": -111.66423,
+  "source_url": "https://www.provo.gov/492/Provo-Recreation-Center",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Climbing Wall at UVU's The Project",
+  "description": "Climb at The Project, UVU's climbing wall in the Student Life Building (SL 203). The non-member guest day pass is $8, and shoe and harness rental is $5. Fall hours are Mon–Fri 12–10pm and Sat 10am–6pm.",
+  "category": "Outdoor Adventure & Extreme Sports",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Adventurous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "800 W University Pkwy (Student Life Bldg), Orem, UT 84058",
+  "lat": 40.279354,
+  "lng": -111.715154,
+  "source_url": "https://www.uvu.edu/oac/climbing/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Runner's Corner Wednesday Group Run",
+  "description": "Join the free Runner's Corner group run that leaves the Orem store every Wednesday at 5:50pm for an easy 4–6 miles. All abilities are welcome; grab dinner afterward.",
+  "category": "Sports, Games & Rec",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "835 S 700 E, Orem, UT 84097",
+  "lat": 40.282003,
+  "lng": -111.678442,
+  "source_url": "https://www.strava.com/clubs/RunnersCornerUtah",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Saturday parkrun at Provo River Delta",
+  "description": "Do the free, timed 5K parkrun at Delta Gateway Park every Saturday at 8:00am. Walk, jog, run, or volunteer. Register once with parkrun and bring your barcode.",
+  "category": "Sports, Games & Rec",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning"
+  ],
+  "vibe": [
+   "Active",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "311 N Lakeshore Dr, Provo, UT 84601",
+  "lat": 40.239038,
+  "lng": -111.713316,
+  "source_url": "https://www.parkrun.us/provoriverdeltagateway/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Hike to the Y",
+  "description": "Hike BYU's Y Trail: 2.25 miles round trip with over 1,000 ft of gain to the block Y above Provo. Go near sunset for the valley view, and note the parking-lot hours.",
+  "category": "Hiking & Nature",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Y Trailhead, 1450 N Oakcrest Ln, Provo, UT 84604",
+  "lat": 40.244814,
+  "lng": -111.627158,
+  "source_url": "https://ytrail.byu.edu/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Battle Creek Falls Hike",
+  "description": "Hike Battle Creek Trail #050 from Pleasant Grove up to the popular waterfall on Timpanogos' west face. The tread near the falls is narrow and exposed, so take care.",
+  "category": "Hiking & Nature",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Active",
+   "Adventurous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Battle Creek Trailhead, Pleasant Grove, UT 84062",
+  "lat": 40.36197,
+  "lng": -111.70123,
+  "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/battle-creek-trail-050",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Fifth Water Hot Springs Hike",
+  "description": "Hike Fifth Water Trail #015 in Diamond Fork Canyon to the natural hot spring pools. The trailhead charges a parking fee. Check Utah DEQ water-quality advisories before soaking.",
+  "category": "Hiking & Nature",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Romantic"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Three Forks Trailhead, Diamond Fork Rd, Spanish Fork Canyon, UT",
+  "lat": 40.082892,
+  "lng": -111.318665,
+  "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/fifth-water-trail-015",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Drive the Nebo Loop Scenic Byway",
+  "description": "Drive the Mount Nebo National Scenic Byway from Payson toward Nephi, stopping at overlooks and pullouts along the way. The road is seasonal, so check Forest Service conditions first.",
+  "category": "Local Utah/Idaho Spots & Day Trips",
+  "setting": "Outdoor",
+  "season": [
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "Nebo Loop Rd (start in Payson Canyon), Payson, UT 84651",
+  "lat": 40.003798,
+  "lng": -111.705341,
+  "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/nebo-loop-national-scenic-byway",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Grotto Falls Short Hike",
+  "description": "Walk the short Grotto Trail #086 off the Nebo Loop, about 8 miles south of Payson. It follows a stream, crossing it several times, to a waterfall nearly enclosed by rock.",
+  "category": "Hiking & Nature",
+  "setting": "Outdoor",
+  "season": [
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "Grotto Trailhead, Nebo Loop Rd, Payson Canyon, UT",
+  "lat": 39.949994,
+  "lng": -111.677036,
+  "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/grotto-trail-086",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Picnic and Paddle at Tibble Fork Reservoir",
+  "description": "Drive up American Fork Canyon to Tibble Fork Reservoir for a lakeside picnic, then paddle a canoe or kayak if you bring one (no motors on the reservoir). The Forest Service day-use fee is $10 per vehicle.",
+  "category": "Water Activities",
+  "setting": "Outdoor",
+  "season": [
+   "Summer",
+   "Fall"
+  ],
+  "cost": "$1-$10",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "Tibble Fork Reservoir, American Fork Canyon, UT",
+  "lat": 40.482818,
+  "lng": -111.643027,
+  "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/tibble-fork-reservoir-trailhead",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Summit Mount Timpanogos from Aspen Grove",
+  "description": "Make the all-day climb from the Aspen Grove trailhead past waterfalls and Emerald Lake to the 11,752-ft summit of Timp. Snow can linger into midsummer. Check parking pass and permit rules first.",
+  "category": "Big Bucket-List Experiences",
+  "setting": "Outdoor",
+  "season": [
+   "Summer"
+  ],
+  "cost": "$1-$10",
+  "duration": "Full day",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Active"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Aspen Grove Trailhead, Alpine Loop (SR-92), UT",
+  "lat": 40.404654,
+  "lng": -111.605097,
+  "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/mount-timpanogos-trailhead-aspen-grove",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Paint Pottery at Color Me Mine Provo",
+  "description": "Pick out a piece of bisque pottery at Color Me Mine in north Provo and paint it side by side. Pieces start around $8, plus an $8 adult studio fee. Pick up the glazed pieces later.",
+  "category": "Arts, Crafts & Making Things",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "5033 N Edgewood Dr, Provo, UT 84604",
+  "lat": 40.300886,
+  "lng": -111.657712,
+  "source_url": "https://provo.colormemine.com/visit-studio/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Wheel-Throwing Class at Utah Center for the Ceramic Arts",
+  "description": "Book a 90-minute wheel-throwing or handbuilding class at the Utah Center for the Ceramic Arts on Provo's west side. You'll each leave with something lopsided and loved.",
+  "category": "Learning New Skills",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Cozy"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "48 S 1000 W, Provo, UT 84601",
+  "lat": 40.233082,
+  "lng": -111.676527,
+  "source_url": "https://www.utahceramicarts.com/classes",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Pottery Night at The Kreative Kiln",
+  "description": "Book a pottery experience at The Kreative Kiln in Pleasant Grove. Evening sessions run on weekdays and afternoons on Saturdays.",
+  "category": "Arts, Crafts & Making Things",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Cozy"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "844 S 800 W Ste 201, Pleasant Grove, UT 84062",
+  "lat": 40.353301,
+  "lng": -111.753106,
+  "source_url": "https://www.thekreativekiln.com/contact-us",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Pour Your Own Candle at The Wick Lab",
+  "description": "Mix a custom scent and pour your own candle at The Wick Lab on University Ave. Sessions take up to an hour.",
+  "category": "Arts, Crafts & Making Things",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "271 N University Ave, Provo, UT 84601",
+  "lat": 40.237305,
+  "lng": -111.659069,
+  "source_url": "https://thewicklab.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Ceramic Painting Class at Patty's Ceramics",
+  "description": "Join one of the twice-weekly ceramic painting classes at Patty's Ceramics, a Provo studio since 1999, or book a Saturday open workshop by appointment.",
+  "category": "Arts, Crafts & Making Things",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Chill"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "649 W Center St, Provo, UT 84601",
+  "lat": 40.233453,
+  "lng": -111.670139,
+  "source_url": "https://www.pattysceramics.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Build a Bonsai at Bonsai Bai Me",
+  "description": "Pick a small tree and pot at Bonsai Bai Me in American Fork and get guided instruction on shaping your own bonsai. The studio fee is $15–$18 per person, plus the tree and pot.",
+  "category": "Learning New Skills",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Chill"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "360 E State Rd, American Fork, UT 84003",
+  "lat": 40.3746,
+  "lng": -111.78879,
+  "source_url": "https://bonsaibaime.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Free Afternoon at the Springville Museum of Art",
+  "description": "Wander the galleries at the Springville Museum of Art. Admission is free. It's open Tue–Sat 10–5, with late hours Wednesday until 8pm and Monday 6–8pm.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "126 E 400 S, Springville, UT 84663",
+  "lat": 40.160996,
+  "lng": -111.608205,
+  "source_url": "https://smofa.org/visit",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Free Film at BYU International Cinema",
+  "description": "Catch a free screening at BYU International Cinema in the Kimball Tower. The lineup rotates weekly through classic and international films during the semester.",
+  "category": "Movies & Shows",
+  "setting": "Indoor",
+  "season": [
+   "Fall",
+   "Winter",
+   "Spring"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Cozy",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "250 KMBL, Brigham Young University, Provo, UT 84602",
+  "lat": 40.247417,
+  "lng": -111.651168,
+  "source_url": "https://ic.byu.edu/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Friday Show at the BYU Planetarium",
+  "description": "Catch a public show at the BYU planetarium on the 4th floor of the Eyring Science Center. Shows run on Friday nights during the semester at 6:30pm, and tickets are $5 for adults.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Indoor",
+  "season": [
+   "Fall",
+   "Winter",
+   "Spring"
+  ],
+  "cost": "$1-$10",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Eyring Science Center, BYU, Provo, UT 84602",
+  "lat": 40.247319,
+  "lng": -111.650272,
+  "source_url": "https://planetarium.byu.edu/planetarium-public-shows",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "BYU Friday Star Party",
+  "description": "Head to the ESC Observing Deck after sunset on a Friday for the BYU Astronomical Society's free star party, with telescopes big and small. It's weather permitting, so dress twice as warm as you think.",
+  "category": "Romantic & Classic Dates",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Night"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Eyring Science Center Observing Deck, BYU, Provo, UT 84602",
+  "lat": 40.247319,
+  "lng": -111.650272,
+  "source_url": "https://physics.byu.edu/clubs/astrosoc/starparties",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "First Friday Provo Art Stroll",
+  "description": "Walk downtown Provo's free First Friday Art Stroll, 6–9pm, starting at the Covey Center. Pop into galleries and shops showing local art, then get dessert nearby.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Both",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "425 W Center St, Provo, UT 84601",
+  "lat": 40.233357,
+  "lng": -111.666313,
+  "source_url": "https://www.provo.gov/1035/Art-Galleries",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Weekend Improv Battle at ComedyBox Utah",
+  "description": "See a classic Friday or Saturday 7:30pm improv show at ComedyBox Utah (formerly ComedySportz) on Center Street, where players go head to head. Seating is first-come.",
+  "category": "Dancing & Live Entertainment",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "36 W Center St, Provo, UT 84601",
+  "lat": 40.234021,
+  "lng": -111.659389,
+  "source_url": "https://www.comedyboxutah.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Improvised Musical at ImprovBroadway",
+  "description": "Watch ImprovBroadway build songs, scenes, and a whole musical from audience suggestions. Shows are Friday and Saturday at 7:30pm in Provo.",
+  "category": "Dancing & Live Entertainment",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "496 N 900 E, Provo, UT 84606",
+  "lat": 40.240768,
+  "lng": -111.642148,
+  "source_url": "https://www.improvbroadway.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Take an Improv Class at ImprovBroadway",
+  "description": "Sign up together for ImprovBroadway's 18+ beginner improv class (Improv 101 runs 4 Monday nights; new classes start monthly). You can also sign up for the Thursday Improv Game Night.",
+  "category": "Learning New Skills",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Spontaneous"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "496 N 900 E, Provo, UT 84606",
+  "lat": 40.240768,
+  "lng": -111.642148,
+  "source_url": "https://www.improvbroadway.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "A Show at The Ruth",
+  "description": "Get tickets to a production at The Ruth, the Hale Centre Theatre's theater on Pleasant Grove Blvd. The box office is open Mon–Sat 10am–6:30pm.",
+  "category": "Movies & Shows",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "401 S Pleasant Grove Blvd, Pleasant Grove, UT 84062",
+  "lat": 40.359132,
+  "lng": -111.761352,
+  "source_url": "https://theruth.org/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Volunteer Together at the Food & Care Coalition",
+  "description": "Sign up for a volunteer shift at the Food & Care Coalition, which serves Provo neighbors experiencing homelessness, or drop off urgently needed supplies at the east entrance.",
+  "category": "Service, Kindness & Community",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "299 E 900 S, Provo, UT 84606",
+  "lat": 40.222886,
+  "lng": -111.653311,
+  "source_url": "https://foodandcare.org/get-involved",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Sort Food at Community Action Services & Food Bank",
+  "description": "Volunteer a shift at Community Action Services & Food Bank in Provo, sorting and packing food for Utah County families.",
+  "category": "Service, Kindness & Community",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "815 S Freedom Blvd Ste 100, Provo, UT 84601",
+  "lat": 40.223421,
+  "lng": -111.66179,
+  "source_url": "https://communityactionprovo.org/give-time/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Morning Treats at The Provo Bakery",
+  "description": "Start the day at The Provo Bakery, baking in downtown Provo for over 100 years. Split donuts and pastries, then walk Center Street. Open Mon–Sat 7am–4pm.",
+  "category": "Local Provo/Utah County Business Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning"
+  ],
+  "vibe": [
+   "Cozy",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": true,
+  "address": "190 E 100 N, Provo, UT 84606",
+  "lat": 40.235009,
+  "lng": -111.655416,
+  "source_url": "https://theprovobakery.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Kro-Nuts at Bianca's La Petite French Bakery",
+  "description": "Try a Kro-Nut (a fried croissant-dough donut filled with cream) at Bianca's, the downtown French bakery across from the Provo City Center Temple. Open daily, until 10pm Wed–Sat.",
+  "category": "Local Provo/Utah County Business Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Cozy",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": true,
+  "address": "90 W Center St, Provo, UT 84601",
+  "lat": 40.234017,
+  "lng": -111.660208,
+  "source_url": "https://www.biancaslapetitefrenchbakery.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Kolache Breakfast at The Kolache Place",
+  "description": "Grab fresh-baked kolaches for breakfast at The Kolache Place on Center Street. It's open Mon–Sat 6:30am–1pm or until sold out, so go early.",
+  "category": "Local Provo/Utah County Business Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning"
+  ],
+  "vibe": [
+   "Chill",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": true,
+  "address": "434 W Center St, Provo, UT 84601",
+  "lat": 40.233992,
+  "lng": -111.666184,
+  "source_url": "https://www.thekolacheplace.com/locations",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Late Dessert at The Chocolate",
+  "description": "Split cake and a hot chocolate at The Chocolate, a dessert cafe on State Street in Orem. Open until 10pm Mon–Thu and 11pm Fri–Sat.",
+  "category": "Local Provo/Utah County Business Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": true,
+  "address": "212 S State St, Orem, UT 84058",
+  "lat": 40.293296,
+  "lng": -111.693893,
+  "source_url": "https://thechocolate.cafe/contact-us/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Prime Rib and Lenora's Cake at Magleby's",
+  "description": "Sit down for slow-roasted prime rib, parmesan breadsticks, and a slice of Lenora's chocolate cake at Magleby's in Pleasant Grove. (The Springville location is temporarily closed for renovations.)",
+  "category": "Romantic & Classic Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": true,
+  "address": "612 Pleasant Grove Blvd Unit 400, Pleasant Grove, UT 84062",
+  "lat": 40.355932,
+  "lng": -111.76322,
+  "source_url": "https://www.maglebys.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Visit the Spanish Fork Krishna Temple",
+  "description": "Tour the Sri Sri Radha Krishna Temple grounds in Spanish Fork, open 10am–8pm daily, and learn about a tradition that may be new to you.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Both",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "311 W 8500 S, Spanish Fork, UT 84660",
+  "lat": 40.075705,
+  "lng": -111.662094,
+  "source_url": "https://utahkrishnas.org/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Indoor Golf Simulator at Back Nine Golf",
+  "description": "Book a Full Swing simulator bay at Back Nine Golf in Orem and play a famous course together, no matter the weather. Tee times are listed from $49/hour with guests included.",
+  "category": "Sports, Games & Rec",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Active",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "865 S 700 E, Orem, UT 84097",
+  "lat": 40.280111,
+  "lng": -111.678458,
+  "source_url": "https://thebackninegolf.com/local/orem-ut/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Laser Tag Battle at Rad Tag",
+  "description": "Face off in a laser tag arena at Rad Tag in Pleasant Grove. Open Mon–Fri 4:30–9pm and Sat 10:30am–9pm. Walk-ins are welcome, or reserve up to 30 days out.",
+  "category": "Games, Contests & Scavenger Hunts",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Active"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date"
+  ],
+  "dateType": [
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "2415 W 700 S Suites K-M, Pleasant Grove, UT 84062",
+  "lat": 40.354327,
+  "lng": -111.772699,
+  "source_url": "https://radtag.com/location",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Camp Floyd State Park Museum",
+  "description": "Drive west to Fairfield and tour the Camp Floyd museum and Stagecoach Inn. Camp Floyd was a pre–Civil War Army post. Open Mon–Sat 9am–5pm.",
+  "category": "Local Utah/Idaho Spots & Day Trips",
+  "setting": "Both",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "18035 W 1540 N, Fairfield, UT 84013",
+  "lat": 40.252474,
+  "lng": -112.098952,
+  "source_url": "https://stateparks.utah.gov/parks/camp-floyd/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "A Night at UVU's Noorda Center",
+  "description": "Pick a Signature Series performance, such as classical musicians, dance companies, or acrobats, or a student production at UVU's Noorda Center for the Performing Arts.",
+  "category": "Dancing & Live Entertainment",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "800 W University Pkwy, Orem, UT 84058",
+  "lat": 40.277435,
+  "lng": -111.709068,
+  "source_url": "https://www.uvu.edu/thenoorda/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "BYU Football at LaVell Edwards Stadium",
+  "description": "Cheer at a BYU home football game at LaVell Edwards Stadium. Remaining 2026 home games are Baylor (Nov 14) and Cincinnati (Nov 28), with kickoff times TBA.",
+  "category": "Sports, Games & Rec",
+  "setting": "Outdoor",
+  "season": [
+   "Fall"
+  ],
+  "cost": "$100 and under",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "1700 N Canyon Rd, Provo, UT 84604",
+  "lat": 40.257319,
+  "lng": -111.654578,
+  "source_url": "https://byucougars.com/sports/football/schedule",
+  "age21": false,
+  "expires_at": "2026-11-28",
+  "status": "pending"
+ },
+ {
+  "title": "BYU Basketball at the Marriott Center",
+  "description": "Catch a BYU men's basketball game at the Marriott Center. The 2026–27 home schedule starts with Omaha on Nov 6.",
+  "category": "Sports, Games & Rec",
+  "setting": "Indoor",
+  "season": [
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "1500 E Campus Dr, Provo, UT 84602",
+  "lat": 40.254073,
+  "lng": -111.649361,
+  "source_url": "https://byucougars.com/sports/mens-basketball/schedule/season/2026-2027",
+  "age21": false,
+  "expires_at": "2027-03-02",
+  "status": "pending"
+ },
+ {
+  "title": "Climb at Momentum Lehi",
+  "description": "Climb at Momentum's Lehi gym. It offers bouldering and ropes plus intro classes and yoga, so beginners can take a class together.",
+  "category": "Outdoor Adventure & Extreme Sports",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Adventurous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "401 S 850 E, Lehi, UT 84043",
+  "lat": 40.382699,
+  "lng": -111.834058,
+  "source_url": "https://momentumclimbing.com/lehi/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Dinner at Brick Oven Provo",
+  "description": "Share a pizza and a dessert at Brick Oven, a long-running Provo restaurant on 800 North near BYU.",
+  "category": "Local Provo/Utah County Business Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "111 E 800 N, Provo, UT 84606",
+  "lat": 40.244642,
+  "lng": -111.656448,
+  "source_url": "https://brickovenrestaurants.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Bakery Lunch at Shirley's Bakery & Cafe",
+  "description": "Grab lunch and scratch-made pastries at Shirley's Bakery & Cafe in north Provo. Open Mon–Sat 7am–7pm.",
+  "category": "Local Provo/Utah County Business Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Cozy",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": true,
+  "address": "1620 N Freedom Blvd (200 W), Provo, UT 84604",
+  "lat": 40.256041,
+  "lng": -111.661768,
+  "source_url": "https://shirleysbakerycafe.com/locations/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Fall Festival at Rowley's Red Barn",
+  "description": "Drive south to Rowley's Red Barn in Santaquin for the fall festival out back, then get ice cream and fresh-baked treats inside.",
+  "category": "Local Utah/Idaho Spots & Day Trips",
+  "setting": "Both",
+  "season": [
+   "Fall",
+   "Summer"
+  ],
+  "cost": "$20-$30",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "901 S 300 W, Santaquin, UT 84655",
+  "lat": 39.97097,
+  "lng": -111.791059,
+  "source_url": "https://www.rowleysredbarn.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Live Music and Pub Grub at ABG's (21+)",
+  "description": "Catch live music, shoot pool, and order pub grub at ABG's Libation Emporium, a bar on Center Street in downtown Provo.",
+  "category": "Dancing & Live Entertainment",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "190 W Center St, Provo, UT 84601",
+  "lat": 40.233879,
+  "lng": -111.661991,
+  "source_url": "https://www.abgsbar.com/",
+  "age21": true,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Backcountry Horseback Ride in Hobble Creek Canyon",
+  "description": "Book a 1- or 2-hour guided trail ride with Hobble Creek Outfitters, a family that has ranched in Hobble Creek Canyon since 1901.",
+  "category": "Outdoor Adventure & Extreme Sports",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Over $100",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Hobble Creek Canyon (Left Fork), Springville, UT 84663",
+  "lat": 40.163866,
+  "lng": -111.50108,
+  "source_url": "https://hobblecreekoutfitters.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Picnic at Big Springs Park",
+  "description": "Spread a picnic at Big Springs Park, a Provo City park up the South Fork of Provo Canyon with pavilions and an easy trail.",
+  "category": "Picnics & Parks",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "Big Springs Park, South Fork Rd, Provo Canyon, UT",
+  "lat": 40.33399,
+  "lng": -111.523939,
+  "source_url": "https://provo.com/parks/big-springs-park/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Pizza Night at Fat Daddy's Pizzeria",
+  "description": "Split one of Fat Daddy's big pizzas (a medium easily feeds two) on Center Street in downtown Provo. Open until 10pm Friday and Saturday.",
+  "category": "Local Provo/Utah County Business Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "223 W Center St, Provo, UT 84601",
+  "lat": 40.233504,
+  "lng": -111.662683,
+  "source_url": "https://fatdaddyspizzeria.com/",
+  "age21": false,
+  "expires_at": null,
+  "status": "pending"
+ }
+]

@@ -1,0 +1,408 @@
+{
+ "Sunrise Balloon Launch at Freedom Festival Balloon Fest": {
+  "hold": {
+   "status": "hold",
+   "note": "2027 dates not announced; usual July 2–4 pattern. Re-check freedomfestival.org around May 2027.",
+   "checked": "2026-10-29"
+  },
+  "expires_at_basis": "null: annual July event; 2027 dates not yet published (on hold)"
+ },
+ "Self-Guided Provo River Raft with High Country Adventure": {
+  "hold": {
+   "status": "hold",
+   "note": "Season April–October; hold until April 2027.",
+   "checked": "2026-10-29"
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "$30–$100 band if one is added",
+   "basis": "per person",
+   "evidence": "$40 self-guided adult (highcountryadventure.com)"
+  },
+  "geo": {
+   "lat": 40.3565,
+   "lng": -111.5715,
+   "osm": "way 175387010",
+   "needs_hand_pin": false,
+   "note": "No OSM feature for High Country Adventure; road-segment centroid. Hand-pin.",
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API map.json: OSM has no named feature. Pinned on the Riverbend guest parking lot and office buildings just east of Vivian Park (parking way 1279368028 at 40.356351,-111.572107; building cluster around 40.3570,-111.5705)",
+   "pre_hand_pin": [
+    40.327866,
+    -111.630224
+   ],
+   "correction_m": 5908
+  }
+ },
+ "Rent Pedal Boats or a Mini Sailboat at Lindon Marina": {
+  "hold": {
+   "status": "hold",
+   "note": "Summer rentals; hold until ~May 2027.",
+   "checked": "2026-10-29"
+  }
+ },
+ "Rent a Kayak Trailer Pack from PK Kayaks": {
+  "hold": {
+   "status": "hold",
+   "note": "Summer; small residential-address operator. Confirm it's operating before approving (~May 2027).",
+   "checked": "2026-10-29"
+  }
+ },
+ "Night Owling Snowshoe Tour at Sundance": {
+  "hold": {
+   "status": "hold",
+   "note": "2026–27 dates and price TBA on the Sundance page; hold until dates are posted.",
+   "checked": "2026-10-29"
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "unknown; possibly Over $100",
+   "basis": "per person",
+   "evidence": "price TBA on page"
+  },
+  "expires_at_basis": "null: 2026-27 dates TBA (on hold)",
+  "geo": {
+   "lat": 40.394302,
+   "lng": -111.592712,
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "Nominatim: OSM way 975780362 (building=hut, \"Sundance Nordic Center\")",
+   "pre_hand_pin": [
+    40.395612,
+    -111.590893
+   ],
+   "correction_m": 212
+  }
+ },
+ "Night Skiing at Sundance": {
+  "hold": {
+   "status": "hold",
+   "note": "Ski season typically opens late November; approve once Sundance opens night skiing.",
+   "checked": "2026-10-29"
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "unknown; possibly Over $100 with rentals",
+   "basis": "per person",
+   "evidence": "night ticket price not on page"
+  },
+  "geo": {
+   "lat": 40.390903,
+   "lng": -111.577511,
+   "osm": null,
+   "needs_hand_pin": false,
+   "note": "Resort node (OSM node 8925240888), not the specific building.",
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API map.json: node 10218747078 \"Sundance Mountain Resort\" (base village)",
+   "pre_hand_pin": [
+    40.390898,
+    -111.577661
+   ],
+   "correction_m": 13
+  }
+ },
+ "Snowshoe the Sundance Nordic Center Trails": {
+  "hold": {
+   "status": "hold",
+   "note": "Nordic Center opens with snow; approve once open.",
+   "checked": "2026-10-29"
+  },
+  "geo": {
+   "lat": 40.394302,
+   "lng": -111.592712,
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "Nominatim: OSM way 975780362 (building=hut, \"Sundance Nordic Center\")",
+   "pre_hand_pin": [
+    40.395612,
+    -111.590893
+   ],
+   "correction_m": 212
+  }
+ },
+ "Christmas Ravioli Night Cooking Class": {
+  "hold": {
+   "status": "expires",
+   "note": "One-night class Wed Dec 2, 2026 (Pizza Wreath Night Dec 9). Remove after Dec 9, 2026.",
+   "checked": "2026-10-29"
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "$20-$30 (residents) / $30+ (non-residents)",
+   "basis": "per person",
+   "evidence": "$25 resident, $35 non-resident (provo.gov/483)"
+  },
+  "expires_at_basis": "Ravioli Night is Dec 2; source page lists Christmas Pizza Wreath Night Dec 9 as the last one-night class"
+ },
+ "Utah Valley Civic Ballet's The Nutcracker": {
+  "hold": {
+   "status": "expires",
+   "note": "Dec 4–5 & 7, 2026. Remove after Dec 7, 2026.",
+   "checked": "2026-10-29"
+  },
+  "expires_at_basis": "Dec 4-5 & 7, 2026"
+ },
+ "Steel Magnolias at BYU's Black Box Theatre": {
+  "hold": {
+   "status": "expires",
+   "note": "Dec 3–5, 2026.",
+   "checked": "2026-10-29"
+  },
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "$10-$20",
+   "basis": "per person",
+   "evidence": "$10–15 tickets (onstage.byu.edu)"
+  },
+  "expires_at_basis": "Dec 3-5, 2026"
+ },
+ "BYU Theatre Ballet's Reimagined Nutcracker": {
+  "hold": {
+   "status": "expires",
+   "note": "Dec 2–5, 2026.",
+   "checked": "2026-10-29"
+  },
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "no change",
+   "basis": "per person",
+   "evidence": "$25"
+  },
+  "expires_at_basis": "Dec 2-5, 2026"
+ },
+ "BYU Celebration of Christmas Concert": {
+  "hold": {
+   "status": "expires",
+   "note": "Dec 4–5, 2026.",
+   "checked": "2026-10-29"
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "$20-$30 or a $30–$100 band",
+   "basis": "per person",
+   "evidence": "$21–34 (onstage.byu.edu)"
+  },
+  "expires_at_basis": "Dec 4-5, 2026"
+ },
+ "The Music Man in Concert at BYU": {
+  "hold": {
+   "status": "expires",
+   "note": "Nov 6–21, 2026.",
+   "checked": "2026-10-29"
+  },
+  "expires_at_basis": "Nov 6-21, 2026"
+ },
+ "Drive the Spanish Fork Festival of Lights": {
+  "hold": {
+   "status": "expires",
+   "note": "Nov 27, 2026–Jan 1, 2027; tickets on sale Nov 12 (online only).",
+   "checked": "2026-10-29"
+  },
+  "expires_at_basis": "Nov 27, 2026 - Jan 1, 2027"
+ },
+ "Walk Luminaria at Thanksgiving Point": {
+  "hold": {
+   "status": "expires",
+   "note": "Nov 12, 2026–Jan 9, 2027; Mon–Sat only.",
+   "checked": "2026-10-29"
+  },
+  "expires_at_basis": "Nov 12 - Jan 9"
+ },
+ "Saturday Winter Farmers Market at Provo Towne Centre": {
+  "hold": {
+   "status": "seasonal",
+   "note": "Winter market Nov 21–Dec 19, 2026 and Jan 9–Mar 27, 2027.",
+   "checked": "2026-10-29"
+  },
+  "expires_at_basis": "winter market runs through Mar 27, 2027"
+ },
+ "Loop and Picnic at Salem Pond": {
+  "hold": {
+   "status": "advisory",
+   "note": "DEQ reported algae mats on Sept 16, 2026. Check habs.utah.gov before approving water-adjacent copy.",
+   "checked": "2026-10-29"
+  }
+ },
+ "Soak at Saratoga Hot Springs via Inlet Park": {
+  "hold": {
+   "status": "advisory",
+   "note": "Undeveloped hot springs; check DEQ/city advisories.",
+   "checked": "2026-10-29"
+  }
+ },
+ "Lakeside Afternoon at Lincoln Beach": {
+  "hold": {
+   "status": "advisory",
+   "note": "Utah Lake HAB advisories are possible in summer; check DEQ.",
+   "checked": "2026-10-29"
+  }
+ },
+ "Sunday Brunch at Sundance's Foundry Grill": {
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "$30–$100 band if one is added",
+   "basis": "per person",
+   "evidence": "Sunday brunch $55 ages 13+ (sundanceresort.com)"
+  },
+  "geo": {
+   "lat": 40.39135,
+   "lng": -111.578359,
+   "osm": null,
+   "needs_hand_pin": false,
+   "note": "Resort node (OSM node 8925240888), not the specific building.",
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API map.json: node 9283850704 \"Sundance Resort\", addr 8841 North Alpine Loop Road (village core)",
+   "pre_hand_pin": [
+    40.390898,
+    -111.577661
+   ],
+   "correction_m": 78
+  }
+ },
+ "Evening Class at Harmons Cooking School": {
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "may be Over $100 for some classes",
+   "basis": "per person",
+   "evidence": "$65–$100 per seat (cookingschool.harmonsgrocery.com)"
+  }
+ },
+ "Dinner at Sundance's Tree Room": {
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "unknown; possibly Over $100",
+   "basis": "per person",
+   "evidence": "prix fixe price not captured"
+  },
+  "geo": {
+   "lat": 40.39135,
+   "lng": -111.578359,
+   "osm": null,
+   "needs_hand_pin": false,
+   "note": "Resort node (OSM node 8925240888), not the specific building.",
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API map.json: node 9283850704 (village core); no named OSM feature for the Tree Room",
+   "pre_hand_pin": [
+    40.390898,
+    -111.577661
+   ],
+   "correction_m": 78
+  }
+ },
+ "Woodburn a Custom Design at Scorched Studio": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "no change ($15 entry + $14 board = $29); smallest project $20",
+   "basis": "per person",
+   "evidence": "scorchedstudio.com"
+  }
+ },
+ "Stroll Ashton Gardens at Thanksgiving Point": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "no change",
+   "basis": "per person",
+   "evidence": "$24 online / $27 gate"
+  }
+ },
+ "Butterfly Biosphere at Thanksgiving Point": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "no change",
+   "basis": "per person",
+   "evidence": "$24 online / $27 gate"
+  }
+ },
+ "Dinosaur Hall at the Museum of Ancient Life": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "no change",
+   "basis": "per person",
+   "evidence": "$24 online / $27 gate"
+  }
+ },
+ "Drop-In Make & Take Candle at Sundance Art Studio": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "no change",
+   "basis": "per person",
+   "evidence": "$25 kit"
+  },
+  "geo": {
+   "lat": 40.39264,
+   "lng": -111.57917,
+   "osm": null,
+   "needs_hand_pin": false,
+   "note": "Resort node (OSM node 8925240888), not the specific building.",
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "Nominatim: OSM way 975780338 (amenity=studio, \"The Sundance Art Studio\", addr 8841 Alpine Scenic Hwy)",
+   "pre_hand_pin": [
+    40.390898,
+    -111.577661
+   ],
+   "correction_m": 232
+  }
+ },
+ "Split a 24-Inch Sub at Sensuous Sandwich": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "$10-$20 if split between two",
+   "basis": "per person",
+   "evidence": "24-inch $26.29 per sandwich"
+  }
+ },
+ "Book the Maker Workshop at Tandy Leather Orem": {
+  "geo": {
+   "lat": 40.3071,
+   "lng": -111.725,
+   "osm": "way 45877227",
+   "needs_hand_pin": false,
+   "note": "No OSM address point for 541 N 1200 W; pinned to a 1200 West street segment (centroid ~40.301, south of 541 N). Hand-pin.",
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API map.json: OSM has no 541 point. Interpolated on the west (odd) side of 1200 W just north of The Rise, 521 N 1200 W (node 7252070121, 40.306712,-111.724913), and opposite 540 N 1200 W (way 1557486252, 40.306986)",
+   "pre_hand_pin": [
+    40.301105,
+    -111.724325
+   ],
+   "correction_m": 669
+  }
+ },
+ "Beyond VR Arena at The Grid": {
+  "geo": {
+   "lat": 40.3562299,
+   "lng": -111.7652265,
+   "osm": "way 908232566",
+   "needs_hand_pin": false,
+   "note": "OSM street is Void Way; the venue says Evermore Ln. Same building (OSM-named feature)."
+  }
+ },
+ "Explore Dreamwalk Park's Immersive Rooms": {
+  "geo": {
+   "lat": 40.2753836,
+   "lng": -111.6808629,
+   "osm": "way 28355658",
+   "needs_hand_pin": false,
+   "note": "Mall footprint; Suite N-237 not mapped."
+  }
+ },
+ "_dropped_over_100": {
+  "Sundance soap/perfume classes": "$150 (sundanceresort.com art studio)",
+  "Sundance art classes (general)": "$150",
+  "Sundance horseback rides": "$129–$199/person (sundanceresort.com/activities/horseback-riding)",
+  "Tandem paragliding (Point of the Mountain)": "$200–225 (also outside Utah County per OSM)",
+  "Craft Supplies woodturning class": "$795",
+  "Hobble Creek Forge class": "$340 (site says no classes currently)",
+  "Luminaria igloo / firepit add-ons": "$225 / $120 (the base Luminaria item is kept)"
+ },
+ "_dropped_round4": {
+  "Old West Night at Sundance's Owl Bar (21+)": "No Sundance page lists an \"Old West Night\". The Owl Bar page (sundanceresort.com/dining/owl-bar/, fetched 2026-10-29) confirms 21+ and live music many Thu-Sat nights from 8pm, and the events menu shows only an Owl Bar Halloween Party; the \"Old West Night\" framing was not verifiable, so the item was dropped per manager instruction."
+ }
+}

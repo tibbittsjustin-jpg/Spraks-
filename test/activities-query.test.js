@@ -167,6 +167,13 @@ section("localOnly restores pinned-only", () => {
   check("invalid localOnly is rejected without coordinates", throwsFilter({ localOnly: "yes" }, "localOnly"));
 });
 
+section("pending status cannot be requested", () => {
+  const q = buildListQuery({ status: "pending", source: "ai" });
+  check("a status query param does not remove the approved filter",
+    q.text.indexOf("status = 'approved'") !== -1 && q.text.indexOf("pending") === -1);
+  check("a status query param is not bound", q.values.indexOf("pending") === -1 && q.values.indexOf("ai") === -1);
+});
+
 section("paid rows stay gated", () => {
   check("query string cannot include paid", buildListQuery({ includePaid: "true" }).text.indexOf("tier = 'free'") !== -1);
   check("boolean includePaid drops the free clause", buildListQuery({ includePaid: true }).text.indexOf("tier = 'free'") === -1);

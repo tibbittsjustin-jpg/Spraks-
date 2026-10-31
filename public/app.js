@@ -94,6 +94,7 @@
     snowflake:  '<path d="M12 2v20M4 7l16 10M20 7L4 17"/>',
     inbox:      '<path d="M3 12h5l2 3h4l2-3h5"/><path d="M5 5h14l2 7v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7z"/>',
     "help-circle":'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.7-2.5 2-2.5 3.5"/><circle cx="12" cy="16.5" r=".5" fill="currentColor" stroke="none"/>',
+    info:       '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8" r=".8" fill="currentColor" stroke="none"/>',
     "chevron-up":'<path d="M6 15l6-6 6 6"/>',
     moon:       '<path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z"/>',
     sun:        '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>',
@@ -268,7 +269,7 @@
       doneIds:[],       // [{id, date}]
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false, radiusMiles:SparkRadius.RADIUS_DEFAULT },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false, radiusMiles:SparkRadius.RADIUS_DEFAULT, localOnly:false },
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
@@ -295,6 +296,8 @@
       parsed.filters = parsed.filters || {};
       for(var fk in d.filters){ if(!(fk in parsed.filters)) parsed.filters[fk] = d.filters[fk]; }
       parsed.filters.radiusMiles = SparkRadius.clampRadiusMiles(parsed.filters.radiusMiles);
+      // Older saves have no Local events switch. Only an explicit true turns it on.
+      parsed.filters.localOnly = parsed.filters.localOnly === true;
       // Same backfill treatment for settings (e.g. older saved states from
       // before the night-mode toggle existed won't have this key yet).
       parsed.settings = parsed.settings || {};
@@ -1270,7 +1273,13 @@
     if(f.dateType.length && !idea.dateType.some(function(d){ return f.dateType.indexOf(d) !== -1; })) return false;
     if(f.food !== null && idea.food !== f.food) return false;
     if(f.hide21 && idea.age21 === true) return false;
-    if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
+    // Local off: the radius does not filter. Local on: a known place inside
+    // radiusMiles stays; a place with no pin and no distanceMiles drops.
+    // withinRadius still keeps a pin when the user position is missing.
+    if(f.localOnly === true){
+      if(!ideaHasKnownPlace(idea)) return false;
+      if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
+    }
     // Quick filter from the Discover chip. Not part of the Filters sheet,
     // and not counted on that button. See SparkUtil.suitsTonight.
     if(f.tonight === true && !SparkUtil.suitsTonight(idea)) return false;
@@ -1301,13 +1310,50 @@
     return state.filters.tonight;
   }
 
+  // A pin (lat/lng, location, or coordinates) or a measured distanceMiles.
+  // Negative and non-numeric distances are not a place.
+  function ideaHasKnownPlace(idea){
+    if(SparkRadius.ideaPoint(idea)) return true;
+    var n = idea && idea.distanceMiles;
+    return typeof n === "number" && isFinite(n) && n >= 0;
+  }
+
   function activeFilterCount(f){
     var n = 0;
     ["duration","cost","time","setting","vibe","season","stage","dateType"].forEach(function(k){ n += f[k].length; });
     if(f.food !== null) n += 1;
     if(f.hide21) n += 1;
-    if(SparkRadius.clampRadiusMiles(f.radiusMiles) !== SparkRadius.RADIUS_DEFAULT) n += 1;
+    // The radius only filters while Local is on, so it only counts then.
+    // Local itself counts even at the default 10 miles.
+    if(f.localOnly === true){
+      n += 1;
+      if(SparkRadius.clampRadiusMiles(f.radiusMiles) !== SparkRadius.RADIUS_DEFAULT) n += 1;
+    }
     return n;
+  }
+
+  function countIdeasMatching(f){
+    var n = 0;
+    for(var i = 0; i < IDEAS_DATA.length; i++){
+      if(matchesFilters(IDEAS_DATA[i], f)) n++;
+    }
+    if(state.location){
+      for(var r = 0; r < REAL_IDEAS_RUNTIME.length; r++){
+        if(matchesFilters(REAL_IDEAS_RUNTIME[r], f)) n++;
+      }
+    }
+    return n;
+  }
+
+  function formatShowIdeas(n){
+    var text = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return "Show " + text + (n === 1 ? " idea" : " ideas");
+  }
+
+  function updateFilterApplyLabel(){
+    var btn = $("#filter-apply");
+    if(!btn || !ui.filterDraft) return;
+    btn.textContent = formatShowIdeas(countIdeasMatching(ui.filterDraft));
   }
 
   // The interleaved deck order, cached so it stays PUT between swipes.
@@ -1351,6 +1397,48 @@
     var pins = (typeof IDEA_PINS === "undefined") ? null : IDEA_PINS;
     var inferred = SparkRadius.nearestPlaceLabel(loc, pins, SparkRadius.NEAREST_LABEL_MILES);
     return inferred || "Near you";
+  }
+
+  // Filters "How far?" line. A known city reads "Near you · Provo".
+  // No fix keeps the radius row's fallback, which is "Near you".
+  function nearYouLabel(){
+    var city = placeLabel();
+    if(!city || city === "Near you") return "Near you";
+    return "Near you · " + city;
+  }
+
+  // Miles from the saved fix when both sides have a point. Otherwise a
+  // distance the server already measured. No fix and no distanceMiles
+  // means the card has nothing to badge.
+  function ideaDistanceMiles(idea){
+    if(!idea || typeof idea !== "object") return null;
+    var point = SparkRadius.ideaPoint(idea);
+    var origin = SparkRadius.ideaPoint(state.location);
+    if(point && origin) return SparkRadius.haversineMiles(origin, point);
+    var n = idea.distanceMiles;
+    if(typeof n === "number" && isFinite(n) && n >= 0) return n;
+    return null;
+  }
+
+  function distanceAwayLabel(miles){
+    if(typeof miles !== "number" || !isFinite(miles) || miles < 0) return "";
+    return (Math.round(miles * 10) / 10).toFixed(1) + " mi away";
+  }
+
+  function distanceBadgeHtml(idea){
+    if(!state.filters || state.filters.localOnly !== true) return "";
+    var label = distanceAwayLabel(ideaDistanceMiles(idea));
+    if(!label) return "";
+    return '<span class="distance-badge">' + icon("map-pin") + escapeHtml(label) + "</span>";
+  }
+
+  function localPillText(){
+    return "Local · " + SparkRadius.radiusLabel(state.filters.radiusMiles);
+  }
+
+  function deckCountLabel(deck){
+    var noun = state.filters.localOnly === true ? "nearby ideas" : "ideas";
+    return deck.remaining.length + " of " + deck.total + " " + noun;
   }
 
   function setSliderPct(slider, pct){
@@ -1404,6 +1492,8 @@
       setSliderPct(slider, sliderFillPct(slider));
       slider.setAttribute("aria-valuenow", String(next));
       slider.setAttribute("aria-valuetext", next + " miles");
+      var pillLabel = document.querySelector(".local-pill-label");
+      if(pillLabel) pillLabel.textContent = localPillText();
       saveState();
       refreshDeckAfterRadius();
       updateFilterBadge();
@@ -1471,8 +1561,14 @@
     var card = el("div", "how-far");
     var head = el("div", "how-far-head");
     var miles = SparkRadius.clampRadiusMiles(ui.filterDraft.radiusMiles);
-    head.innerHTML = '<span class="how-far-label">How far?</span><span class="how-far-value"></span>';
+    head.innerHTML =
+      '<div class="how-far-head-copy">' +
+        '<span class="how-far-label">How far?</span>' +
+        '<div class="how-far-place">' + icon("map-pin") + '<span class="how-far-place-name"></span></div>' +
+      '</div>' +
+      '<span class="how-far-value"></span>';
     head.querySelector(".how-far-value").textContent = SparkRadius.radiusLabel(miles);
+    head.querySelector(".how-far-place-name").textContent = nearYouLabel();
     var slider = makeRadiusSlider("radius-slider-panel", "How far, in miles");
     syncRadiusSlider(slider, miles);
     slider.addEventListener("input", function(){
@@ -1483,6 +1579,7 @@
       setSliderPct(slider, sliderFillPct(slider));
       slider.setAttribute("aria-valuenow", String(next));
       slider.setAttribute("aria-valuetext", next + " miles");
+      updateFilterApplyLabel();
     });
     var ticks = el("div", "radius-ticks");
     ticks.setAttribute("aria-hidden", "true");
@@ -1499,11 +1596,29 @@
     return group;
   }
 
+  function buildLocalPill(){
+    var pill = el("div", "local-pill");
+    var mark = el("span", "local-pill-icon", icon("map-pin"));
+    var label = el("span", "local-pill-label", localPillText());
+    var x = el("button", "local-pill-x", "\u2715");
+    x.type = "button";
+    x.setAttribute("aria-label", "Turn off local events");
+    x.addEventListener("click", function(){
+      state.filters.localOnly = false;
+      saveState();
+      renderContent();
+    });
+    pill.appendChild(mark);
+    pill.appendChild(label);
+    pill.appendChild(x);
+    return pill;
+  }
+
   function buildDiscoverScreen(){
     var wrap = el("div", "screen discover-screen");
     mountDiscoverHeader(wrap);
 
-    wrap.appendChild(buildRadiusRow());
+    if(state.filters.localOnly === true) wrap.appendChild(buildRadiusRow());
 
     var bar = el("div", "filter-bar");
     var fbtn = el("button", "filter-chip-btn");
@@ -1511,6 +1626,7 @@
     fbtn.innerHTML = icon("sliders") + " Filters" + (count ? '<span class="badge">'+count+'</span>' : "");
     fbtn.addEventListener("click", openFilterOverlay);
     bar.appendChild(fbtn);
+    if(state.filters.localOnly === true) bar.appendChild(buildLocalPill());
 
     var tonightOn = state.filters.tonight === true;
     var tonightBtn = el("button", "tonight-chip" + (tonightOn ? " is-on" : ""));
@@ -1524,7 +1640,7 @@
     bar.appendChild(tonightBtn);
 
     var deck = computeDeck();
-    var rc = el("div", "result-count", deck.remaining.length + " of " + deck.total + " ideas");
+    var rc = el("div", "result-count", deckCountLabel(deck));
     bar.appendChild(rc);
     wrap.appendChild(bar);
 
@@ -1638,7 +1754,7 @@
     var rc = $(".result-count");
     if(!rc) return;
     var deck = computeDeck();
-    rc.textContent = deck.remaining.length + " of " + deck.total + " ideas";
+    rc.textContent = deckCountLabel(deck);
   }
 
   /* Optional photo on an idea. Shape: { url, credit? }. url is http(s), a
@@ -1801,6 +1917,7 @@
       : "";
     return '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
       '<div class="card-photo-scrim"></div>' +
+      distanceBadgeHtml(idea) +
       cardCornerHtml(idea) +
       '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '<div class="card-photo-overlay">' + photoOverlayHtml(idea) + '</div>' +
@@ -1809,6 +1926,7 @@
 
   function classicSwipeCardHtml(idea){
     return '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
+        distanceBadgeHtml(idea) +
         cardCornerHtml(idea) +
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '</div>' +
@@ -1915,10 +2033,49 @@
     openOverlay("#filter-overlay");
   }
 
+  function buildLocalEventsRow(){
+    var on = ui.filterDraft.localOnly === true;
+    var row = el("div", "local-events" + (on ? " is-on" : ""));
+    var copy = el("div", "local-events-copy");
+    copy.appendChild(el("div", "local-events-title", "Local events"));
+    copy.appendChild(el("div", "local-events-sub", on ? "Only ideas near you" : "Off · showing everything"));
+    var toggle = el("label", "toggle-switch");
+    var input = document.createElement("input");
+    input.type = "checkbox";
+    input.className = "local-only-input";
+    input.checked = on;
+    input.setAttribute("aria-label", "Local events");
+    input.addEventListener("change", function(){
+      ui.filterDraft.localOnly = input.checked === true;
+      renderFilterBody();
+    });
+    toggle.appendChild(input);
+    toggle.appendChild(el("span", "toggle-slider"));
+    row.appendChild(el("div", "local-events-icon", icon("map-pin")));
+    row.appendChild(copy);
+    row.appendChild(toggle);
+    return row;
+  }
+
+  function buildLocalNote(){
+    return el("div", "local-note", icon("info") + "<span>All activities show. Turn on to pick a distance.</span>");
+  }
+
+  function buildWhereGroup(){
+    if(!ui.filterDraft) ui.filterDraft = JSON.parse(JSON.stringify(state.filters));
+    var on = ui.filterDraft.localOnly === true;
+    var group = el("div", "filter-group where-group");
+    group.appendChild(el("div", "filter-group-title", "Where"));
+    group.appendChild(buildLocalEventsRow());
+    group.appendChild(on ? buildHowFarGroup() : buildLocalNote());
+    return group;
+  }
+
   function renderFilterBody(){
     var body = $("#filter-body");
+    var scroll = body.scrollTop || 0;
     body.innerHTML = "";
-    body.appendChild(buildHowFarGroup());
+    body.appendChild(buildWhereGroup());
 
     FILTER_DEFS.forEach(function(def){
       var group = el("div", "filter-group");
@@ -1933,6 +2090,7 @@
           var idx = arr.indexOf(opt);
           if(idx === -1) arr.push(opt); else arr.splice(idx, 1);
           chip.classList.toggle("selected");
+          updateFilterApplyLabel();
         });
         chipWrap.appendChild(chip);
       });
@@ -1952,6 +2110,7 @@
         ui.filterDraft.food = pair[1];
         $all(".chip", foodChips).forEach(function(c){ c.classList.remove("selected"); });
         chip.classList.add("selected");
+        updateFilterApplyLabel();
       });
       foodChips.appendChild(chip);
     });
@@ -1967,10 +2126,13 @@
     hideChip.addEventListener("click", function(){
       ui.filterDraft.hide21 = !ui.filterDraft.hide21;
       hideChip.classList.toggle("selected");
+      updateFilterApplyLabel();
     });
     ageChips.appendChild(hideChip);
     ageGroup.appendChild(ageChips);
     body.appendChild(ageGroup);
+    if(body.scrollTop !== scroll) body.scrollTop = scroll;
+    updateFilterApplyLabel();
   }
 
   $("#filter-close").addEventListener("click", function(){ closeOverlay("#filter-overlay"); });

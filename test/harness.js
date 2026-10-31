@@ -69,6 +69,8 @@ function loadApp(storage) {
     localDateISO: localDateISO,
     computeDeck: computeDeck, matchesFilters: matchesFilters,
     buildSwipeCard: buildSwipeCard, buildIdeaRow: buildIdeaRow,
+    buildSavedCard: buildSavedCard, buildSavedScreen: buildSavedScreen,
+    get ui(){ return ui; },
     buildDetailScreen: buildDetailScreen, ideaPhoto: ideaPhoto,
     FILTER_DEFS: FILTER_DEFS, activeFilterCount: activeFilterCount,
     finishOnboarding: finishOnboarding, ageGateSatisfied: ageGateSatisfied,

@@ -262,6 +262,8 @@ section("the 134 Utah County finds", () => {
     !plan.rows.some(row => row.title.indexOf("Owl Bar") !== -1));
   check("rows do not carry a device id",
     plan.rows.every(row => JSON.stringify(row).indexOf("localId") === -1 && JSON.stringify(row).indexOf("deviceId") === -1));
+  check("these find files have no occurrences yet, so every row is anytime",
+    plan.rows.every(row => row.occurrences == null));
 
   const again = planImport(Object.assign({}, inputs, {
     existing: plan.rows.map(row => Object.assign({}, row, { origin: "existing" }))
@@ -280,18 +282,19 @@ section("the 134 Utah County finds", () => {
   check("natural keys are unique", unique);
 });
 
-section("occurrences are ignored until a schedule exists", () => {
+section("occurrences are stored when present and null when absent", () => {
   const dated = [
-    { date: "2026-12-02", time: "18:00" },
-    { date: "2026-12-09", time: "18:00" }
+    { date: "2026-12-09", start: "6:30pm" },
+    { date: "2026-12-02", start: "18:00", end: "20:00" }
   ];
   const range = { start: "2026-11-21", end: "2027-03-27", weekdays: ["Saturday"] };
   const batch = planImport({
     finds: [
       find({ title: "Dated Class", source_url: "https://example.com/dated", occurrences: dated, expires_at: "2026-12-09" }),
-      find({ title: "Seasonal Market", source_url: "https://example.com/range", occurrences: range }),
-      find({ title: "Anytime Walk", source_url: "https://example.com/anytime", occurrences: null }),
-      find({ title: "Odd Schedule", source_url: "https://example.com/odd", occurrences: "not-a-schedule" })
+      find({ title: "Seasonal Market", source_url: "https://example.com/range", occurrences: range, expires_at: "2027-03-27" }),
+      find({ title: "Anytime Walk", source_url: "https://example.com/anytime", occurrences: null, expires_at: null }),
+      find({ title: "No Schedule Field", source_url: "https://example.com/none" }),
+      find({ title: "Odd Schedule", source_url: "https://example.com/odd", occurrences: "not-a-schedule", expires_at: "2026-12-01" })
     ],
     reviews: {},
     pins: [],
@@ -299,17 +302,35 @@ section("occurrences are ignored until a schedule exists", () => {
     dropped: new Map(),
     placePins: null
   });
-  check("every shape of occurrences still imports",
-    batch.rows.length === 4 && batch.skippedInvalid.length === 0 && batch.unmapped.length === 0,
-    "rows " + batch.rows.length + " invalid " + batch.skippedInvalid.length);
-  check("occurrences are not stored on the row",
-    batch.rows.every(row => !Object.prototype.hasOwnProperty.call(row, "occurrences") &&
-      JSON.stringify(row).indexOf("2026-12-02") === -1 &&
-      JSON.stringify(row).indexOf("weekdays") === -1 &&
-      JSON.stringify(row).indexOf("not-a-schedule") === -1));
-  check("expires_at is unchanged by occurrences",
-    batch.rows[0].expires_at === "2026-12-09" && batch.rows[1].expires_at == null);
-  check("the insert does not name occurrences", INSERT_SQL.indexOf("occurrences") === -1);
+  const byTitle = {};
+  batch.rows.forEach(row => { byTitle[row.title] = row; });
+  check("a bad schedule does not drop the idea",
+    batch.rows.length === 5 && batch.skippedInvalid.length === 0,
+    "rows " + batch.rows.length);
+  const klass = byTitle["Dated Class"];
+  check("a date list is normalized and sorted, with times in 24-hour form",
+    klass && klass.occurrences.kind === "dates" &&
+    klass.occurrences.dates[0].date === "2026-12-02" &&
+    klass.occurrences.dates[0].start === "18:00" &&
+    klass.occurrences.dates[0].end === "20:00" &&
+    klass.occurrences.dates[1].date === "2026-12-09" &&
+    klass.occurrences.dates[1].start === "18:30" &&
+    !klass.occurrences.dates[1].end);
+  check("expires_at stays beside a date list", klass && klass.expires_at === "2026-12-09");
+  const market = byTitle["Seasonal Market"];
+  check("a weekday range is stored",
+    market && market.occurrences.kind === "weekly" &&
+    market.occurrences.start === "2026-11-21" &&
+    market.occurrences.end === "2027-03-27" &&
+    market.occurrences.weekdays.join(",") === "Sat" &&
+    market.expires_at === "2027-03-27");
+  check("null and a missing field stay anytime",
+    byTitle["Anytime Walk"].occurrences == null && byTitle["No Schedule Field"].occurrences == null);
+  check("a schedule that is not a date list or a range is reported and stored as anytime",
+    byTitle["Odd Schedule"].occurrences == null &&
+    byTitle["Odd Schedule"].expires_at === "2026-12-01" &&
+    batch.unmapped.some(item => item.field === "occurrences" && item.title === "Odd Schedule"));
+  check("the insert writes occurrences", INSERT_SQL.indexOf("occurrences") !== -1 && INSERT_SQL.indexOf("$22::jsonb") !== -1);
 });
 
 section("insert statement", () => {

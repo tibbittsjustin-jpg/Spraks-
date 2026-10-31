@@ -25,6 +25,7 @@ const vm = require("vm");
 const { Pool } = require("pg");
 const filters = require("../shared/filters");
 const radius = require("../public/radius");
+const occurrences = require("../public/occurrences");
 const { loadIdeas } = require("./seed");
 const { poolConfig } = require("./index");
 
@@ -49,15 +50,15 @@ const INSERT_SQL =
   "insert into activities (" +
   "title, description, category, icon, setting, season, food, cost, duration, " +
   "time, vibe, stage, date_type, scene, motif, materials, age21, " +
-  "status, source, tier, address, city, source_url, expires_at, " +
+  "status, source, tier, address, city, source_url, expires_at, occurrences, " +
   "location, coords_locked, geo_status, geo_confidence, geo_source, geo_resolved_at" +
   ") select " +
   "$1, $2, $3, $4, $5, $6::text[], $7, $8, $9, " +
   "$10::text[], $11::text[], $12::text[], $13::text[], $14, $15, $16::text[], $17, " +
-  "'pending', 'ai', 'free', $18, $19, $20, $21::date, " +
-  "case when $22::double precision is null or $23::double precision is null then null " +
-  "else ST_SetSRID(ST_MakePoint($23::double precision, $22::double precision), 4326)::geography end, " +
-  "$24, $25, $26, $27, $28::date " +
+  "'pending', 'ai', 'free', $18, $19, $20, $21::date, $22::jsonb, " +
+  "case when $23::double precision is null or $24::double precision is null then null " +
+  "else ST_SetSRID(ST_MakePoint($24::double precision, $23::double precision), 4326)::geography end, " +
+  "$25, $26, $27, $28, $29::date " +
   "where not exists (" +
   "select 1 from activities existing " +
   "where existing.source = 'ai' " +
@@ -330,18 +331,19 @@ function resolveCity(find, review, pin, lat, lng, placePins) {
 }
 
 /* One find becomes one activities row. This is the only function that reads
-   find fields. expires_at is stored. occurrences is not.
-
-   TODO: map find.occurrences here when a schedule exists. Research will send
-   a list of dated times, or a date range plus weekdays, or null for anytime.
-   Do not add an activities column or a public date/plan-day filter for it. */
-function readOccurrences(find) {
+   find fields. expires_at is the last valid day. occurrences is the schedule
+   (specific dates, or a weekday range) and is null when the find has none. */
+function scheduleFromFind(find, title, unmapped) {
   if (!find || !Object.prototype.hasOwnProperty.call(find, "occurrences")) return null;
-  return find.occurrences;
+  const parsed = occurrences.normalizeOccurrences(find.occurrences);
+  if (!parsed.ok) {
+    pushUnmapped(unmapped, title, "occurrences", find.occurrences, null, "not a date list or a weekday range");
+    return null;
+  }
+  return parsed.value;
 }
 
 function buildRow(find, review, pin, placePins, unmapped, handPinsApplied) {
-  void readOccurrences(find);
   const title = typeof find.title === "string" ? find.title.trim() : "";
   if (!title) return { error: "title" };
 
@@ -419,6 +421,7 @@ function buildRow(find, review, pin, placePins, unmapped, handPinsApplied) {
     if (typeof find.expires_at === "string" && DATE_RE.test(find.expires_at)) expiresAt = find.expires_at;
     else pushUnmapped(unmapped, title, "expires_at", find.expires_at, null, "not a YYYY-MM-DD date");
   }
+  const schedule = scheduleFromFind(find, title, unmapped);
 
   let age21 = false;
   if (typeof find.age21 === "boolean") age21 = find.age21;
@@ -457,6 +460,7 @@ function buildRow(find, review, pin, placePins, unmapped, handPinsApplied) {
       city_source: city.source,
       source_url: sourceUrl,
       expires_at: expiresAt,
+      occurrences: schedule,
       lat: lat,
       lng: lng,
       coords_locked: coordsLocked,
@@ -637,6 +641,7 @@ function rowValues(row) {
     row.city,
     row.source_url,
     row.expires_at,
+    row.occurrences == null ? null : JSON.stringify(row.occurrences),
     row.lat,
     row.lng,
     row.coords_locked,
@@ -659,6 +664,7 @@ function printPlan(plan, ideaCount) {
   console.log("coordinates cleared by a hand pin: " + plan.handPinsApplied.filter(pin => pin.cleared).length);
   console.log("coords locked: " + plan.coordsLocked.length);
   console.log("review notes, still inserted as pending: " + plan.held.length);
+  console.log("occurrences set: " + plan.rows.filter(function (row) { return row.occurrences != null; }).length);
   console.log("cities: " + JSON.stringify(plan.citySources));
   const examples = plan.skippedDuplicate.slice(0, 12);
   if (!examples.length) console.log("duplicate examples: none");
@@ -708,11 +714,14 @@ async function loadExisting(connectionString) {
 
 async function assertSchema(client) {
   const column = await client.query(
-    "select 1 from information_schema.columns " +
-    "where table_schema = 'public' and table_name = 'activities' and column_name = 'expires_at'"
+    "select column_name from information_schema.columns " +
+    "where table_schema = 'public' and table_name = 'activities' " +
+    "and column_name in ('expires_at', 'occurrences')"
   );
-  if (!column.rowCount) {
-    const err = new Error("activities.expires_at is missing; run npm run db:migrate first");
+  const names = {};
+  column.rows.forEach(function (row) { names[row.column_name] = true; });
+  if (!names.expires_at || !names.occurrences) {
+    const err = new Error("activities.expires_at or occurrences is missing; run npm run db:migrate first");
     err.code = "schema_not_ready";
     throw err;
   }

@@ -205,9 +205,13 @@ async function main() {
         source: "ai",
         tier: "free",
         source_url: "https://example.com/pending-find",
-        city: "Provo"
+        city: "Provo",
+        occurrences: { kind: "dates", dates: [{ date: "2099-01-01" }] }
       });
-      const approved = row(2, { title: "Approved Hike" });
+      const approved = row(2, {
+        title: "Approved Hike",
+        occurrences: { kind: "dates", dates: [{ date: "2026-10-27", start: "19:00" }] }
+      });
       function hidesPending(text) {
         return text.indexOf("status = 'approved'") !== -1 && text.indexOf("tier = 'free'") !== -1;
       }
@@ -236,8 +240,10 @@ async function main() {
           list.status === 200 &&
           listBody.items.length === 1 &&
           listBody.items[0].id === 2 &&
+          listBody.items[0].occurrences.dates[0].date === "2026-10-27" &&
           list.body.indexOf("Secret Pending Picnic") === -1 &&
-          list.body.indexOf("880001") === -1);
+          list.body.indexOf("880001") === -1 &&
+          list.body.indexOf("2099-01-01") === -1);
         const located = await request(gatedPort, "/api/activities?lat=40.23&lng=-111.66&radiusMiles=10&limit=50");
         check("radius listing omits a pending row",
           located.status === 200 && located.body.indexOf("Secret Pending Picnic") === -1);

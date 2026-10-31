@@ -34,6 +34,8 @@ section("defaults", () => {
   check("materials is selected", q.text.indexOf("materials") !== -1);
   check("source_url is selected for approved rows only",
     q.text.indexOf("source_url") !== -1 && q.text.indexOf("status = 'approved'") !== -1);
+  check("occurrences are selected for approved rows only",
+    q.text.indexOf("occurrences") !== -1 && q.text.indexOf("status = 'approved'") !== -1);
   check("limit and offset are parameters",
     q.values[q.values.length - 2] === 50 && q.values[q.values.length - 1] === 0);
 });
@@ -203,6 +205,12 @@ section("mapRow materials", () => {
     linked.source_url === "https://example.com/place" && linked.sourceUrl === linked.source_url);
   const blank = mapRow(base, false);
   check("a missing source_url maps to null", blank.source_url === null && blank.sourceUrl === null);
+  const sched = mapRow(Object.assign({}, base, {
+    occurrences: { kind: "dates", dates: [{ date: "2026-10-27", start: "19:00" }] }
+  }), false);
+  check("occurrences pass through for an approved row",
+    sched.occurrences && sched.occurrences.kind === "dates" && sched.occurrences.dates[0].date === "2026-10-27");
+  check("a missing occurrences map to null", mapRow(base, false).occurrences === null);
 });
 
 module.exports = { pass: pass, fail: fail };

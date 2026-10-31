@@ -1283,6 +1283,9 @@
     // Quick filter from the Discover chip. Not part of the Filters sheet,
     // and not counted on that button. See SparkUtil.suitsTonight.
     if(f.tonight === true && !SparkUtil.suitsTonight(idea)) return false;
+    var plan = getActivePlan();
+    var planDate = plan && typeof plan.date === "string" ? plan.date : "";
+    if(!SparkOccurrences.visibleOnPlan(idea, planDate, new Date())) return false;
     return true;
   }
 
@@ -1375,7 +1378,10 @@
     var loc = state.location;
     var locKey = (loc && typeof loc.lat === "number" && typeof loc.lng === "number")
       ? (loc.lat + "," + loc.lng) : "";
-    var signature = JSON.stringify(state.filters) + "|" + locKey + "|" + builtinIds.length + "|" + extraIds.join(",");
+    var plan = getActivePlan();
+    var planKey = plan && plan.date ? plan.date : "";
+    var todayKey = SparkOccurrences.denverToday(new Date());
+    var signature = JSON.stringify(state.filters) + "|" + locKey + "|" + planKey + "|" + todayKey + "|" + builtinIds.length + "|" + extraIds.join(",");
     if(!deckOrderCache || deckOrderCache.signature !== signature){
       deckOrderCache = { signature: signature, ids: interleaveIds(builtinIds, extraIds) };
     }

@@ -1163,22 +1163,24 @@
 
   var TAB_TITLES = { discover:"Discover", friends:"Friends", saved:"Saved", done:"Done" };
 
-  function applyTopbarTitle(text){
+  function applyTopbarTitle(text, opts){
     var title = $("#topbar-title");
-    var icon = $("#topbar-icon");
+    var iconEl = $("#topbar-icon");
     if(!title) return;
     var brand = text === "Discover" || text === "Jaderoo";
+    var hero = !!(opts && opts.hero);
     if(brand){
       title.textContent = "JADEROO";
       title.classList.add("wordmark");
       title.classList.remove("display-title");
-      if(icon) icon.hidden = false;
+      if(iconEl) iconEl.hidden = false;
     } else {
       title.textContent = text;
       title.classList.remove("wordmark");
       title.classList.add("display-title");
-      if(icon) icon.hidden = true;
+      if(iconEl) iconEl.hidden = true;
     }
+    title.classList.toggle("hero-title", hero && !brand);
   }
 
   function switchTab(tab){
@@ -1198,11 +1200,8 @@
       applyTopbarTitle("Friend");
       content.appendChild(buildFriendDetailScreen(ui.detailFriendId));
     } else {
-      if(ui.tab === "saved" && ui.savedBucket){
-        applyTopbarTitle(bucketLabel(ui.savedBucket));
-      } else {
-        applyTopbarTitle(TAB_TITLES[ui.tab] || "Jaderoo");
-      }
+      if(ui.tab === "saved") applyTopbarTitle("Saved", { hero:true });
+      else applyTopbarTitle(TAB_TITLES[ui.tab] || "Jaderoo");
       if(ui.tab === "discover") content.appendChild(buildDiscoverScreen());
       else if(ui.tab === "friends") content.appendChild(buildFriendsScreen());
       else if(ui.tab === "saved") content.appendChild(buildSavedScreen());
@@ -2572,97 +2571,143 @@
     return row;
   }
 
+  // Saved is one screen: pill tabs for each date plan, Favorites, and Done,
+  // then the ideas in the selected folder. The big SAVED title stays in the
+  // top bar. Opening an idea, swiping to remove it, sharing a plan, and
+  // planning a new date all still work.
   function buildSavedScreen(){
-    if(ui.savedBucket) return buildSavedBucketScreen(ui.savedBucket);
-    return buildSavedFolderList();
-  }
-
-  // Top-level Saved tab: a folder for "Favorites" plus one folder per date plan.
-  function buildSavedFolderList(){
     var wrap = el("div", "screen saved-screen");
-
-    var newPlanBtn = el("button", "btn-secondary btn-block plan-cta", icon("calendar") + " Plan a New Date");
-    newPlanBtn.type = "button";
-    newPlanBtn.addEventListener("click", openPlanOverlay);
-    wrap.appendChild(newPlanBtn);
-
-    wrap.appendChild(el("div", "section-title", "Your Saved Ideas"));
-
-    if(totalSavedCount() === 0){
-      wrap.appendChild(emptyNote(icon("bookmark"), "No saved ideas yet", "Swipe yes on ideas you love, or tap Favorites, to start filling up your folders."));
-      return wrap;
-    }
-
-    wrap.appendChild(buildFolderRow({ type:"someday" }, icon("star"), "Favorites", state.somedayIds.length, "Ideas with no date planned yet"));
-
-    state.datePlans.slice().reverse().forEach(function(plan){
-      var subtext = plan.date ? fmtDate(plan.date) : "No date set";
-      var row = buildFolderRow({ type:"plan", planId: plan.id }, icon("calendar"), plan.name, plan.ideaIds.length, subtext);
-      wrap.appendChild(buildSwipeToDeleteRow(row, function(){ deletePlan(plan.id); }));
-    });
-
+    var folders = listSavedFolders();
+    var active = resolveSavedFolder(folders);
+    wrap.appendChild(buildSavedPillRow(folders, active));
+    if(active.bucket.type === "done") wrap.appendChild(buildSavedDoneList());
+    else wrap.appendChild(buildSavedBucketScreen(active.bucket));
     return wrap;
   }
 
-  function buildFolderRow(bucket, icon, title, count, subtext){
-    var row = el("div", "idea-row folder-row");
-    row.innerHTML =
-      '<span class="ir-icon">' + icon + '</span>' +
-      '<span class="ir-text"><div class="ir-title">' + escapeHtml(title) + '</div>' +
-      '<div class="ir-sub">' + escapeHtml(subtext) + ' · ' + count + (count === 1 ? " idea" : " ideas") + '</div></span>' +
-      '<span class="ir-chevron">›</span>';
-    row.addEventListener("click", function(){
-      ui.savedBucket = bucket;
-      renderContent();
+  // User-created date plans, then the Favorites bucket, then the Done list.
+  // Counts are the same lengths the old folder rows showed.
+  function listSavedFolders(){
+    var folders = [];
+    state.datePlans.slice().reverse().forEach(function(plan){
+      folders.push({
+        key: "plan:" + plan.id,
+        bucket: { type:"plan", planId: plan.id },
+        label: plan.name,
+        count: (plan.ideaIds || []).length
+      });
     });
-    return row;
+    folders.push({
+      key: "someday",
+      bucket: { type:"someday" },
+      label: "Favorites",
+      count: state.somedayIds.length
+    });
+    folders.push({
+      key: "done",
+      bucket: { type:"done" },
+      label: "Done",
+      count: state.doneIds.length
+    });
+    return folders;
+  }
+
+  function sameSavedBucket(a, b){
+    if(!a || !b || a.type !== b.type) return false;
+    if(a.type === "plan") return a.planId === b.planId;
+    return true;
+  }
+
+  function resolveSavedFolder(folders){
+    var i;
+    if(ui.savedBucket){
+      for(i = 0; i < folders.length; i++){
+        if(sameSavedBucket(folders[i].bucket, ui.savedBucket)) return folders[i];
+      }
+    }
+    for(i = 0; i < folders.length; i++){
+      if(folders[i].bucket.type === "someday" && folders[i].count > 0) return folders[i];
+    }
+    for(i = 0; i < folders.length; i++){
+      if(folders[i].count > 0) return folders[i];
+    }
+    return folders[0];
+  }
+
+  function buildSavedPillRow(folders, active){
+    var bar = el("div", "saved-pill-bar");
+    var row = el("div", "saved-pills");
+    row.setAttribute("role", "tablist");
+    folders.forEach(function(folder){
+      var on = sameSavedBucket(folder.bucket, active.bucket);
+      var pill = el("button", "saved-pill" + (on ? " is-active" : ""),
+        escapeHtml(folder.label) + " · " + folder.count);
+      pill.type = "button";
+      pill.setAttribute("role", "tab");
+      pill.setAttribute("aria-selected", on ? "true" : "false");
+      pill.dataset.bucket = folder.key;
+      pill.addEventListener("click", function(){
+        ui.savedBucket = folder.bucket;
+        renderContent();
+      });
+      row.appendChild(pill);
+    });
+    var add = el("button", "saved-pill saved-pill-add", icon("plus") + '<span class="saved-pill-add-label">Plan a New Date</span>');
+    add.type = "button";
+    add.setAttribute("aria-label", "Plan a New Date");
+    add.addEventListener("click", openPlanOverlay);
+    bar.appendChild(row);
+    bar.appendChild(add);
+    return bar;
   }
 
   function deletePlan(planId){
     var idx = state.datePlans.findIndex(function(p){ return p.id === planId; });
     if(idx !== -1) state.datePlans.splice(idx, 1);
     if(ui.activePlanId === planId) ui.activePlanId = null;
+    if(ui.savedBucket && ui.savedBucket.type === "plan" && ui.savedBucket.planId === planId) ui.savedBucket = null;
     saveState();
     showToast("Plan deleted");
     renderContent();
   }
 
-  // Drilled-in view of a single bucket's (plan's or Someday's) saved ideas.
+  // Ideas inside the selected plan or Favorites folder.
   function buildSavedBucketScreen(bucket){
-    var wrap = el("div", "screen saved-screen saved-bucket-screen");
-
-    var backBtn = el("button", "btn-text saved-back-btn", "‹ All Saved");
-    backBtn.type = "button";
-    backBtn.addEventListener("click", function(){
-      ui.savedBucket = null;
-      renderContent();
-    });
-    wrap.appendChild(backBtn);
-
+    var wrap = el("div", "saved-bucket");
     var ids, plan = null;
     if(bucket.type === "plan"){
       plan = getPlanById(bucket.planId);
-      if(!plan){ ui.savedBucket = null; return buildSavedFolderList(); }
-      var subtext = plan.date ? fmtDate(plan.date) : "No date set";
-      wrap.appendChild(el("div", "section-title", plan.name));
-      wrap.appendChild(el("div", "saved-bucket-subtitle", subtext));
-      var shareBtn = el("button", "btn-outline plan-share-btn", icon("share") + " Share with Friends");
+      if(!plan){
+        wrap.appendChild(emptyNote(icon("bookmark"), "Nothing here yet", "Ideas you save into this folder will show up here."));
+        return wrap;
+      }
+      var bar = el("div", "saved-plan-bar");
+      var when = plan.date ? fmtDate(plan.date) : "No date set";
+      bar.appendChild(el("div", "saved-plan-date", escapeHtml(when)));
+      var shareBtn = el("button", "btn-outline saved-plan-action", icon("share") + " Share with Friends");
       shareBtn.type = "button";
       shareBtn.addEventListener("click", function(){ openPlanShareOverlay(plan.id); });
-      wrap.appendChild(shareBtn);
-      var linkBtn = el("button", "btn-outline plan-share-btn", icon("share") + " Share plan");
+      var linkBtn = el("button", "btn-outline saved-plan-action", icon("share") + " Share plan");
       linkBtn.type = "button";
       linkBtn.addEventListener("click", function(){ openPlanLinkOverlay(plan.id); });
-      wrap.appendChild(linkBtn);
+      var delBtn = el("button", "btn-text saved-plan-delete", "Delete plan");
+      delBtn.type = "button";
+      delBtn.addEventListener("click", function(){ deletePlan(plan.id); });
+      bar.appendChild(shareBtn);
+      bar.appendChild(linkBtn);
+      bar.appendChild(delBtn);
+      wrap.appendChild(bar);
       ids = plan.ideaIds;
     } else {
-      wrap.appendChild(el("div", "section-title", "Favorites"));
-      wrap.appendChild(el("div", "saved-bucket-subtitle", "Ideas with no date planned yet"));
       ids = state.somedayIds;
     }
 
-    if(ids.length === 0){
-      wrap.appendChild(emptyNote(icon("bookmark"), "Nothing here yet", "Ideas you save into this folder will show up here."));
+    if(!ids.length){
+      var emptyTitle = bucket.type === "plan" ? "Nothing here yet" : "No saved ideas yet";
+      var emptySub = bucket.type === "plan"
+        ? "Ideas you save into this folder will show up here."
+        : "Swipe yes on ideas you love, or tap Favorites, to start filling up your folders.";
+      wrap.appendChild(emptyNote(icon("bookmark"), emptyTitle, emptySub));
       return wrap;
     }
 
@@ -2678,19 +2723,77 @@
     pickedIds.concat(restIds).forEach(function(id){
       var idea = IDEAS_BY_ID[id];
       if(!idea) return;
-      var row = buildIdeaRow(idea, idea.category);
       var picks = plan ? (plan.friendPicks || []).filter(function(p){ return p.ideaId === id; }) : [];
-      var swipeRow = buildSwipeToDeleteRow(row, function(){ removeSavedIdea(id, bucket); });
-      if(picks.length){
-        swipeRow.classList.add("friend-picked");
-        var badge = el("div", "friend-pick-badge",
-          picks.map(function(p){ return p.avatarEmoji + " " + escapeHtml(p.friendName); }).join(", ") + " picked this!");
-        var irText = row.querySelector(".ir-text");
-        if(irText) irText.appendChild(badge);
-      }
+      var card = buildSavedCard(idea, { picks: picks });
+      var swipeRow = buildSwipeToDeleteRow(card, function(){ removeSavedIdea(id, bucket); });
+      if(picks.length) swipeRow.className = swipeRow.className + " friend-picked";
       wrap.appendChild(swipeRow);
     });
     return wrap;
+  }
+
+  function buildSavedDoneList(){
+    var wrap = el("div", "saved-bucket");
+    if(!state.doneIds.length){
+      wrap.appendChild(emptyNote(icon("check-circle"), "No completed dates yet", "Mark ideas as done from their detail screen after you try them."));
+      return wrap;
+    }
+    state.doneIds.slice().reverse().forEach(function(entry){
+      var idea = IDEAS_BY_ID[entry.id];
+      if(!idea) return;
+      wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date) }));
+    });
+    return wrap;
+  }
+
+  // Distance and cost only when the idea actually has them. "Open now" only
+  // when openNow is true — the same fact the Discover card already uses.
+  // There is no separate tonight/weekend field, so those chips are not invented.
+  function savedMetaParts(idea, doneDate){
+    var parts = [];
+    if(idea && idea.unavailable){
+      parts.push("No longer available");
+      return parts;
+    }
+    var dist = distanceLabel(idea && idea.distanceMiles);
+    if(dist) parts.push(dist);
+    var cost = displayCost(idea);
+    if(cost) parts.push(cost);
+    if(doneDate) parts.push("Done " + doneDate);
+    return parts;
+  }
+
+  function savedStatusBadge(idea){
+    if(!idea || idea.unavailable) return null;
+    if(idea.openNow === true) return { kind:"open", label:"Open now" };
+    return null;
+  }
+
+  function buildSavedCard(idea, opts){
+    opts = opts || {};
+    var card = el("div", "saved-card" + (idea && idea.unavailable ? " unavailable-item" : ""));
+    var photo = ideaPhoto(idea);
+    var thumb = el("div", "saved-thumb" + (photo ? " has-photo" : " is-placeholder"));
+    if(photo) thumb.innerHTML = '<img alt="" src="' + escapeHtml(photo.url) + '">';
+    else thumb.innerHTML = icon("bookmark");
+    var body = el("div", "saved-card-body");
+    body.appendChild(el("div", "saved-card-title", escapeHtml(idea.title)));
+    var meta = savedMetaParts(idea, opts.doneDate);
+    if(meta.length) body.appendChild(el("div", "saved-card-meta", escapeHtml(meta.join(" · "))));
+    var badge = savedStatusBadge(idea);
+    if(badge) body.appendChild(el("span", "saved-badge saved-badge-" + badge.kind, escapeHtml(badge.label)));
+    var picks = opts.picks || [];
+    if(picks.length){
+      body.appendChild(el("div", "friend-pick-badge",
+        picks.map(function(p){ return p.avatarEmoji + " " + escapeHtml(p.friendName); }).join(", ") + " picked this!"));
+    }
+    var mark = el("span", "saved-bookmark", icon("bookmark"));
+    mark.setAttribute("aria-hidden", "true");
+    card.appendChild(thumb);
+    card.appendChild(body);
+    card.appendChild(mark);
+    card.addEventListener("click", function(){ goToDetail(idea.id); });
+    return card;
   }
 
   function removeSavedIdea(id, bucket){

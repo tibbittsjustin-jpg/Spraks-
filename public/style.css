@@ -298,6 +298,11 @@ flex-shrink:0;
 .topbar-title{ font-size:22px; font-weight:800; color:var(--text); }
 .topbar-title.wordmark{ font-size:26px; font-weight:400; margin:2px 0 0; color:var(--color-wordmark); }
 .topbar-title.display-title{ font-size:26px; line-height:1; margin:8px 0 2px 2px; max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--color-display); }
+.topbar:has(.hero-title){ padding-top:20px; padding-bottom:4px; align-items:center; }
+.topbar-title.display-title.hero-title{
+font-size:42px; line-height:.95; max-width:none; overflow:visible; text-overflow:clip;
+margin:8px 0 0; color:var(--color-display);
+}
 .avatar-btn{ background:none; border:none; cursor:pointer; padding:0; }
 .topbar-avatar{
 width:38px; height:38px; border-radius:50%; background:var(--surface-soft); display:flex; align-items:center;
@@ -750,11 +755,64 @@ font-size:12px; color:var(--text-soft); cursor:pointer;
 .sheet-subtitle{ font-size:13px; color:var(--text-soft); line-height:1.5; margin:-6px 0 4px; }
 .plan-form-back{ margin:0 0 4px -10px; display:block; }
 
-/* ---------- Saved screen: folder list + drill-in ---------- */
-.folder-row .ir-icon svg{ width:20px; height:20px; }
-.saved-back-btn{ margin:0 0 4px -10px; }
-.saved-bucket-subtitle{ font-size:12.5px; color:var(--text-soft); margin:-6px 0 14px; }
-.plan-share-btn{ width:100%; margin-bottom:16px; }
+/* ---------- Saved screen: pills + photo cards ---------- */
+.saved-screen{ padding-top:2px; }
+.saved-pill-bar{
+display:flex; align-items:center; gap:8px; position:sticky; top:0; z-index:3;
+background:var(--bg); padding:2px 0 14px;
+}
+.saved-pills{
+display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; flex:1; min-width:0;
+padding:1px 0; margin:0; scrollbar-width:none;
+}
+.saved-pill{
+flex:0 0 auto; border:1px solid var(--border); background:var(--surface); color:var(--text);
+border-radius:var(--r-pill); padding:8px 14px; font-size:14px; font-weight:700; line-height:1.2;
+cursor:pointer; box-shadow:none; white-space:nowrap; font-family:inherit;
+}
+.saved-pill.is-active{ background:var(--accent); color:var(--color-on-accent); border-color:transparent; }
+.saved-pill-add{
+width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center;
+flex-shrink:0; position:relative;
+}
+.saved-pill-add svg{ width:16px; height:16px; }
+.saved-pill-add-label{
+position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+.saved-plan-bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 12px; }
+.saved-plan-date{ flex:1 0 100%; margin:0; font-size:12.5px; font-weight:600; color:var(--text-soft); }
+.saved-plan-action{ width:auto; margin:0; padding:8px 12px; font-size:12.5px; border-radius:var(--r-pill); }
+.saved-plan-delete{ padding:8px 4px; }
+.saved-card{
+display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border);
+border-radius:var(--r-lg); padding:10px 12px 10px 10px; margin-bottom:12px; cursor:pointer;
+box-shadow:var(--shadow);
+}
+.saved-thumb{
+width:68px; height:68px; border-radius:12px; overflow:hidden; flex-shrink:0;
+background:var(--surface-soft); display:flex; align-items:center; justify-content:center;
+}
+.saved-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.saved-thumb.is-placeholder{
+background:color-mix(in srgb, var(--color-jade) 14%, var(--color-surface));
+color:var(--accent);
+}
+.saved-thumb.is-placeholder svg{ width:22px; height:22px; }
+.saved-card-body{ flex:1; min-width:0; }
+.saved-card-title{ font-weight:800; font-size:16px; line-height:1.25; color:var(--text); }
+.saved-card-meta{ margin-top:3px; font-size:13px; font-weight:600; color:var(--text-soft); line-height:1.3; }
+.saved-badge{
+display:inline-flex; align-items:center; margin-top:6px; padding:3px 10px;
+border-radius:var(--r-pill); font-size:12px; font-weight:800; line-height:1.3;
+}
+.saved-badge-open{ background:var(--accent); color:var(--color-on-accent); }
+.saved-bookmark{ flex-shrink:0; color:var(--accent); display:flex; align-items:center; }
+.saved-bookmark svg{ width:22px; height:22px; }
+.saved-screen .swipeable-row{ border-radius:var(--r-lg); margin-bottom:12px; box-shadow:var(--shadow); }
+.saved-screen .swipeable-row .saved-card{ margin-bottom:0; box-shadow:none; }
+.saved-screen .swipeable-row.friend-picked{ box-shadow:var(--shadow), 0 0 0 2px var(--accent); }
+.saved-card .friend-pick-badge{ margin-top:6px; }
 .plan-link-body{ overflow-y:auto; min-height:0; }
 .plan-link-omit{ margin:0 0 12px; }
 

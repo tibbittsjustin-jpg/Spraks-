@@ -75,7 +75,8 @@ async function main() {
 
     const home = await request(port, "/");
     check("home page still loads the browser scripts",
-      home.body.indexOf('src="util.js"') !== -1 && home.body.indexOf('src="photos.js"') !== -1 &&
+      home.body.indexOf('src="util.js"') !== -1 && home.body.indexOf('src="occurrences.js"') !== -1 &&
+      home.body.indexOf('src="photos.js"') !== -1 &&
       home.body.indexOf('src="submit.js"') !== -1 && home.body.indexOf('src="app.js"') !== -1 &&
       home.body.indexOf('src="data.js"') !== -1);
     check("profile links to photo credits", home.body.indexOf('data-action="credits"') !== -1);

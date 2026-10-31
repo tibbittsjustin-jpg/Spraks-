@@ -1,0 +1,209 @@
+{
+ "Escapes In Time Escape Rooms": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "no change",
+   "basis": "per person",
+   "evidence": "Adults $28.99 (escapesintime.com)."
+  }
+ },
+ "16+ Late Skate at Classic Fun Center": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "$10-$20",
+   "basis": "per person",
+   "evidence": "Fall online special $11.99 unlimited activities (classicfun.com/hours)."
+  }
+ },
+ "Climbing Wall at UVU's The Project": {
+  "geo": {
+   "outcome": "pinned",
+   "lat": 40.279354,
+   "lng": -111.715154,
+   "method": "Overpass → OSM way 474482792 'Student Life & Wellness Center' (building=university; leisure=fitness_centre). The venue page puts the wall in the Student Life Building, SL 203, with an 'SLWC Guest Day Pass'.",
+   "needs_hand_pin": false,
+   "changed": true,
+   "prev": [
+    40.279411,
+    -111.717887
+   ]
+  },
+  "cost_mapping": {
+   "current": "$1-$10",
+   "proposed": "$10-$20",
+   "basis": "per person incl. rental",
+   "evidence": "SLWC guest day pass $8 + harness & shoes $5 = $13 (uvu.edu/oac/climbing/). Stays $1-$10 if you bring gear."
+  }
+ },
+ "Saturday parkrun at Provo River Delta": {
+  "hold": {
+   "hold": true,
+   "hold_until": "2026-11-22",
+   "reason": "Event not launched yet. The official parkrun page says 'Starts on Nov 21, 2026', every Saturday at 8:00am at 311 N Lakeshore Dr. Approve after the first run (results posted).",
+   "evidence": [
+    "https://www.parkrun.us/provoriverdeltagateway/ (fetched 2026-10-29: 'Starts on Nov 21, 2026')"
+   ],
+   "checked": "2026-10-29"
+  }
+ },
+ "Fifth Water Hot Springs Hike": {
+  "hold": {
+   "hold": true,
+   "hold_until": null,
+   "reason": "Health advisory. Utah DEQ's latest posted update (July 15, 2026) says harmful bacteria may be present and that multiple people developed severe rashes and blisters; the page currently shows 'Health Watch'. Earlier update May 5, 2026. Utah County Health listed Fifth Water as a Health Watch on Aug 27, 2026. Also: Forest Service winter gates on Diamond Fork Rd at Three Forks Trailhead close for winter (Nov 2025 pattern: Three Forks gate slated for end of November, snow permitting), and the $10/vehicle day-use fee applies. Release only after DEQ posts an 'OK to recreate' update and the Three Forks gate is open (typically spring).",
+   "evidence": [
+    "https://deq.utah.gov/dwq/water-quality-health/fifth-water-hot-springs (fetched 2026-10-29: 'Health Watch'; 'July 15, 2026: Waterborne Pathogen Update')",
+    "https://health.utahcounty.gov/2026/08/27/harmful-algal-bloom-hab-warning-advisory/ (search snippet 2026-08-27; page 404 on direct fetch)",
+    "https://www.heraldextra.com/news/2025/nov/18/seasonal-canyon-roads-begin-closing-in-utah-county-what-to-know/ (2025 gate pattern quoting USFS Spanish Fork RD; search snippet)"
+   ],
+   "checked": "2026-10-29"
+  }
+ },
+ "Drive the Nebo Loop Scenic Byway": {
+  "hold": {
+   "hold": true,
+   "hold_until": null,
+   "reason": "Seasonal road closure. Nephi City (official) says the Nebo Scenic Loop 'closes in the winter from late October through June or July'. Gates belong to the USFS Spanish Fork Ranger District, not UDOT (UDOT says to 'inquire locally'). In 2025 the upper gates (Devil's Kitchen, Upper Grotto Trailhead) were already closed by Nov 18 and the lower Camp Maple Dell gate was slated for Dec 15. No 2026 gate dates are posted by USFS (FS road page has no dates). Hold until USFS confirms reopening (expected ~June–July 2027).",
+   "evidence": [
+    "https://nephi.utah.gov/292/Mount-Nebo-Scenic-Loop (fetched 2026-10-29)",
+    "https://connect.udot.utah.gov/current-conditions/seasonal-roads/ (fetched 2026-10-29)",
+    "https://www.heraldextra.com/news/2025/nov/18/seasonal-canyon-roads-begin-closing-in-utah-county-what-to-know/ (search snippet)"
+   ],
+   "checked": "2026-10-29"
+  }
+ },
+ "Grotto Falls Short Hike": {
+  "hold": {
+   "hold": true,
+   "hold_until": null,
+   "reason": "Reached only via the Nebo Loop, so it shares that road's closure. Nephi City: Nebo Loop closed late October through June/July. 'Upper Grotto Trailhead' is one of the USFS upper winter gates (closed by Nov 18 in 2025). Hold until the Nebo Loop reopens (~June–July 2027).",
+   "evidence": [
+    "https://nephi.utah.gov/292/Mount-Nebo-Scenic-Loop (fetched 2026-10-29)",
+    "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/grotto-trail-086 (fetched; last updated June 18, 2025)"
+   ],
+   "checked": "2026-10-29"
+  }
+ },
+ "Picnic and Paddle at Tibble Fork Reservoir": {
+  "hold": {
+   "hold": true,
+   "hold_until": null,
+   "reason": "Seasonal (paddling/picnic item). The USFS page says 'Seasons of Use: Year-round', and UDOT confirms Tibble Fork stays reachable in winter via American Fork Canyon, 'weather and road conditions permitting'. But the Alpine Loop (SR-92) closes Mon Nov 2, 2026 at 7am between Pine Hollow and Aspen Grove, and Forest Road 085 (Mineral Basin) is closed. Season field is Summer/Fall. Hold for review in spring; the Alpine Loop reopened May 22 in 2026 (typically late May–early June).",
+   "evidence": [
+    "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/tibble-fork-reservoir-trailhead (fetched; 'Seasons of Use Year-round'; updated May 15, 2026)",
+    "https://connect.udot.utah.gov/2026/10/29/udot-to-close-alpine-loop-for-winter/ (fetched 2026-10-29: closes Mon Nov 2, 7 a.m.)",
+    "https://connect.udot.utah.gov/2026/05/22/udot-announces-all-seasonal-roads-now-open/ (fetched)"
+   ],
+   "checked": "2026-10-29"
+  }
+ },
+ "Summit Mount Timpanogos from Aspen Grove": {
+  "hold": {
+   "hold": true,
+   "hold_until": null,
+   "reason": "Seasonal. USFS Aspen Grove page shows current conditions 'Snow in higher elevation areas' and says snow covers the trail until mid-summer, with extremely hazardous snow conditions in spring and early summer. UDOT closes SR-92 between Pine Hollow and Aspen Grove from Mon Nov 2, 2026 (Aspen Grove is still reachable from Provo Canyon). The 2026 Timpooneke timed-entry permits (weekends/holidays) ended Oct 12, 2026 and resume July 2027. Hold until ~July 2027.",
+   "evidence": [
+    "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/mount-timpanogos-trailhead-aspen-grove (fetched; updated Jan 8, 2026)",
+    "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/timpooneke-trailhead (fetched; 'Timed entry permits ended October 12, 2026 and will begin again in July 2027'; updated Oct 15, 2026)",
+    "https://connect.udot.utah.gov/2026/10/29/udot-to-close-alpine-loop-for-winter/ (fetched)"
+   ],
+   "checked": "2026-10-29"
+  }
+ },
+ "Paint Pottery at Color Me Mine Provo": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "$10-$20",
+   "basis": "per person (smallest piece)",
+   "evidence": "Pieces from $8 + $8 adult studio fee = $16 minimum (provo.colormemine.com/visit-studio/). Larger pieces will run $20+."
+  }
+ },
+ "Pottery Night at The Kreative Kiln": {
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "UNCONFIRMED",
+   "basis": "-",
+   "evidence": "v1 research saw a $299.99 six-week wheel course in a search result, but no fetched page confirms it. Single-session price not found. Leave as-is until the venue's price is fetched."
+  }
+ },
+ "Pour Your Own Candle at The Wick Lab": {
+  "cost_mapping": {
+   "current": "$20-$30",
+   "proposed": "no change; $30+ if a $30–$100 band is added",
+   "basis": "per candle",
+   "evidence": "$24.99–$36.99 depending on container (thewicklab.com)."
+  }
+ },
+ "Build a Bonsai at Bonsai Bai Me": {
+  "geo": {
+   "outcome": "pinned_with_caveat",
+   "lat": 40.3746,
+   "lng": -111.78879,
+   "method": "Nominatim → OSM address way 231764115 '360 State Street, American Fork'. The venue site says '360 E State Rd, American Fork 84003'. In American Fork, State Street is US-89, so '360 E State Rd' and '360 State St' are treated as the same address point. Any street-level view will show whether the business sits inside that parcel.",
+   "needs_hand_pin": false,
+   "changed": true,
+   "prev": [
+    40.376806,
+    -111.795915
+   ]
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "no change (a $30–$100 band would fit)",
+   "basis": "per person",
+   "evidence": "Studio fee $15–$18 + small tree $15–25 + small pot $20–25 ≈ $50–$68 (bonsaibaime.com)."
+  }
+ },
+ "Indoor Golf Simulator at Back Nine Golf": {
+  "cost_mapping": {
+   "current": "$100 and under",
+   "proposed": "no change (Over $100 only if 3+ hrs)",
+   "basis": "per bay",
+   "evidence": "Tee time from $49/hour, guests included (thebackninegolf.com/local/orem-ut/)."
+  }
+ },
+ "Laser Tag Battle at Rad Tag": {
+  "geo": {
+   "outcome": "pinned",
+   "lat": 40.354327,
+   "lng": -111.772699,
+   "method": "Nominatim structured search → OSM building way 1490673394 (building=commercial, addr 2415 Sam White Lane). OSM way 36742234 'Sam White Lane' carries alt_name='700 South', so it matches the venue's '2415 W 700 S, Suites K-M'.",
+   "needs_hand_pin": false,
+   "changed": false
+  }
+ },
+ "Backcountry Horseback Ride in Hobble Creek Canyon": {
+  "geo": {
+   "outcome": "hand_pinned_by_utah",
+   "lat": 40.163866,
+   "lng": -111.50108,
+   "method": "The venue says the ranch is at the 'north end of the Left Hand Fork of Hobble Creek Canyon'. The booking page (gowondo.com) gives the meeting point as 'Hobble Creek Road and Left Fork at Hobble Creek Road', with exact directions sent only after booking. OSM has no POI for it; Overpass was at capacity and Nominatim found no named node. Kept the Nominatim point at Hobble Creek Golf Course, near the Right/Left Fork junction, as a stand-in for the meeting point. Third-party place listings give coordinates, but they are likely Google-derived and were NOT used.",
+   "needs_hand_pin": false,
+   "changed": false,
+   "coords_locked": true,
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API map.json: shared node 12752789364 where Left Fork Hobble Creek Canyon Rd (way 10225975) meets Hobble Creek Canyon Rd (way 10231202)",
+   "pre_hand_pin": [
+    40.161022,
+    -111.514732
+   ],
+   "correction_m": 1202
+  },
+  "cost_mapping": {
+   "current": "Over $100",
+   "proposed": "Over $100",
+   "basis": "per couple",
+   "evidence": "GoWondo/Hobble Creek Outfitters: 1-hr ride $69/person, 2-hr ride $124/person; $138-$248 for two (pages fetched 2026-10-29).",
+   "applied": "2026-10-29 (round 4, filters.js @ 4782b23)"
+  }
+ },
+ "BYU Football at LaVell Edwards Stadium": {
+  "expires_at_basis": "last remaining 2026 home game, Cincinnati Nov 28 (byucougars.com schedule)"
+ },
+ "BYU Basketball at the Marriott Center": {
+  "expires_at_basis": "last listed regular-season Marriott Center game, Oklahoma State Tue Mar 2, 2027 (byucougars.com 2026-27 schedule)"
+ },
+ "Fall Festival at Rowley's Red Barn": {
+  "expires_at_basis": "null: site says \"Fall Festival is Here!\" with no end date; treat as seasonal, re-check (likely ends ~Oct 31)"
+ }
+}

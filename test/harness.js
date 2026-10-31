@@ -59,7 +59,7 @@ function makeSandbox(storage) {
 function loadApp(storage) {
   const sandbox = makeSandbox(storage);
   vm.createContext(sandbox);
-  ["data.js", "motifs.js", "util.js", "radius.js", "pins.js", "photos.js", "submit.js"].forEach(f => {
+  ["data.js", "motifs.js", "util.js", "occurrences.js", "radius.js", "pins.js", "photos.js", "submit.js"].forEach(f => {
     vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), sandbox, { filename: f });
   });
   let src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");

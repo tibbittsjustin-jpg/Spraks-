@@ -1,32 +1,54 @@
-/* Design tokens. The short names below (--accent, --bg, …) alias the
-   --color-* / --shadow-card tokens, so every existing rule keeps the
-   color it renders today. Type, space, radius, and duration tokens
-   record sizes that already render; rules still use their literals,
-   so this layer does not collapse a near-duplicate or restyle a screen.
-   Palette, scale, and what must stay distinct: DESIGN-TOKENS.md. */
+/* Design tokens. Short names (--accent, --bg, …) alias the --color-*
+   tokens. Day is K1 v4. Night is N2 Neutral. Type, space, radius, and
+   duration tokens still record the sizes rules use as literals.
+   Palette: DESIGN-TOKENS.md. Nunito and Bungee are OFL (see fonts/). */
+@font-face{ font-family:"Nunito"; font-style:normal; font-weight:500; font-display:swap; src:url("fonts/Nunito-500.ttf") format("truetype"); }
+@font-face{ font-family:"Nunito"; font-style:normal; font-weight:600; font-display:swap; src:url("fonts/Nunito-600.ttf") format("truetype"); }
+@font-face{ font-family:"Nunito"; font-style:normal; font-weight:700; font-display:swap; src:url("fonts/Nunito-700.ttf") format("truetype"); }
+@font-face{ font-family:"Nunito"; font-style:normal; font-weight:800; font-display:swap; src:url("fonts/Nunito-800.ttf") format("truetype"); }
+@font-face{ font-family:"Bungee"; font-style:normal; font-weight:400; font-display:swap; src:url("fonts/Bungee-Regular.ttf") format("truetype"); }
 :root{
-/* Brand. --color-on-accent is the #fff painted on accent fills. */
---color-accent:#FF6B6B;
---color-accent-strong:#E8555A;
+color-scheme:light;
+/* Brand. Deep jade fills buttons and selected chips. Bright jade is the
+   light accent. --color-on-accent is the ink on those fills.
+   Coral is reserved as a non-text fill and is not used for type.
+   Yellow is reserved for a tonight chip and time badges. */
+--color-accent:#0B6E4F;
+--color-accent-strong:#0F4D3A;
 --color-on-accent:#fff;
+--color-jade:#0B6E4F;
+--color-jade-bright:#3CCB8A;
+--color-forest:#0F4D3A;
+--color-yellow:#FFD23F;
+--color-on-yellow:#0F4D3A;
+--color-coral:#FF5A5F;
+/* Ink on photographs. These stay put in both themes. */
+--color-on-photo:#fff;
+--color-ink:#0F4D3A;
+--color-open-dot:#3CCB8A;
+--color-wordmark:#0B6E4F;
+--color-display:#0F4D3A;
 /* Neutrals */
---color-bg:#F6F6F8;
+--color-bg:#FFFBF2;
 --color-surface:#FFFFFF;
---color-surface-soft:#F1F1F4;
---color-border:#E7E7EC;
---color-text:#1F2328;
---color-text-soft:#6B7280;
---color-chrome:#EDEDF0;
-/* Status */
---color-success:#22A06B;
---color-danger:#E5484D;
-/* Sheet scrim. The same tint in both themes. Other ink alphas
-   (badge shadow, open-now chip) are different paints — see the doc. */
---color-overlay:rgba(20,20,26,.45);
-/* Elevation. The accent glow is the light-coral rgba in both themes,
-   which is what .btn-primary paints today. */
---shadow-card: 0 10px 26px rgba(20,20,30,.08);
---shadow-accent:0 6px 16px rgba(255,107,107,.28);
+--color-surface-soft:#F4FBF7;
+--color-border:#D6E6DD;
+--color-text:#0F4D3A;
+--color-text-soft:#4A6358;
+--color-chrome:#EFE8D8;
+/* Status. Danger text is not coral. The delete fill stays a dark red
+   with white type in both themes. */
+--color-success:#0B6E4F;
+--color-danger:#8E2430;
+--color-danger-fill:#8E2430;
+--color-overlay:rgba(18,22,20,.45);
+--color-nav:#0B6E4F;
+--color-nav-inactive:#D2EEDF;
+--color-nav-active:#FFFFFF;
+--shadow-card:0 8px 24px rgba(15,77,58,.07);
+--shadow-soft:0 6px 16px rgba(15,77,58,.08);
+--shadow-nav:0 -10px 28px rgba(11,70,50,.18);
+--shadow-accent:var(--shadow-soft);
 
 /* Type. Each token is a size that renders today. Neighbors such as
    11px and 11.5px are separate on purpose. */
@@ -101,30 +123,84 @@
 --danger:var(--color-danger);
 --shadow:var(--shadow-card);
 --chrome-bg:var(--color-chrome);
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+font-family:"Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 [data-theme="dark"]{
-/* Color and elevation only. Type, space, radius, and duration inherit.
-   --color-accent-strong is lighter here than --color-accent; that is
-   the value --accent-dark already resolved to. On-accent, the scrim,
-   and the button glow stay the same paints as light mode. */
---color-accent:#FF7A7A;
---color-accent-strong:#FF9393;
---color-on-accent:#fff;
---color-bg:#17181C;
---color-surface:#1F2126;
---color-surface-soft:#282A31;
---color-border:#33353D;
---color-text:#F1F1F3;
---color-text-soft:#9A9CA5;
---color-chrome:#0E0F12;
---color-success:#3FBE8C;
---color-danger:#FF6B6B;
---color-overlay:rgba(20,20,26,.45);
---shadow-card: 0 10px 26px rgba(0,0,0,.35);
---shadow-accent:0 6px 16px rgba(255,107,107,.28);
+color-scheme:dark;
+/* Selected chips and primary buttons flip to bright jade with forest
+   ink. The bottom bar stays deep jade. Photo ink does not flip. */
+--color-accent:#3CCB8A;
+--color-accent-strong:#8FE0B8;
+--color-on-accent:#0F4D3A;
+--color-jade:#0B6E4F;
+--color-jade-bright:#3CCB8A;
+--color-forest:#0F4D3A;
+--color-yellow:#F2C94C;
+--color-on-yellow:#0F4D3A;
+--color-coral:#FF5A5F;
+--color-on-photo:#fff;
+--color-ink:#0F4D3A;
+--color-open-dot:#0F4D3A;
+--color-wordmark:#3CCB8A;
+--color-display:#3CCB8A;
+--color-bg:#121614;
+--color-surface:#1C2220;
+--color-surface-soft:#252C29;
+--color-border:#323B37;
+--color-text:#ECEFED;
+--color-text-soft:#AEB8B3;
+--color-chrome:#0C0F0D;
+--color-success:#3CCB8A;
+--color-danger:#F0B4B6;
+--color-danger-fill:#8E2430;
+--color-overlay:rgba(8,10,9,.62);
+--color-nav:#0B6E4F;
+--color-nav-inactive:#D2EEDF;
+--color-nav-active:#FFFFFF;
+--shadow-card:0 10px 28px rgba(0,0,0,.35);
+--shadow-soft:0 6px 18px rgba(0,0,0,.32);
+--shadow-nav:0 -10px 28px rgba(0,0,0,.4);
+--shadow-accent:var(--shadow-soft);
+}
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]){
+color-scheme:dark;
+--color-accent:#3CCB8A;
+--color-accent-strong:#8FE0B8;
+--color-on-accent:#0F4D3A;
+--color-jade:#0B6E4F;
+--color-jade-bright:#3CCB8A;
+--color-forest:#0F4D3A;
+--color-yellow:#F2C94C;
+--color-on-yellow:#0F4D3A;
+--color-coral:#FF5A5F;
+--color-on-photo:#fff;
+--color-ink:#0F4D3A;
+--color-open-dot:#0F4D3A;
+--color-wordmark:#3CCB8A;
+--color-display:#3CCB8A;
+--color-bg:#121614;
+--color-surface:#1C2220;
+--color-surface-soft:#252C29;
+--color-border:#323B37;
+--color-text:#ECEFED;
+--color-text-soft:#AEB8B3;
+--color-chrome:#0C0F0D;
+--color-success:#3CCB8A;
+--color-danger:#F0B4B6;
+--color-danger-fill:#8E2430;
+--color-overlay:rgba(8,10,9,.62);
+--color-nav:#0B6E4F;
+--color-nav-inactive:#D2EEDF;
+--color-nav-active:#FFFFFF;
+--shadow-card:0 10px 28px rgba(0,0,0,.35);
+--shadow-soft:0 6px 18px rgba(0,0,0,.32);
+--shadow-nav:0 -10px 28px rgba(0,0,0,.4);
+--shadow-accent:var(--shadow-soft);
+}
 }
 *{box-sizing:border-box;}
+button, input, select, textarea{ font-family:inherit; }
 html,body{margin:0;padding:0;background:var(--chrome-bg);height:100%;}
 body{
 display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
@@ -153,13 +229,24 @@ with font-size; now the same containers size their child svg instead). */
 .icon-inline{ width:14px; height:14px; vertical-align:-2px; }
 
 /* ---------- Onboarding ---------- */
-.onboarding-view{ background: var(--accent); }
-.onboarding-scroll{ overflow-y:auto; height:100%; padding:48px 28px 40px; color:#fff; }
+.onboarding-view{ background: var(--bg); }
+.onboarding-scroll{ overflow-y:auto; height:100%; padding:48px 28px 40px; color:var(--text); }
 .brand-mark{ text-align:center; margin-bottom:28px; }
 .brand-logo{ width:44px; height:44px; margin:0 auto; }
 .brand-logo svg{ width:100%; height:100%; }
-.brand-mark h1{ font-size:36px; margin:6px 0 4px; font-weight:800; letter-spacing:-0.5px;}
-.tagline{ opacity:.9; margin:0; font-size:15px; }
+.splash-icon{ width:132px; height:132px; display:block; margin:8px auto 4px; border-radius:32px; }
+.wordmark{
+font-family:"Bungee", "Nunito", sans-serif; font-weight:400; letter-spacing:.5px;
+color:var(--color-wordmark); transform:rotate(-5deg); text-shadow:none;
+display:inline-block; line-height:1.05;
+}
+.brand-mark h1{ font-size:40px; margin:10px 0 8px; font-weight:400; }
+.tagline{ opacity:1; margin:0; font-size:16px; font-weight:700; color:var(--text); }
+.display-title{
+font-family:"Bungee", "Nunito", sans-serif; font-weight:400; letter-spacing:.4px;
+text-transform:uppercase; color:var(--color-display); text-shadow:none;
+transform:rotate(-5deg); transform-origin:left center;
+}
 
 .onboarding-form{
 background:var(--surface); border-radius:24px; padding:24px 22px 28px; color:var(--text);
@@ -187,8 +274,8 @@ background:var(--surface-soft); color:var(--text); font-family:inherit;
 .field-error[hidden]{ display:none; }
 
 .btn-primary{
-background:var(--accent); color:#fff; border:none; padding:14px 18px; border-radius:14px;
-font-size:15.5px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(255,107,107,.28);
+background:var(--accent); color:var(--color-on-accent); border:none; padding:14px 18px; border-radius:14px;
+font-size:15.5px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-soft); font-family:inherit;
 }
 .btn-primary:active{ transform:scale(.98); }
 .btn-block{ width:100%; margin-top:22px; }
@@ -205,7 +292,12 @@ font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:cente
 display:flex; align-items:center; justify-content:space-between; padding:18px 20px 12px;
 flex-shrink:0;
 }
+.topbar-lockup{ display:flex; align-items:center; gap:8px; min-width:0; }
+.brand-icon{ width:36px; height:36px; border-radius:10px; flex-shrink:0; display:block; }
+.brand-icon[hidden]{ display:none; }
 .topbar-title{ font-size:22px; font-weight:800; color:var(--text); }
+.topbar-title.wordmark{ font-size:26px; font-weight:400; margin:2px 0 0; color:var(--color-wordmark); }
+.topbar-title.display-title{ font-size:26px; line-height:1; margin:8px 0 2px 2px; max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--color-display); }
 .avatar-btn{ background:none; border:none; cursor:pointer; padding:0; }
 .topbar-avatar{
 width:38px; height:38px; border-radius:50%; background:var(--surface-soft); display:flex; align-items:center;
@@ -219,16 +311,21 @@ justify-content:center; color:var(--text-soft); border:1.5px solid var(--border)
 
 /* ---------- Bottom nav ---------- */
 .bottom-nav{
-display:flex; border-top:1px solid var(--border); background:var(--surface); flex-shrink:0;
-padding:8px 6px calc(10px + env(safe-area-inset-bottom));
+display:flex; border-top:none; background:var(--color-nav); flex-shrink:0;
+padding:8px 8px calc(12px + env(safe-area-inset-bottom));
+box-shadow:var(--shadow-nav); position:relative; z-index:2;
 }
 .nav-btn{
 flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center;
-gap:3px; padding:6px 2px; cursor:pointer; color:var(--text-soft); opacity:.6;
+gap:3px; padding:4px 2px 6px; cursor:pointer; color:var(--color-nav-inactive); opacity:1;
+}
+.nav-btn .nav-icon{
+display:flex; align-items:center; justify-content:center; width:46px; height:28px; border-radius:14px;
 }
 .nav-btn .nav-icon svg{ width:21px; height:21px; }
 .nav-btn .nav-label{ font-size:10.5px; font-weight:700; }
-.nav-btn.active{ color:var(--accent); opacity:1; }
+.nav-btn.active{ color:var(--color-nav-active); }
+.nav-btn.active .nav-icon{ background:rgba(255,255,255,.16); }
 
 /* ---------- Filter chip bar ---------- */
 .filter-bar{ display:flex; align-items:center; gap:8px; margin:4px 0 14px; }
@@ -238,7 +335,7 @@ padding:8px 14px; border-radius:20px; font-size:13.5px; font-weight:700; color:v
 }
 .filter-chip-btn svg{ width:16px; height:16px; }
 .filter-chip-btn .badge{
-background:var(--accent); color:#fff; border-radius:999px; font-size:10.5px; padding:1px 6px; font-weight:800;
+background:var(--accent); color:var(--color-on-accent); border-radius:999px; font-size:10.5px; padding:1px 6px; font-weight:800;
 }
 .result-count{ font-size:12.5px; color:var(--text-soft); font-weight:600; }
 
@@ -275,7 +372,8 @@ background:var(--surface-soft); color:var(--text-soft); font-size:11.5px; font-w
    is the frost. The scrim stays heavy only behind the text so the
    upper part of the photo (the subject) stays clear. */
 .swipe-card.has-photo{
-border:none; color:var(--color-on-accent);
+border:none; color:var(--color-on-photo);
+box-shadow:var(--shadow-soft);
 }
 .swipe-card.has-photo .card-photo{
 position:absolute; inset:0; z-index:0; overflow:hidden;
@@ -301,30 +399,27 @@ background:linear-gradient(to top,
 }
 .swipe-card.has-photo .card-cat-tag{
 z-index:3;
-/* Pill sits on the photo in both themes, so the ink stays the light-mode
-   text color. var(--color-text) flips to near-white in dark mode. */
-color:#1F2328;
+/* Pill sits on the photo in both themes, so the ink stays forest. */
+color:var(--color-ink); background:#fff;
 max-width:calc(100% - 132px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .swipe-card.has-photo .card-open{
 position:absolute; top:14px; right:14px; z-index:3;
-background:rgba(24,26,32,.82); color:var(--color-on-accent);
+background:var(--color-accent); color:var(--color-on-accent);
 font-size:11px; font-weight:800; padding:5px 10px; border-radius:20px;
 display:flex; align-items:center; gap:6px; line-height:1.2;
 }
 .swipe-card.has-photo .card-open:before{
 content:""; width:7px; height:7px; border-radius:50%; flex-shrink:0;
-/* H1's dot is #3FBE8C, which is dark --color-success. Light --color-success
-   is a deeper green and would move the badge off the mockup. */
-background:#3FBE8C; box-shadow:0 0 0 3px rgba(63,190,140,.3);
+background:var(--color-open-dot); box-shadow:0 0 0 3px color-mix(in srgb, var(--color-open-dot) 35%, transparent);
 }
-.swipe-card.has-photo .real-badge{ z-index:3; color:#1F2328; }
+.swipe-card.has-photo .real-badge{ z-index:3; color:var(--color-ink); }
 .swipe-card.has-photo .card-photo-overlay{
 position:absolute; left:0; right:0; bottom:0; z-index:2;
-padding:18px 18px 42px; color:var(--color-on-accent);
+padding:18px 18px 42px; color:var(--color-on-photo);
 }
 .swipe-card.has-photo .card-title{
-color:var(--color-on-accent); font-size:27px; font-weight:800; line-height:1.12;
+color:var(--color-on-photo); font-size:27px; font-weight:800; line-height:1.12;
 letter-spacing:-.3px; margin:0 0 12px;
 text-shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
 }
@@ -332,7 +427,7 @@ text-shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
 .swipe-card.has-photo .card-stat{
 flex:1; min-width:0; border-radius:14px; padding:9px 10px;
 background-color:rgba(16,18,24,.55);
-border:1px solid color-mix(in srgb, var(--color-on-accent) 22%, transparent);
+border:1px solid color-mix(in srgb, var(--color-on-photo) 22%, transparent);
 -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
 }
 .swipe-card.has-photo .card-stat-value{
@@ -344,9 +439,9 @@ display:block; margin-top:3px; font-size:11px; font-weight:600; line-height:1.2;
 .swipe-card.has-photo .card-meta{ margin-top:10px; gap:6px; }
 .swipe-card.has-photo .meta-pill{
 background-color:rgba(16,18,24,.48);
-border:1px solid color-mix(in srgb, var(--color-on-accent) 16%, transparent);
+border:1px solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
 -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
-color:var(--color-on-accent); font-size:11.5px; font-weight:700; padding:5px 10px; border-radius:999px;
+color:var(--color-on-photo); font-size:11.5px; font-weight:700; padding:5px 10px; border-radius:999px;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
 .swipe-card.has-photo .card-stat{ background-color:rgba(14,16,20,.84); }
@@ -354,13 +449,13 @@ color:var(--color-on-accent); font-size:11.5px; font-weight:700; padding:5px 10p
 }
 .swipe-card.has-photo .card-conditions{
 margin-top:10px; font-size:12.5px; font-weight:700;
-color:color-mix(in srgb, var(--color-accent) 52%, var(--color-on-accent));
+color:#D2EEDF;
 text-shadow:0 1px 2px rgba(0,0,0,.45);
 }
 .swipe-card.has-photo .card-photo-credit{
 position:absolute; left:14px; right:14px; bottom:8px; z-index:4;
 font-size:8.5px; font-weight:600; line-height:1.3;
-color:color-mix(in srgb, var(--color-on-accent) 72%, transparent);
+color:color-mix(in srgb, var(--color-on-photo) 72%, transparent);
 text-align:right; pointer-events:none;
 }
 .swipe-card.has-photo .stamp{ z-index:5; }
@@ -369,8 +464,8 @@ text-align:right; pointer-events:none;
 position:absolute; top:36px; padding:8px 16px; border:4px solid; border-radius:10px;
 font-size:26px; font-weight:900; letter-spacing:2px; opacity:0; text-transform:uppercase;
 }
-.stamp.yes{ left:24px; color:var(--success); border-color:var(--success); transform:rotate(-14deg); }
-.stamp.no{ right:24px; color:var(--danger); border-color:var(--danger); transform:rotate(14deg); }
+.stamp.yes{ left:24px; color:var(--color-jade-bright); border-color:var(--color-jade-bright); transform:rotate(-14deg); }
+.stamp.no{ right:24px; color:#C5363A; border-color:#C5363A; transform:rotate(14deg); }
 
 .empty-state{ text-align:center; padding:60px 20px; color:var(--text-soft); }
 .empty-state .es-icon{ display:flex; justify-content:center; margin-bottom:10px; }
@@ -390,6 +485,19 @@ border-radius:24px; padding:34px 22px; text-align:center; color:#fff; margin-top
 .detail-hero .dh-swipe-hint svg{ width:13px; height:13px; }
 .detail-hero{ touch-action:none; cursor:grab; }
 .detail-hero:active{ cursor:grabbing; }
+.detail-hero.has-photo{
+background-size:cover; background-position:center; min-height:240px;
+display:flex; flex-direction:column; justify-content:flex-end; text-align:left;
+position:relative; overflow:hidden; padding:22px 20px 18px;
+}
+.detail-hero.has-photo:before{
+content:""; position:absolute; inset:0; pointer-events:none;
+background:linear-gradient(to top, rgba(14,15,18,.84) 0%, rgba(14,15,18,.28) 48%, rgba(14,15,18,0) 100%);
+}
+.detail-hero.has-photo > *{ position:relative; z-index:1; }
+.detail-hero.has-photo .dh-icon{ display:none; }
+.detail-hero.has-photo .dh-cat,
+.detail-hero.has-photo .dh-swipe-hint{ text-shadow:0 1px 2px rgba(0,0,0,.45); }
 .detail-title{ font-size:24px; font-weight:800; color:var(--text); margin:18px 0 6px; }
 .detail-desc{ font-size:14.5px; line-height:1.6; color:var(--text-soft); margin:0 0 16px; }
 .detail-materials{ margin:0 0 16px; }
@@ -412,7 +520,7 @@ font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:cente
 .section-title{ font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--text-soft); margin:18px 0 10px; }
 .idea-row{
 display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:16px;
-padding:12px 14px; margin-bottom:10px; cursor:pointer;
+padding:12px 14px; margin-bottom:10px; cursor:pointer; box-shadow:var(--shadow-soft);
 }
 .idea-row .ir-icon{ width:40px; height:40px; border-radius:12px; background:var(--surface-soft); color:var(--text-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .idea-row .ir-icon svg{ width:20px; height:20px; }
@@ -426,7 +534,7 @@ padding:12px 14px; margin-bottom:10px; cursor:pointer;
 .swipeable-row .idea-row{ margin-bottom:0; }
 .swipe-delete-action{
 position:absolute; top:0; right:0; bottom:0; width:84px;
-background:var(--danger); display:flex; align-items:center; justify-content:center;
+background:var(--color-danger-fill); display:flex; align-items:center; justify-content:center;
 }
 .swipe-delete-btn{
 background:none; border:none; color:#fff; font-weight:800; font-size:12.5px;
@@ -437,7 +545,7 @@ width:100%; height:100%; cursor:pointer; display:flex; flex-direction:column; al
 
 .friend-card{
 display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--border);
-border-radius:18px; padding:14px; margin-bottom:12px; cursor:pointer;
+border-radius:18px; padding:14px; margin-bottom:12px; cursor:pointer; box-shadow:var(--shadow-soft);
 }
 .friend-avatar{
 width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
@@ -464,6 +572,7 @@ position:absolute; top:14px; right:18px; background:var(--surface-soft); border:
 border-radius:50%; font-size:14px; cursor:pointer; color:var(--text-soft);
 }
 .sheet-title{ font-size:19px; font-weight:800; color:var(--text); margin:4px 0 14px; }
+.sheet-title.display-title{ font-size:32px; font-weight:400; line-height:1; margin:12px 0 18px 4px; color:var(--color-display); }
 
 /* profile overlay */
 .profile-sheet{ max-height:92%; overflow-y:auto; }
@@ -545,10 +654,10 @@ white-space:normal; text-align:center; width:min(320px, calc(100% - 36px)); line
 }
 .chip-select{ display:flex; flex-wrap:wrap; gap:7px; }
 .chip-select .chip{
-padding:8px 13px; border-radius:16px; background:var(--surface-soft); font-size:12.5px; font-weight:700; color:var(--text-soft); cursor:pointer;
-border:1.5px solid transparent;
+padding:8px 13px; border-radius:16px; background:var(--surface); font-size:12.5px; font-weight:700; color:var(--text); cursor:pointer;
+border:1.5px solid var(--border); font-family:inherit;
 }
-.chip-select .chip.selected{ background:var(--surface-soft); color:var(--accent); border-color:var(--accent); }
+.chip-select .chip.selected{ background:var(--accent); color:var(--color-on-accent); border-color:transparent; }
 
 /* filter overlay */
 .filter-sheet{ height:82%; }
@@ -574,9 +683,9 @@ white-space:nowrap;
 .toast.hidden{ display:none; }
 
 /* ---------- Tutorial (post-signup how-to) ---------- */
-.tutorial-view{ background:var(--accent); }
+.tutorial-view{ background:var(--bg); }
 .tutorial-content{
-height:100%; display:flex; flex-direction:column; justify-content:center; padding:32px 28px; color:#fff;
+height:100%; display:flex; flex-direction:column; justify-content:center; padding:32px 28px; color:var(--text);
 }
 .tutorial-card{ text-align:center; margin-bottom:28px; }
 .tutorial-icon{ display:flex; justify-content:center; margin-bottom:16px; }
@@ -584,10 +693,10 @@ height:100%; display:flex; flex-direction:column; justify-content:center; paddin
 .tutorial-title{ font-size:24px; font-weight:800; margin:0 0 12px; }
 .tutorial-text{ font-size:15px; line-height:1.6; opacity:.95; margin:0; }
 .tutorial-dots{ display:flex; justify-content:center; gap:8px; margin-bottom:28px; }
-.tutorial-dot{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.4); }
-.tutorial-dot.active{ background:#fff; width:22px; border-radius:5px; }
+.tutorial-dot{ width:8px; height:8px; border-radius:50%; background:color-mix(in srgb, var(--text) 28%, transparent); }
+.tutorial-dot.active{ background:var(--color-jade); width:22px; border-radius:5px; }
 .tutorial-actions{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
-.tutorial-actions .btn-text{ color:#fff; opacity:.85; }
+.tutorial-actions .btn-text{ color:var(--text-soft); opacity:1; }
 .tutorial-actions .btn-primary{ flex:1; max-width:220px; margin-left:auto; }
 .tutorial-spacer{ flex:0; }
 

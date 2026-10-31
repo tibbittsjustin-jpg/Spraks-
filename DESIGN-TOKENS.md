@@ -1,36 +1,55 @@
-# Spark design tokens
+# Jaderoo design tokens
 
-The tokens in `public/style.css` name the palette, type scale, spacing, radii, and durations Spark already renders. They do not restyle it. Component rules still use the short color variables (`--accent`, `--bg`, and the rest) or the literal sizes they had before. Those short color variables are aliases of the `--color-*` tokens, so light and dark resolve to the same computed colors as before.
+The tokens in `public/style.css` are the day theme (K1 v4) and the night theme (N2 Neutral). Component rules read the short color variables (`--accent`, `--bg`, and the rest). Those names alias the `--color-*` tokens, so light and dark stay in one place.
 
-Change a color by editing the token (and its dark override). Leave the alias in place. Do not fold a nearby literal into a token whose value is different — that would move type, spacing, or timing.
+Change a color by editing the token and its dark override. Leave the alias in place. Do not fold a nearby literal into a token whose value is different — that would move type, spacing, or timing.
+
+Day follows K1 v4: cream page, white surfaces, deep jade actions, forest type. Night follows N2: `#121614` page, `#1C2220` surfaces, `#252C29` tints, `#323B37` borders, `#ECEFED` text, `#AEB8B3` secondary text. The bottom bar stays deep jade `#0B6E4F` in both themes. `prefers-color-scheme` selects the theme, and the existing night-mode toggle also turns dark on from 9pm to 6am.
 
 ## Palette
 
 | Token | Light | Dark | Alias |
 |---|---|---|---|
-| `--color-accent` | `#FF6B6B` | `#FF7A7A` | `--accent` |
-| `--color-accent-strong` | `#E8555A` | `#FF9393` | `--accent-dark` |
-| `--color-on-accent` | `#fff` | `#fff` | — |
-| `--color-bg` | `#F6F6F8` | `#17181C` | `--bg` |
-| `--color-surface` | `#FFFFFF` | `#1F2126` | `--surface` |
-| `--color-surface-soft` | `#F1F1F4` | `#282A31` | `--surface-soft` |
-| `--color-border` | `#E7E7EC` | `#33353D` | `--border` |
-| `--color-text` | `#1F2328` | `#F1F1F3` | `--text` |
-| `--color-text-soft` | `#6B7280` | `#9A9CA5` | `--text-soft` |
-| `--color-chrome` | `#EDEDF0` | `#0E0F12` | `--chrome-bg` |
-| `--color-success` | `#22A06B` | `#3FBE8C` | `--success` |
-| `--color-danger` | `#E5484D` | `#FF6B6B` | `--danger` |
-| `--color-overlay` | `rgba(20,20,26,.45)` | same | sheet scrim (`.overlay`) |
-| `--shadow-card` | `0 10px 26px rgba(20,20,30,.08)` | `0 10px 26px rgba(0,0,0,.35)` | `--shadow` |
-| `--shadow-accent` | `0 6px 16px rgba(255,107,107,.28)` | same | recorded, not applied |
+| `--color-accent` | `#0B6E4F` | `#3CCB8A` | `--accent` |
+| `--color-accent-strong` | `#0F4D3A` | `#8FE0B8` | `--accent-dark` |
+| `--color-on-accent` | `#fff` | `#0F4D3A` | ink on accent fills |
+| `--color-bg` | `#FFFBF2` | `#121614` | `--bg` |
+| `--color-surface` | `#FFFFFF` | `#1C2220` | `--surface` |
+| `--color-surface-soft` | `#F4FBF7` | `#252C29` | `--surface-soft` |
+| `--color-border` | `#D6E6DD` | `#323B37` | `--border` |
+| `--color-text` | `#0F4D3A` | `#ECEFED` | `--text` |
+| `--color-text-soft` | `#4A6358` | `#AEB8B3` | `--text-soft` |
+| `--color-chrome` | `#EFE8D8` | `#0C0F0D` | `--chrome-bg` |
+| `--color-success` | `#0B6E4F` | `#3CCB8A` | `--success` |
+| `--color-danger` | `#8E2430` | `#F0B4B6` | `--danger` (text) |
+| `--color-danger-fill` | `#8E2430` | `#8E2430` | delete button fill |
+| `--color-overlay` | `rgba(18,22,20,.45)` | `rgba(8,10,9,.62)` | sheet scrim (`.overlay`) |
+| `--color-nav` | `#0B6E4F` | `#0B6E4F` | bottom bar |
+| `--color-nav-inactive` | `#D2EEDF` | `#D2EEDF` | inactive tab |
+| `--color-nav-active` | `#FFFFFF` | `#FFFFFF` | active tab |
+| `--color-wordmark` | `#0B6E4F` | `#3CCB8A` | JADEROO |
+| `--color-display` | `#0F4D3A` | `#3CCB8A` | screen titles |
+| `--color-jade` | `#0B6E4F` | `#0B6E4F` | deep jade, both themes |
+| `--color-jade-bright` | `#3CCB8A` | `#3CCB8A` | light accent |
+| `--color-yellow` | `#FFD23F` | `#F2C94C` | tonight chip / time badges only |
+| `--color-on-yellow` | `#0F4D3A` | `#0F4D3A` | ink on yellow |
+| `--color-coral` | `#FF5A5F` | `#FF5A5F` | non-text fill only; not used for type |
+| `--shadow-card` | `0 8px 24px rgba(15,77,58,.07)` | `0 10px 28px rgba(0,0,0,.35)` | `--shadow` |
+| `--shadow-soft` | `0 6px 16px rgba(15,77,58,.08)` | `0 6px 18px rgba(0,0,0,.32)` | buttons, rows |
+| `--shadow-nav` | `0 -10px 28px rgba(11,70,50,.18)` | `0 -10px 28px rgba(0,0,0,.4)` | bottom bar |
+| `--shadow-accent` | same as `--shadow-soft` | same | primary button |
 
-`--color-accent-strong` is the secondary accent (real-place names, friend-pick badges). It is darker than the brand coral in light mode and lighter in dark mode. That is the value `--accent-dark` already had; the alias keeps it.
+`--color-accent` is deep jade in the day theme and bright jade at night, with `--color-on-accent` kept dark on the night fill so chip and button text stay above 4.5:1. `--color-accent-strong` is forest by day and a lighter jade by night (real-place names, friend-pick badges).
 
-`--color-on-accent` is the white painted on accent fills (primary buttons, badges, hero text, the toggle knob). Rules still write `#fff`. The token matches that paint in both themes.
+`--color-on-photo` and `--color-ink` sit on photographs and do not flip. The photo card title, tiles, and credit use `--color-on-photo`. The category pill uses `--color-ink` (`#0F4D3A`) on white.
 
-`--color-danger` in dark mode is `#FF6B6B`, the same hex as the light accent. Destructive and brand can look alike on a dark surface. Leave that until a deliberate contrast change.
+`--color-coral` is `#FF5A5F`. It is not applied to text. The app has no radius slider, so the token is reserved and unused.
 
-`--shadow-accent` matches the primary-button glow in both themes, including dark mode, where the glow does not follow `#FF7A7A`. Pointing the button at `color-mix()` or at the dark accent would change that screen.
+`--color-yellow` is reserved for a "Happening tonight" chip and time badges. Those controls are not in the current screens, so the token is unused. Stat tiles are not yellow.
+
+`--color-danger` is text. The delete row uses `--color-danger-fill` with white type so the control does not turn pale at night and does not use coral.
+
+Shadows are soft blurs. There is no hard offset shadow.
 
 ### Tints that are not the overlay
 
@@ -38,20 +57,25 @@ These are separate paints. Do not point them at `--color-overlay`.
 
 | Where | Value |
 |---|---|
-| Category chip on card art | `rgba(255,255,255,.92)` |
+| Category chip on card art | `#fff` with `--color-ink` |
 | Real-place badge | `rgba(255,255,255,.94)` |
 | Real-place badge shadow | `rgba(20,20,26,.12)` |
-| Event badge on card art | `rgba(24,26,32,.82)` with `#fff` text |
-| Tutorial dot (inactive) | `rgba(255,255,255,.4)` |
+| Open-now badge | `--color-accent` with `--color-on-accent`, dot `--color-open-dot` |
+| Conditions line on a photo | `#D2EEDF` |
+| Photo scrim | `rgba(14,15,18,…)` held constant |
+| Tutorial dot (inactive) | `color-mix` of the text color at 28% |
+| Active nav pill | `rgba(255,255,255,.16)` |
 | Toggle knob shadow | `0 1px 3px rgba(0,0,0,.25)` |
 
 The phone bezel is `#1c1c1e` with a `#3a3a3c` edge. It is chrome, not a theme color.
 
 Cover-art palettes live in `app.js` (`getCoverArtStyle`). They are illustration colors, not UI tokens.
 
+Body type is Nunito. The wordmark and one screen title (the top bar, and the Filters sheet) use Bungee, flat, rotated about −5 degrees, with no shadow.
+
 ## Type scale
 
-One family: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`. No web font.
+Body: `"Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`. Display and the wordmark: `"Bungee", "Nunito", sans-serif`.
 
 Weights: `--fw-regular` 500, `--fw-semi` 600, `--fw-bold` 700, `--fw-heavy` 800, `--fw-black` 900 (swipe stamps only).
 

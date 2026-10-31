@@ -79,7 +79,7 @@
       return { save: null, message: "You've sent a lot of ideas. Try again later." };
     }
     if (httpStatus === 403) {
-      return { save: null, showGate: true, message: "You must be 18 or older to use Spark." };
+      return { save: null, showGate: true, message: "You must be 18 or older to use Jaderoo." };
     }
     if (httpStatus === 503 || httpStatus === 0) {
       return {

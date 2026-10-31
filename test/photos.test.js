@@ -1,6 +1,7 @@
-/* Approved photo map: every photos.json id is a real idea (or one of the
-   four ideas removed from the catalog after the map was made), every url
-   points at a file under public/photos, and the deck attaches that photo. */
+/* Approved photo map: every photos.json id is a real idea. The four
+   ideas removed from the catalog (336, 778, 1424, 1548) are not in the
+   map. Every url points at a file under public/photos, and the deck
+   attaches that photo. */
 "use strict";
 
 const fs = require("fs");
@@ -23,9 +24,9 @@ function section(title, fn) {
 const ROOT = path.join(__dirname, "..");
 const PUBLIC = path.join(ROOT, "public");
 const PHOTOS_ROOT = path.join(PUBLIC, "photos");
-/* Same ids as test/removed-ids.test.js. They are still in the approved map
-   and are not in the deck. Id 340 was already absent from the map. */
-const REMOVED = new Set([336, 778, 1424, 1548]);
+/* Same ids as test/removed-ids.test.js. They are not in the map.
+   Id 340 was already absent. */
+const REMOVED = [336, 778, 1424, 1548];
 
 function loadPhotoMap() {
   const sandbox = {};
@@ -62,7 +63,6 @@ section("every idea id exists and every photo file resolves", () => {
   check("the approved map covers the catalog", ids.length >= ideas.length, String(ids.length));
 
   const unknown = [];
-  const orphan = [];
   const missingFiles = [];
   const unsafe = [];
   const referenced = new Set();
@@ -70,10 +70,7 @@ section("every idea id exists and every photo file resolves", () => {
     const id = Number(key);
     const entry = json[key];
     if (!Number.isInteger(id) || String(id) !== key) unknown.push(key);
-    else if (!ideaIds.has(id)) {
-      if (!REMOVED.has(id)) unknown.push(key);
-      else orphan.push(id);
-    }
+    else if (!ideaIds.has(id)) unknown.push(key);
     const url = entry && entry.url;
     const abs = resolvePhoto(url);
     if (!abs) unsafe.push(key + " " + url);
@@ -83,10 +80,10 @@ section("every idea id exists and every photo file resolves", () => {
     }
     if (!entry || typeof entry.credit !== "string" || !entry.credit.trim()) unsafe.push(key + " credit");
   });
-  check("every photos.json id exists in the catalog, except the four removed ideas",
+  check("removed idea ids are gone from photos.json",
+    REMOVED.every(id => !json[String(id)]));
+  check("every photos.json id exists in the catalog",
     unknown.length === 0, unknown.slice(0, 8).join(","));
-  check("the only ids outside the catalog are the four removed ideas",
-    orphan.length === REMOVED.size && orphan.every(id => REMOVED.has(id)), orphan.join(","));
 
   const uncovered = ideas.filter(idea => !json[String(idea.id)]).map(idea => idea.id);
   check("every catalog idea has a photos.json entry", uncovered.length === 0, uncovered.slice(0, 8).join(","));

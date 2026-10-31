@@ -10,6 +10,7 @@
   // idea. License and source links stay on the credits page. Ideas with no
   // entry keep the generated cover.
   applyIdeaPhotos(typeof IDEA_PHOTOS === "undefined" ? null : IDEA_PHOTOS);
+  applyIdeaPins(typeof IDEA_PINS === "undefined" ? null : IDEA_PINS);
 
   function applyIdeaPhotos(map){
     if(!map || typeof map !== "object") return;
@@ -20,6 +21,20 @@
       if(!url) return;
       var credit = typeof entry.credit === "string" ? entry.credit : "";
       idea.photo = { url: url, credit: credit };
+    });
+  }
+
+  // Confident pins only. An idea that already has a point keeps it.
+  // City stays on the pin table and is not copied onto the idea.
+  function applyIdeaPins(map){
+    if(!map || typeof map !== "object") return;
+    IDEAS_DATA.forEach(function(idea){
+      if(SparkRadius.ideaPoint(idea)) return;
+      var pin = map[idea.id] != null ? map[idea.id] : map[String(idea.id)];
+      var point = SparkRadius.ideaPoint(pin);
+      if(!point) return;
+      idea.lat = point.lat;
+      idea.lng = point.lng;
     });
   }
 
@@ -253,7 +268,7 @@
       doneIds:[],       // [{id, date}]
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false, radiusMiles:SparkRadius.RADIUS_DEFAULT },
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
@@ -279,6 +294,7 @@
       // filter category like "dateType" existed) don't end up missing a nested key.
       parsed.filters = parsed.filters || {};
       for(var fk in d.filters){ if(!(fk in parsed.filters)) parsed.filters[fk] = d.filters[fk]; }
+      parsed.filters.radiusMiles = SparkRadius.clampRadiusMiles(parsed.filters.radiusMiles);
       // Same backfill treatment for settings (e.g. older saved states from
       // before the night-mode toggle existed won't have this key yet).
       parsed.settings = parsed.settings || {};
@@ -475,6 +491,8 @@
       saveState();
       if(!opts.silent) showToast("Location enabled!");
       updateLocationBar();
+      updateRadiusPlace();
+      refreshDeckAfterRadius();
       fetchNearbyIdeas();
     }, function(err){
       if(!opts.silent) showToast("Couldn't get your location: " + (err && err.message ? err.message : "permission denied"));
@@ -1164,22 +1182,24 @@
 
   var TAB_TITLES = { discover:"Discover", friends:"Friends", saved:"Saved", done:"Done" };
 
-  function applyTopbarTitle(text){
+  function applyTopbarTitle(text, opts){
     var title = $("#topbar-title");
-    var icon = $("#topbar-icon");
+    var iconEl = $("#topbar-icon");
     if(!title) return;
     var brand = text === "Discover" || text === "Jaderoo";
+    var hero = !!(opts && opts.hero);
     if(brand){
       title.textContent = "JADEROO";
       title.classList.add("wordmark");
       title.classList.remove("display-title");
-      if(icon) icon.hidden = false;
+      if(iconEl) iconEl.hidden = false;
     } else {
       title.textContent = text;
       title.classList.remove("wordmark");
       title.classList.add("display-title");
-      if(icon) icon.hidden = true;
+      if(iconEl) iconEl.hidden = true;
     }
+    title.classList.toggle("hero-title", hero && !brand);
   }
 
   function switchTab(tab){
@@ -1199,11 +1219,8 @@
       applyTopbarTitle("Friend");
       content.appendChild(buildFriendDetailScreen(ui.detailFriendId));
     } else {
-      if(ui.tab === "saved" && ui.savedBucket){
-        applyTopbarTitle(bucketLabel(ui.savedBucket));
-      } else {
-        applyTopbarTitle(TAB_TITLES[ui.tab] || "Jaderoo");
-      }
+      if(ui.tab === "saved") applyTopbarTitle("Saved", { hero:true });
+      else applyTopbarTitle(TAB_TITLES[ui.tab] || "Jaderoo");
       if(ui.tab === "discover") content.appendChild(buildDiscoverScreen());
       else if(ui.tab === "friends") content.appendChild(buildFriendsScreen());
       else if(ui.tab === "saved") content.appendChild(buildSavedScreen());
@@ -1235,6 +1252,7 @@
     if(f.dateType.length && !idea.dateType.some(function(d){ return f.dateType.indexOf(d) !== -1; })) return false;
     if(f.food !== null && idea.food !== f.food) return false;
     if(f.hide21 && idea.age21 === true) return false;
+    if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
     // Quick filter from the Discover chip. Not part of the Filters sheet,
     // and not counted on that button. See SparkUtil.suitsTonight.
     if(f.tonight === true && !SparkUtil.suitsTonight(idea)) return false;
@@ -1270,6 +1288,7 @@
     ["duration","cost","time","setting","vibe","season","stage","dateType"].forEach(function(k){ n += f[k].length; });
     if(f.food !== null) n += 1;
     if(f.hide21) n += 1;
+    if(SparkRadius.clampRadiusMiles(f.radiusMiles) !== SparkRadius.RADIUS_DEFAULT) n += 1;
     return n;
   }
 
@@ -1289,7 +1308,10 @@
 
     // Rebuild the order only when the deck's *contents* change — a new filter
     // set, or a fresh batch of real spots arriving. Swiping doesn't change it.
-    var signature = JSON.stringify(state.filters) + "|" + builtinIds.length + "|" + extraIds.join(",");
+    var loc = state.location;
+    var locKey = (loc && typeof loc.lat === "number" && typeof loc.lng === "number")
+      ? (loc.lat + "," + loc.lng) : "";
+    var signature = JSON.stringify(state.filters) + "|" + locKey + "|" + builtinIds.length + "|" + extraIds.join(",");
     if(!deckOrderCache || deckOrderCache.signature !== signature){
       deckOrderCache = { signature: signature, ids: interleaveIds(builtinIds, extraIds) };
     }
@@ -1301,8 +1323,168 @@
   }
 
   /* ---------- Discover screen ---------- */
+  // City on the saved fix, else the nearest confident pin within 15 miles,
+  // else "Near you". A denied or missing fix stays on the fallback. No
+  // second permission prompt.
+  function placeLabel(){
+    var loc = state.location;
+    if(loc && typeof loc.city === "string" && loc.city.trim()) return loc.city.trim();
+    if(loc && typeof loc.label === "string" && loc.label.trim()) return loc.label.trim();
+    var pins = (typeof IDEA_PINS === "undefined") ? null : IDEA_PINS;
+    var inferred = SparkRadius.nearestPlaceLabel(loc, pins, SparkRadius.NEAREST_LABEL_MILES);
+    return inferred || "Near you";
+  }
+
+  function setSliderPct(slider, pct){
+    if(slider.style && typeof slider.style.setProperty === "function") slider.style.setProperty("--radius-pct", pct);
+    else if(slider.style) slider.style["--radius-pct"] = pct;
+  }
+
+  function syncRadiusSlider(slider, miles){
+    var pos = SparkRadius.milesToSlider(miles);
+    var clamped = SparkRadius.clampRadiusMiles(miles);
+    slider.value = String(pos);
+    setSliderPct(slider, (pos / SparkRadius.RADIUS_SLIDER_MAX * 100) + "%");
+    slider.setAttribute("aria-valuenow", String(clamped));
+    slider.setAttribute("aria-valuetext", clamped + " miles");
+  }
+
+  function sliderFillPct(slider){
+    var pos = Number(slider.value);
+    if(!isFinite(pos)) pos = 0;
+    return (pos / SparkRadius.RADIUS_SLIDER_MAX * 100) + "%";
+  }
+
+  function makeRadiusSlider(className, label){
+    var slider = document.createElement("input");
+    slider.type = "range";
+    slider.className = "radius-slider " + className;
+    slider.min = "0";
+    slider.max = String(SparkRadius.RADIUS_SLIDER_MAX);
+    slider.step = "1";
+    slider.setAttribute("aria-label", label);
+    slider.setAttribute("aria-valuemin", String(SparkRadius.RADIUS_MIN));
+    slider.setAttribute("aria-valuemax", String(SparkRadius.RADIUS_MAX));
+    return slider;
+  }
+
+  function buildRadiusRow(){
+    var row = el("div", "radius-row");
+    var place = el("div", "radius-place");
+    place.innerHTML = icon("map-pin") + '<span class="radius-place-name" id="radius-place-name"></span>';
+    place.querySelector(".radius-place-name").textContent = placeLabel();
+    var miles = SparkRadius.clampRadiusMiles(state.filters.radiusMiles);
+    var slider = makeRadiusSlider("radius-slider-discover", "How far");
+    syncRadiusSlider(slider, miles);
+    var readout = el("span", "radius-readout");
+    readout.id = "radius-readout";
+    readout.textContent = SparkRadius.radiusLabel(miles);
+    slider.addEventListener("input", function(){
+      var next = SparkRadius.sliderToMiles(slider.value);
+      state.filters.radiusMiles = next;
+      readout.textContent = SparkRadius.radiusLabel(next);
+      setSliderPct(slider, sliderFillPct(slider));
+      slider.setAttribute("aria-valuenow", String(next));
+      slider.setAttribute("aria-valuetext", next + " miles");
+      saveState();
+      refreshDeckAfterRadius();
+      updateFilterBadge();
+    });
+    row.appendChild(place);
+    row.appendChild(slider);
+    row.appendChild(readout);
+    return row;
+  }
+
+  function updateRadiusPlace(){
+    var name = document.getElementById("radius-place-name");
+    if(name) name.textContent = placeLabel();
+  }
+
+  function refreshDeckAfterRadius(){
+    var deckEl = $("#deck");
+    if(!deckEl) return;
+    renderDeckCards(deckEl);
+    updateResultCount();
+  }
+
+  function updateFilterBadge(){
+    var btn = $(".filter-chip-btn");
+    if(!btn) return;
+    var count = activeFilterCount(state.filters);
+    var badge = $(".badge", btn);
+    if(!count){
+      if(badge && badge.remove) badge.remove();
+      return;
+    }
+    if(!badge){
+      badge = el("span", "badge");
+      btn.appendChild(badge);
+    }
+    badge.textContent = String(count);
+  }
+
+  function radiusDiagram(){
+    function arc(r, cls, fill){
+      var d = "M" + (160 - r) + ",142 A" + r + "," + r + " 0 0 1 " + (160 + r) + ",142";
+      if(fill) d += " L160,142 Z";
+      return '<path class="' + cls + '" d="' + d + '"/>';
+    }
+    var wrap = el("div", "radius-diagram-wrap");
+    wrap.innerHTML =
+      '<svg class="radius-diagram" viewBox="0 0 320 150" aria-hidden="true">' +
+        arc(126, "radius-fill radius-fill-a", true) +
+        arc(92, "radius-fill radius-fill-b", true) +
+        arc(58, "radius-fill radius-fill-c", true) +
+        arc(126, "radius-ring radius-ring-outer", false) +
+        arc(92, "radius-ring radius-ring-mid", false) +
+        arc(58, "radius-ring", false) +
+        arc(32, "radius-ring", false) +
+        '<g class="radius-pin" transform="translate(148,120)">' +
+          '<path d="M12 22s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/>' +
+          '<circle class="radius-pin-dot" cx="12" cy="10" r="2.3"/>' +
+        '</g>' +
+      '</svg>';
+    return wrap;
+  }
+
+  function buildHowFarGroup(){
+    var group = el("div", "filter-group how-far-group");
+    var card = el("div", "how-far");
+    var head = el("div", "how-far-head");
+    var miles = SparkRadius.clampRadiusMiles(ui.filterDraft.radiusMiles);
+    head.innerHTML = '<span class="how-far-label">How far?</span><span class="how-far-value"></span>';
+    head.querySelector(".how-far-value").textContent = SparkRadius.radiusLabel(miles);
+    var slider = makeRadiusSlider("radius-slider-panel", "How far, in miles");
+    syncRadiusSlider(slider, miles);
+    slider.addEventListener("input", function(){
+      var next = SparkRadius.sliderToMiles(slider.value);
+      ui.filterDraft.radiusMiles = next;
+      var value = head.querySelector(".how-far-value");
+      if(value) value.textContent = SparkRadius.radiusLabel(next);
+      setSliderPct(slider, sliderFillPct(slider));
+      slider.setAttribute("aria-valuenow", String(next));
+      slider.setAttribute("aria-valuetext", next + " miles");
+    });
+    var ticks = el("div", "radius-ticks");
+    ticks.setAttribute("aria-hidden", "true");
+    [[0, "1"], [25, "5"], [50, "10"], [75, "25"], [100, "50 mi"]].forEach(function(pair){
+      var tick = el("span", "radius-tick", pair[1]);
+      tick.style.left = pair[0] + "%";
+      ticks.appendChild(tick);
+    });
+    card.appendChild(head);
+    card.appendChild(radiusDiagram());
+    card.appendChild(slider);
+    card.appendChild(ticks);
+    group.appendChild(card);
+    return group;
+  }
+
   function buildDiscoverScreen(){
     var wrap = el("div", "screen discover-screen");
+
+    wrap.appendChild(buildRadiusRow());
 
     var bar = el("div", "filter-bar");
     var fbtn = el("button", "filter-chip-btn");
@@ -1447,10 +1629,11 @@
      photo keeps the generated cover.
 
      The H1 overlay reads a few other optional facts when a photo is present.
-     They are not filters and they are not invented when missing:
-       distanceMiles  → "6.4 mi" / "from you"
+     Missing facts are left blank. They are not invented.
+       distanceMiles  → "6.4 mi" / "from you". The radius filter also
+                        reads it when the idea has no coordinates.
        closesAt       → "10 pm" / "lot closes"   (a short clock time)
-       conditions     → the coral line under the chips
+       conditions     → the line under the chips
        openNow        → true shows the Open now badge.
      Time pills (Tonight / Evening / Night) come from authored time tags
      and can show on a card with or without a photo. See suitsTonight. */
@@ -1599,7 +1782,6 @@
       : "";
     return '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
       '<div class="card-photo-scrim"></div>' +
-      '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
       cardCornerHtml(idea) +
       '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '<div class="card-photo-overlay">' + photoOverlayHtml(idea) + '</div>' +
@@ -1608,7 +1790,6 @@
 
   function classicSwipeCardHtml(idea){
     return '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
-        '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
         cardCornerHtml(idea) +
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '</div>' +
@@ -1718,6 +1899,7 @@
   function renderFilterBody(){
     var body = $("#filter-body");
     body.innerHTML = "";
+    body.appendChild(buildHowFarGroup());
 
     FILTER_DEFS.forEach(function(def){
       var group = el("div", "filter-group");
@@ -2625,97 +2807,143 @@
     return row;
   }
 
+  // Saved is one screen: pill tabs for each date plan, Favorites, and Done,
+  // then the ideas in the selected folder. The big SAVED title stays in the
+  // top bar. Opening an idea, swiping to remove it, sharing a plan, and
+  // planning a new date all still work.
   function buildSavedScreen(){
-    if(ui.savedBucket) return buildSavedBucketScreen(ui.savedBucket);
-    return buildSavedFolderList();
-  }
-
-  // Top-level Saved tab: a folder for "Favorites" plus one folder per date plan.
-  function buildSavedFolderList(){
     var wrap = el("div", "screen saved-screen");
-
-    var newPlanBtn = el("button", "btn-secondary btn-block plan-cta", icon("calendar") + " Plan a New Date");
-    newPlanBtn.type = "button";
-    newPlanBtn.addEventListener("click", openPlanOverlay);
-    wrap.appendChild(newPlanBtn);
-
-    wrap.appendChild(el("div", "section-title", "Your Saved Ideas"));
-
-    if(totalSavedCount() === 0){
-      wrap.appendChild(emptyNote(icon("bookmark"), "No saved ideas yet", "Swipe yes on ideas you love, or tap Favorites, to start filling up your folders."));
-      return wrap;
-    }
-
-    wrap.appendChild(buildFolderRow({ type:"someday" }, icon("star"), "Favorites", state.somedayIds.length, "Ideas with no date planned yet"));
-
-    state.datePlans.slice().reverse().forEach(function(plan){
-      var subtext = plan.date ? fmtDate(plan.date) : "No date set";
-      var row = buildFolderRow({ type:"plan", planId: plan.id }, icon("calendar"), plan.name, plan.ideaIds.length, subtext);
-      wrap.appendChild(buildSwipeToDeleteRow(row, function(){ deletePlan(plan.id); }));
-    });
-
+    var folders = listSavedFolders();
+    var active = resolveSavedFolder(folders);
+    wrap.appendChild(buildSavedPillRow(folders, active));
+    if(active.bucket.type === "done") wrap.appendChild(buildSavedDoneList());
+    else wrap.appendChild(buildSavedBucketScreen(active.bucket));
     return wrap;
   }
 
-  function buildFolderRow(bucket, icon, title, count, subtext){
-    var row = el("div", "idea-row folder-row");
-    row.innerHTML =
-      '<span class="ir-icon">' + icon + '</span>' +
-      '<span class="ir-text"><div class="ir-title">' + escapeHtml(title) + '</div>' +
-      '<div class="ir-sub">' + escapeHtml(subtext) + ' · ' + count + (count === 1 ? " idea" : " ideas") + '</div></span>' +
-      '<span class="ir-chevron">›</span>';
-    row.addEventListener("click", function(){
-      ui.savedBucket = bucket;
-      renderContent();
+  // User-created date plans, then the Favorites bucket, then the Done list.
+  // Counts are the same lengths the old folder rows showed.
+  function listSavedFolders(){
+    var folders = [];
+    state.datePlans.slice().reverse().forEach(function(plan){
+      folders.push({
+        key: "plan:" + plan.id,
+        bucket: { type:"plan", planId: plan.id },
+        label: plan.name,
+        count: (plan.ideaIds || []).length
+      });
     });
-    return row;
+    folders.push({
+      key: "someday",
+      bucket: { type:"someday" },
+      label: "Favorites",
+      count: state.somedayIds.length
+    });
+    folders.push({
+      key: "done",
+      bucket: { type:"done" },
+      label: "Done",
+      count: state.doneIds.length
+    });
+    return folders;
+  }
+
+  function sameSavedBucket(a, b){
+    if(!a || !b || a.type !== b.type) return false;
+    if(a.type === "plan") return a.planId === b.planId;
+    return true;
+  }
+
+  function resolveSavedFolder(folders){
+    var i;
+    if(ui.savedBucket){
+      for(i = 0; i < folders.length; i++){
+        if(sameSavedBucket(folders[i].bucket, ui.savedBucket)) return folders[i];
+      }
+    }
+    for(i = 0; i < folders.length; i++){
+      if(folders[i].bucket.type === "someday" && folders[i].count > 0) return folders[i];
+    }
+    for(i = 0; i < folders.length; i++){
+      if(folders[i].count > 0) return folders[i];
+    }
+    return folders[0];
+  }
+
+  function buildSavedPillRow(folders, active){
+    var bar = el("div", "saved-pill-bar");
+    var row = el("div", "saved-pills");
+    row.setAttribute("role", "tablist");
+    folders.forEach(function(folder){
+      var on = sameSavedBucket(folder.bucket, active.bucket);
+      var pill = el("button", "saved-pill" + (on ? " is-active" : ""),
+        escapeHtml(folder.label) + " · " + folder.count);
+      pill.type = "button";
+      pill.setAttribute("role", "tab");
+      pill.setAttribute("aria-selected", on ? "true" : "false");
+      pill.dataset.bucket = folder.key;
+      pill.addEventListener("click", function(){
+        ui.savedBucket = folder.bucket;
+        renderContent();
+      });
+      row.appendChild(pill);
+    });
+    var add = el("button", "saved-pill saved-pill-add", icon("plus") + '<span class="saved-pill-add-label">Plan a New Date</span>');
+    add.type = "button";
+    add.setAttribute("aria-label", "Plan a New Date");
+    add.addEventListener("click", openPlanOverlay);
+    bar.appendChild(row);
+    bar.appendChild(add);
+    return bar;
   }
 
   function deletePlan(planId){
     var idx = state.datePlans.findIndex(function(p){ return p.id === planId; });
     if(idx !== -1) state.datePlans.splice(idx, 1);
     if(ui.activePlanId === planId) ui.activePlanId = null;
+    if(ui.savedBucket && ui.savedBucket.type === "plan" && ui.savedBucket.planId === planId) ui.savedBucket = null;
     saveState();
     showToast("Plan deleted");
     renderContent();
   }
 
-  // Drilled-in view of a single bucket's (plan's or Someday's) saved ideas.
+  // Ideas inside the selected plan or Favorites folder.
   function buildSavedBucketScreen(bucket){
-    var wrap = el("div", "screen saved-screen saved-bucket-screen");
-
-    var backBtn = el("button", "btn-text saved-back-btn", "‹ All Saved");
-    backBtn.type = "button";
-    backBtn.addEventListener("click", function(){
-      ui.savedBucket = null;
-      renderContent();
-    });
-    wrap.appendChild(backBtn);
-
+    var wrap = el("div", "saved-bucket");
     var ids, plan = null;
     if(bucket.type === "plan"){
       plan = getPlanById(bucket.planId);
-      if(!plan){ ui.savedBucket = null; return buildSavedFolderList(); }
-      var subtext = plan.date ? fmtDate(plan.date) : "No date set";
-      wrap.appendChild(el("div", "section-title", plan.name));
-      wrap.appendChild(el("div", "saved-bucket-subtitle", subtext));
-      var shareBtn = el("button", "btn-outline plan-share-btn", icon("share") + " Share with Friends");
+      if(!plan){
+        wrap.appendChild(emptyNote(icon("bookmark"), "Nothing here yet", "Ideas you save into this folder will show up here."));
+        return wrap;
+      }
+      var bar = el("div", "saved-plan-bar");
+      var when = plan.date ? fmtDate(plan.date) : "No date set";
+      bar.appendChild(el("div", "saved-plan-date", escapeHtml(when)));
+      var shareBtn = el("button", "btn-outline saved-plan-action", icon("share") + " Share with Friends");
       shareBtn.type = "button";
       shareBtn.addEventListener("click", function(){ openPlanShareOverlay(plan.id); });
-      wrap.appendChild(shareBtn);
-      var linkBtn = el("button", "btn-outline plan-share-btn", icon("share") + " Share plan");
+      var linkBtn = el("button", "btn-outline saved-plan-action", icon("share") + " Share plan");
       linkBtn.type = "button";
       linkBtn.addEventListener("click", function(){ openPlanLinkOverlay(plan.id); });
-      wrap.appendChild(linkBtn);
+      var delBtn = el("button", "btn-text saved-plan-delete", "Delete plan");
+      delBtn.type = "button";
+      delBtn.addEventListener("click", function(){ deletePlan(plan.id); });
+      bar.appendChild(shareBtn);
+      bar.appendChild(linkBtn);
+      bar.appendChild(delBtn);
+      wrap.appendChild(bar);
       ids = plan.ideaIds;
     } else {
-      wrap.appendChild(el("div", "section-title", "Favorites"));
-      wrap.appendChild(el("div", "saved-bucket-subtitle", "Ideas with no date planned yet"));
       ids = state.somedayIds;
     }
 
-    if(ids.length === 0){
-      wrap.appendChild(emptyNote(icon("bookmark"), "Nothing here yet", "Ideas you save into this folder will show up here."));
+    if(!ids.length){
+      var emptyTitle = bucket.type === "plan" ? "Nothing here yet" : "No saved ideas yet";
+      var emptySub = bucket.type === "plan"
+        ? "Ideas you save into this folder will show up here."
+        : "Swipe yes on ideas you love, or tap Favorites, to start filling up your folders.";
+      wrap.appendChild(emptyNote(icon("bookmark"), emptyTitle, emptySub));
       return wrap;
     }
 
@@ -2731,19 +2959,87 @@
     pickedIds.concat(restIds).forEach(function(id){
       var idea = IDEAS_BY_ID[id];
       if(!idea) return;
-      var row = buildIdeaRow(idea, idea.category);
       var picks = plan ? (plan.friendPicks || []).filter(function(p){ return p.ideaId === id; }) : [];
-      var swipeRow = buildSwipeToDeleteRow(row, function(){ removeSavedIdea(id, bucket); });
-      if(picks.length){
-        swipeRow.classList.add("friend-picked");
-        var badge = el("div", "friend-pick-badge",
-          picks.map(function(p){ return p.avatarEmoji + " " + escapeHtml(p.friendName); }).join(", ") + " picked this!");
-        var irText = row.querySelector(".ir-text");
-        if(irText) irText.appendChild(badge);
-      }
+      var card = buildSavedCard(idea, { picks: picks });
+      var swipeRow = buildSwipeToDeleteRow(card, function(){ removeSavedIdea(id, bucket); });
+      if(picks.length) swipeRow.className = swipeRow.className + " friend-picked";
       wrap.appendChild(swipeRow);
     });
     return wrap;
+  }
+
+  function buildSavedDoneList(){
+    var wrap = el("div", "saved-bucket");
+    if(!state.doneIds.length){
+      wrap.appendChild(emptyNote(icon("check-circle"), "No completed dates yet", "Mark ideas as done from their detail screen after you try them."));
+      return wrap;
+    }
+    state.doneIds.slice().reverse().forEach(function(entry){
+      var idea = IDEAS_BY_ID[entry.id];
+      if(!idea) return;
+      wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date) }));
+    });
+    return wrap;
+  }
+
+  // Distance and cost only when the idea actually has them. "Open now" only
+  // when openNow is true — the same fact the Discover card already uses.
+  // A time pill is the authored Evening/Night label, shown beside Open now
+  // when both are real. Weekdays and clock times are not invented.
+  function savedMetaParts(idea, doneDate){
+    var parts = [];
+    if(idea && idea.unavailable){
+      parts.push("No longer available");
+      return parts;
+    }
+    var dist = distanceLabel(idea && idea.distanceMiles);
+    if(dist) parts.push(dist);
+    var cost = displayCost(idea);
+    if(cost) parts.push(cost);
+    if(doneDate) parts.push("Done " + doneDate);
+    return parts;
+  }
+
+  function savedStatusBadge(idea){
+    if(!idea || idea.unavailable) return null;
+    if(idea.openNow === true) return { kind:"open", label:"Open now" };
+    return null;
+  }
+
+  function savedTimeBadge(idea){
+    if(!idea || idea.unavailable) return null;
+    var label = SparkUtil.timeBadgeLabel(idea);
+    if(!label) return null;
+    return { kind:"time", label:label };
+  }
+
+  function buildSavedCard(idea, opts){
+    opts = opts || {};
+    var card = el("div", "saved-card" + (idea && idea.unavailable ? " unavailable-item" : ""));
+    var photo = ideaPhoto(idea);
+    var thumb = el("div", "saved-thumb" + (photo ? " has-photo" : " is-placeholder"));
+    if(photo) thumb.innerHTML = '<img alt="" src="' + escapeHtml(photo.url) + '">';
+    else thumb.innerHTML = icon("bookmark");
+    var body = el("div", "saved-card-body");
+    body.appendChild(el("div", "saved-card-title", escapeHtml(idea.title)));
+    var meta = savedMetaParts(idea, opts.doneDate);
+    if(meta.length) body.appendChild(el("div", "saved-card-meta", escapeHtml(meta.join(" · "))));
+    var badge = savedStatusBadge(idea);
+    if(badge) body.appendChild(el("span", "saved-badge saved-badge-" + badge.kind, escapeHtml(badge.label)));
+    var timeBadge = savedTimeBadge(idea);
+    if(timeBadge) body.appendChild(el("span", "saved-badge saved-badge-" + timeBadge.kind, escapeHtml(timeBadge.label)));
+    var picks = opts.picks || [];
+    if(picks.length){
+      body.appendChild(el("div", "friend-pick-badge",
+        picks.map(function(p){ return p.avatarEmoji + " " + escapeHtml(p.friendName); }).join(", ") + " picked this!"));
+    }
+    var mark = el("span", "saved-bookmark", icon("bookmark"));
+    mark.setAttribute("aria-hidden", "true");
+    card.appendChild(thumb);
+    card.appendChild(body);
+    card.appendChild(mark);
+    card.addEventListener("click", function(){ goToDetail(idea.id); });
+    return card;
   }
 
   function removeSavedIdea(id, bucket){

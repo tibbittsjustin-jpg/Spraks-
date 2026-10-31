@@ -210,6 +210,42 @@ section("badges render on cards and lists only when the data supports them", () 
     unknownCard.innerHTML.indexOf("Real spot") !== -1 && unknownCard.innerHTML.indexOf("Open now") === -1);
 });
 
+section("saved cards keep one Open now and add the time pill beside it", () => {
+  const t = loadApp({});
+  function textOf(node) {
+    let out = node.innerHTML || "";
+    (node.children || []).forEach(child => { out += "\n" + textOf(child); });
+    return out;
+  }
+  function classesOf(node) {
+    let out = node && node.className ? node.className + "\n" : "";
+    (node && node.children || []).forEach(child => { out += classesOf(child); });
+    return out;
+  }
+  const day = t.buildSavedCard(t.IDEAS_BY_ID[2]);
+  check("a daytime saved card invents neither pill",
+    textOf(day).indexOf("Tonight") === -1 && textOf(day).indexOf("Evening") === -1 &&
+    textOf(day).indexOf("Open now") === -1 && classesOf(day).indexOf("saved-badge") === -1);
+  const evening = t.buildSavedCard(t.IDEAS_BY_ID[54]);
+  const eveningHtml = textOf(evening);
+  check("an Evening saved card shows one yellow pill",
+    eveningHtml.indexOf("Evening") !== -1 && eveningHtml.indexOf("Open now") === -1 &&
+    classesOf(evening).indexOf("saved-badge-time") !== -1);
+  const bothIdea = {};
+  Object.keys(t.IDEAS_BY_ID[54]).forEach(k => { bothIdea[k] = t.IDEAS_BY_ID[54][k]; });
+  bothIdea.openNow = true;
+  const both = t.buildSavedCard(bothIdea);
+  const bothHtml = textOf(both);
+  const openCount = bothHtml.split("Open now").length - 1;
+  check("Open now and Evening sit together once each",
+    openCount === 1 && bothHtml.split("Evening").length - 1 === 1 &&
+    classesOf(both).indexOf("saved-badge-open") !== -1 &&
+    classesOf(both).indexOf("saved-badge-time") !== -1);
+  const photo = t.buildSwipeCard(t.IDEAS_BY_ID[54], false);
+  check("Discover cards have no category pill",
+    photo.innerHTML.indexOf("card-cat-tag") === -1 && photo.innerHTML.indexOf(">Evening<") !== -1);
+});
+
 section("nearby cards copy openNow and do not invent hours", () => {
   const nearby = require("../server");
   const place = { name: "Cafe", placeId: "abc", address: "1 Main", mapsUrl: "https://example.com", rating: 4 };

@@ -275,6 +275,7 @@
       deckOrder:null,    // cached shuffled id order for current filter set
       location:null,     // {lat, lng, grantedAt} once the user enables "Near You" real-place matching
       realIdeas:{},      // id -> full idea snapshot, for real (external) ideas the user has kept
+      remoteIdeas:{},    // id -> approved activity the user saved or planned
       settings:{ autoDarkMode:true } // auto dark mode between 9pm-6am, toggle in profile
     };
   }
@@ -327,6 +328,9 @@
       // folder totals ("Favorites · 4 ideas" showing 2). The range is written
       // out literally because REAL_ID_MIN isn't assigned yet at load time.
       parsed.realIdeas = parsed.realIdeas || {};
+      if(!parsed.remoteIdeas || typeof parsed.remoteIdeas !== "object" || Array.isArray(parsed.remoteIdeas)){
+        parsed.remoteIdeas = {};
+      }
       Object.keys(parsed.realIdeas).forEach(function(id){
         if(isRetiredListingSnapshot(parsed.realIdeas[id])){
           parsed.realIdeas[id] = neutralizeRetiredListing(parsed.realIdeas[id]);
@@ -367,6 +371,7 @@
   function saveState(){
     scrubProfileDob(state.profile);
     syncRealIdeaSnapshots();
+    syncRemoteIdeaSnapshots();
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
   }
 
@@ -396,6 +401,11 @@
      actually keeps is snapshotted into state so it survives a reload. */
   var REAL_ID_MIN = 9000000, REAL_ID_SPAN = 1000000;
   var REAL_IDEAS_RUNTIME = [];   // this session's deck-eligible real ideas
+  var REMOTE_IDEAS = [];         // approved activities from /api/activities
+  var remoteFreshBucket = null;
+  var remotePendingBucket = null;
+  var remoteFetchGen = 0;
+  var remoteAbort = null;
   var realIdeasLoading = false;
   var realKeyToId = {};          // stableKey -> numeric id
   var realIdToKey = {};          // numeric id -> stableKey
@@ -497,6 +507,7 @@
       updateRadiusPlace();
       refreshDeckAfterRadius();
       fetchNearbyIdeas();
+      refreshRemoteActivities();
     }, function(err){
       if(!opts.silent) showToast("Couldn't get your location: " + (err && err.message ? err.message : "permission denied"));
     }, { timeout: 8000 });
@@ -576,6 +587,160 @@
             if(deckEl){ renderDeckCards(deckEl); updateResultCount(); }
           }
         });
+    });
+  }
+
+  // Approved activities live in Postgres. Mix them into the same deck as the
+  // built-in ideas. A saved or planned one is snapshotted so it still opens
+  // after a reload, the same way a kept nearby place does.
+  function isRemoteIdeaId(id){
+    return typeof id === "string" && id.indexOf("db:") === 0;
+  }
+
+  function syncRemoteIdeaSnapshots(){
+    var keep = {};
+    keptIdeaIds().forEach(function(id){
+      if(!isRemoteIdeaId(id)) return;
+      var idea = IDEAS_BY_ID[id] || (state.remoteIdeas || {})[id];
+      if(idea) keep[id] = idea;
+    });
+    state.remoteIdeas = keep;
+  }
+
+  function rehydrateRemoteIdeas(){
+    var snaps = state.remoteIdeas || {};
+    Object.keys(snaps).forEach(function(id){
+      var idea = snaps[id];
+      if(!idea || !isRemoteIdeaId(idea.id)) return;
+      IDEAS_BY_ID[idea.id] = idea;
+    });
+  }
+
+  function matchingBuiltinIds(){
+    var ids = [];
+    for(var i = 0; i < IDEAS_DATA.length; i++){
+      if(matchesFilters(IDEAS_DATA[i], state.filters)) ids.push(IDEAS_DATA[i].id);
+    }
+    return ids;
+  }
+
+  function extraDeckIds(){
+    var ids = [];
+    for(var i = 0; i < REMOTE_IDEAS.length; i++){
+      if(matchesFilters(REMOTE_IDEAS[i], state.filters)) ids.push(REMOTE_IDEAS[i].id);
+    }
+    if(state.location){
+      for(var r = 0; r < REAL_IDEAS_RUNTIME.length; r++){
+        if(matchesFilters(REAL_IDEAS_RUNTIME[r], state.filters)) ids.push(REAL_IDEAS_RUNTIME[r].id);
+      }
+    }
+    return ids;
+  }
+
+  function deckSignature(builtinIds, extraIds){
+    var loc = state.location;
+    var locKey = (loc && typeof loc.lat === "number" && typeof loc.lng === "number")
+      ? (loc.lat + "," + loc.lng) : "";
+    var plan = getActivePlan();
+    var planKey = plan && plan.date ? plan.date : "";
+    var todayKey = SparkOccurrences.denverToday(new Date());
+    return JSON.stringify(state.filters) + "|" + locKey + "|" + planKey + "|" + todayKey + "|" + builtinIds.length + "|" + extraIds.join(",");
+  }
+
+  function rememberDeckSignature(){
+    if(!deckOrderCache) return;
+    var builtinIds = matchingBuiltinIds();
+    deckOrderCache.signature = deckSignature(builtinIds, extraDeckIds());
+  }
+
+  // Adds approved activities to the deck. Ones that arrive while a card is
+  // already showing are appended, so the card in hand stays put.
+  function applyRemoteIdeas(ideas){
+    if(typeof SparkRemoteActivities === "undefined" || !ideas || !ideas.length) return [];
+    var fresh = SparkRemoteActivities.dedupeAgainstBuiltins(ideas, IDEAS_DATA);
+    var known = Object.create(null);
+    for(var i = 0; i < REMOTE_IDEAS.length; i++) known[REMOTE_IDEAS[i].id] = i;
+    var added = [];
+    fresh.forEach(function(idea){
+      IDEAS_BY_ID[idea.id] = idea;
+      if(known[idea.id] == null){
+        known[idea.id] = REMOTE_IDEAS.length;
+        REMOTE_IDEAS.push(idea);
+        added.push(idea);
+      } else {
+        REMOTE_IDEAS[known[idea.id]] = idea;
+      }
+    });
+    if(deckOrderCache && added.length){
+      var matching = [];
+      added.forEach(function(idea){
+        if(matchesFilters(idea, state.filters)) matching.push(idea.id);
+      });
+      if(matching.length){
+        deckOrderCache.ids = SparkRemoteActivities.appendNewIds(deckOrderCache.ids, matching);
+        rememberDeckSignature();
+      }
+    }
+    var deckEl = $("#deck");
+    var cardShowing = false;
+    try {
+      cardShowing = !!(deckEl && deckEl.querySelector && deckEl.querySelector(".swipe-card"));
+    } catch (err) {}
+    if(added.length && deckEl && !cardShowing){
+      renderDeckCards(deckEl);
+      updateResultCount();
+    } else if(added.length){
+      updateResultCount();
+    }
+    return added;
+  }
+
+  function hydrateRemoteCache(){
+    if(typeof SparkRemoteActivities === "undefined") return;
+    try {
+      var loc = state.location;
+      var bucket = SparkRemoteActivities.locationBucket(loc && loc.lat, loc && loc.lng);
+      var cached = SparkRemoteActivities.readCache(localStorage, bucket, Date.now());
+      if(cached && cached.hit && cached.ideas && cached.ideas.length) applyRemoteIdeas(cached.ideas);
+    } catch (err) {}
+  }
+
+  // At most once per location bucket: on open, when the saved copy is older
+  // than about six hours, or when the rough location changes. Never on swipe.
+  function refreshRemoteActivities(){
+    if(typeof SparkRemoteActivities === "undefined") return;
+    var loc = state.location;
+    var bucket = SparkRemoteActivities.locationBucket(loc && loc.lat, loc && loc.lng);
+    if(remoteFreshBucket === bucket || remotePendingBucket === bucket) return;
+    if(remoteAbort){
+      try { remoteAbort.abort(); } catch (err) {}
+      remoteAbort = null;
+    }
+    var controller = null;
+    if(typeof AbortController === "function"){
+      try { controller = new AbortController(); } catch (err) { controller = null; }
+    }
+    remoteAbort = controller;
+    remotePendingBucket = bucket;
+    var generation = ++remoteFetchGen;
+    SparkRemoteActivities.syncActivities({
+      storage: localStorage,
+      lat: loc && loc.lat,
+      lng: loc && loc.lng,
+      builtins: IDEAS_DATA,
+      fetch: function(url, options){ return fetch(url, options); },
+      signal: controller ? controller.signal : undefined,
+      timeoutMs: SparkRemoteActivities.FETCH_TIMEOUT_MS
+    }).then(function(result){
+      if(generation !== remoteFetchGen) return;
+      if(remoteAbort === controller) remoteAbort = null;
+      remotePendingBucket = null;
+      if(result && result.ideas && result.ideas.length) applyRemoteIdeas(result.ideas);
+      if(result && result.ok) remoteFreshBucket = bucket;
+    }).catch(function(){
+      if(generation !== remoteFetchGen) return;
+      if(remoteAbort === controller) remoteAbort = null;
+      remotePendingBucket = null;
     });
   }
 
@@ -817,13 +982,23 @@
     confetti:["partypopper","costume","rubberduck","karaoke"]
   };
 
+  // Cover art and fallback motifs seed off a number. Built-in ids already
+  // are. Approved activities use a stable "db:<id>" string, so their art
+  // follows the database id instead of collapsing to one shared picture.
+  function coverSeedId(idea){
+    if(!idea) return 0;
+    if(typeof idea.dbId === "number" && isFinite(idea.dbId)) return idea.dbId;
+    if(typeof idea.id === "number" && isFinite(idea.id)) return idea.id;
+    return hashStr(String(idea.id == null ? "" : idea.id));
+  }
+
   function motifFor(idea){
     var lib = (typeof MOTIFS !== "undefined") && MOTIFS.M;
     if(!lib || !idea) return null;
     if(idea.motif && lib[idea.motif]) return lib[idea.motif];
     var pool = SCENE_MOTIFS[getSceneTheme(idea.category, idea)];
     if(!pool || !pool.length) return null;
-    return lib[pool[Math.abs(idea.id | 0) % pool.length]] || null;
+    return lib[pool[Math.abs(coverSeedId(idea) | 0) % pool.length]] || null;
   }
 
   function motifMarkup(idea, pal, isNight){
@@ -852,7 +1027,7 @@
   // without needing an external image source.
   function getCoverArtStyle(idea){
     if(artCache[idea.id]) return artCache[idea.id];
-    var seed = (idea.id * 2654435761) ^ hashStr(idea.category) ^ hashStr(idea.title);
+    var seed = (coverSeedId(idea) * 2654435761) ^ hashStr(idea.category) ^ hashStr(idea.title);
     var rnd = mulberry32(seed >>> 0);
     var theme = getSceneTheme(idea.category, idea);
 
@@ -1108,6 +1283,8 @@
     // Ask for location automatically (no button) — the browser's own
     // one-time permission prompt is the only thing the user sees. If they
     // deny or dismiss it, the app just carries on with built-in ideas only.
+    // Approved activities load alongside that. Built-ins are already on screen.
+    refreshRemoteActivities();
     if(state.location) fetchNearbyIdeas();
     else requestLocation({ silent:true });
   }
@@ -1304,6 +1481,9 @@
         if(matchesFilters(REAL_IDEAS_RUNTIME[r], f)) n++;
       }
     }
+    for(var a = 0; a < REMOTE_IDEAS.length; a++){
+      if(matchesFilters(REMOTE_IDEAS[a], f)) n++;
+    }
     return n;
   }
 
@@ -1345,6 +1525,9 @@
         if(matchesFilters(REAL_IDEAS_RUNTIME[r], f)) n++;
       }
     }
+    for(var a = 0; a < REMOTE_IDEAS.length; a++){
+      if(matchesFilters(REMOTE_IDEAS[a], f)) n++;
+    }
     return n;
   }
 
@@ -1368,20 +1551,17 @@
   var deckOrderCache = null;   // { signature, ids }
 
   function computeDeck(){
-    // Real nearby spots need coordinates. Built-in ideas do not.
-    var realPool = state.location ? REAL_IDEAS_RUNTIME : [];
-    var builtinIds = IDEAS_DATA.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
-    var extraIds = realPool.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
+    // Real nearby spots need coordinates. Built-in ideas and approved
+    // activities do not. Approved rows are part of the same extra lane so
+    // they show up early instead of after the whole built-in catalog.
+    var builtinIds = matchingBuiltinIds();
+    var extraIds = extraDeckIds();
 
     // Rebuild the order only when the deck's *contents* change — a new filter
     // set, or a fresh batch of real spots arriving. Swiping doesn't change it.
-    var loc = state.location;
-    var locKey = (loc && typeof loc.lat === "number" && typeof loc.lng === "number")
-      ? (loc.lat + "," + loc.lng) : "";
-    var plan = getActivePlan();
-    var planKey = plan && plan.date ? plan.date : "";
-    var todayKey = SparkOccurrences.denverToday(new Date());
-    var signature = JSON.stringify(state.filters) + "|" + locKey + "|" + planKey + "|" + todayKey + "|" + builtinIds.length + "|" + extraIds.join(",");
+    // A late activities response appends instead of rebuilding, so the card
+    // in hand keeps its place.
+    var signature = deckSignature(builtinIds, extraIds);
     if(!deckOrderCache || deckOrderCache.signature !== signature){
       deckOrderCache = { signature: signature, ids: interleaveIds(builtinIds, extraIds) };
     }
@@ -1731,6 +1911,9 @@
       if(resetBtn) resetBtn.addEventListener("click", function(){
         // Only reset seen state for ideas currently matching the filter
         var filtered = IDEAS_DATA.filter(function(i){ return matchesFilters(i, state.filters); }).map(function(i){ return i.id; });
+        REMOTE_IDEAS.forEach(function(idea){
+          if(matchesFilters(idea, state.filters)) filtered.push(idea.id);
+        });
         state.seenIds = state.seenIds.filter(function(id){ return filtered.indexOf(id) === -1; });
         saveState();
         renderDeckCards(deckEl);
@@ -4165,6 +4348,9 @@
       showAgeGate();
     }
   }
+
+  rehydrateRemoteIdeas();
+  hydrateRemoteCache();
 
   boot();
 })();

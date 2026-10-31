@@ -59,7 +59,7 @@ function makeSandbox(storage) {
 function loadApp(storage) {
   const sandbox = makeSandbox(storage);
   vm.createContext(sandbox);
-  ["data.js", "motifs.js", "util.js", "occurrences.js", "radius.js", "pins.js", "photos.js", "submit.js"].forEach(f => {
+  ["data.js", "motifs.js", "util.js", "occurrences.js", "radius.js", "pins.js", "photos.js", "submit.js", "remote-activities.js"].forEach(f => {
     vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), sandbox, { filename: f });
   });
   let src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
@@ -67,6 +67,7 @@ function loadApp(storage) {
   window.__t = {
     get state(){ return state; },
     IDEAS_BY_ID: IDEAS_BY_ID, REAL_IDEAS_RUNTIME: REAL_IDEAS_RUNTIME,
+    REMOTE_IDEAS: REMOTE_IDEAS, applyRemoteIdeas: applyRemoteIdeas,
     hydrateRealIdea: hydrateRealIdea, saveState: saveState,
     addIdeaToBucket: addIdeaToBucket, removeIdeaFromBucket: removeIdeaFromBucket,
     totalSavedCount: totalSavedCount,

@@ -815,17 +815,21 @@ async function main() {
     );
     check("city=provo returns only Provo rows",
       provo.length > 0 && provo.every(item => item.city && item.city.toLowerCase() === "provo" &&
-        Object.prototype.hasOwnProperty.call(item, "sourceUrl") && Object.prototype.hasOwnProperty.call(item, "age21")));
+        Object.prototype.hasOwnProperty.call(item, "sourceUrl") &&
+        Object.prototype.hasOwnProperty.call(item, "source_url") &&
+        item.source_url === item.sourceUrl &&
+        Object.prototype.hasOwnProperty.call(item, "age21")));
     check("city filter is case-insensitive",
       provo.length === provoDb.rows[0].n &&
       provoUpper.map(item => item.id).join(",") === provo.map(item => item.id).join(","),
       provo.length + " vs " + (provoDb.rows[0] && provoDb.rows[0].n));
     const provoDetail = await request(port, "/api/activities/" + provo[0].id);
     const provoBody = JSON.parse(provoDetail.body);
-    check("detail returns sourceUrl, city, and age21",
+    check("detail returns source_url, city, and age21",
       provoDetail.status === 200 && provoBody.city === provo[0].city &&
-      Object.prototype.hasOwnProperty.call(provoBody, "sourceUrl") && typeof provoBody.age21 === "boolean" &&
-      !Object.prototype.hasOwnProperty.call(provoBody, "source_url"));
+      Object.prototype.hasOwnProperty.call(provoBody, "sourceUrl") &&
+      provoBody.source_url === provoBody.sourceUrl &&
+      typeof provoBody.age21 === "boolean");
     const ageIdea = ideas.find(idea => idea.age21 === true);
     const ageDefault = await request(port, "/api/activities/" + ageIdea.id);
     const ageDefaultBody = JSON.parse(ageDefault.body);

@@ -207,6 +207,7 @@ function buildListQuery(params) {
 }
 
 function mapRow(row, located) {
+  const sourceUrl = row.source_url == null ? null : row.source_url;
   const item = {
     id: row.id,
     title: row.title,
@@ -230,7 +231,8 @@ function mapRow(row, located) {
     tier: row.tier,
     address: row.address,
     city: row.city == null ? null : row.city,
-    sourceUrl: row.source_url == null ? null : row.source_url,
+    sourceUrl: sourceUrl,
+    source_url: sourceUrl,
     lat: row.lat == null ? null : Number(row.lat),
     lng: row.lng == null ? null : Number(row.lng),
     affiliateUrl: row.affiliate_url == null ? null : row.affiliate_url,

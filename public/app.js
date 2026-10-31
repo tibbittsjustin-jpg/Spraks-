@@ -2214,6 +2214,19 @@
     openFilterOverlay();
   });
 
+  // Secure website only. The address is set with setAttribute, never innerHTML.
+  function visitWebsiteLink(idea){
+    var href = SparkUtil.activityWebsite(idea);
+    if(!href) return null;
+    var link = document.createElement("a");
+    link.className = "btn-outline";
+    link.textContent = "Visit website";
+    link.setAttribute("href", href);
+    link.setAttribute("target", "_blank");
+    link.setAttribute("rel", "noopener noreferrer");
+    return link;
+  }
+
   /* ---------- Detail screen ---------- */
   function buildDetailScreen(ideaId){
     var idea = IDEAS_BY_ID[ideaId];
@@ -2362,6 +2375,8 @@
       renderContent();
     });
     actions.appendChild(doneBtn);
+    var website = visitWebsiteLink(idea);
+    if(website) actions.appendChild(website);
     wrap.appendChild(actions);
 
     return wrap;

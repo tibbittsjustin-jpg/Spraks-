@@ -92,9 +92,10 @@ async function main() {
       const item = body.items[0];
       check("date_type maps to dateType", Array.isArray(item.dateType) && item.dateType[0] === "Solo/Couple");
       check("missing age21 maps to false", item.age21 === false);
-      check("null source_url and city map to null", item.sourceUrl === null && item.city === null);
-      check("source_url is not exposed as snake_case",
-        !Object.prototype.hasOwnProperty.call(item, "source_url") && res.body.indexOf("source_url") === -1);
+      check("null source_url and city map to null",
+        item.sourceUrl === null && item.source_url === null && item.city === null);
+      check("approved rows include source_url",
+        Object.prototype.hasOwnProperty.call(item, "source_url") && item.source_url === item.sourceUrl);
       check("materials are returned", JSON.stringify(item.materials) === JSON.stringify(["Boots", "Water"]));
       check("null materials maps to an empty list",
         Array.isArray(body.items[1].materials) && body.items[1].materials.length === 0);
@@ -146,10 +147,12 @@ async function main() {
         const ok = await request(one.address().port, "/api/activities/2");
         const okBody = JSON.parse(ok.body);
         check("approved id is 200", ok.status === 200 && okBody.id === 2 && okBody.dateType[0] === "Solo/Couple");
-        check("detail returns sourceUrl, city, and age21",
-          okBody.sourceUrl === "https://getoutgames.com/provo/" && okBody.city === "Provo" && okBody.age21 === true);
-        check("detail does not leak status or source_url",
-          ok.body.indexOf("submitter_email") === -1 && !okBody.status && ok.body.indexOf("source_url") === -1);
+        check("detail returns source_url for an approved row",
+          okBody.source_url === "https://getoutgames.com/provo/" &&
+          okBody.sourceUrl === okBody.source_url &&
+          okBody.city === "Provo" && okBody.age21 === true);
+        check("detail does not leak status or email",
+          ok.body.indexOf("submitter_email") === -1 && !okBody.status && ok.body.indexOf("\"status\"") === -1);
         const missing = await request(one.address().port, "/api/activities/999999");
         check("missing id is 404", missing.status === 404 && JSON.parse(missing.body).error === "not_found");
         const archived = await request(one.address().port, "/api/activities/340");
@@ -160,6 +163,38 @@ async function main() {
         check("too-long id is 400", longId.status === 400);
       } finally {
         await new Promise(resolve => one.close(resolve));
+      }
+    });
+
+    await section("source_url is returned only with the approved query", async () => {
+      const linkedDb = {
+        async query(text) {
+          const approvedOnly = text.indexOf("status = 'approved'") !== -1 && text.indexOf("source_url") !== -1;
+          if (!approvedOnly) {
+            return { rows: [row(9, { status: "pending", source_url: "https://secret.example/pending" })] };
+          }
+          return { rows: [row(9, { status: "approved", source_url: "https://example.com/visit" })] };
+        }
+      };
+      const linkedApp = express();
+      linkedApp.use("/api/activities", createActivitiesRouter({ db: linkedDb, isConfigured: () => true }));
+      const linked = await listen(linkedApp);
+      try {
+        const list = await request(linked.address().port, "/api/activities");
+        const listBody = JSON.parse(list.body);
+        const item = listBody.items[0];
+        check("list returns source_url for an approved row",
+          list.status === 200 && item && item.source_url === "https://example.com/visit" &&
+          item.sourceUrl === item.source_url && list.body.indexOf("secret.example") === -1);
+        check("list does not include status or email",
+          !item.status && list.body.indexOf("submitter_email") === -1 && list.body.indexOf("\"status\"") === -1);
+        const detail = await request(linked.address().port, "/api/activities/9");
+        const detailBody = JSON.parse(detail.body);
+        check("detail returns the same source_url",
+          detail.status === 200 && detailBody.source_url === "https://example.com/visit" &&
+          detail.body.indexOf("secret.example") === -1 && !detailBody.status);
+      } finally {
+        await new Promise(resolve => linked.close(resolve));
       }
     });
 

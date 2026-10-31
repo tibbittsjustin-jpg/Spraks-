@@ -32,6 +32,8 @@ section("defaults", () => {
   check("unordered by distance", q.text.indexOf("ORDER BY id") !== -1 && q.located === false);
   check("omitting hide21 leaves 21+ rows included", q.text.indexOf("age21 = false") === -1);
   check("materials is selected", q.text.indexOf("materials") !== -1);
+  check("source_url is selected for approved rows only",
+    q.text.indexOf("source_url") !== -1 && q.text.indexOf("status = 'approved'") !== -1);
   check("limit and offset are parameters",
     q.values[q.values.length - 2] === 50 && q.values[q.values.length - 1] === 0);
 });
@@ -189,6 +191,11 @@ section("mapRow materials", () => {
   check("null distance_miles stays off a general idea", general.distanceMiles === undefined && general.lat == null);
   const pin = mapRow(Object.assign({}, base, { distance_miles: "4.2", lat: 40.2, lng: -111.6 }), true);
   check("a pin distance is copied", pin.distanceMiles === 4.2 && pin.lat === 40.2);
+  const linked = mapRow(Object.assign({}, base, { source_url: "https://example.com/place" }), false);
+  check("mapRow returns source_url for the row",
+    linked.source_url === "https://example.com/place" && linked.sourceUrl === linked.source_url);
+  const blank = mapRow(base, false);
+  check("a missing source_url maps to null", blank.source_url === null && blank.sourceUrl === null);
 });
 
 module.exports = { pass: pass, fail: fail };

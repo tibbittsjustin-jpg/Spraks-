@@ -5,6 +5,8 @@
 const http = require("http");
 const express = require("express");
 const { createActivitiesRouter } = require("../routes/activities");
+const { mapRow, STILL_SHOWING_SQL } = require("../db/activities-repo");
+const occ = require("../public/occurrences");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -258,6 +260,99 @@ async function main() {
         check("approved detail still loads", ok.status === 200 && JSON.parse(ok.body).id === 2);
       } finally {
         await new Promise(resolve => gatedServer.close(resolve));
+      }
+    });
+
+    await section("finished events stay off the public list and detail", async () => {
+      const denverLate = new Date("2026-11-01T05:30:00.000Z");
+      const fixtures = [
+        row(11, { title: "Expired Night", expires_at: "2026-10-30" }),
+        row(12, { title: "Ends Tonight", expires_at: "2026-10-31" }),
+        row(13, { title: "Ongoing Walk", expires_at: null }),
+        row(14, {
+          title: "Past Game",
+          expires_at: null,
+          occurrences: { kind: "dates", dates: [{ date: "2026-10-30", start: "19:00" }] }
+        }),
+        row(15, {
+          title: "Tonight Game",
+          expires_at: null,
+          occurrences: { kind: "dates", dates: [{ date: "2026-10-31" }] }
+        }),
+        row(16, {
+          title: "Old Weekly Class",
+          expires_at: null,
+          occurrences: { kind: "weekly", start: "2026-01-01", end: "2026-02-01", weekdays: ["Mon"] }
+        })
+      ];
+      const seen = [];
+      const clockDb = {
+        async query(text, values) {
+          seen.push(text);
+          const keepsCurrent = text.indexOf(STILL_SHOWING_SQL) !== -1 &&
+            text.indexOf("(expires_at IS NULL OR expires_at >= (now() AT TIME ZONE 'America/Denver')::date)") !== -1 &&
+            text.indexOf("occurrences->>'kind' IS DISTINCT FROM 'dates'") !== -1;
+          let matched = fixtures.filter(item => {
+            if (!keepsCurrent) return true;
+            return occ.visibleOnPlan(mapRow(item, false), "", denverLate);
+          });
+          if (text.indexOf("id = $1") !== -1) {
+            matched = matched.filter(item => values && item.id === values[0]);
+          }
+          return { rows: matched };
+        }
+      };
+      const clockApp = express();
+      clockApp.use("/api/activities", createActivitiesRouter({ db: clockDb, isConfigured: () => true }));
+      const clockServer = await listen(clockApp);
+      const clockPort = clockServer.address().port;
+      try {
+        const list = await request(clockPort, "/api/activities?limit=50");
+        const listBody = JSON.parse(list.body);
+        const titles = listBody.items.map(item => item.title);
+        check("list query uses the Denver date and still requires approved",
+          seen.some(text => text.indexOf("status = 'approved'") !== -1 && text.indexOf(STILL_SHOWING_SQL) !== -1));
+        check("an expired row is hidden", titles.indexOf("Expired Night") === -1);
+        check("a row expiring today in Denver is shown at 11:30pm",
+          titles.indexOf("Ends Tonight") !== -1);
+        check("a null expires_at stays on the list", titles.indexOf("Ongoing Walk") !== -1);
+        check("a past dates row with no end date is hidden", titles.indexOf("Past Game") === -1);
+        check("a dates row whose last day is today is shown", titles.indexOf("Tonight Game") !== -1);
+        check("a weekly row with no end date is not hidden by its old range",
+          titles.indexOf("Old Weekly Class") !== -1);
+        const tonight = listBody.items.find(item => item.title === "Ends Tonight");
+        check("the list returns expiresAt and expires_at",
+          tonight && tonight.expiresAt === "2026-10-31" && tonight.expires_at === "2026-10-31");
+        const ongoing = listBody.items.find(item => item.title === "Ongoing Walk");
+        check("a null end date is still present on the list item",
+          ongoing && ongoing.expiresAt === null && ongoing.expires_at === null);
+        const located = await request(clockPort, "/api/activities?lat=40.23&lng=-111.66&radiusMiles=25&limit=50");
+        const locatedSql = seen[seen.length - 1];
+        check("near-me keeps its radius logic and the Denver filter",
+          located.status === 200 &&
+          locatedSql.indexOf("ST_DWithin") !== -1 &&
+          locatedSql.indexOf("(location IS NULL OR ST_DWithin") !== -1 &&
+          locatedSql.indexOf(STILL_SHOWING_SQL) !== -1 &&
+          located.body.indexOf("Expired Night") === -1 &&
+          located.body.indexOf("Past Game") === -1);
+        const detail = await request(clockPort, "/api/activities/12");
+        const detailBody = JSON.parse(detail.body);
+        check("detail returns expiresAt and expires_at for a current row",
+          detail.status === 200 && detailBody.expiresAt === "2026-10-31" && detailBody.expires_at === "2026-10-31");
+        const detailSql = seen[seen.length - 1];
+        check("detail uses the same Denver filter and approved-only",
+          detailSql.indexOf("id = $1") !== -1 &&
+          detailSql.indexOf("status = 'approved'") !== -1 &&
+          detailSql.indexOf("tier = 'free'") !== -1 &&
+          detailSql.indexOf(STILL_SHOWING_SQL) !== -1);
+        const expired = await request(clockPort, "/api/activities/11");
+        check("an expired detail is 404",
+          expired.status === 404 && JSON.parse(expired.body).error === "not_found");
+        const past = await request(clockPort, "/api/activities/14");
+        check("a past dates detail with no end date is 404",
+          past.status === 404 && JSON.parse(past.body).error === "not_found");
+      } finally {
+        await new Promise(resolve => clockServer.close(resolve));
       }
     });
 

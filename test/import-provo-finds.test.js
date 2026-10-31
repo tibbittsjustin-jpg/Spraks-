@@ -211,15 +211,15 @@ section("mapping, hand pins, and idempotency on fixtures", () => {
     "rows " + second.rows.length + " skips " + second.skippedDuplicate.length);
 });
 
-section("the 134 Utah County finds", () => {
-  check("three files are 134 finds", inputs.finds.length === 134, String(inputs.finds.length));
+section("the 133 Utah County finds", () => {
+  check("three files are 133 finds", inputs.finds.length === 133, String(inputs.finds.length));
   check("curated catalog is 1994 ideas", inputs.ideaCount === 1994, String(inputs.ideaCount));
   check("no find is skipped by review", plan.skippedReview.length === 0, JSON.stringify(plan.skippedReview.slice(0, 3)));
   check("no find is invalid", plan.skippedInvalid.length === 0, JSON.stringify(plan.skippedInvalid));
   check("no find duplicates a curated title or another find",
     plan.skippedDuplicate.length === 0, JSON.stringify(plan.skippedDuplicate.slice(0, 5)));
   check("every kept row is pending, from AI, and has a source page",
-    plan.rows.length === 134 && plan.rows.every(row =>
+    plan.rows.length === 133 && plan.rows.every(row =>
       row.status === "pending" && row.source === "ai" &&
       typeof row.source_url === "string" && row.source_url.indexOf("https://") === 0));
 
@@ -229,20 +229,23 @@ section("the 134 Utah County finds", () => {
     ride.city === "Springville" && ride.geo_source === "hand_pin");
 
   const fencing = plan.rows.find(row => row.title === "Try Fencing at Valkyrie Fencing Club");
-  check("fencing uses the hand pin and stays unlocked",
-    fencing && fencing.lat === 40.36245 && fencing.lng === -111.7487 && fencing.coords_locked === false &&
+  check("fencing uses the hand pin and the review locks it",
+    fencing && fencing.lat === 40.36245 && fencing.lng === -111.7487 && fencing.coords_locked === true &&
     fencing.city === "Pleasant Grove");
 
   const balloon = plan.rows.find(row => row.title === "Private Sunrise Hot Air Balloon Flight with Nemesis Balloon Team");
   check("the balloon centroid is not stored",
-    balloon && balloon.lat == null && balloon.lng == null && balloon.city === "American Fork" &&
-    balloon.coords_locked === false);
+    balloon && balloon.lat == null && balloon.lng == null &&
+    balloon.city === "Pleasant Grove or Springville" &&
+    balloon.coords_locked === true);
 
   const skate = plan.rows.find(row => row.title === "16+ Late Skate at Classic Fun Center");
   check("late skate $11.99 is stored as $1-$10", skate && skate.cost === "$1-$10");
   const ravioli = plan.rows.find(row => row.title === "Christmas Ravioli Night Cooking Class");
   check("ravioli keeps its last day and the $20-$30 band",
-    ravioli && ravioli.expires_at === "2026-12-09" && ravioli.cost === "$20-$30");
+    ravioli && ravioli.expires_at === "2026-12-02" && ravioli.cost === "$20-$30" &&
+    ravioli.occurrences && ravioli.occurrences.kind === "dates" &&
+    ravioli.occurrences.dates[0].date === "2026-12-02");
   const concert = plan.rows.find(row => row.title === "BYU Celebration of Christmas Concert");
   check("the Christmas concert maps onto $20-$30", concert && concert.cost === "$20-$30");
   const pottery = plan.rows.find(row => row.title === "Paint Pottery at Color Me Mine Provo");
@@ -257,19 +260,52 @@ section("the 134 Utah County finds", () => {
   check("hand pins that match a find are applied, including the cleared balloon",
     plan.handPinsApplied.length === 16 && plan.handPinsApplied.filter(pin => pin.cleared).length === 1,
     String(plan.handPinsApplied.length) + " cleared " + plan.handPinsApplied.filter(pin => pin.cleared).length);
-  check("nine reviews lock coordinates", plan.coordsLocked.length === 9, plan.coordsLocked.join("; "));
+  check("sixteen reviews lock coordinates", plan.coordsLocked.length === 16, plan.coordsLocked.join("; "));
   check("the dropped Owl Bar night is not inserted",
     !plan.rows.some(row => row.title.indexOf("Owl Bar") !== -1));
   check("rows do not carry a device id",
     plan.rows.every(row => JSON.stringify(row).indexOf("localId") === -1 && JSON.stringify(row).indexOf("deviceId") === -1));
-  check("these find files have no occurrences yet, so every row is anytime",
-    plan.rows.every(row => row.occurrences == null));
+  const withOccurrences = plan.rows.filter(row => row.occurrences != null);
+  check("38 finds keep a schedule and the rest stay anytime",
+    withOccurrences.length === 38 && plan.rows.length - withOccurrences.length === 95,
+    String(withOccurrences.length));
+  check("no schedule was dropped as unmapped",
+    plan.unmapped.every(item => item.field !== "occurrences"));
+  const footballOcc = football && football.occurrences;
+  check("football keeps both game days",
+    footballOcc && footballOcc.kind === "dates" &&
+    footballOcc.dates.map(item => item.date).join(",") === "2026-11-14,2026-11-28");
+  const nut = plan.rows.find(row => row.title === "Utah Valley Civic Ballet's The Nutcracker");
+  check("two showtimes on the same day are both kept",
+    nut && nut.occurrences.dates.filter(item => item.date === "2026-12-04").map(item => item.start).join(",") === "13:00,19:00");
+  const market = plan.rows.find(row => row.title === "Saturday Winter Farmers Market at Provo Towne Centre");
+  const marketDates = market && market.occurrences.kind === "dates"
+    ? market.occurrences.dates.map(item => item.date) : [];
+  check("the farmers market keeps both Saturday stretches and skips the gap",
+    marketDates.indexOf("2026-12-19") !== -1 && marketDates.indexOf("2027-01-09") !== -1 &&
+    marketDates.indexOf("2026-12-26") === -1);
+  const lights = plan.rows.find(row => row.title === "Drive Through Christmas in Color at Mary & Art Dye Park");
+  const lightDates = lights && lights.occurrences.kind === "dates"
+    ? lights.occurrences.dates.map(item => item.date) : [];
+  check("Christmas in Color skips the closed night",
+    lightDates.indexOf("2026-11-25") !== -1 && lightDates.indexOf("2026-11-26") === -1 &&
+    lightDates.indexOf("2026-11-27") !== -1);
+  const skateOcc = plan.rows.find(row => row.title === "16+ Late Skate at Classic Fun Center");
+  check("an ongoing weekday pattern has no end date and keeps its days off",
+    skateOcc && skateOcc.occurrences.kind === "weekly" && skateOcc.occurrences.end == null &&
+    skateOcc.occurrences.weekdays.join(",") === "Thu,Sat" &&
+    skateOcc.occurrences.exclude.join(",") === "2026-12-24,2026-12-26,2026-12-31,2027-01-02" &&
+    skateOcc.expires_at == null);
+  const stroll = plan.rows.find(row => row.title === "First Friday Provo Art Stroll");
+  check("a first Friday keeps week of month",
+    stroll && stroll.occurrences.kind === "weekly" && stroll.occurrences.weekdays.join(",") === "Fri" &&
+    stroll.occurrences.week_of_month.join(",") === "1");
 
   const again = planImport(Object.assign({}, inputs, {
     existing: plan.rows.map(row => Object.assign({}, row, { origin: "existing" }))
   }));
   check("a second plan against the inserted rows inserts nothing",
-    again.rows.length === 0 && again.skippedDuplicate.length === 134,
+    again.rows.length === 0 && again.skippedDuplicate.length === 133,
     "rows " + again.rows.length + " dupes " + again.skippedDuplicate.length);
 
   const keys = {};

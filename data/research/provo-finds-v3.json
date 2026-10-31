@@ -33,6 +33,8 @@
   "lng": -111.720592,
   "source_url": "https://utahvalleyaviation.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -73,6 +75,8 @@
   "lng": -111.663566,
   "source_url": "https://www.utahhelicopter.com/tours",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -102,11 +106,13 @@
    "Solo/Couple"
   ],
   "food": false,
-  "address": "Launch site set at booking (American Fork area), UT",
-  "lat": 40.376806,
-  "lng": -111.795915,
+  "address": "Launch site chosen at booking: American Fork, Lehi, Lindon, Pleasant Grove or Springville, UT",
+  "lat": null,
+  "lng": null,
   "source_url": "https://www.nemesisballoonteam.com/flights-services",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -142,6 +148,39 @@
   "lng": -111.612082,
   "source_url": "https://www.utahmountainadventures.com/courses/ice-climbing-1/",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-12",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-26",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2027-01-09",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2027-01-30",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2027-02-15",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2027-02-27",
+    "start": "07:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2027-02-27",
   "status": "pending"
  },
@@ -179,6 +218,27 @@
   "lng": -111.782504,
   "source_url": "https://nowplayingutah.com/event/2026-christmas-in-color-drive-thru-light-show-2/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-20",
+    "end_date": "2026-12-30",
+    "weekdays": [
+     "Mon",
+     "Tue",
+     "Wed",
+     "Thu",
+     "Fri",
+     "Sat",
+     "Sun"
+    ],
+    "start": "19:00",
+    "end": "21:00",
+    "exclude": [
+     "2026-11-26"
+    ]
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-30",
   "status": "pending"
  },
@@ -217,6 +277,8 @@
   "lng": -111.681857,
   "source_url": "https://www.loylynordicspa.com/orem",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -257,6 +319,8 @@
   "lng": -111.694107,
   "source_url": "https://smashitragerooms.com/rage-room-in-orem-utah/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -290,10 +354,25 @@
   ],
   "food": false,
   "address": "560 W State St, Pleasant Grove, UT 84062",
-  "lat": 40.359761,
-  "lng": -111.743903,
+  "lat": 40.36245,
+  "lng": -111.7487,
   "source_url": "https://www.valkyriefencingclub.com/beginfencing",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Tue",
+     "Wed",
+     "Thu",
+     "Fri"
+    ],
+    "start": "18:30",
+    "end": "20:30"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -331,6 +410,8 @@
   "lng": -111.683155,
   "source_url": "https://www.harmonyfitnessstudio.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -367,10 +448,12 @@
   ],
   "food": false,
   "address": "65 W Main Street Ct, Alpine, UT 84004",
-  "lat": 40.448968,
-  "lng": -111.778422,
+  "lat": 40.44895,
+  "lng": -111.778358,
   "source_url": "https://www.thecrandall.org/tours",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -409,6 +492,8 @@
   "lng": -111.88891,
   "source_url": "https://www.holdmanstudios.com/blown-glass-classes",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -448,6 +533,18 @@
   "lng": -111.654102,
   "source_url": "https://dizzydiscoprovo.com/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Fri"
+    ],
+    "start": "22:00",
+    "end": "00:00"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -481,10 +578,18 @@
   ],
   "food": false,
   "address": "60 N 100 E, Salem, UT 84653",
-  "lat": 40.059274,
-  "lng": -111.671206,
+  "lat": 40.05532,
+  "lng": -111.67105,
   "source_url": "https://runsignup.com/Race/UT/Salem/UtahSantaRunProvo",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-05",
+    "start": "16:15",
+    "end": "17:15"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-05",
   "status": "pending"
  },
@@ -521,6 +626,24 @@
   "lng": -111.655248,
   "source_url": "https://www.angelustheatre.com/events/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-12-09",
+    "end_date": "2026-12-23",
+    "weekdays": [
+     "Mon",
+     "Tue",
+     "Wed",
+     "Thu",
+     "Fri",
+     "Sat",
+     "Sun"
+    ],
+    "start": "19:30",
+    "end": "21:30"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-23",
   "status": "pending"
  },
@@ -557,6 +680,19 @@
   "lng": -111.849663,
   "source_url": "https://www.jhutchingsmuseum.com/events/magical-museum",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-20",
+    "start": "18:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2026-11-21",
+    "start": "18:00",
+    "end": "20:30"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-11-21",
   "status": "pending"
  },
@@ -594,6 +730,24 @@
   "lng": -111.849663,
   "source_url": "https://www.jhutchingsmuseum.com/skinwalker-ranch",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-06",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-07",
+    "start": "16:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-07",
+    "start": "19:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-11-07",
   "status": "pending"
  },
@@ -630,6 +784,24 @@
   "lng": -111.655248,
   "source_url": "https://www.angelustheatre.com/events/",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-12",
+    "start": "19:30",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-13",
+    "start": "19:30",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-14",
+    "start": "19:30",
+    "end": "21:30"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-11-14",
   "status": "pending"
  },
@@ -665,6 +837,14 @@
   "lng": -111.655248,
   "source_url": "https://www.angelustheatre.com/events/",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-07",
+    "start": "19:30",
+    "end": "21:30"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-11-07",
   "status": "pending"
  },
@@ -700,6 +880,19 @@
   "lng": -111.683576,
   "source_url": "https://thetso.org/20262027-buytickets",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-05",
   "status": "pending"
  },
@@ -736,6 +929,14 @@
   "lng": -111.799048,
   "source_url": "https://www.timpanogoschorale.org/events/",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-16",
+    "start": "19:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-16",
   "status": "pending"
  },
@@ -771,6 +972,69 @@
   "lng": -111.849793,
   "source_url": "https://www.lehiarts.org/tickets",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-07",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-08",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-10",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-11",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-12",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-14",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-15",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-17",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-18",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-19",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-19",
   "status": "pending"
  },
@@ -811,6 +1075,8 @@
   "lng": -111.836556,
   "source_url": "https://film.utah.gov/footloose-40-years-later/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -852,6 +1118,8 @@
   "lng": -111.70209,
   "source_url": "https://nickelmaniaarcade.com/orem/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -890,6 +1158,21 @@
   "lng": -111.692219,
   "source_url": "https://apothe.coffee/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-01",
+    "end_date": null,
+    "weekdays": [
+     "Thu",
+     "Fri",
+     "Sat",
+     "Sun"
+    ],
+    "start": "19:00",
+    "end": "23:00"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -930,6 +1213,8 @@
   "lng": -111.647347,
   "source_url": "https://bowling.byu.edu/pricing",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -967,6 +1252,79 @@
   "lng": -111.71706,
   "source_url": "https://gouvu.com/sports/mens-basketball/schedule/2026-27",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-02",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-28",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-21",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-31",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-02",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-14",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-16",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-21",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-23",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-11",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-13",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-25",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-27",
+    "start": "14:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2027-02-27",
   "status": "pending"
  },
@@ -1007,6 +1365,8 @@
   "lng": -111.849663,
   "source_url": "https://www.jhutchingsmuseum.com/visit",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1045,6 +1405,8 @@
   "lng": -111.724136,
   "source_url": "https://www.paysonutah.gov/270/Peteetneet",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1078,10 +1440,33 @@
   ],
   "food": false,
   "address": "850 N 900 E, American Fork, UT 84003",
-  "lat": 40.394103,
-  "lng": -111.773302,
+  "lat": 40.394947,
+  "lng": -111.772556,
   "source_url": "https://christmascrecheutah.org/",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-01",
+    "start": "15:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-02",
+    "start": "12:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-03",
+    "start": "12:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-04",
+    "start": "12:00",
+    "end": "21:00"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-12-04",
   "status": "pending"
  },
@@ -1121,12 +1506,14 @@
   "lng": -111.640934,
   "source_url": "https://www.intermountainhistories.org/items/show/427",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Thistle Landslide and Ghost Town Viewpoint",
-  "description": "Drive US-6 to the Utah Geological Survey's Thistle landslide GeoSight. A pullout on US-6/89 overlooks the 1983 landslide that dammed the Spanish Fork River, flooded both highways and devastated the town of Thistle. Stay at the pullouts; the land around is private or railroad property.",
+  "description": "Drive up Spanish Fork Canyon on US-6 to the Utah Geological Survey's Thistle landslide GeoSight: a large pullout just before a big double road cut, with an overlook and signs about the 1983 landslide that dammed the Spanish Fork River, flooded both highways and wiped out the town of Thistle. The town ruins are about 1.5 miles farther on via US-89. Stay at the pullouts; the land around is private or railroad property.",
   "category": "Local Utah/Idaho Spots & Day Trips",
   "setting": "Outdoor",
   "season": [
@@ -1155,11 +1542,13 @@
    "Double Date"
   ],
   "food": false,
-  "address": "US-6 pullout near Thistle, Utah County, UT",
-  "lat": 39.992664,
-  "lng": -111.497547,
+  "address": "US-6 pullout before the double road cut, Spanish Fork Canyon, Utah County, UT",
+  "lat": 39.979634,
+  "lng": -111.503196,
   "source_url": "https://geology.utah.gov/map-pub/survey-notes/geosights/thistle-landslide/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1200,6 +1589,8 @@
   "lng": -111.694965,
   "source_url": "https://www.habitatuc.org/volunteer/volunteer-overview/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1240,6 +1631,8 @@
   "lng": -111.750685,
   "source_url": "https://tabithasway.org/volunteer/volunteer-pleasant-grove-pantry/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1275,19 +1668,21 @@
   "lng": -111.657325,
   "source_url": "https://www.projectreadutah.org/volunteer/become-a-volunteer",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Hike Silver Lake Trail #036 in American Fork Canyon",
-  "description": "Hike the 2.3-mile Silver Lake Trail from the north side of Silver Lake Flat Reservoir in American Fork Canyon. It's a summer and fall trail, so check Forest Service conditions and road status before you go.",
+  "description": "Hike USFS Trail #036 in the North Fork of American Fork Canyon: 2.3 miles from the trailhead on the north side of Silver Lake Flat Reservoir up to the lake. American Fork Canyon is a Forest Service recreation fee area (pay at the booth). It's a summer and fall trail, so check Forest Service conditions and the canyon road before you go.",
   "category": "Hiking & Nature",
   "setting": "Outdoor",
   "season": [
    "Summer",
    "Fall"
   ],
-  "cost": "Free",
+  "cost": "$1-$10",
   "duration": "Half-day (2-5 hrs)",
   "time": [
    "Morning",
@@ -1308,11 +1703,13 @@
    "Group Date"
   ],
   "food": false,
-  "address": "Silver Lake Flat Reservoir, American Fork Canyon, UT",
-  "lat": 40.501649,
-  "lng": -111.654407,
+  "address": "North side of Silver Lake Flat Reservoir, American Fork Canyon (North Fork), Utah County, UT",
+  "lat": 40.507144,
+  "lng": -111.656326,
   "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/silver-lake-trail-036",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  }

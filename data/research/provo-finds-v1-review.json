@@ -13,7 +13,10 @@
    "proposed": "$10-$20",
    "basis": "per person",
    "evidence": "Fall online special $11.99 unlimited activities (classicfun.com/hours)."
-  }
+  },
+  "occurrences_source": "https://classicfun.com/hours",
+  "occurrences_basis": "Regular hours: Thu \"Ages 16+ After 9:00PM For Skating\", Sat 12:00PM-12:00AM \"(Ages 16+ After 9:00PM)\".",
+  "occurrences_caveat": "Holiday Hours Dec 20 - Jan 4 are announced but not listed, so the Thu/Sat nights in that window are excluded."
  },
  "Climbing Wall at UVU's The Project": {
   "geo": {
@@ -44,7 +47,15 @@
     "https://www.parkrun.us/provoriverdeltagateway/ (fetched 2026-10-29: 'Starts on Nov 21, 2026')"
    ],
    "checked": "2026-10-29"
-  }
+  },
+  "description_fix_round5": {
+   "old": "Do the free, timed 5K parkrun at Delta Gateway Park every Saturday at 8:00am. Walk, jog, run, or volunteer. Register once with parkrun and bring your barcode.",
+   "why": "Page: \"Starts on Nov 21, 2026\".",
+   "date": "2026-10-31"
+  },
+  "occurrences_source": "https://www.parkrun.us/provoriverdeltagateway/",
+  "occurrences_basis": "\"takes place every Saturday at 8:00am. Starts on Nov 21, 2026\" (next listed run).",
+  "occurrences_caveat": "The page lists the next event as Nov 21, 2026, so Saturdays before then are not shown."
  },
  "Fifth Water Hot Springs Hike": {
   "hold": {
@@ -190,20 +201,126 @@
    "correction_m": 1202
   },
   "cost_mapping": {
-   "current": "Over $100",
-   "proposed": "Over $100",
-   "basis": "per couple",
-   "evidence": "GoWondo/Hobble Creek Outfitters: 1-hr ride $69/person, 2-hr ride $124/person; $138-$248 for two (pages fetched 2026-10-29).",
-   "applied": "2026-10-29 (round 4, filters.js @ 4782b23)"
-  }
+   "current": "$100 and under",
+   "proposed": "$100 and under",
+   "basis": "per person (1-hour ride)",
+   "evidence": "GoWondo one-hour ride page (https://gowondo.com/experience/one-hour-ride-656865, provider Hobble Creek Outfitters, re-fetched 2026-10-31): \"From 69 $\" per person, 1 hour. Item narrowed to that ride, so $69 per person ($138 for two): \"$100 and under\". Round 4 had \"Over $100\" because it covered the 2-hour ride ($124/person).",
+   "applied": "2026-10-31 (round 5, filters.js @ 4782b23)",
+   "previous": "Over $100 (round 4)"
+  },
+  "description_fix_round5": {
+   "old": "Book a 1- or 2-hour guided trail ride with Hobble Creek Outfitters, a family that has ranched in Hobble Creek Canyon since 1901.",
+   "why": "Narrowed to the 1-hour ride (GoWondo one-hour-ride-656865, \"From 69 $\", re-fetched 2026-10-31).",
+   "date": "2026-10-31"
+  },
+  "occurrences_note": "Booked ride; availability is chosen at booking (GoWondo shows dates per week)."
  },
  "BYU Football at LaVell Edwards Stadium": {
-  "expires_at_basis": "last remaining 2026 home game, Cincinnati Nov 28 (byucougars.com schedule)"
+  "expires_at_basis": "last remaining 2026 home game, Cincinnati Nov 28 (byucougars.com schedule)",
+  "occurrences_source": "https://byucougars.com/sports/football/schedule",
+  "occurrences_basis": "Home games at LaVell Edwards Stadium: Sat Nov 14 vs Baylor (TBA), Sat Nov 28 vs Cincinnati (TBA). Oct 31 vs Arizona State (1:30 PM) had already kicked off at build time and was removed."
  },
  "BYU Basketball at the Marriott Center": {
-  "expires_at_basis": "last listed regular-season Marriott Center game, Oklahoma State Tue Mar 2, 2027 (byucougars.com 2026-27 schedule)"
+  "expires_at_basis": "last listed regular-season Marriott Center game, Oklahoma State Tue Mar 2, 2027 (byucougars.com 2026-27 schedule)",
+  "occurrences_source": "https://byucougars.com/sports/mens-basketball/schedule/season/2026-2027",
+  "occurrences_basis": "All 17 regular-season games listed at Marriott Center, Provo (times MST); neutral-site Delta Center games excluded."
  },
  "Fall Festival at Rowley's Red Barn": {
-  "expires_at_basis": "null: site says \"Fall Festival is Here!\" with no end date; treat as seasonal, re-check (likely ends ~Oct 31)"
- }
+  "expires_at_basis": "null: site says \"Fall Festival is Here!\" with no end date; treat as seasonal, re-check (likely ends ~Oct 31)",
+  "dropped_round6": {
+   "date": "2026-10-31",
+   "source": "https://rowleysredbarn.com/pages/fall-festival",
+   "reason": "Festival is over: the official Fall Festival page says \"Our event will run from September 19th-October 30th 2026\" (Mon-Fri 3:30-9pm, Sat 10am-9pm). As of 2026-10-31 every date has passed, so the item was dropped rather than kept flagged. (Homepage still says only \"Fall Festival is Here!\".)"
+  }
+ },
+ "Getout Games Escape Room": {},
+ "The Escape Key Escape Rooms": {},
+ "$2.95 Late-Night Bowling at Miracle Bowl": {
+  "occurrences_source": "https://miracle-bowl.com/",
+  "occurrences_basis": "\"$2.95 Night runs Monday through Thursday after 9pm\"; Mon-Thu hours 11am-11pm (end = closing).",
+  "occurrences_caveat": "Site also says \"Holiday Season: Please Call Ahead!\" and the center may close early."
+ },
+ "Private Room at Heart & Seoul Karaoke": {},
+ "Bouldering at The Quarry": {},
+ "Day Pass at the Provo Recreation Center": {},
+ "Runner's Corner Wednesday Group Run": {
+  "occurrences_source": "https://www.strava.com/clubs/RunnersCornerUtah",
+  "occurrences_basis": "\"The group leaves from the store each Wednesday at 5:50 pm\" (no end time; 4-6 mile run)."
+ },
+ "Hike to the Y": {},
+ "Battle Creek Falls Hike": {},
+ "Wheel-Throwing Class at Utah Center for the Ceramic Arts": {},
+ "Ceramic Painting Class at Patty's Ceramics": {
+  "occurrences_flag": {
+   "reason": "Page says \"painting classes twice each week\" and Saturday workshops by appointment, but names no days or times.",
+   "source": "https://www.pattysceramics.com/",
+   "checked": "2026-10-31"
+  }
+ },
+ "Free Afternoon at the Springville Museum of Art": {},
+ "Free Film at BYU International Cinema": {
+  "occurrences_note": "Program venue: films rotate weekly with showtimes posted a week at a time (e.g. Nov 4-7 listed), so the item is treated as anytime-in-semester rather than a fixed series."
+ },
+ "Friday Show at the BYU Planetarium": {
+  "description_fix_round5": {
+   "old": "Catch a public show at the BYU planetarium on the 4th floor of the Eyring Science Center. Shows run on Friday nights during the semester at 6:30pm, and tickets are $5 for adults.",
+   "why": "Page says tickets go on sale at 6:30 PM; no show start time is given (old text said shows at 6:30pm).",
+   "date": "2026-10-31"
+  },
+  "occurrences_flag": {
+   "reason": "Page says Friday public shows run \"during Fall, Winter, and Spring semesters\" and tickets go on sale at 6:30 PM, but gives no semester dates or show start time (it points to a calendar). Not guessed.",
+   "source": "https://planetarium.byu.edu/planetarium-public-shows",
+   "checked": "2026-10-31"
+  }
+ },
+ "BYU Friday Star Party": {
+  "occurrences_source": "https://physics.byu.edu/clubs/astrosoc/starparties",
+  "occurrences_basis": "\"After sunset Friday Night star parties on the ESC Observing Deck (weather permitting)\"; start = sunset, so start is null.",
+  "occurrences_caveat": "Weather permitting; no individual dates listed."
+ },
+ "First Friday Provo Art Stroll": {
+  "occurrences_source": "https://www.provo.gov/1035/Art-Galleries",
+  "occurrences_basis": "\"Downtown Provo's monthly Art Stroll the first Friday of every month, 6:00 - 9:00 pm.\""
+ },
+ "Weekend Improv Battle at ComedyBox Utah": {
+  "occurrences_source": "https://www.comedyboxutah.com/",
+  "occurrences_basis": "\"Friday 7:30 Show\" / \"Saturday 7:30 Show\" listed as Multiple Dates, 7:30 PM - 9:00 PM (\"Doors open at 7:00 PM, Show starts at 7:30\")."
+ },
+ "Improvised Musical at ImprovBroadway": {
+  "occurrences_source": "https://www.improvbroadway.com/",
+  "occurrences_basis": "\"IMPROVISED MUSICAL COMEDY EVERY FRIDAY & SATURDAY AT 7:30 PM\"; listed shows run 7:30-9:15 PM.",
+  "occurrences_caveat": "Occasional special/cancelled shows (e.g. Oct 24 cancelled; Oct 31 Halloween sketch show)."
+ },
+ "Take an Improv Class at ImprovBroadway": {
+  "description_fix_round5": {
+   "old": "Sign up together for ImprovBroadway's 18+ beginner improv class (Improv 101 runs 4 Monday nights; new classes start monthly). You can also sign up for the Thursday Improv Game Night.",
+   "why": "Thursday Improv Game Night is no longer on the page; Improv 101 dates from the re-fetched listing.",
+   "date": "2026-10-31"
+  },
+  "expires_basis_round5": "= last occurrence date (2026-11-23)",
+  "occurrences_source": "https://www.improvbroadway.com/",
+  "occurrences_basis": "\"Improv 101 with Zach Atherton ... Mondays, Nov 2, 9, 16 and 23, 7:15 to 9:15 pm\" (a 4-week class; all 4 sessions listed).",
+  "occurrences_caveat": "The Thursday Improv Game Night in the description is not on the re-fetched page."
+ },
+ "A Show at The Ruth": {
+  "occurrences_note": "Program venue: productions change; no single run is the item."
+ },
+ "Volunteer Together at the Food & Care Coalition": {},
+ "Sort Food at Community Action Services & Food Bank": {},
+ "Morning Treats at The Provo Bakery": {},
+ "Kro-Nuts at Bianca's La Petite French Bakery": {},
+ "Kolache Breakfast at The Kolache Place": {},
+ "Late Dessert at The Chocolate": {},
+ "Prime Rib and Lenora's Cake at Magleby's": {},
+ "Visit the Spanish Fork Krishna Temple": {},
+ "Camp Floyd State Park Museum": {},
+ "A Night at UVU's Noorda Center": {
+  "occurrences_note": "Program venue: pick any Signature Series or student performance; no single run is the item."
+ },
+ "Climb at Momentum Lehi": {},
+ "Dinner at Brick Oven Provo": {},
+ "Bakery Lunch at Shirley's Bakery & Cafe": {},
+ "Live Music and Pub Grub at ABG's (21+)": {},
+ "Picnic at Big Springs Park": {},
+ "Pizza Night at Fat Daddy's Pizzeria": {}
 }

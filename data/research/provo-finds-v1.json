@@ -37,6 +37,8 @@
   "lng": -111.658766,
   "source_url": "https://getoutgames.com/provo/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -77,6 +79,8 @@
   "lng": -111.65877,
   "source_url": "https://theescapekey.us/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -117,6 +121,8 @@
   "lng": -111.68577,
   "source_url": "https://escapesintime.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -157,6 +163,21 @@
   "lng": -111.68217,
   "source_url": "https://miracle-bowl.com/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Mon",
+     "Tue",
+     "Wed",
+     "Thu"
+    ],
+    "start": "21:00",
+    "end": "23:00"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -195,6 +216,25 @@
   "lng": -111.695026,
   "source_url": "https://classicfun.com/hours",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Thu",
+     "Sat"
+    ],
+    "start": "21:00",
+    "end": "00:00",
+    "exclude": [
+     "2026-12-24",
+     "2026-12-26",
+     "2026-12-31",
+     "2027-01-02"
+    ]
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -234,6 +274,8 @@
   "lng": -111.659714,
   "source_url": "https://www.ilovekaraoke.com/provo",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -273,6 +315,8 @@
   "lng": -111.670109,
   "source_url": "https://quarryclimbing.com/hours-location/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -314,6 +358,8 @@
   "lng": -111.66423,
   "source_url": "https://www.provo.gov/492/Provo-Recreation-Center",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -353,6 +399,8 @@
   "lng": -111.715154,
   "source_url": "https://www.uvu.edu/oac/climbing/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -391,12 +439,24 @@
   "lng": -111.678442,
   "source_url": "https://www.strava.com/clubs/RunnersCornerUtah",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Wed"
+    ],
+    "start": "17:50",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Saturday parkrun at Provo River Delta",
-  "description": "Do the free, timed 5K parkrun at Delta Gateway Park every Saturday at 8:00am. Walk, jog, run, or volunteer. Register once with parkrun and bring your barcode.",
+  "description": "Do the free, timed 5K parkrun at Delta Gateway Park, every Saturday at 8:00am from Nov 21, 2026. Walk, jog, run, or volunteer. Register once with parkrun and bring your barcode.",
   "category": "Sports, Games & Rec",
   "setting": "Outdoor",
   "season": [
@@ -430,6 +490,18 @@
   "lng": -111.713316,
   "source_url": "https://www.parkrun.us/provoriverdeltagateway/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-21",
+    "end_date": null,
+    "weekdays": [
+     "Sat"
+    ],
+    "start": "08:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -469,6 +541,8 @@
   "lng": -111.627158,
   "source_url": "https://ytrail.byu.edu/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -508,6 +582,8 @@
   "lng": -111.70123,
   "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/battle-creek-trail-050",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -546,6 +622,8 @@
   "lng": -111.318665,
   "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/fifth-water-trail-015",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -583,6 +661,8 @@
   "lng": -111.705341,
   "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/nebo-loop-national-scenic-byway",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -620,6 +700,8 @@
   "lng": -111.677036,
   "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/grotto-trail-086",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -658,6 +740,8 @@
   "lng": -111.643027,
   "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/tibble-fork-reservoir-trailhead",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -694,6 +778,8 @@
   "lng": -111.605097,
   "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/mount-timpanogos-trailhead-aspen-grove",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -733,6 +819,8 @@
   "lng": -111.657712,
   "source_url": "https://provo.colormemine.com/visit-studio/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -771,6 +859,8 @@
   "lng": -111.676527,
   "source_url": "https://www.utahceramicarts.com/classes",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -809,6 +899,8 @@
   "lng": -111.753106,
   "source_url": "https://www.thekreativekiln.com/contact-us",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -848,6 +940,8 @@
   "lng": -111.659069,
   "source_url": "https://thewicklab.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -886,6 +980,8 @@
   "lng": -111.670139,
   "source_url": "https://www.pattysceramics.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": true,
   "expires_at": null,
   "status": "pending"
  },
@@ -924,6 +1020,8 @@
   "lng": -111.78879,
   "source_url": "https://bonsaibaime.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -963,6 +1061,8 @@
   "lng": -111.608205,
   "source_url": "https://smofa.org/visit",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1002,12 +1102,14 @@
   "lng": -111.651168,
   "source_url": "https://ic.byu.edu/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Friday Show at the BYU Planetarium",
-  "description": "Catch a public show at the BYU planetarium on the 4th floor of the Eyring Science Center. Shows run on Friday nights during the semester at 6:30pm, and tickets are $5 for adults.",
+  "description": "Catch a public show at the BYU Planetarium on the 4th floor of the Eyring Science Center. The BYU Astronomical Society runs Friday night shows during the fall, winter and spring semesters. Tickets ($5 adults, card only) go on sale at the door from 6:30pm; no reservations.",
   "category": "Culture, Community & Local Attractions",
   "setting": "Indoor",
   "season": [
@@ -1040,6 +1142,8 @@
   "lng": -111.650272,
   "source_url": "https://planetarium.byu.edu/planetarium-public-shows",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": true,
   "expires_at": null,
   "status": "pending"
  },
@@ -1079,6 +1183,18 @@
   "lng": -111.650272,
   "source_url": "https://physics.byu.edu/clubs/astrosoc/starparties",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Fri"
+    ],
+    "start": null,
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1118,6 +1234,21 @@
   "lng": -111.666313,
   "source_url": "https://www.provo.gov/1035/Art-Galleries",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Fri"
+    ],
+    "start": "18:00",
+    "end": "21:00",
+    "week_of_month": [
+     1
+    ]
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1157,6 +1288,19 @@
   "lng": -111.659389,
   "source_url": "https://www.comedyboxutah.com/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Fri",
+     "Sat"
+    ],
+    "start": "19:30",
+    "end": "21:00"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1196,12 +1340,25 @@
   "lng": -111.642148,
   "source_url": "https://www.improvbroadway.com/",
   "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Fri",
+     "Sat"
+    ],
+    "start": "19:30",
+    "end": "21:15"
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Take an Improv Class at ImprovBroadway",
-  "description": "Sign up together for ImprovBroadway's 18+ beginner improv class (Improv 101 runs 4 Monday nights; new classes start monthly). You can also sign up for the Thursday Improv Game Night.",
+  "description": "Sign up together for ImprovBroadway's beginner Improv 101 class with Zach Atherton: 4 Monday nights (Nov 2, 9, 16 and 23, 7:15–9:15pm) in Provo. Ages 18+, only 20 seats, no experience needed, and it includes 2 free show tickets.",
   "category": "Learning New Skills",
   "setting": "Indoor",
   "season": [
@@ -1234,7 +1391,30 @@
   "lng": -111.642148,
   "source_url": "https://www.improvbroadway.com/",
   "age21": false,
-  "expires_at": null,
+  "occurrences": [
+   {
+    "date": "2026-11-02",
+    "start": "19:15",
+    "end": "21:15"
+   },
+   {
+    "date": "2026-11-09",
+    "start": "19:15",
+    "end": "21:15"
+   },
+   {
+    "date": "2026-11-16",
+    "start": "19:15",
+    "end": "21:15"
+   },
+   {
+    "date": "2026-11-23",
+    "start": "19:15",
+    "end": "21:15"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-11-23",
   "status": "pending"
  },
  {
@@ -1274,6 +1454,8 @@
   "lng": -111.761352,
   "source_url": "https://theruth.org/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1314,6 +1496,8 @@
   "lng": -111.653311,
   "source_url": "https://foodandcare.org/get-involved",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1353,6 +1537,8 @@
   "lng": -111.66179,
   "source_url": "https://communityactionprovo.org/give-time/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1391,6 +1577,8 @@
   "lng": -111.655416,
   "source_url": "https://theprovobakery.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1431,6 +1619,8 @@
   "lng": -111.660208,
   "source_url": "https://www.biancaslapetitefrenchbakery.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1469,6 +1659,8 @@
   "lng": -111.666184,
   "source_url": "https://www.thekolacheplace.com/locations",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1508,6 +1700,8 @@
   "lng": -111.693893,
   "source_url": "https://thechocolate.cafe/contact-us/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1546,6 +1740,8 @@
   "lng": -111.76322,
   "source_url": "https://www.maglebys.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1587,6 +1783,8 @@
   "lng": -111.662094,
   "source_url": "https://utahkrishnas.org/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1628,6 +1826,8 @@
   "lng": -111.678458,
   "source_url": "https://thebackninegolf.com/local/orem-ut/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1666,6 +1866,8 @@
   "lng": -111.772699,
   "source_url": "https://radtag.com/location",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1705,6 +1907,8 @@
   "lng": -112.098952,
   "source_url": "https://stateparks.utah.gov/parks/camp-floyd/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1742,6 +1946,8 @@
   "lng": -111.709068,
   "source_url": "https://www.uvu.edu/thenoorda/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1779,6 +1985,19 @@
   "lng": -111.654578,
   "source_url": "https://byucougars.com/sports/football/schedule",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-14",
+    "start": null,
+    "end": null
+   },
+   {
+    "date": "2026-11-28",
+    "start": null,
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2026-11-28",
   "status": "pending"
  },
@@ -1816,6 +2035,94 @@
   "lng": -111.649361,
   "source_url": "https://byucougars.com/sports/mens-basketball/schedule/season/2026-2027",
   "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-06",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-10",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-12",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-18",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-09",
+    "start": "20:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-12",
+    "start": "14:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-15",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-22",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-06",
+    "start": "20:30",
+    "end": null
+   },
+   {
+    "date": "2027-01-09",
+    "start": "11:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-16",
+    "start": "20:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-23",
+    "start": "12:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-02",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-13",
+    "start": "13:30",
+    "end": null
+   },
+   {
+    "date": "2027-02-20",
+    "start": "12:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-22",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2027-03-02",
+    "start": "19:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
   "expires_at": "2027-03-02",
   "status": "pending"
  },
@@ -1855,6 +2162,8 @@
   "lng": -111.834058,
   "source_url": "https://momentumclimbing.com/lehi/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1895,6 +2204,8 @@
   "lng": -111.656448,
   "source_url": "https://brickovenrestaurants.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -1934,44 +2245,8 @@
   "lng": -111.661768,
   "source_url": "https://shirleysbakerycafe.com/locations/",
   "age21": false,
-  "expires_at": null,
-  "status": "pending"
- },
- {
-  "title": "Fall Festival at Rowley's Red Barn",
-  "description": "Drive south to Rowley's Red Barn in Santaquin for the fall festival out back, then get ice cream and fresh-baked treats inside.",
-  "category": "Local Utah/Idaho Spots & Day Trips",
-  "setting": "Both",
-  "season": [
-   "Fall",
-   "Summer"
-  ],
-  "cost": "$20-$30",
-  "duration": "Half-day (2-5 hrs)",
-  "time": [
-   "Afternoon",
-   "Evening"
-  ],
-  "vibe": [
-   "Chill",
-   "Silly"
-  ],
-  "stage": [
-   "First Date",
-   "Second/Third Date",
-   "Serious Relationship"
-  ],
-  "dateType": [
-   "Solo/Couple",
-   "Double Date",
-   "Group Date"
-  ],
-  "food": true,
-  "address": "901 S 300 W, Santaquin, UT 84655",
-  "lat": 39.97097,
-  "lng": -111.791059,
-  "source_url": "https://www.rowleysredbarn.com/",
-  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -2011,12 +2286,14 @@
   "lng": -111.661991,
   "source_url": "https://www.abgsbar.com/",
   "age21": true,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
  {
   "title": "Backcountry Horseback Ride in Hobble Creek Canyon",
-  "description": "Book a 1- or 2-hour guided trail ride with Hobble Creek Outfitters, a family that has ranched in Hobble Creek Canyon since 1901.",
+  "description": "Book Hobble Creek Outfitters' 1-hour guided trail ride ($69 per person; riders must be over 9 and under 200 lbs). After a short saddle-up lesson you ride trails on private ranch land in Hobble Creek Canyon, where the outfitter's family has ranched since 1901.",
   "category": "Outdoor Adventure & Extreme Sports",
   "setting": "Outdoor",
   "season": [
@@ -2024,7 +2301,7 @@
    "Summer",
    "Fall"
   ],
-  "cost": "Over $100",
+  "cost": "$100 and under",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Morning",
@@ -2050,6 +2327,8 @@
   "lng": -111.50108,
   "source_url": "https://hobblecreekoutfitters.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -2089,6 +2368,8 @@
   "lng": -111.523939,
   "source_url": "https://provo.com/parks/big-springs-park/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  },
@@ -2129,6 +2410,8 @@
   "lng": -111.662683,
   "source_url": "https://fatdaddyspizzeria.com/",
   "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
   "expires_at": null,
   "status": "pending"
  }

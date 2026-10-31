@@ -664,6 +664,101 @@ border:1.5px solid var(--border); font-family:inherit;
 .filter-scroll{ overflow-y:auto; flex:1; }
 .filter-group{ margin-bottom:20px; }
 .filter-group-title{ font-size:13px; font-weight:800; color:var(--text); margin-bottom:8px; }
+
+/* Discover location row. Light track, jade fill, coral thumb with a white ring.
+   The same radiusMiles value drives the Filters panel below. */
+.radius-row{ display:flex; align-items:center; gap:10px; margin:2px 0 12px; }
+.radius-place{
+  display:flex; align-items:center; gap:6px; flex:0 0 auto; max-width:54%;
+  color:var(--text); font-size:15px; font-weight:800;
+}
+.radius-place .icon{ width:18px; height:18px; color:var(--color-accent); vertical-align:0; }
+.radius-place-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.radius-readout{
+  flex:0 0 auto; min-width:52px; text-align:right;
+  color:var(--text); font-size:15px; font-weight:800;
+}
+.radius-slider{
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:28px; margin:0; background:transparent; cursor:pointer;
+  --radius-pct:50%;
+  --radius-track:#E4EEE8;
+}
+.radius-row .radius-slider{ flex:1 1 0; min-width:0; width:auto; }
+.radius-slider:focus{ outline:none; }
+.radius-slider:focus-visible{ outline:2px solid var(--color-accent); outline-offset:2px; border-radius:999px; }
+.radius-slider::-webkit-slider-runnable-track{
+  height:4px; border-radius:999px;
+  background:linear-gradient(to right, var(--color-accent) var(--radius-pct), var(--radius-track) var(--radius-pct));
+}
+.radius-slider::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:22px; height:22px; margin-top:-9px; border-radius:50%; cursor:pointer;
+}
+.radius-slider::-moz-range-track{
+  height:4px; border:none; border-radius:999px;
+  background:linear-gradient(to right, var(--color-accent) var(--radius-pct), var(--radius-track) var(--radius-pct));
+}
+.radius-slider::-moz-range-thumb{ width:22px; height:22px; border-radius:50%; cursor:pointer; }
+.radius-slider-discover{ --radius-track:#E6EFEA; }
+.radius-slider-discover::-webkit-slider-thumb{
+  background:var(--color-coral); border:3px solid #fff; box-shadow:0 1px 4px rgba(15,77,58,.2);
+}
+.radius-slider-discover::-moz-range-thumb{
+  background:var(--color-coral); border:3px solid #fff; box-shadow:0 1px 4px rgba(15,77,58,.2);
+}
+.radius-slider-panel::-webkit-slider-thumb{
+  background:#fff; border:3px solid var(--color-accent); box-shadow:0 1px 3px rgba(15,77,58,.18);
+}
+.radius-slider-panel::-moz-range-thumb{
+  background:#fff; border:3px solid var(--color-accent); box-shadow:0 1px 3px rgba(15,77,58,.18);
+}
+
+/* Filters "How far?" card. White (or night surface) with a thin border,
+   semicircle diagram, and a 1–50 slider. */
+.how-far{
+  background:var(--surface); border:1px solid var(--border); border-radius:22px;
+  padding:14px 16px 10px;
+}
+.how-far-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:2px;
+}
+.how-far-label{ font-size:16px; font-weight:700; color:var(--text); }
+.how-far-value{ font-size:32px; font-weight:800; color:var(--text); line-height:1; letter-spacing:-0.4px; }
+.radius-diagram-wrap{ height:128px; margin:0 6px; }
+.radius-diagram{ width:100%; height:100%; display:block; overflow:visible; }
+.radius-ring{ fill:none; stroke:#C3E0D2; stroke-width:1.35; }
+.radius-fill{ stroke:none; }
+.radius-fill-a{ fill:rgba(11,110,79,.045); }
+.radius-fill-b{ fill:rgba(11,110,79,.08); }
+.radius-fill-c{ fill:rgba(11,110,79,.14); }
+.radius-pin path{ fill:var(--color-accent); }
+.radius-pin-dot{ fill:#fff; }
+.radius-ticks{ position:relative; height:18px; margin-top:2px; }
+.radius-tick{
+  position:absolute; top:0; transform:translateX(-50%);
+  font-size:12px; font-weight:700; color:var(--text-soft); white-space:nowrap;
+}
+.radius-tick:first-child{ transform:none; }
+.radius-tick:last-child{ transform:none; left:auto !important; right:0; }
+[data-theme="dark"] .radius-slider-discover{ --radius-track:#D7E4DC; }
+[data-theme="dark"] .radius-slider-panel{ --radius-track:#31403A; }
+[data-theme="dark"] .radius-ring{ stroke:#3CCB8A; }
+[data-theme="dark"] .radius-ring-outer,
+[data-theme="dark"] .radius-ring-mid{ stroke-dasharray:4 5; }
+[data-theme="dark"] .radius-fill-a{ fill:rgba(60,203,138,.07); }
+[data-theme="dark"] .radius-fill-b{ fill:rgba(60,203,138,.13); }
+[data-theme="dark"] .radius-fill-c{ fill:rgba(60,203,138,.22); }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .radius-slider-discover{ --radius-track:#D7E4DC; }
+  :root:not([data-theme="light"]) .radius-slider-panel{ --radius-track:#31403A; }
+  :root:not([data-theme="light"]) .radius-ring{ stroke:#3CCB8A; }
+  :root:not([data-theme="light"]) .radius-ring-outer,
+  :root:not([data-theme="light"]) .radius-ring-mid{ stroke-dasharray:4 5; }
+  :root:not([data-theme="light"]) .radius-fill-a{ fill:rgba(60,203,138,.07); }
+  :root:not([data-theme="light"]) .radius-fill-b{ fill:rgba(60,203,138,.13); }
+  :root:not([data-theme="light"]) .radius-fill-c{ fill:rgba(60,203,138,.22); }
+}
 .filter-actions{ display:flex; gap:10px; padding-top:14px; border-top:1px solid var(--border); }
 .filter-actions > *{ flex:1; }
 

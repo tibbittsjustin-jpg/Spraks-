@@ -12,7 +12,7 @@ color-scheme:light;
 /* Brand. Deep jade fills buttons and selected chips. Bright jade is the
    light accent. --color-on-accent is the ink on those fills.
    Coral is reserved as a non-text fill and is not used for type.
-   Yellow is reserved for a tonight chip and time badges. */
+   Yellow is the Happening tonight chip and the Evening / Night / Tonight pills. */
 --color-accent:#0B6E4F;
 --color-accent-strong:#0F4D3A;
 --color-on-accent:#fff;
@@ -328,11 +328,18 @@ display:flex; align-items:center; justify-content:center; width:46px; height:28p
 .nav-btn.active .nav-icon{ background:rgba(255,255,255,.16); }
 
 /* ---------- Filter chip bar ---------- */
-.filter-bar{ display:flex; align-items:center; gap:8px; margin:4px 0 14px; }
+.filter-bar{ display:flex; align-items:center; gap:8px; margin:4px 0 14px; flex-wrap:wrap; }
 .filter-chip-btn{
 display:flex; align-items:center; gap:6px; background:var(--surface); border:1.5px solid var(--border);
 padding:8px 14px; border-radius:20px; font-size:13.5px; font-weight:700; color:var(--text); cursor:pointer;
 }
+.tonight-chip{
+display:inline-flex; align-items:center; gap:6px; flex-shrink:0;
+background:var(--color-yellow); color:var(--color-on-yellow);
+border:1.5px solid transparent; padding:8px 14px; border-radius:20px;
+font-size:13.5px; font-weight:800; line-height:1.2; cursor:pointer; white-space:nowrap;
+}
+.tonight-chip.is-on{ border-color:var(--color-on-yellow); }
 .filter-chip-btn svg{ width:16px; height:16px; }
 .filter-chip-btn .badge{
 background:var(--accent); color:var(--color-on-accent); border-radius:999px; font-size:10.5px; padding:1px 6px; font-weight:800;
@@ -403,15 +410,28 @@ z-index:3;
 color:var(--color-ink); background:#fff;
 max-width:calc(100% - 132px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-.swipe-card.has-photo .card-open{
-position:absolute; top:14px; right:14px; z-index:3;
-background:var(--color-accent); color:var(--color-on-accent);
+/* Open now stays deep jade with white type in both themes. Night accent
+   is bright jade, and white on that fill is under 4.5:1. The dot stays
+   bright so it reads on the jade pill at night. */
+.badge-open{
+background:var(--color-jade); color:#fff;
 font-size:11px; font-weight:800; padding:5px 10px; border-radius:20px;
-display:flex; align-items:center; gap:6px; line-height:1.2;
+display:inline-flex; align-items:center; gap:6px; line-height:1.2;
 }
-.swipe-card.has-photo .card-open:before{
+.badge-open:before{
 content:""; width:7px; height:7px; border-radius:50%; flex-shrink:0;
-background:var(--color-open-dot); box-shadow:0 0 0 3px color-mix(in srgb, var(--color-open-dot) 35%, transparent);
+background:var(--color-jade-bright); box-shadow:0 0 0 3px color-mix(in srgb, var(--color-jade-bright) 35%, transparent);
+}
+.badge-time{
+background:var(--color-yellow); color:var(--color-on-yellow);
+font-size:11px; font-weight:800; padding:5px 10px; border-radius:20px;
+display:inline-flex; align-items:center; line-height:1.2;
+}
+.swipe-card.has-photo .badge-open,
+.swipe-card.has-photo .badge-time,
+.card-media .badge-open,
+.card-media .badge-time{
+position:absolute; top:14px; right:14px; z-index:3;
 }
 .swipe-card.has-photo .real-badge{ z-index:3; color:var(--color-ink); }
 .swipe-card.has-photo .card-photo-overlay{
@@ -527,6 +547,7 @@ padding:12px 14px; margin-bottom:10px; cursor:pointer; box-shadow:var(--shadow-s
 .idea-row .ir-text{ flex:1; min-width:0; }
 .idea-row .ir-title{ font-weight:700; font-size:14.5px; color:var(--text); }
 .idea-row .ir-sub{ font-size:12px; color:var(--text-soft); margin-top:2px; }
+.idea-row .badge-open, .idea-row .badge-time{ margin-top:6px; }
 .idea-row .ir-chevron{ color:var(--text-soft); font-size:18px; opacity:.6; }
 
 /* ---------- Swipe-to-delete rows (Saved screen) ---------- */

@@ -253,7 +253,7 @@
       doneIds:[],       // [{id, date}]
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false },
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
@@ -518,7 +518,8 @@
       placeName: raw.placeName,
       address: raw.address,
       mapsUrl: raw.mapsUrl,
-      rating: raw.rating || null
+      rating: raw.rating || null,
+      openNow: raw.openNow === true ? true : (raw.openNow === false ? false : null)
     };
   }
 
@@ -1234,7 +1235,34 @@
     if(f.dateType.length && !idea.dateType.some(function(d){ return f.dateType.indexOf(d) !== -1; })) return false;
     if(f.food !== null && idea.food !== f.food) return false;
     if(f.hide21 && idea.age21 === true) return false;
+    // Quick filter from the Discover chip. Not part of the Filters sheet,
+    // and not counted on that button. See SparkUtil.suitsTonight.
+    if(f.tonight === true && !SparkUtil.suitsTonight(idea)) return false;
     return true;
+  }
+
+  // How many ideas the tonight chip would show, honoring the other filters.
+  // Seen cards stay in the count: N is the size of the matching set.
+  function tonightMatchCount(){
+    var f = {};
+    for(var k in state.filters) f[k] = state.filters[k];
+    f.tonight = true;
+    var n = 0;
+    for(var i = 0; i < IDEAS_DATA.length; i++){
+      if(matchesFilters(IDEAS_DATA[i], f)) n++;
+    }
+    if(state.location){
+      for(var r = 0; r < REAL_IDEAS_RUNTIME.length; r++){
+        if(matchesFilters(REAL_IDEAS_RUNTIME[r], f)) n++;
+      }
+    }
+    return n;
+  }
+
+  function toggleTonightFilter(){
+    state.filters.tonight = state.filters.tonight !== true;
+    saveState();
+    return state.filters.tonight;
   }
 
   function activeFilterCount(f){
@@ -1282,6 +1310,17 @@
     fbtn.innerHTML = icon("sliders") + " Filters" + (count ? '<span class="badge">'+count+'</span>' : "");
     fbtn.addEventListener("click", openFilterOverlay);
     bar.appendChild(fbtn);
+
+    var tonightOn = state.filters.tonight === true;
+    var tonightBtn = el("button", "tonight-chip" + (tonightOn ? " is-on" : ""));
+    tonightBtn.type = "button";
+    tonightBtn.setAttribute("aria-pressed", tonightOn ? "true" : "false");
+    tonightBtn.textContent = (tonightOn ? "\u2713 " : "") + "Happening tonight \u00b7 " + tonightMatchCount();
+    tonightBtn.addEventListener("click", function(){
+      toggleTonightFilter();
+      renderContent();
+    });
+    bar.appendChild(tonightBtn);
 
     var deck = computeDeck();
     var rc = el("div", "result-count", deck.remaining.length + " of " + deck.total + " ideas");
@@ -1412,7 +1451,9 @@
        distanceMiles  → "6.4 mi" / "from you"
        closesAt       → "10 pm" / "lot closes"   (a short clock time)
        conditions     → the coral line under the chips
-       openNow        → true shows the Open now badge */
+       openNow        → true shows the Open now badge.
+     Time pills (Tonight / Evening / Night) come from authored time tags
+     and can show on a card with or without a photo. See suitsTonight. */
   function ideaPhoto(idea){
     var photo = idea && idea.photo;
     if(!photo || typeof photo !== "object") return null;
@@ -1534,8 +1575,18 @@
       photoConditionsHtml(idea);
   }
 
-  function photoTopRightHtml(idea){
-    if(idea.openNow === true) return '<span class="card-open">Open now</span>';
+  function statusBadgeHtml(idea){
+    var badge = SparkUtil.ideaStatusBadge(idea);
+    if(!badge) return "";
+    var cls = badge.kind === "open" ? "badge-open" : "badge-time";
+    return '<span class="' + cls + '">' + escapeHtml(badge.label) + '</span>';
+  }
+
+  // Top-right of a card: Open now, else a time pill, else the real-place
+  // marker. At most one, and only when the idea actually carries that fact.
+  function cardCornerHtml(idea){
+    var badge = statusBadgeHtml(idea);
+    if(badge) return badge;
     if(idea.isReal){
       return '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>';
     }
@@ -1549,7 +1600,7 @@
     return '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
       '<div class="card-photo-scrim"></div>' +
       '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
-      photoTopRightHtml(idea) +
+      cardCornerHtml(idea) +
       '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '<div class="card-photo-overlay">' + photoOverlayHtml(idea) + '</div>' +
       credit;
@@ -1558,7 +1609,7 @@
   function classicSwipeCardHtml(idea){
     return '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
         '<span class="card-cat-tag">' + escapeHtml(idea.category) + '</span>' +
-        (idea.isReal ? '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>' : '') +
+        cardCornerHtml(idea) +
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '</div>' +
       '<div class="card-body">' +
@@ -2219,7 +2270,7 @@
       row.innerHTML =
         '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
         '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
-        '<div class="ir-sub">' + escapeHtml(idea.category) + '</div></span>' +
+        '<div class="ir-sub">' + escapeHtml(idea.category) + '</div>' + statusBadgeHtml(idea) + '</span>' +
         '<span class="ir-chevron">›</span>';
       row.addEventListener("click", function(){ commitFriendPick(id); });
       list.appendChild(row);
@@ -2568,7 +2619,7 @@
     row.innerHTML =
       '<span class="ir-icon">' + ideaIcon(idea) + '</span>' +
       '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
-      '<div class="ir-sub">' + escapeHtml(subtext) + '</div></span>' +
+      '<div class="ir-sub">' + escapeHtml(subtext) + '</div>' + statusBadgeHtml(idea) + '</span>' +
       '<span class="ir-chevron">›</span>';
     row.addEventListener("click", function(){ goToDetail(idea.id); });
     return row;
@@ -2895,7 +2946,7 @@
     row.innerHTML =
       '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
       '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
-      '<div class="ir-sub">' + escapeHtml(idea.category) + '</div></span>' +
+      '<div class="ir-sub">' + escapeHtml(idea.category) + '</div>' + statusBadgeHtml(idea) + '</span>' +
       '<span class="ir-chevron">›</span>';
     row.addEventListener("click", function(){
       ui.screen = "detail"; ui.detailIdeaId = idea.id;

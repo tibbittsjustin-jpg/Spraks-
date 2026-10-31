@@ -96,6 +96,68 @@
     };
   }
 
+  // Authored time-of-day tags from the catalog. There is no clock time,
+  // weekday, hours schedule, or event date on an idea. Nearby places copy
+  // the active time filter (or all four tags) so they can pass the deck
+  // filters — that array is not a schedule, so real ideas are left out here.
+  var TIME_TAGS = ["Morning", "Afternoon", "Evening", "Night"];
+
+  function knownTimes(idea){
+    if(!idea || idea.isReal === true || idea.unavailable === true) return [];
+    var raw = Array.isArray(idea.time) ? idea.time : [];
+    var out = [];
+    for(var i = 0; i < raw.length; i++){
+      if(TIME_TAGS.indexOf(raw[i]) !== -1 && out.indexOf(raw[i]) === -1) out.push(raw[i]);
+    }
+    return out;
+  }
+
+  // Local 5:00pm through 11:59pm. openNow is a live "open at this moment"
+  // flag, so it only counts as tonight while the clock is already in that
+  // window. A place open at noon is not evidence it is open this evening.
+  function isEveningClock(now){
+    var dt = (now instanceof Date && !isNaN(now.getTime())) ? now : new Date();
+    var hr = dt.getHours();
+    return hr >= 17 && hr <= 23;
+  }
+
+  // Suits tonight when an authored tag is Evening or Night, or when the
+  // place is open now and the local clock is in the evening window.
+  function suitsTonight(idea, now){
+    if(!idea || idea.unavailable === true) return false;
+    var times = knownTimes(idea);
+    for(var i = 0; i < times.length; i++){
+      if(times[i] === "Evening" || times[i] === "Night") return true;
+    }
+    return idea.openNow === true && isEveningClock(now);
+  }
+
+  // A time pill only when every authored tag is Evening and/or Night.
+  // An idea that also lists Morning or Afternoon is not labeled, because
+  // one word would hide the daytime. No clock, weekday, or "8 pm" is invented.
+  // Evening + Night → "Tonight". Evening alone → "Evening". Night alone → "Night".
+  function timeBadgeLabel(idea){
+    var times = knownTimes(idea);
+    if(!times.length) return null;
+    var evening = times.indexOf("Evening") !== -1;
+    var night = times.indexOf("Night") !== -1;
+    var daytime = times.indexOf("Morning") !== -1 || times.indexOf("Afternoon") !== -1;
+    if(daytime || (!evening && !night)) return null;
+    if(evening && night) return "Tonight";
+    if(night) return "Night";
+    return "Evening";
+  }
+
+  // One badge. "Open now" wins when that flag is exactly true. Otherwise
+  // the time pill, or nothing.
+  function ideaStatusBadge(idea){
+    if(!idea || idea.unavailable === true) return null;
+    if(idea.openNow === true) return { kind: "open", label: "Open now" };
+    var label = timeBadgeLabel(idea);
+    if(!label) return null;
+    return { kind: "time", label: label };
+  }
+
   return {
     escapeHtml: escapeHtml,
     fmtDate: fmtDate,
@@ -105,6 +167,11 @@
     hashStr: hashStr,
     validateUsername: validateUsername,
     checkAge: checkAge,
-    mulberry32: mulberry32
+    mulberry32: mulberry32,
+    knownTimes: knownTimes,
+    isEveningClock: isEveningClock,
+    suitsTonight: suitsTonight,
+    timeBadgeLabel: timeBadgeLabel,
+    ideaStatusBadge: ideaStatusBadge
   };
 });

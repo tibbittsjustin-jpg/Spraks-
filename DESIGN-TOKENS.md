@@ -45,7 +45,7 @@ Day follows K1 v4: cream page, white surfaces, deep jade actions, forest type. N
 
 `--color-coral` is `#FF5A5F`. It is not applied to text. The Discover distance thumb uses it, with a white ring.
 
-`--color-yellow` is reserved for a "Happening tonight" chip and time badges. Those controls are not in the current screens, so the token is unused. Stat tiles are not yellow.
+`--color-yellow` is the Discover "Happening tonight" chip and the Evening / Night / Tonight pills. Dark text uses `--color-on-yellow` in both themes. Stat tiles are not yellow.
 
 `--color-danger` is text. The delete row uses `--color-danger-fill` with white type so the control does not turn pale at night and does not use coral.
 
@@ -60,7 +60,7 @@ These are separate paints. Do not point them at `--color-overlay`.
 | Category chip on card art | `#fff` with `--color-ink` |
 | Real-place badge | `rgba(255,255,255,.94)` |
 | Real-place badge shadow | `rgba(20,20,26,.12)` |
-| Open-now badge | `--color-accent` with `--color-on-accent`, dot `--color-open-dot` |
+| Open-now badge | `--color-jade` with white type, dot `--color-jade-bright` |
 | Conditions line on a photo | `#D2EEDF` |
 | Photo scrim | `rgba(14,15,18,…)` held constant |
 | Tutorial dot (inactive) | `color-mix` of the text color at 28% |

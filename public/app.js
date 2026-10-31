@@ -268,7 +268,7 @@
       doneIds:[],       // [{id, date}]
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, radiusMiles:SparkRadius.RADIUS_DEFAULT },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false, radiusMiles:SparkRadius.RADIUS_DEFAULT },
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
@@ -536,7 +536,8 @@
       placeName: raw.placeName,
       address: raw.address,
       mapsUrl: raw.mapsUrl,
-      rating: raw.rating || null
+      rating: raw.rating || null,
+      openNow: raw.openNow === true ? true : (raw.openNow === false ? false : null)
     };
   }
 
@@ -1252,7 +1253,34 @@
     if(f.food !== null && idea.food !== f.food) return false;
     if(f.hide21 && idea.age21 === true) return false;
     if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
+    // Quick filter from the Discover chip. Not part of the Filters sheet,
+    // and not counted on that button. See SparkUtil.suitsTonight.
+    if(f.tonight === true && !SparkUtil.suitsTonight(idea)) return false;
     return true;
+  }
+
+  // How many ideas the tonight chip would show, honoring the other filters.
+  // Seen cards stay in the count: N is the size of the matching set.
+  function tonightMatchCount(){
+    var f = {};
+    for(var k in state.filters) f[k] = state.filters[k];
+    f.tonight = true;
+    var n = 0;
+    for(var i = 0; i < IDEAS_DATA.length; i++){
+      if(matchesFilters(IDEAS_DATA[i], f)) n++;
+    }
+    if(state.location){
+      for(var r = 0; r < REAL_IDEAS_RUNTIME.length; r++){
+        if(matchesFilters(REAL_IDEAS_RUNTIME[r], f)) n++;
+      }
+    }
+    return n;
+  }
+
+  function toggleTonightFilter(){
+    state.filters.tonight = state.filters.tonight !== true;
+    saveState();
+    return state.filters.tonight;
   }
 
   function activeFilterCount(f){
@@ -1465,6 +1493,17 @@
     fbtn.addEventListener("click", openFilterOverlay);
     bar.appendChild(fbtn);
 
+    var tonightOn = state.filters.tonight === true;
+    var tonightBtn = el("button", "tonight-chip" + (tonightOn ? " is-on" : ""));
+    tonightBtn.type = "button";
+    tonightBtn.setAttribute("aria-pressed", tonightOn ? "true" : "false");
+    tonightBtn.textContent = (tonightOn ? "\u2713 " : "") + "Happening tonight \u00b7 " + tonightMatchCount();
+    tonightBtn.addEventListener("click", function(){
+      toggleTonightFilter();
+      renderContent();
+    });
+    bar.appendChild(tonightBtn);
+
     var deck = computeDeck();
     var rc = el("div", "result-count", deck.remaining.length + " of " + deck.total + " ideas");
     bar.appendChild(rc);
@@ -1595,7 +1634,9 @@
                         reads it when the idea has no coordinates.
        closesAt       → "10 pm" / "lot closes"   (a short clock time)
        conditions     → the line under the chips
-       openNow        → true shows the Open now badge */
+       openNow        → true shows the Open now badge.
+     Time pills (Tonight / Evening / Night) come from authored time tags
+     and can show on a card with or without a photo. See suitsTonight. */
   function ideaPhoto(idea){
     var photo = idea && idea.photo;
     if(!photo || typeof photo !== "object") return null;
@@ -1717,8 +1758,18 @@
       photoConditionsHtml(idea);
   }
 
-  function photoTopRightHtml(idea){
-    if(idea.openNow === true) return '<span class="card-open">Open now</span>';
+  function statusBadgeHtml(idea){
+    var badge = SparkUtil.ideaStatusBadge(idea);
+    if(!badge) return "";
+    var cls = badge.kind === "open" ? "badge-open" : "badge-time";
+    return '<span class="' + cls + '">' + escapeHtml(badge.label) + '</span>';
+  }
+
+  // Top-right of a card: Open now, else a time pill, else the real-place
+  // marker. At most one, and only when the idea actually carries that fact.
+  function cardCornerHtml(idea){
+    var badge = statusBadgeHtml(idea);
+    if(badge) return badge;
     if(idea.isReal){
       return '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>';
     }
@@ -1731,7 +1782,7 @@
       : "";
     return '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
       '<div class="card-photo-scrim"></div>' +
-      photoTopRightHtml(idea) +
+      cardCornerHtml(idea) +
       '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '<div class="card-photo-overlay">' + photoOverlayHtml(idea) + '</div>' +
       credit;
@@ -1739,7 +1790,7 @@
 
   function classicSwipeCardHtml(idea){
     return '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
-        (idea.isReal ? '<span class="real-badge" title="Real nearby place">' + icon("map-pin") + ' Real spot</span>' : '') +
+        cardCornerHtml(idea) +
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
       '</div>' +
       '<div class="card-body">' +
@@ -2401,7 +2452,7 @@
       row.innerHTML =
         '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
         '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
-        '<div class="ir-sub">' + escapeHtml(idea.category) + '</div></span>' +
+        '<div class="ir-sub">' + escapeHtml(idea.category) + '</div>' + statusBadgeHtml(idea) + '</span>' +
         '<span class="ir-chevron">›</span>';
       row.addEventListener("click", function(){ commitFriendPick(id); });
       list.appendChild(row);
@@ -2750,7 +2801,7 @@
     row.innerHTML =
       '<span class="ir-icon">' + ideaIcon(idea) + '</span>' +
       '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
-      '<div class="ir-sub">' + escapeHtml(subtext) + '</div></span>' +
+      '<div class="ir-sub">' + escapeHtml(subtext) + '</div>' + statusBadgeHtml(idea) + '</span>' +
       '<span class="ir-chevron">›</span>';
     row.addEventListener("click", function(){ goToDetail(idea.id); });
     return row;
@@ -2933,7 +2984,8 @@
 
   // Distance and cost only when the idea actually has them. "Open now" only
   // when openNow is true — the same fact the Discover card already uses.
-  // There is no separate tonight/weekend field, so those chips are not invented.
+  // A time pill is the authored Evening/Night label, shown beside Open now
+  // when both are real. Weekdays and clock times are not invented.
   function savedMetaParts(idea, doneDate){
     var parts = [];
     if(idea && idea.unavailable){
@@ -2954,6 +3006,13 @@
     return null;
   }
 
+  function savedTimeBadge(idea){
+    if(!idea || idea.unavailable) return null;
+    var label = SparkUtil.timeBadgeLabel(idea);
+    if(!label) return null;
+    return { kind:"time", label:label };
+  }
+
   function buildSavedCard(idea, opts){
     opts = opts || {};
     var card = el("div", "saved-card" + (idea && idea.unavailable ? " unavailable-item" : ""));
@@ -2967,6 +3026,8 @@
     if(meta.length) body.appendChild(el("div", "saved-card-meta", escapeHtml(meta.join(" · "))));
     var badge = savedStatusBadge(idea);
     if(badge) body.appendChild(el("span", "saved-badge saved-badge-" + badge.kind, escapeHtml(badge.label)));
+    var timeBadge = savedTimeBadge(idea);
+    if(timeBadge) body.appendChild(el("span", "saved-badge saved-badge-" + timeBadge.kind, escapeHtml(timeBadge.label)));
     var picks = opts.picks || [];
     if(picks.length){
       body.appendChild(el("div", "friend-pick-badge",
@@ -3181,7 +3242,7 @@
     row.innerHTML =
       '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
       '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
-      '<div class="ir-sub">' + escapeHtml(idea.category) + '</div></span>' +
+      '<div class="ir-sub">' + escapeHtml(idea.category) + '</div>' + statusBadgeHtml(idea) + '</span>' +
       '<span class="ir-chevron">›</span>';
     row.addEventListener("click", function(){
       ui.screen = "detail"; ui.detailIdeaId = idea.id;

@@ -178,7 +178,8 @@ placeId: place.placeId || "",
 placeName: place.name,
 address: place.address,
 mapsUrl: place.mapsUrl,
-rating: place.rating
+rating: place.rating,
+openNow: place.openNow === true ? true : (place.openNow === false ? false : null)
 };
 }
 

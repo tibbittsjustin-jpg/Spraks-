@@ -531,14 +531,27 @@ async function main() {
     const radius = await request(port, "/api/activities?lat=40.76&lng=-111.89&radiusMiles=25&limit=50");
     const radiusBody = JSON.parse(radius.body);
     const radiusIds = radiusBody.items.map(item => item.id);
-    check("radius 25 returns the two nearer pins in distance order",
-      radius.status === 200 && radiusIds.length === 2 && radiusIds[0] === 910001 && radiusIds[1] === 910002,
-      radius.status + " " + radiusIds.join(","));
-    check("distanceMiles is present and ordered",
-      radiusBody.items.length === 2 &&
+    const generals = radiusBody.items.slice(2);
+    check("radius 25 lists in-radius pins first, then general ideas",
+      radius.status === 200 && radiusIds.length === 50 &&
+      radiusIds[0] === 910001 && radiusIds[1] === 910002 && radiusIds.indexOf(910003) === -1,
+      radius.status + " " + radiusIds.slice(0, 6).join(","));
+    check("general ideas follow in id order with no distance",
+      generals.length === 48 && generals.every((item, i) =>
+        item.lat == null && item.lng == null && item.distanceMiles == null &&
+        (i === 0 || item.id > generals[i - 1].id)));
+    check("distanceMiles is present and ordered on the pins",
       radiusBody.items[0].distanceMiles < radiusBody.items[1].distanceMiles &&
       radiusBody.items[0].distanceMiles < 5 && radiusBody.items[1].distanceMiles < 20);
-    check("the 40 mile pin is outside the radius", radiusIds.indexOf(910003) === -1);
+    const only = await request(port, "/api/activities?lat=40.76&lng=-111.89&radiusMiles=25&limit=50&localOnly=1");
+    const onlyIds = JSON.parse(only.body).items.map(item => item.id);
+    check("localOnly=1 returns only the two nearer pins",
+      only.status === 200 && onlyIds.length === 2 && onlyIds[0] === 910001 && onlyIds[1] === 910002,
+      only.status + " " + onlyIds.join(","));
+    const badOnly = await request(port, "/api/activities?lat=40.76&lng=-111.89&localOnly=yes");
+    const badOnlyBody = JSON.parse(badOnly.body);
+    check("invalid localOnly is rejected",
+      badOnly.status === 400 && badOnlyBody.error === "invalid_filter" && badOnlyBody.field === "localOnly");
     await pool.query("delete from activities where id = any($1::int[])", [pins.map(pin => pin.id)]);
 
     const sample = JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures", "coords", "utah.sample.json"), "utf8"));

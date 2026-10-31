@@ -115,6 +115,15 @@ async function main() {
       check("private cache when lat/lng are present", res.headers["cache-control"] === "private, max-age=60");
     });
 
+    await section("localOnly query param", async () => {
+      const bad = await request(port, "/api/activities?lat=40.76&lng=-111.89&localOnly=yes");
+      const badBody = JSON.parse(bad.body);
+      check("invalid localOnly is 400",
+        bad.status === 400 && badBody.error === "invalid_filter" && badBody.field === "localOnly");
+      const ok = await request(port, "/api/activities?lat=40.76&lng=-111.89&localOnly=1");
+      check("localOnly=1 is accepted", ok.status === 200);
+    });
+
     await section("single activity", async () => {
       const missingDb = {
         async query(text, values) {

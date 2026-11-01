@@ -76,6 +76,22 @@
     return { ok:true, username:username };
   }
 
+  // Exact words, plus anything containing spark or jaderoo. Checked after
+  // the same trim and lowercase as validateUsername. The format helper does
+  // not call this, so a signed-out local name is unchanged.
+  var RESERVED_USERNAMES = {
+    spark:true, admin:true, support:true, help:true,
+    official:true, mod:true, moderator:true, jaderoo:true
+  };
+  function reservedUsername(value){
+    var checked = validateUsername(value);
+    var username = checked.ok ? checked.username : String(value == null ? "" : value).trim().toLowerCase();
+    if(!username) return false;
+    if(RESERVED_USERNAMES[username]) return true;
+    if(username.indexOf("spark") !== -1 || username.indexOf("jaderoo") !== -1) return true;
+    return false;
+  }
+
   function checkAge(dob, now){
     var parsed = parseDobParts(dob);
     if(!parsed) return { ok: false, error: "invalid_date" };
@@ -578,6 +594,7 @@
     localDateISO: localDateISO,
     hashStr: hashStr,
     validateUsername: validateUsername,
+    reservedUsername: reservedUsername,
     checkAge: checkAge,
     mulberry32: mulberry32,
     knownTimes: knownTimes,

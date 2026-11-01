@@ -128,6 +128,7 @@ function loadApp(storage) {
     submittedIdeasLabel: submittedIdeasLabel,
     renderProfileHeader: renderProfileHeader,
     applyProfileEdits: applyProfileEdits,
+    submitProfileEdits: submitProfileEdits,
     recordSubmittedIdea: recordSubmittedIdea,
     buildEditProfileSubpanel: buildEditProfileSubpanel,
     buildIdeaSubmitSubpanel: buildIdeaSubmitSubpanel,

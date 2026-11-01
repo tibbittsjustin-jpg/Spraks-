@@ -142,7 +142,9 @@ To turn it on with Supabase:
 3. Copy the connection string from Project Settings → Database → Connection
    string → URI, "Session pooler", port 5432. Put it only in the server
    environment as `DATABASE_URL`. Do not put it in the browser, in git, or in
-   a `NEXT_PUBLIC` / `VITE_` variable. The anon key is not used.
+   a `NEXT_PUBLIC` / `VITE_` variable. The anon key is not used by the
+   activity or submission routes. Username claim (below) uses it only on
+   the server, to verify an access token.
 4. From this folder:
 
    ```
@@ -171,3 +173,34 @@ To turn it on with Supabase:
 
 For a local Postgres without TLS, set `PGSSLMODE=disable`. Integration tests
 use `TEST_DATABASE_URL` and never point at the Supabase project.
+
+## Usernames
+
+Signed-out people still keep a username on this device only. A signed-in
+person claims one on the server. There is no sign-in screen in this app yet.
+When Accounts exists, it should leave the Supabase access token in
+`localStorage` under `spark_access_token` (a raw token, or a JSON session
+with `access_token`). The page then calls:
+
+```
+GET  /api/username/check?u=
+POST /api/username          { "username": "..." }
+GET  /api/me/username
+```
+
+`POST` and `GET /api/me/username` require `Authorization: Bearer`. A missing
+or rejected token is `401`. The check route is public and limited in memory
+on this one process (30 per minute per address).
+
+`db/migrations/012_usernames.sql` creates `public.usernames`. `011` is
+reserved and is not in this repo. Apply `012` with `npm run db:migrate`, or
+paste that file into the Supabase SQL editor after `010`. It enables
+row level security and grants nothing to `anon` or `authenticated`. Do not
+add a policy. The server connection (`DATABASE_URL`) is the only reader and
+writer, same as the other tables. It does not foreign-key to
+`username_holds`.
+
+On the server environment, set `SUPABASE_URL` and `SUPABASE_ANON_KEY` so the
+process can call Supabase `auth.getUser`. Both stay off the page. The table
+stores `user_id`, `username`, and `changed_at` only. No email, phone, or
+location.

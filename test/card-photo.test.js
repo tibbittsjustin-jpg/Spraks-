@@ -27,7 +27,7 @@ function cardOf(t, idea) {
   return { className: card.className, html: card.innerHTML, id: card.dataset.id };
 }
 
-const HINT = "Tap for details · swipe up to save · down to pass";
+const HINT = "Tap for details · swipe right to save · left to pass";
 
 section("No photo keeps the cover-art card", () => {
   const t = loadApp({});

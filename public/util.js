@@ -195,6 +195,64 @@
     return "";
   }
 
+  // Shared direction lock for a pointer gesture. Stays undecided until
+  // travel leaves a 10px slop, then locks for the rest of the gesture:
+  // vertical when |dy| wins, horizontal only when |dx| > 1.5×|dy|.
+  // Callers decide what a locked axis does (scroll, drag, delete, recap).
+  var SWIPE_SLOP_PX = 10;
+  var SWIPE_HORIZONTAL_RATIO = 1.5;
+  var SWIPE_COMMIT_FRACTION = 0.32;
+  var SWIPE_FLICK_PX_PER_MS = 0.6;
+  var SWIPE_FLICK_MIN_PX = 32;
+  var SWIPE_FALLBACK_WIDTH = 360;
+
+  function lockSwipeAxis(dx, dy, locked){
+    if(locked === "vertical" || locked === "horizontal") return locked;
+    dx = Number(dx) || 0;
+    dy = Number(dy) || 0;
+    var adx = Math.abs(dx), ady = Math.abs(dy);
+    if(adx <= SWIPE_SLOP_PX && ady <= SWIPE_SLOP_PX) return null;
+    if(ady > adx) return "vertical";
+    if(adx > SWIPE_HORIZONTAL_RATIO * ady) return "horizontal";
+    return null;
+  }
+
+  // Discover card commit. phase "move" → pending | scroll | drag.
+  // phase "end" → tap | scroll | snap | save | pass.
+  // save is rightward, pass is leftward. Pass the locked axis back in
+  // so a later sample cannot flip the gesture.
+  function resolveCardSwipe(state){
+    state = state || {};
+    var dx = Number(state.dx) || 0;
+    var dy = Number(state.dy) || 0;
+    var axis = lockSwipeAxis(dx, dy, state.axis || null);
+    var phase = state.phase === "end" ? "end" : "move";
+    if(phase === "move"){
+      if(axis === "vertical") return { axis: "vertical", action: "scroll" };
+      if(axis === "horizontal") return { axis: "horizontal", action: "drag" };
+      return { axis: null, action: "pending" };
+    }
+    if(axis === "vertical") return { axis: "vertical", action: "scroll" };
+    if(axis !== "horizontal"){
+      if(Math.abs(dx) <= SWIPE_SLOP_PX && Math.abs(dy) <= SWIPE_SLOP_PX) return { axis: null, action: "tap" };
+      return { axis: null, action: "snap" };
+    }
+    var width = Number(state.cardWidth);
+    if(!(width > 40)) width = SWIPE_FALLBACK_WIDTH;
+    var threshold = width * SWIPE_COMMIT_FRACTION;
+    var travel = Math.abs(dx);
+    var velocityX = Number(state.velocityX) || 0;
+    var sameWay = (velocityX > 0 && dx > 0) || (velocityX < 0 && dx < 0);
+    var flick = sameWay
+      && Math.abs(velocityX) >= SWIPE_FLICK_PX_PER_MS
+      && travel >= SWIPE_FLICK_MIN_PX
+      && travel > SWIPE_HORIZONTAL_RATIO * Math.abs(dy);
+    if((travel >= threshold || flick) && dx !== 0){
+      return { axis: "horizontal", action: dx > 0 ? "save" : "pass", threshold: threshold };
+    }
+    return { axis: "horizontal", action: "snap", threshold: threshold };
+  }
+
   return {
     escapeHtml: escapeHtml,
     httpsPageUrl: httpsPageUrl,
@@ -211,6 +269,14 @@
     isEveningClock: isEveningClock,
     suitsTonight: suitsTonight,
     timeBadgeLabel: timeBadgeLabel,
-    ideaStatusBadge: ideaStatusBadge
+    ideaStatusBadge: ideaStatusBadge,
+    SWIPE_SLOP_PX: SWIPE_SLOP_PX,
+    SWIPE_HORIZONTAL_RATIO: SWIPE_HORIZONTAL_RATIO,
+    SWIPE_COMMIT_FRACTION: SWIPE_COMMIT_FRACTION,
+    SWIPE_FLICK_PX_PER_MS: SWIPE_FLICK_PX_PER_MS,
+    SWIPE_FLICK_MIN_PX: SWIPE_FLICK_MIN_PX,
+    SWIPE_FALLBACK_WIDTH: SWIPE_FALLBACK_WIDTH,
+    lockSwipeAxis: lockSwipeAxis,
+    resolveCardSwipe: resolveCardSwipe
   };
 });

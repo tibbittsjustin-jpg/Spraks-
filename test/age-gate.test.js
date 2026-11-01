@@ -2,9 +2,11 @@
    The server never stores or logs it. The browser keeps only ageConfirmedAt. */
 "use strict";
 
+const fs = require("fs");
 const http = require("http");
+const path = require("path");
 const { loadApp } = require("./harness.js");
-const { checkAge } = require("../public/util");
+const { checkAge, latestDob, MINIMUM_AGE, ageOkCookie } = require("../public/util");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -21,9 +23,11 @@ const KEY = "spark_state_v1";
 const ADULT = "1990-05-05";
 const CHILD = "2015-06-15";
 
-function ymd(d) {
+function shiftIso(iso, days) {
+  const parts = iso.split("-");
+  const dt = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]) + days));
   const p = n => (n < 10 ? "0" : "") + n;
-  return d.getUTCFullYear() + "-" + p(d.getUTCMonth() + 1) + "-" + p(d.getUTCDate());
+  return dt.getUTCFullYear() + "-" + p(dt.getUTCMonth() + 1) + "-" + p(dt.getUTCDate());
 }
 
 function jsonResponse(body, status) {
@@ -44,6 +48,7 @@ function post(port, urlPath, payload) {
       res.on("data", c => chunks.push(c));
       res.on("end", () => resolve({
         status: res.statusCode,
+        headers: res.headers,
         body: Buffer.concat(chunks).toString("utf8")
       }));
     });
@@ -69,19 +74,38 @@ function spyConsole() {
 }
 
 async function main() {
-  await section("calendar age", () => {
-    const now = new Date(Date.UTC(2026, 9, 29));
-    check("turns 18 on this UTC day", checkAge("2008-10-29", now).ok === true);
-    check("still 17 the next day", checkAge("2008-10-30", now).blocked === true && checkAge("2008-10-30", now).ok === false);
-    check("already 18 the day before", checkAge("2008-10-28", now).ok === true);
-    check("malformed date is invalid", checkAge("13", now).error === "invalid_date");
-    check("impossible day is invalid", checkAge("2000-02-31", now).error === "invalid_date");
-    check("future date is blocked", checkAge(ymd(new Date(Date.UTC(now.getUTCFullYear() + 1, 0, 1))), now).blocked === true);
+  await section("calendar age in America/Denver", () => {
+    // 8:30pm MST on Nov 1, 2026. UTC has already rolled to Nov 2.
+    const evening = new Date("2026-11-02T03:30:00.000Z");
+    check("exactly 18 on that Denver evening is allowed", checkAge("2008-11-01", evening).ok === true);
+    check("17 years and 364 days on that Denver evening is blocked",
+      checkAge("2008-11-02", evening).blocked === true && checkAge("2008-11-02", evening).ok === false);
+    check("that instant is already the next UTC day", evening.toISOString().slice(0, 10) === "2026-11-02");
+    check("latest birth date on that evening is the 18th birthday", latestDob(evening) === "2008-11-01");
+
+    // 6:00pm MDT on Oct 28, 2026. UTC is already Oct 29.
+    const dusk = new Date("2026-10-29T00:00:00.000Z");
+    check("Denver birthday that UTC already passed is allowed", checkAge("2008-10-28", dusk).ok === true);
+    check("the next Denver day is still 17", checkAge("2008-10-29", dusk).blocked === true);
+    check("the day before is already 18", checkAge("2008-10-27", dusk).ok === true);
+
+    check("malformed date is invalid", checkAge("13", evening).error === "invalid_date");
+    check("impossible day is invalid", checkAge("2000-02-31", evening).error === "invalid_date");
+    check("future date is blocked", checkAge("2027-01-01", evening).blocked === true);
     const today = new Date();
-    const turns = new Date(Date.UTC(today.getUTCFullYear() - 18, today.getUTCMonth(), today.getUTCDate()));
-    const still17 = new Date(turns.getTime() + 24 * 60 * 60 * 1000);
-    check("18th birthday today is allowed", checkAge(ymd(turns), today).ok === true);
-    check("birthday tomorrow is blocked", checkAge(ymd(still17), today).blocked === true);
+    const turns = latestDob(today);
+    const still17 = shiftIso(turns, 1);
+    check("18th birthday today is allowed", checkAge(turns, today).ok === true);
+    check("birthday tomorrow is blocked", checkAge(still17, today).blocked === true);
+    check("the shared minimum is 18", MINIMUM_AGE === 18);
+
+    const utilSrc = fs.readFileSync(path.join(__dirname, "../public/util.js"), "utf8");
+    const appSrc = fs.readFileSync(path.join(__dirname, "../public/app.js"), "utf8");
+    check("client and server share one minimum",
+      utilSrc.indexOf("var MINIMUM_AGE = 18;") !== -1 &&
+      utilSrc.indexOf("if(age < MINIMUM_AGE)") !== -1 &&
+      appSrc.indexOf("var MINIMUM_AGE = SparkUtil.MINIMUM_AGE;") !== -1 &&
+      appSrc.indexOf("var MINIMUM_AGE = 18;") === -1);
   });
 
   await section("server blocks under 18 and does not keep the date", async () => {
@@ -103,9 +127,43 @@ async function main() {
       check("adult is allowed", allowed.status === 200 && allowedBody.ok === true && !allowedBody.blocked, allowed.body);
       check("allowed response does not echo the date", allowed.body.indexOf(ADULT) === -1);
 
+      const setCookie = allowed.headers["set-cookie"];
+      check("pass sets spark_age_ok with the existing attributes",
+        Array.isArray(setCookie) && setCookie.indexOf(ageOkCookie(false)) !== -1 &&
+        setCookie.join("").indexOf(ADULT) === -1,
+        JSON.stringify(setCookie));
+      check("blocked response does not set the cookie", !blocked.headers["set-cookie"]);
+
+      const turns = latestDob(new Date());
+      const still17 = shiftIso(turns, 1);
+      const boundaryNo = await post(port, "/api/age-check", { dob: still17 });
+      const boundaryYes = await post(port, "/api/age-check", { dob: turns });
+      const boundaryNoBody = JSON.parse(boundaryNo.body);
+      const boundaryYesBody = JSON.parse(boundaryYes.body);
+      check("server rejects 17 years and 364 days",
+        boundaryNo.status === 200 && boundaryNoBody.ok === false && boundaryNoBody.blocked === true &&
+        !boundaryNo.headers["set-cookie"] && boundaryNo.body.indexOf(still17) === -1,
+        boundaryNo.status + " " + boundaryNo.body);
+      check("server accepts exactly 18",
+        boundaryYes.status === 200 && boundaryYesBody.ok === true && !boundaryYesBody.blocked &&
+        Array.isArray(boundaryYes.headers["set-cookie"]) &&
+        boundaryYes.headers["set-cookie"].indexOf(ageOkCookie(false)) !== -1 &&
+        boundaryYes.body.indexOf(turns) === -1,
+        boundaryYes.status + " " + boundaryYes.body);
+
       const bad = await post(port, "/api/age-check", { dob: "not-a-date" });
       check("bad date is invalid_date", bad.status === 400 && JSON.parse(bad.body).error === "invalid_date", bad.body);
       check("invalid response does not echo the input", bad.body.indexOf("not-a-date") === -1);
+      check("invalid date does not set the cookie", !bad.headers["set-cookie"]);
+      check("server exports checkAge for a later sign-up", app.checkAge === checkAge && app.MINIMUM_AGE === MINIMUM_AGE);
+
+      const limited = await post(port, "/api/age-check", { dob: ADULT });
+      const limitedBody = JSON.parse(limited.body);
+      check("age-check returns 429 when the IP limit is hit",
+        limited.status === 429 && limitedBody.ok === false && limitedBody.error === "rate_limited" &&
+        Number(limited.headers["retry-after"]) >= 1 && !limited.headers["set-cookie"] &&
+        limited.body.indexOf(ADULT) === -1,
+        limited.status + " " + limited.body);
 
       const logged = spy.logs.join("\n");
       check("server logs omit the date of birth",
@@ -153,6 +211,34 @@ async function main() {
     check("saved profile has no date of birth",
       saved.indexOf(ADULT) === -1 && !t.state.profile.dob && !t.state.profile.birthday && !t.state.profile.age,
       saved.slice(0, 240));
+  });
+
+  await section("onboarding boundary in America/Denver", async () => {
+    const today = new Date();
+    const turns = latestDob(today);
+    const still17 = shiftIso(turns, 1);
+    const store = {};
+    const t = loadApp(store);
+    let calls = 0;
+    t.setFetch((url, opts) => {
+      calls++;
+      const sent = JSON.parse(opts.body);
+      check("exactly 18 is posted to the age route", url === "/api/age-check" && sent.dob === turns);
+      return Promise.resolve(jsonResponse({ ok: true }));
+    });
+    const blocked = await t.finishOnboarding({ name: "Casey", dob: still17, gender: "Woman" });
+    check("17 years and 364 days is blocked before the server",
+      blocked === false && calls === 0 && t.state.onboarded === false);
+    check("that date is not stored", JSON.stringify(store).indexOf(still17) === -1);
+    const ok = await t.finishOnboarding({ name: "Casey", dob: turns, gender: "Woman" });
+    check("exactly 18 completes onboarding", ok === true && t.state.onboarded === true && calls === 1);
+    check("the accepted date is not stored",
+      JSON.stringify(store).indexOf(turns) === -1 && !t.state.profile.dob);
+    const appSrc = fs.readFileSync(path.join(__dirname, "../public/app.js"), "utf8");
+    check("onboarding date max is today minus 18 years",
+      appSrc.indexOf('getElementById("ob-dob")') !== -1 &&
+      appSrc.indexOf("SparkUtil.latestDob(new Date())") !== -1 &&
+      appSrc.indexOf('setAttribute("max", max)') !== -1);
   });
 
   await section("older saves without a confirmation go through the gate again", () => {

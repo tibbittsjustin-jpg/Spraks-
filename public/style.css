@@ -669,6 +669,13 @@ transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,.25);
 .tip-row .t-text{ font-size:13px; color:var(--text); line-height:1.45; }
 
 .idea-form{ position:relative; }
+.idea-age-prompt{
+  margin:14px 0 4px; padding:12px 12px 14px;
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+}
+.idea-age-prompt .field-hint{ margin-top:0; }
+.idea-age-prompt .field-input{ margin-top:8px; }
+.idea-age-prompt .btn-outline{ margin-top:10px; width:100%; }
 .idea-form label{ display:block; font-size:12px; font-weight:700; color:var(--text-soft); margin:12px 0 5px; text-transform:uppercase;}
 .idea-form textarea{ resize:vertical; min-height:80px; }
 .idea-form select, .idea-form input, .idea-form textarea{

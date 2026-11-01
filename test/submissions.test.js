@@ -7,6 +7,14 @@ const http = require("http");
 const path = require("path");
 const express = require("express");
 const submit = require("../public/submit");
+const { latestDob } = require("../public/util");
+
+function shiftIso(iso, days) {
+  const parts = iso.split("-");
+  const dt = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]) + days));
+  const p = n => (n < 10 ? "0" : "") + n;
+  return dt.getUTCFullYear() + "-" + p(dt.getUTCMonth() + 1) + "-" + p(dt.getUTCDate());
+}
 const { validateSourceUrl } = require("../lib/validate-url");
 const { createEmailLimiter } = require("../lib/rate-limit");
 const { createSubmissionsRouter, createIpLimiter, LIMITS } = require("../routes/submissions");
@@ -74,7 +82,8 @@ function postRaw(port, urlPath, body, headers) {
 
 function postJson(port, urlPath, payload, headers) {
   return postRaw(port, urlPath, JSON.stringify(payload), Object.assign({
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "Cookie": "spark_age_ok=1"
   }, headers || {}));
 }
 
@@ -298,6 +307,27 @@ async function main() {
       spy.restore();
       check("a date of birth is dropped and not logged",
         withDob.status === 201 && !mounted.calls[0].payload.dob && logged.indexOf(dob) === -1 && withDob.body.indexOf(dob) === -1);
+
+      const noProof = await postJson(port, "/api/submissions", validBody({ email: "noproof@example.com" }), { Cookie: "" });
+      const badCookie = await postJson(port, "/api/submissions", validBody({ email: "badcookie@example.com" }), { Cookie: "spark_age_ok=0" });
+      check("a missing or invalid age cookie is its own rejection",
+        noProof.status === 403 && JSON.parse(noProof.body).error === "age_cookie_required" &&
+        badCookie.status === 403 && JSON.parse(badCookie.body).error === "age_cookie_required" &&
+        noProof.body.indexOf("noproof@example.com") === -1 && badCookie.body.indexOf("badcookie@example.com") === -1,
+        noProof.status + " " + noProof.body + " " + badCookie.body);
+      check("a missing age check does not insert",
+        mounted.calls.every(call => call.email !== "noproof@example.com" && call.email !== "badcookie@example.com"));
+
+      const tooYoung = shiftIso(latestDob(new Date()), 1);
+      const youngSpy = spyConsole();
+      const youngSubmit = await postJson(port, "/api/submissions", validBody({ email: "young@example.com", dob: tooYoung }));
+      const youngLogged = youngSpy.logs.join("\n");
+      youngSpy.restore();
+      check("an under-18 date of birth is rejected even with the age cookie",
+        youngSubmit.status === 403 && JSON.parse(youngSubmit.body).error === "age_required" &&
+        youngSubmit.body.indexOf(tooYoung) === -1 && youngLogged.indexOf(tooYoung) === -1 &&
+        mounted.calls.every(call => call.email !== "young@example.com" && !call.payload.dob),
+        youngSubmit.status + " " + youngSubmit.body);
 
       const urls = [
         ["http://example.com/a", "http"],
@@ -549,6 +579,127 @@ async function main() {
       return fs.readFileSync(path.join(__dirname, "..", "lib", name), "utf8");
     }).join("\n");
     check("helpers do not name citext", /citext/i.test(libSql) === false);
+  });
+
+  await section("an onboarded person without the age cookie confirms in place", async () => {
+    function textOf(node) {
+      return collectText(node);
+    }
+    function findPrompt(node) {
+      if (!node) return null;
+      if (node.getAttribute && node.getAttribute("data-age-prompt") === "birthday") return node;
+      const kids = node.children || [];
+      for (let i = 0; i < kids.length; i++) {
+        const found = findPrompt(kids[i]);
+        if (found) return found;
+      }
+      return null;
+    }
+    function jsonResponse(status, body) {
+      return { status: status, json: () => Promise.resolve(body) };
+    }
+    const draft = {
+      title: "Sunset picnic",
+      description: "Pack a blanket and watch the sky fade over the river.",
+      category: "Picnics & Parks",
+      email: "ada@example.com",
+      ageConfirmed: true,
+      vibe: ["Chill"]
+    };
+    const plan = { id: "plan_keep", name: "Friday Night", date: "2026-06-05", ideaIds: [2], friendPicks: [] };
+    const stamp = "2026-02-02T15:04:05.000Z";
+    function savedProfile() {
+      const store = {};
+      store[KEY] = JSON.stringify({
+        onboarded: true,
+        hasSeenTutorial: true,
+        profile: { name: "Riley", gender: "Woman", ageConfirmedAt: stamp },
+        datePlans: [plan]
+      });
+      return loadApp(store);
+    }
+
+    const blocked = savedProfile();
+    const parent = blocked.document.createElement("div");
+    const beforePlans = JSON.stringify(blocked.state.datePlans);
+    const beforeIdeas = blocked.state.submittedIdeas.length;
+    blocked.finishSubmission(
+      { status: 403, payload: { ok: false, error: "age_cookie_required" } },
+      draft,
+      { form: parent }
+    );
+    const prompt = findPrompt(parent);
+    const promptText = textOf(parent);
+    const dateInput = prompt && (prompt.children || []).filter(node => node && node.tagName === "INPUT")[0];
+    check("a missing-cookie 403 shows the birthday prompt",
+      prompt != null && promptText.indexOf("Quick check: confirm your birthday") !== -1 &&
+      dateInput && dateInput.type === "date",
+      promptText.slice(0, 240));
+    check("the prompt does not restart onboarding",
+      blocked.onboardingRestarts === 0 && blocked.state.onboarded === true &&
+      blocked.state.profile.name === "Riley" && blocked.state.profile.ageConfirmedAt === stamp);
+    check("the prompt keeps the plans and the unsent draft",
+      JSON.stringify(blocked.state.datePlans) === beforePlans &&
+      blocked.state.submittedIdeas.length === beforeIdeas);
+
+    blocked.finishSubmission(
+      { status: 403, payload: { ok: false, error: "age_required" } },
+      draft,
+      { form: blocked.document.createElement("div") }
+    );
+    check("an under-18 rejection still opens onboarding", blocked.onboardingRestarts === 1);
+
+    const young = shiftIso(latestDob(new Date()), 1);
+    let youngPosts = 0;
+    blocked.setFetch((url) => {
+      youngPosts++;
+      if (url === "/api/age-check") return Promise.resolve(jsonResponse(200, { ok: false, blocked: true }));
+      return Promise.resolve(jsonResponse(500, { ok: false }));
+    });
+    const failed = await blocked.confirmSubmissionBirthday(young);
+    check("a birthday that is under 18 does not wipe the profile or the draft",
+      failed && failed.ok === false && failed.blocked === true &&
+      blocked.lastToastMessage.indexOf("18 or older") !== -1 &&
+      youngPosts === 0 && blocked.onboardingRestarts === 1 &&
+      blocked.state.profile.name === "Riley" && blocked.state.profile.ageConfirmedAt === stamp &&
+      JSON.stringify(blocked.state.datePlans) === beforePlans &&
+      blocked.state.submittedIdeas.length === beforeIdeas &&
+      JSON.stringify(blocked.state).indexOf(young) === -1);
+
+    const fresh = savedProfile();
+    const host = fresh.document.createElement("div");
+    const keptPlans = JSON.stringify(fresh.state.datePlans);
+    fresh.finishSubmission(
+      { status: 403, payload: { error: "age_cookie_required" } },
+      draft,
+      { form: host }
+    );
+    const adult = "1990-05-05";
+    const posts = [];
+    fresh.setFetch((url, opts) => {
+      const sent = opts && opts.body ? JSON.parse(opts.body) : null;
+      posts.push({ url: url, body: sent });
+      if (url === "/api/age-check") return Promise.resolve(jsonResponse(200, { ok: true }));
+      if (url === "/api/submissions") return Promise.resolve(jsonResponse(201, { ok: true, status: "pending" }));
+      return Promise.resolve(jsonResponse(500, { ok: false }));
+    });
+    const passed = await fresh.confirmSubmissionBirthday(adult);
+    const submissionPosts = posts.filter(call => call.url === "/api/submissions");
+    const agePosts = posts.filter(call => call.url === "/api/age-check");
+    check("a passing birthday retries the same draft",
+      passed && passed.ok === true && agePosts.length === 1 && agePosts[0].body.dob === adult &&
+      submissionPosts.length === 1 && submissionPosts[0].body.title === draft.title &&
+      submissionPosts[0].body.description === draft.description &&
+      submissionPosts[0].body.email === draft.email &&
+      !Object.prototype.hasOwnProperty.call(submissionPosts[0].body, "dob"),
+      JSON.stringify(posts.map(call => call.url)));
+    check("the retry keeps the profile and the plan and does not store the date",
+      fresh.onboardingRestarts === 0 && fresh.state.onboarded === true &&
+      fresh.state.profile.name === "Riley" && fresh.state.profile.ageConfirmedAt === stamp &&
+      JSON.stringify(fresh.state.datePlans) === keptPlans &&
+      fresh.state.submittedIdeas.length === 1 && fresh.state.submittedIdeas[0].title === draft.title &&
+      JSON.stringify(fresh.state).indexOf(adult) === -1 &&
+      fresh.document.cookie.indexOf("spark_age_ok=1") === 0);
   });
 
   return { pass: pass, fail: fail };

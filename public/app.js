@@ -144,7 +144,7 @@
   }
 
   /* ---------- State ---------- */
-  var MINIMUM_AGE = 18;
+  var MINIMUM_AGE = SparkUtil.MINIMUM_AGE;
 
   function parseProfileAge(value){
     if(typeof value === "number" && isFinite(value)) value = String(value);
@@ -1006,7 +1006,10 @@
   function escapeHtml(s){ return SparkUtil.escapeHtml(s); }
   function validateUsername(value){ return SparkUtil.validateUsername(value); }
   var toastTimer = null;
+  var lastToastMessage = "";
+  var onboardingRestarts = 0;
   function showToast(msg){
+    lastToastMessage = String(msg || "");
     var t = $("#toast");
     t.textContent = msg;
     t.classList.toggle("toast-wrap", String(msg || "").length > 42);
@@ -1329,38 +1332,112 @@
     reader.readAsDataURL(file);
   });
 
-  function finishOnboarding(profile){
-    profile = profile || {};
-    var dob = String(profile.dob || "").trim();
-    if(!SparkUtil.checkAge(dob).ok) return Promise.resolve(false);
+  // Client check first, then the server. The date is not kept.
+  function confirmAdultDob(dob){
+    dob = String(dob || "").trim();
+    var checked = SparkUtil.checkAge(dob);
+    if(!checked.ok) return Promise.resolve({ ok:false, blocked: checked.blocked === true });
     return fetch("/api/age-check", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ dob: dob })
     }).then(function(r){ return r.json(); })
       .then(function(body){
-        if(!body || body.ok !== true) return false;
-        state.profile = {
-          name: String(profile.name || "").trim() || "Friend",
-          gender: profile.gender || "Woman",
-          photo: profile.photo || null,
-          ageConfirmedAt: new Date().toISOString()
-        };
-        state.onboarded = true;
-        saveState();
-        return true;
+        if(body && body.ok === true) return { ok:true, blocked:false };
+        return { ok:false, blocked: !!(body && body.blocked) };
       })
-      .catch(function(){ return false; });
+      .catch(function(){ return { ok:false, blocked:false }; });
+  }
+
+  function finishOnboarding(profile){
+    profile = profile || {};
+    return confirmAdultDob(profile.dob).then(function(result){
+      if(!result.ok) return false;
+      state.profile = {
+        name: String(profile.name || "").trim() || "Friend",
+        gender: profile.gender || "Woman",
+        photo: profile.photo || null,
+        ageConfirmedAt: new Date().toISOString()
+      };
+      state.onboarded = true;
+      saveState();
+      writeAgeOkCookie();
+      return true;
+    });
+  }
+
+  function applyDobMax(input){
+    if(!input) return "";
+    var max = SparkUtil.latestDob(new Date());
+    input.max = max;
+    if(input.setAttribute) input.setAttribute("max", max);
+    return max;
+  }
+
+  function refreshOnboardingDobMax(){
+    var input = document.getElementById("ob-dob");
+    applyDobMax(input);
   }
 
   function showAgeGate(){
+    onboardingRestarts++;
+    refreshOnboardingDobMax();
     $("#view-onboarding").classList.remove("hidden");
     $("#view-tutorial").classList.add("hidden");
     $("#view-app").classList.add("hidden");
   }
 
+  // Someone who already passed onboarding has no spark_age_ok cookie yet.
+  // Ask for a birthday here. Do not clear their profile, plans, or draft.
+  var birthdayRecheck = null;
+  function beginBirthdayRecheck(parent, draftInput, retryOpts, retry){
+    retryOpts = retryOpts || {};
+    var box = el("div", "idea-age-prompt");
+    box.setAttribute("data-age-prompt", "birthday");
+    box.appendChild(el("p", "field-hint", "Quick check: confirm your birthday"));
+    var input = document.createElement("input");
+    input.type = "date";
+    input.className = "field-input";
+    input.id = "submission-dob";
+    input.setAttribute("aria-label", "Date of birth");
+    input.required = true;
+    applyDobMax(input);
+    box.appendChild(input);
+    var btn = el("button", "btn-outline", "Continue");
+    btn.type = "button";
+    function run(dob){
+      btn.disabled = true;
+      return confirmAdultDob(dob).then(function(result){
+        if(!result.ok){
+          btn.disabled = false;
+          if(retryOpts.button) retryOpts.button.disabled = false;
+          if(result.blocked) showToast("You must be " + MINIMUM_AGE + " or older to use Jaderoo.");
+          return { ok:false, blocked: result.blocked === true };
+        }
+        writeAgeOkCookie();
+        if(box.remove) box.remove();
+        var body = SparkSubmit.buildSubmissionBody(draftInput);
+        return Promise.resolve(retry(body)).then(function(){
+          return { ok:true, body:body };
+        });
+      });
+    }
+    birthdayRecheck = run;
+    btn.addEventListener("click", function(){ run(input.value); });
+    box.appendChild(btn);
+    if(parent && parent.appendChild){
+      var kids = parent.children || [];
+      for(var i = 0; i < kids.length; i++){
+        if(kids[i] && kids[i].getAttribute && kids[i].getAttribute("data-age-prompt") === "birthday") return kids[i];
+      }
+      parent.appendChild(box);
+    }
+    return box;
+  }
+
   $("#onboarding-form").addEventListener("submit", function(e){
     e.preventDefault();
+    refreshOnboardingDobMax();
     finishOnboarding({
       name: $("#ob-name").value,
       dob: $("#ob-dob").value,
@@ -1368,7 +1445,7 @@
       photo: obPhotoData
     }).then(function(ok){
       if(!ok){
-        showToast("You must be 18 or older to use Jaderoo.");
+        showToast("You must be " + MINIMUM_AGE + " or older to use Jaderoo.");
         return;
       }
       if(state.hasSeenTutorial){ enterApp(); } else { showTutorial(); }
@@ -4860,78 +4937,66 @@
     });
   }
 
-  function buildIdeaSubmitSubpanel(){
-    function rememberSubmittedIdea(input, status){
-      var row = recordSubmittedIdea({
-        title: input.title,
-        description: input.description,
-        category: input.category,
-        vibe: Array.isArray(input.vibe) ? input.vibe : []
+  function postSubmission(body){
+    return fetch("/api/submissions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(payload){
+        return { status: res.status, payload: payload || {} };
       });
-      if(!row) return null;
-      ["setting", "cost", "duration", "venueName", "city", "sourceUrl"].forEach(function(key){
-        if(typeof input[key] === "string" && input[key].trim()) row[key] = input[key].trim();
-      });
-      ["season", "time", "stage", "dateType"].forEach(function(key){
-        if(Array.isArray(input[key]) && input[key].length) row[key] = input[key].slice();
-      });
-      if(typeof input.food === "boolean") row.food = input.food;
-      if(typeof input.age21 === "boolean") row.age21 = input.age21;
-      row.status = status;
-      delete row.email;
-      delete row.lat;
-      delete row.lng;
-      delete row.location;
-      delete row.deviceId;
-      delete row.dob;
-      saveState();
-      renderProfileHeader();
-      return row;
-    }
+    }).catch(function(){
+      return { status: 0, payload: {} };
+    });
+  }
 
-    function postSubmission(body){
-      return fetch("/api/submissions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      }).then(function(res){
-        return res.json().catch(function(){ return {}; }).then(function(payload){
-          return { status: res.status, payload: payload || {} };
+  function finishSubmission(result, input, opts){
+    opts = opts || {};
+    var code = result && result.payload && result.payload.error;
+    var outcome = SparkSubmit.submissionOutcome(result && result.status, code);
+    if(outcome.confirmBirthday && ageGateSatisfied(state)){
+      var parent = opts.form;
+      if(!parent && opts.emailInput && opts.emailInput.parentNode) parent = opts.emailInput.parentNode;
+      beginBirthdayRecheck(parent, input, opts, function(body){
+        return postSubmission(body).then(function(next){
+          finishSubmission(next, input, opts);
         });
-      }).catch(function(){
-        return { status: 0, payload: {} };
       });
+      return;
     }
-
-    function finishSubmission(result, input, opts){
-      opts = opts || {};
-      var outcome = SparkSubmit.submissionOutcome(result.status);
-      if(opts.form){
-        if(outcome.highlight) highlightFields(opts.form, result.payload && result.payload.fields);
-        else highlightFields(opts.form, []);
-      }
-      if(outcome.showGate) showAgeGate();
-      if(outcome.save === "pending" && opts.existing){
-        opts.existing.status = "pending";
-        delete opts.existing.email;
-        saveState();
-        showToast(outcome.message);
-        openSubpage("idea");
-        return;
-      }
-      if(outcome.save && !opts.existing){
-        rememberSubmittedIdea(input, outcome.save);
-        showToast(outcome.message);
-        openSubpage("idea");
-        return;
-      }
-      if(outcome.highlight && opts.emailInput && result.payload && Array.isArray(result.payload.fields) && result.payload.fields.indexOf("email") !== -1){
-        opts.emailInput.classList.add("field-invalid");
-      }
+    if(opts.form){
+      if(outcome.highlight) highlightFields(opts.form, result.payload && result.payload.fields);
+      else highlightFields(opts.form, []);
+    }
+    if(outcome.showGate || outcome.confirmBirthday) showAgeGate();
+    if(outcome.save === "pending" && opts.existing){
+      opts.existing.status = "pending";
+      delete opts.existing.email;
+      saveState();
       showToast(outcome.message);
-      if(opts.button) opts.button.disabled = false;
+      openSubpage("idea");
+      return;
     }
+    if(outcome.save && !opts.existing){
+      rememberSubmittedIdea(input, outcome.save);
+      showToast(outcome.message);
+      openSubpage("idea");
+      return;
+    }
+    if(outcome.highlight && opts.emailInput && result.payload && Array.isArray(result.payload.fields) && result.payload.fields.indexOf("email") !== -1){
+      opts.emailInput.classList.add("field-invalid");
+    }
+    showToast(outcome.message);
+    if(opts.button) opts.button.disabled = false;
+  }
 
+  function confirmSubmissionBirthday(dob){
+    if(!birthdayRecheck) return Promise.resolve(null);
+    return birthdayRecheck(dob);
+  }
+
+  function buildIdeaSubmitSubpanel(){
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Got an Idea?"));
     wrap.appendChild(el("p", null, "Share a new date idea and give a short description of how to do it — great ideas may get added to Jaderoo!"));
@@ -5058,6 +5123,34 @@
     }
 
     return wrap;
+  }
+
+  function rememberSubmittedIdea(input, status){
+    var row = recordSubmittedIdea({
+      title: input.title,
+      description: input.description,
+      category: input.category,
+      vibe: Array.isArray(input.vibe) ? input.vibe : []
+    });
+    if(!row) return null;
+    ["setting", "cost", "duration", "venueName", "city", "sourceUrl"].forEach(function(key){
+      if(typeof input[key] === "string" && input[key].trim()) row[key] = input[key].trim();
+    });
+    ["season", "time", "stage", "dateType"].forEach(function(key){
+      if(Array.isArray(input[key]) && input[key].length) row[key] = input[key].slice();
+    });
+    if(typeof input.food === "boolean") row.food = input.food;
+    if(typeof input.age21 === "boolean") row.age21 = input.age21;
+    row.status = status;
+    delete row.email;
+    delete row.lat;
+    delete row.lng;
+    delete row.location;
+    delete row.deviceId;
+    delete row.dob;
+    saveState();
+    renderProfileHeader();
+    return row;
   }
 
   function applyProfileEdits(fields){
@@ -5440,6 +5533,7 @@
   }
 
   function prefillOnboarding(){
+    refreshOnboardingDobMax();
     $("#ob-name").value = (state.profile && state.profile.name) || "";
     $("#ob-gender").value = (state.profile && state.profile.gender) || "Woman";
     if($("#ob-dob")) $("#ob-dob").value = "";
@@ -5478,9 +5572,7 @@
     return false;
   }
   function ageOkCookieString(){
-    var cookie = "spark_age_ok=1; Max-Age=31536000; Path=/; SameSite=Lax";
-    if(pageProtocol() === "https:") cookie += "; Secure";
-    return cookie;
+    return SparkUtil.ageOkCookie(pageProtocol() === "https:");
   }
   function writeAgeOkCookie(){
     document.cookie = ageOkCookieString();
@@ -5557,21 +5649,19 @@
     var scroll = el("div", "onboarding-scroll");
     scroll.appendChild(sharedPlanBrand());
     var form = el("form", "onboarding-form");
-    var label = el("label", "field-label", "Age");
-    label.setAttribute("for", "shared-plan-age");
+    var label = el("label", "field-label", "Date of birth");
+    label.setAttribute("for", "shared-plan-dob");
     form.appendChild(label);
     var input = document.createElement("input");
-    input.id = "shared-plan-age";
+    input.id = "shared-plan-dob";
     input.className = "field-input";
-    input.type = "number";
-    input.min = "1";
-    input.max = "120";
-    input.setAttribute("inputmode", "numeric");
-    input.setAttribute("autocomplete", "off");
+    input.type = "date";
     input.required = true;
-    input.setAttribute("aria-label", "Age");
+    input.setAttribute("autocomplete", "bday");
+    input.setAttribute("aria-label", "Date of birth");
+    applyDobMax(input);
     form.appendChild(input);
-    form.appendChild(el("p", "field-hint", "You must be 18 or older. We use this only to check your age and do not save it."));
+    form.appendChild(el("p", "field-hint", "You must be " + MINIMUM_AGE + " or older. We use this only to check your age and do not save it."));
     var btn = el("button", "btn-primary btn-block", "Continue");
     btn.type = "submit";
     form.appendChild(btn);
@@ -5589,7 +5679,7 @@
     var scroll = el("div", "onboarding-scroll");
     scroll.appendChild(sharedPlanBrand());
     var card = el("div", "onboarding-form");
-    var heading = el("h2", "shared-plan-message", "Jaderoo is for adults 18+");
+    var heading = el("h2", "shared-plan-message", "Jaderoo is for adults " + MINIMUM_AGE + "+");
     heading.id = "shared-plan-message";
     card.appendChild(heading);
     card.appendChild(el("p", "field-hint", "This plan stays hidden."));
@@ -5747,15 +5837,16 @@
     return showSharedPlanView(decoded);
   }
   function submitSharedPlanAge(raw){
-    var age = parseProfileAge(raw);
-    if(age == null || age < MINIMUM_AGE){
-      if(age != null && age < MINIMUM_AGE) return showSharedPlanBlocked();
-      return showSharedPlanGate();
-    }
-    writeAgeOkCookie();
-    var payload = planShareFragment();
-    if(payload == null) return null;
-    return showSharedPlanDecoded(payload);
+    return confirmAdultDob(raw).then(function(result){
+      if(!result.ok){
+        if(result.blocked) return showSharedPlanBlocked();
+        return showSharedPlanGate();
+      }
+      writeAgeOkCookie();
+      var payload = planShareFragment();
+      if(payload == null) return null;
+      return showSharedPlanDecoded(payload);
+    });
   }
   function routeSharedPlan(){
     var payload = planShareFragment();

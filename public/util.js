@@ -47,7 +47,12 @@
     return h;
   }
 
-  // Calendar age in UTC. A date of birth is only compared, never stored.
+  // One minimum for every gate. The browser and the server both read this.
+  var MINIMUM_AGE = 18;
+  var AGE_TIME_ZONE = "America/Denver";
+
+  // Calendar age in America/Denver. A date of birth is only compared, never stored.
+  // UTC would turn the evening before a birthday into "already 18" in Utah.
   function parseDobParts(value){
     if(typeof value !== "string") return null;
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
@@ -59,9 +64,35 @@
     return { y: y, mo: mo, d: d };
   }
 
-  function utcParts(now){
-    var dt = now || new Date();
-    return { y: dt.getUTCFullYear(), mo: dt.getUTCMonth() + 1, d: dt.getUTCDate() };
+  function denverParts(now){
+    var dt = (now instanceof Date && !isNaN(now.getTime())) ? now : new Date();
+    var fmt = new Intl.DateTimeFormat("en-US", {
+      timeZone: AGE_TIME_ZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    });
+    var bag = { year: 0, month: 0, day: 0 };
+    var parts = fmt.formatToParts(dt);
+    for(var i = 0; i < parts.length; i++){
+      var part = parts[i];
+      if(part.type === "year" || part.type === "month" || part.type === "day") bag[part.type] = Number(part.value);
+    }
+    return { y: bag.year, mo: bag.month, d: bag.day };
+  }
+
+  function daysInMonth(year, month){
+    return new Date(Date.UTC(year, month, 0)).getUTCDate();
+  }
+
+  // Latest birth date that is already MINIMUM_AGE on this Denver calendar day.
+  function latestDob(now){
+    var today = denverParts(now);
+    var year = today.y - MINIMUM_AGE;
+    var day = today.d;
+    var dim = daysInMonth(year, today.mo);
+    if(day > dim) day = dim;
+    return year + "-" + pad2(today.mo) + "-" + pad2(day);
   }
 
   // Trim, then lowercase, then 3–20 of [a-z0-9_]. Empty is not a username.
@@ -95,11 +126,19 @@
   function checkAge(dob, now){
     var parsed = parseDobParts(dob);
     if(!parsed) return { ok: false, error: "invalid_date" };
-    var today = utcParts(now);
+    var today = denverParts(now);
     var age = today.y - parsed.y;
     if(today.mo < parsed.mo || (today.mo === parsed.mo && today.d < parsed.d)) age--;
-    if(age < 18) return { ok: false, blocked: true };
+    if(age < MINIMUM_AGE) return { ok: false, blocked: true };
     return { ok: true };
+  }
+
+  // spark_age_ok=1, kept for a year, sent on this site only.
+  // Secure is added only for https. The name and these attributes stay as they are.
+  function ageOkCookie(secure){
+    var cookie = "spark_age_ok=1; Max-Age=31536000; Path=/; SameSite=Lax";
+    if(secure) cookie += "; Secure";
+    return cookie;
   }
 
   function mulberry32(seed){
@@ -595,7 +634,11 @@
     hashStr: hashStr,
     validateUsername: validateUsername,
     reservedUsername: reservedUsername,
+    MINIMUM_AGE: MINIMUM_AGE,
+    AGE_TIME_ZONE: AGE_TIME_ZONE,
+    latestDob: latestDob,
     checkAge: checkAge,
+    ageOkCookie: ageOkCookie,
     mulberry32: mulberry32,
     knownTimes: knownTimes,
     isEveningClock: isEveningClock,

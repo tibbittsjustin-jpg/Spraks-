@@ -17,9 +17,9 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const db = require("./db");
-const { checkAge } = require("./public/util");
+const { checkAge, ageOkCookie, MINIMUM_AGE } = require("./public/util");
 const { createActivitiesRouter } = require("./routes/activities");
-const { createSubmissionsRouter } = require("./routes/submissions");
+const { createSubmissionsRouter, createIpLimiter, LIMITS } = require("./routes/submissions");
 const { createUsernameRouter } = require("./routes/username");
 
 const app = express();
@@ -258,13 +258,19 @@ res.json({ ideas: [], reason: "error" });
 }
 });
 
-/* Date of birth is checked and discarded. Nothing here is logged or stored. */
-app.post("/api/age-check", (req, res) => {
+/* Date of birth is checked and discarded. A pass sets spark_age_ok.
+   Nothing here is logged or stored. checkAge is exported for a future
+   Accounts sign-up so that gate can use this same rule.
+   The IP limits match idea submissions: 5 per 10 minutes, 20 per day. */
+const ageCheckBurst = createIpLimiter(LIMITS.ipBurstWindowMs, LIMITS.ipBurst);
+const ageCheckDay = createIpLimiter(LIMITS.ipDayWindowMs, LIMITS.ipDay);
+app.post("/api/age-check", ageCheckBurst, ageCheckDay, (req, res) => {
 try {
 var raw = req.body && typeof req.body.dob === "string" ? req.body.dob : "";
 var result = checkAge(raw, new Date());
 if (result.error) return res.status(400).json({ ok: false, error: "invalid_date" });
 if (!result.ok) return res.json({ ok: false, blocked: true });
+res.setHeader("Set-Cookie", ageOkCookie(req.secure === true));
 return res.json({ ok: true });
 } catch (e) {
 console.error("[age-check] request_failed");
@@ -299,6 +305,8 @@ res.status(404).type("txt").send("Not found");
 });
 
 module.exports = app;
+app.checkAge = checkAge;
+app.MINIMUM_AGE = MINIMUM_AGE;
 app.normalizeNearbyMaterials = normalizeNearbyMaterials;
 app.mapNearbyCard = mapNearbyCard;
 

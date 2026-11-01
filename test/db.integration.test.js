@@ -157,6 +157,390 @@ async function applyMigrationFiles(pool, filenames) {
   }
 }
 
+const LIST_TABLES = [
+  "lists", "list_members", "list_items", "list_item_favorites",
+  "username_holds", "friendships", "blocks", "reports", "activity_items", "shared_plans"
+];
+
+async function pgError(fn) {
+  try {
+    await fn();
+    return null;
+  } catch (err) {
+    return err;
+  }
+}
+
+/* Real checks for 010. The caller has already applied the migrations. */
+async function exerciseListSchema(pool) {
+  const ids = [];
+  async function makeUser() {
+    const row = await pool.query("insert into auth.users (id) values (gen_random_uuid()) returning id");
+    ids.push(row.rows[0].id);
+    return row.rows[0].id;
+  }
+  async function attempt(client, sql, params) {
+    await client.query("BEGIN");
+    try {
+      await client.query(sql, params);
+      await client.query("COMMIT");
+      return { ok: true };
+    } catch (err) {
+      try { await client.query("ROLLBACK"); } catch (e) { /* aborted */ }
+      return { ok: false, code: err.code, constraint: err.constraint, message: err.message };
+    }
+  }
+  try {
+    const owner = await makeUser();
+    const plan = await pool.query(
+      "insert into lists (owner_id, kind, name) values ($1, 'plan', 'Saturday') returning id, visibility, is_group",
+      [owner]
+    );
+    check("plan list defaults to private",
+      plan.rows[0].visibility === "private" && plan.rows[0].is_group === false,
+      JSON.stringify(plan.rows[0]));
+    const fav = await pool.query(
+      "insert into lists (owner_id, kind, name) values ($1, 'favorites', 'Favorites') returning visibility",
+      [owner]
+    );
+    const done = await pool.query(
+      "insert into lists (owner_id, kind, name) values ($1, 'done', 'Done') returning visibility",
+      [owner]
+    );
+    check("favorites and done default to private",
+      fav.rows[0].visibility === "private" && done.rows[0].visibility === "private");
+    const ownerMember = await pool.query(
+      "select role, status, color_idx, invited_by from list_members where list_id = $1 and user_id = $2",
+      [plan.rows[0].id, owner]
+    );
+    check("creating a list inserts the owner membership",
+      ownerMember.rows[0] && ownerMember.rows[0].role === "owner" &&
+      ownerMember.rows[0].status === "active" && ownerMember.rows[0].color_idx === 0 &&
+      ownerMember.rows[0].invited_by == null,
+      JSON.stringify(ownerMember.rows[0]));
+    const secondFav = await pgError(() => pool.query(
+      "insert into lists (owner_id, kind, name) values ($1, 'favorites', 'Again')",
+      [owner]
+    ));
+    check("a user has one favorites list", secondFav && secondFav.code === "23505", secondFav && secondFav.code);
+    const groupFriends = await pgError(() => pool.query(
+      "insert into lists (owner_id, kind, name, is_group, visibility) values ($1, 'plan', 'Nope', true, 'friends')",
+      [owner]
+    ));
+    check("a group list cannot be friends-visible",
+      groupFriends && groupFriends.code === "23514", groupFriends && groupFriends.constraint);
+
+    const group = await pool.query(
+      "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', 'Hike', true) returning id",
+      [owner]
+    );
+    const groupId = group.rows[0].id;
+    const people = [];
+    for (let i = 0; i < 12; i++) people.push(await makeUser());
+    for (let i = 0; i < 11; i++) {
+      await pool.query(
+        "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'invited', $3, $4)",
+        [groupId, people[i], i + 1, owner]
+      );
+    }
+    const occupying = await pool.query("select public.list_occupying_member_count($1)::int as n", [groupId]);
+    check("owner plus 11 invitees is 12 occupying members", occupying.rows[0].n === 12, String(occupying.rows[0].n));
+    const thirteenth = await pgError(() => pool.query(
+      "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'active', 11, $3)",
+      [groupId, people[11], owner]
+    ));
+    check("a 13th member is rejected",
+      thirteenth && thirteenth.constraint === "list_members_max_12",
+      thirteenth && (thirteenth.constraint + " " + thirteenth.message));
+    const sameColor = await pgError(() => pool.query(
+      "update list_members set color_idx = 1 where list_id = $1 and user_id = $2",
+      [groupId, people[2]]
+    ));
+    check("two active members cannot share a color", sameColor && sameColor.code === "23505", sameColor && sameColor.constraint);
+    await pool.query(
+      "update list_members set status = 'left' where list_id = $1 and user_id = $2",
+      [groupId, people[0]]
+    );
+    const reused = await pgError(() => pool.query(
+      "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'invited', 1, $3)",
+      [groupId, people[11], owner]
+    ));
+    check("a left member's color can be reused and the seat is free", reused == null, reused && reused.message);
+    const outsider = await makeUser();
+    const notOwner = await pgError(() => pool.query(
+      "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'invited', 4, $3)",
+      [groupId, outsider, people[1]]
+    ));
+    check("a new member row records the owner as the inviter",
+      notOwner && notOwner.constraint === "list_members_invited_by_owner", notOwner && notOwner.constraint);
+    const soloExtra = await pgError(() => pool.query(
+      "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'invited', 1, $3)",
+      [plan.rows[0].id, people[1], owner]
+    ));
+    check("a solo list has no members besides the owner",
+      soloExtra && soloExtra.constraint === "list_members_group_only", soloExtra && soloExtra.constraint);
+
+    await pool.query(
+      "insert into list_items (list_id, activity_ref, title, added_by) " +
+      "select $1, 'b:' || g::text, 'Idea ' || g::text, $2 from generate_series(1, 101) g",
+      [groupId, people[1]]
+    );
+    const itemCount = await pool.query(
+      "select count(*)::int as n from list_items where list_id = $1 and removed_at is null",
+      [groupId]
+    );
+    check("a list accepts 101 items", itemCount.rows[0].n === 101, String(itemCount.rows[0].n));
+    const badRef = await pgError(() => pool.query(
+      "insert into list_items (list_id, activity_ref, title) values ($1, 'idea-1', 'Bad')",
+      [groupId]
+    ));
+    check("activity_ref rejects a value outside the pattern", badRef && badRef.code === "23514", badRef && badRef.constraint);
+    const goodRefs = await pgError(() => pool.query(
+      "insert into list_items (list_id, activity_ref, title) values ($1, 'a:100000', 'Server'), ($1, 'p:plus.place_key-1', 'Plus')",
+      [groupId]
+    ));
+    check("a: and p: activity refs insert", goodRefs == null, goodRefs && goodRefs.message);
+    const addressCol = await pgError(() => pool.query(
+      "insert into list_items (list_id, activity_ref, title, address) values ($1, 'b:999', 'X', '1 Main')",
+      [groupId]
+    ));
+    check("list_items has no address column", addressCol && addressCol.code === "42703", addressCol && addressCol.message);
+
+    await pool.query(
+      "update list_members set status = 'active' where list_id = $1 and user_id = $2",
+      [groupId, people[1]]
+    );
+    const items = await pool.query(
+      "select id from list_items where list_id = $1 and activity_ref in ('b:2','b:3','b:4','b:5') order by activity_ref",
+      [groupId]
+    );
+    for (let rank = 0; rank < 3; rank++) {
+      await pool.query(
+        "insert into list_item_favorites (item_id, list_id, user_id, rank) values ($1, $2, $3, $4)",
+        [items.rows[rank].id, groupId, people[1], rank + 1]
+      );
+    }
+    const favCount = await pool.query(
+      "select public.user_list_favorite_count($1, $2)::int as n",
+      [groupId, people[1]]
+    );
+    check("three ranked favorites are stored", favCount.rows[0].n === 3, String(favCount.rows[0].n));
+    const fourth = await pgError(() => pool.query(
+      "insert into list_item_favorites (item_id, list_id, user_id, rank) values ($1, $2, $3, 1)",
+      [items.rows[3].id, groupId, people[1]]
+    ));
+    check("a fourth favorite is rejected", fourth && fourth.code === "23505", fourth && fourth.constraint);
+    const inviteeStar = await pgError(() => pool.query(
+      "insert into list_item_favorites (item_id, list_id, user_id, rank) values ($1, $2, $3, 1)",
+      [items.rows[0].id, groupId, people[2]]
+    ));
+    check("an invitee who has not joined cannot favorite",
+      inviteeStar && inviteeStar.constraint === "list_item_favorites_member", inviteeStar && inviteeStar.constraint);
+
+    const host = await makeUser();
+    for (let i = 0; i < 50; i++) {
+      await pool.query(
+        "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', $2, true)",
+        [host, "G" + i]
+      );
+    }
+    const groupCount = await pool.query("select public.user_group_list_count($1)::int as n", [host]);
+    check("50 owned group lists are counted", groupCount.rows[0].n === 50, String(groupCount.rows[0].n));
+    const fiftyFirst = await pgError(() => pool.query(
+      "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', 'G50', true)",
+      [host]
+    ));
+    check("the 51st group list is rejected",
+      fiftyFirst && fiftyFirst.constraint === "user_group_lists_max_50",
+      fiftyFirst && (fiftyFirst.constraint + " " + fiftyFirst.message));
+
+    const joiner = await makeUser();
+    for (let i = 0; i < 49; i++) {
+      const inviter = await makeUser();
+      const row = await pool.query(
+        "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', $2, true) returning id",
+        [inviter, "J" + i]
+      );
+      await pool.query(
+        "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'invited', 1, $3)",
+        [row.rows[0].id, joiner, inviter]
+      );
+    }
+    await pool.query(
+      "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', 'Mine', true)",
+      [joiner]
+    );
+    const joined = await pool.query("select public.user_group_list_count($1)::int as n", [joiner]);
+    check("invited memberships count toward the 50 group lists", joined.rows[0].n === 50, String(joined.rows[0].n));
+
+    const author = await makeUser();
+    const keeper = await makeUser();
+    const kept = await pool.query(
+      "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', 'Kept', true) returning id",
+      [keeper]
+    );
+    await pool.query(
+      "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'active', 1, $3)",
+      [kept.rows[0].id, author, keeper]
+    );
+    const authored = await pool.query(
+      "insert into list_items (list_id, activity_ref, title, added_by) values ($1, 'b:7', 'By author', $2) returning id",
+      [kept.rows[0].id, author]
+    );
+    await pool.query(
+      "insert into lists (owner_id, kind, name) values ($1, 'plan', 'Mine too')",
+      [author]
+    );
+    await pool.query(
+      "insert into reports (reporter_id, target_type, target_id, list_id, reason) values ($1, 'list_invite', $2, $3, 'spam')",
+      [author, keeper, kept.rows[0].id]
+    );
+    await pool.query(
+      "insert into username_holds (username, user_id, held_until) values ('OldName', $1, now() + interval '30 days')",
+      [author]
+    );
+    await pool.query("delete from auth.users where id = $1", [author]);
+    ids.splice(ids.indexOf(author), 1);
+    const afterDelete = await pool.query(
+      "select " +
+      "(select count(*)::int from lists where owner_id = $1) as owned_lists, " +
+      "(select added_by is null from list_items where id = $2) as author_cleared, " +
+      "(select count(*)::int from list_members where user_id = $1) as memberships, " +
+      "(select reporter_id is null from reports where target_type = 'list_invite') as report_kept, " +
+      "(select user_id is null from username_holds where username = 'oldname') as hold_kept",
+      [author, authored.rows[0].id]
+    );
+    check("deleting an account cascades owned lists and clears added_by",
+      afterDelete.rows[0].owned_lists === 0 && afterDelete.rows[0].author_cleared === true &&
+      afterDelete.rows[0].memberships === 0 && afterDelete.rows[0].report_kept === true &&
+      afterDelete.rows[0].hold_kept === true,
+      JSON.stringify(afterDelete.rows[0]));
+
+    const flipUser = await makeUser();
+    for (let i = 0; i < 50; i++) {
+      await pool.query(
+        "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', $2, true)",
+        [flipUser, "F" + i]
+      );
+    }
+    const solo = await pool.query(
+      "insert into lists (owner_id, kind, name) values ($1, 'plan', 'Later') returning id",
+      [flipUser]
+    );
+    const flipped = await pgError(() => pool.query(
+      "update lists set is_group = true where id = $1",
+      [solo.rows[0].id]
+    ));
+    check("turning a solo plan into a group list respects the 50 cap",
+      flipped && flipped.constraint === "user_group_lists_max_50",
+      flipped && (flipped.constraint + " " + flipped.message));
+
+    const raceOwner = await makeUser();
+    const race = await pool.query(
+      "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', 'Race', true) returning id",
+      [raceOwner]
+    );
+    for (let i = 0; i < 10; i++) {
+      const u = await makeUser();
+      await pool.query(
+        "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'invited', $3, $4)",
+        [race.rows[0].id, u, i + 1, raceOwner]
+      );
+    }
+    const a = await makeUser();
+    const b = await makeUser();
+    const c1 = await pool.connect();
+    const c2 = await pool.connect();
+    const raced = await Promise.all([
+      attempt(c1,
+        "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'invited', 11, $3)",
+        [race.rows[0].id, a, raceOwner]),
+      attempt(c2,
+        "insert into list_members (list_id, user_id, role, status, color_idx, invited_by) values ($1, $2, 'member', 'active', 11, $3)",
+        [race.rows[0].id, b, raceOwner])
+    ]);
+    c1.release();
+    c2.release();
+    const raceLosses = raced.filter(result => !result.ok);
+    check("two sessions cannot both take the 12th member seat",
+      raced.filter(result => result.ok).length === 1 &&
+      raceLosses.length === 1 && raceLosses[0].constraint === "list_members_max_12",
+      JSON.stringify(raced));
+
+    const capUser = await makeUser();
+    for (let i = 0; i < 49; i++) {
+      await pool.query(
+        "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', $2, true)",
+        [capUser, "C" + i]
+      );
+    }
+    const d1 = await pool.connect();
+    const d2 = await pool.connect();
+    const racedLists = await Promise.all([
+      attempt(d1, "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', 'C49', true)", [capUser]),
+      attempt(d2, "insert into lists (owner_id, kind, name, is_group) values ($1, 'plan', 'C50', true)", [capUser])
+    ]);
+    d1.release();
+    d2.release();
+    const listLosses = racedLists.filter(result => !result.ok);
+    check("two sessions cannot both create the 50th group list",
+      racedLists.filter(result => result.ok).length === 1 &&
+      listLosses.length === 1 && listLosses[0].constraint === "user_group_lists_max_50",
+      JSON.stringify(racedLists));
+
+    const cols = await pool.query(
+      "select table_name, column_name from information_schema.columns " +
+      "where table_schema = 'public' and table_name = any($1::text[]) " +
+      "and column_name ~ '(^|_)(address|lat|lng|latitude|longitude|geography|location|coordinates|coords)($|_)'",
+      [LIST_TABLES]
+    );
+    check("list tables have no address or coordinate columns", cols.rows.length === 0, JSON.stringify(cols.rows));
+    const rls = await pool.query(
+      "select c.relname, c.relrowsecurity as enabled, " +
+      "(select count(*)::int from pg_policy pol where pol.polrelid = c.oid) as policies, " +
+      "has_table_privilege('anon', c.oid, 'SELECT') as anon_select, " +
+      "has_table_privilege('anon', c.oid, 'INSERT') as anon_insert, " +
+      "has_table_privilege('authenticated', c.oid, 'SELECT') as auth_select, " +
+      "has_table_privilege('authenticated', c.oid, 'INSERT') as auth_insert, " +
+      "has_table_privilege('public', c.oid, 'SELECT') as public_select " +
+      "from pg_class c join pg_namespace n on n.oid = c.relnamespace " +
+      "where n.nspname = 'public' and c.relname = any($1::text[])",
+      [LIST_TABLES]
+    );
+    check("new tables keep RLS, have no policies, and are revoked",
+      rls.rows.length === LIST_TABLES.length && rls.rows.every(row =>
+        row.enabled === true && Number(row.policies) === 0 &&
+        row.anon_select === false && row.anon_insert === false &&
+        row.auth_select === false && row.auth_insert === false &&
+        row.public_select === false
+      ),
+      JSON.stringify(rls.rows));
+    const fns = await pool.query(
+      "select proname, proconfig, " +
+      "has_function_privilege('anon', p.oid, 'EXECUTE') as anon_exec, " +
+      "has_function_privilege('authenticated', p.oid, 'EXECUTE') as auth_exec, " +
+      "has_function_privilege('public', p.oid, 'EXECUTE') as public_exec " +
+      "from pg_proc p join pg_namespace n on n.oid = p.pronamespace " +
+      "where n.nspname = 'public' and proname = any($1::text[])",
+      [[
+        "shared_plan_items_ok", "list_occupying_member_count", "user_group_list_count",
+        "user_list_favorite_count", "lists_before_update", "lists_after_insert",
+        "lists_before_delete", "list_members_before_write", "list_members_before_delete",
+        "list_members_after_status", "list_items_before_write", "list_items_after_remove",
+        "list_item_favorites_before_write"
+      ]]
+    );
+    check("list functions pin search_path and are not executable by anon",
+      fns.rows.length === 13 && fns.rows.every(row =>
+        (row.proconfig || []).join(" ").indexOf("search_path=public, extensions, pg_catalog") !== -1 &&
+        row.anon_exec === false && row.auth_exec === false && row.public_exec === false
+      ),
+      JSON.stringify(fns.rows.map(row => row.proname + " " + (row.proconfig || []).join(" "))));
+  } finally {
+    if (ids.length) await pool.query("delete from auth.users where id = any($1::uuid[])", [ids]);
+  }
+}
+
 async function main() {
   if (!process.env.TEST_DATABASE_URL) {
     console.log("  SKIP db integration (TEST_DATABASE_URL unset)");
@@ -226,6 +610,7 @@ async function main() {
     check("migration 003 applied", first.applied.indexOf("003_source_url_city.sql") !== -1, first.applied.join(","));
     check("migration 004 applied", first.applied.indexOf("004_materials.sql") !== -1, first.applied.join(","));
     check("migration 006 applied", first.applied.indexOf("006_security_hardening.sql") !== -1, first.applied.join(","));
+    check("migration 010 applied", first.applied.indexOf("010_lists_friends.sql") !== -1, first.applied.join(","));
     check("005 is not required for 006 to apply",
       first.applied.indexOf("005_subscriptions.sql") === -1 &&
       first.applied.indexOf("006_security_hardening.sql") > first.applied.indexOf("004_materials.sql"),
@@ -236,7 +621,8 @@ async function main() {
       second.skipped.indexOf("002_over100_age21.sql") !== -1 &&
       second.skipped.indexOf("003_source_url_city.sql") !== -1 &&
       second.skipped.indexOf("004_materials.sql") !== -1 &&
-      second.skipped.indexOf("006_security_hardening.sql") !== -1);
+      second.skipped.indexOf("006_security_hardening.sql") !== -1 &&
+      second.skipped.indexOf("010_lists_friends.sql") !== -1);
     let reran = true;
     try {
       await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "003_source_url_city.sql"), "utf8"));
@@ -258,6 +644,17 @@ async function main() {
       reran006 = false;
     }
     check("006 sql can run again", reran006);
+    const sql010 = fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "010_lists_friends.sql"), "utf8");
+    let reran010 = true;
+    let reran010Error = "";
+    try {
+      await pool.query(sql010);
+      await pool.query(sql010);
+    } catch (err) {
+      reran010 = false;
+      reran010Error = err.message;
+    }
+    check("010 sql can run twice on a database that already has it", reran010, reran010Error);
 
     const fnConfig = await pool.query(
       "select proname, proconfig from pg_proc p " +
@@ -375,6 +772,10 @@ async function main() {
     check("supabase history does not invent migration 005",
       viaSupabase.applied.every(file => file.indexOf("005_") !== 0) &&
       viaSupabase.skipped.every(file => file.indexOf("005_") !== 0));
+    check("supabase history still applies 010 when 010 is not recorded",
+      viaSupabase.applied.indexOf("010_lists_friends.sql") !== -1 &&
+      viaSupabase.skipped.indexOf("010_lists_friends.sql") === -1,
+      viaSupabase.applied.join(",") + " / " + viaSupabase.skipped.join(","));
     for (const filename of trackedNames) {
       await pool.query(
         "insert into schema_migrations (filename) values ($1) on conflict do nothing",
@@ -926,6 +1327,8 @@ async function main() {
       badEmailCode = err.code;
     }
     check("database email check rejects a bad address", badEmailCode === "23514", badEmailCode);
+
+    await exerciseListSchema(pool);
   } catch (err) {
     check("integration suite", false, (err && (err.stack || err.message) || String(err)).slice(0, 500));
   } finally {

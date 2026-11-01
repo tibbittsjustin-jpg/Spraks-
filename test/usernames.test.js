@@ -252,6 +252,19 @@ async function main() {
         util.reservedUsername(name) === false && classifyUsername(name).status === "available",
         JSON.stringify(classifyUsername(name)));
     });
+    ["badminton", "dad_mindy", "supportive", "unofficially_fun"].forEach(name => {
+      check(name + " is allowed when admin, support, or official sit inside another word",
+        util.reservedUsername(name) === false && classifyUsername(name).status === "available",
+        JSON.stringify(classifyUsername(name)));
+    });
+    ["admin1", "support_team", "0fficial"].forEach(name => {
+      check(name + " is still blocked at the start, end, or as the whole name",
+        util.reservedUsername(name) === true && classifyUsername(name).status === "reserved",
+        JSON.stringify(classifyUsername(name)));
+    });
+    check("moderator still matches inside a name", classifyUsername("supermoderator").status === "reserved");
+    check("spark still matches inside a name", util.reservedUsername("mysparkday") === true);
+    check("jaderoo still matches inside a name", util.reservedUsername("myjaderoo") === true);
     check("a Denver calendar day is used for hold and change dates",
       util.denverDay("2026-07-01T00:00:00.000Z") === "2026-06-30" &&
       util.denverDay("2026-07-01T06:00:00.000Z") === "2026-07-01");

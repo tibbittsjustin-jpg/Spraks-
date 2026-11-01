@@ -2282,7 +2282,7 @@
 
   function photoSwipeCardHtml(idea, photo, depth){
     var credit = photo.credit
-      ? '<div class="card-photo-credit">' + escapeHtml(photo.credit) + '</div>'
+      ? '<div class="card-photo-credit">' + escapeHtml(photo.credit) + creditSafetyMarkup(photo.credit) + '</div>'
       : "";
     return '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
       '<div class="card-photo-scrim"></div>' +
@@ -4685,6 +4685,7 @@
     }
     var ideasEl = $("#profile-ideas");
     if(ideasEl) ideasEl.textContent = submittedIdeasLabel(Array.isArray(state.submittedIdeas) ? state.submittedIdeas.length : 0);
+    ensureBlockedPeopleItem();
     $("#profile-sub").textContent = state.profile.gender || "";
     $("#done-count-label").textContent = state.doneIds.length + " dates completed";
     var toggle = $("#auto-dark-toggle");
@@ -4706,7 +4707,11 @@
     tips:"Tips of Dating",
     edit:"Edit Profile",
     addFriends:"Add Friends",
-    credits:"Photo credits"
+    credits:"Photo credits",
+    blocked:"Blocked people",
+    safetyMenu:"Safety",
+    safetyBlock:"Block",
+    safetyReport:"Report"
   };
   function openSubpage(action){
     ui.profileMenuOpen = action;
@@ -4719,6 +4724,10 @@
     else if(action === "edit") body.appendChild(buildEditProfileSubpanel());
     else if(action === "addFriends") body.appendChild(buildAddFriendsSubpanel());
     else if(action === "credits") body.appendChild(buildCreditsSubpanel());
+    else if(action === "blocked") body.appendChild(buildBlockedPeoplePanel());
+    else if(action === "safetyMenu") body.appendChild(buildSafetyMenuPanel());
+    else if(action === "safetyBlock") body.appendChild(buildBlockPanel());
+    else if(action === "safetyReport") body.appendChild(buildReportPanel());
     body.classList.toggle("subpage-body-frame", action === "credits");
     body.scrollTop = 0;
     $("#subpage-overlay").classList.remove("hidden");
@@ -5280,6 +5289,265 @@
       return body;
     });
   }
+
+  var SAFETY_REASONS = [
+    { value:"spam", label:"Spam" },
+    { value:"harassment", label:"Harassment" },
+    { value:"impersonation", label:"Pretending to be someone else" },
+    { value:"inappropriate_username", label:"Inappropriate username" },
+    { value:"under_18", label:"This person may be under 18" },
+    { value:"other", label:"Something else" }
+  ];
+  function safetyUsername(value){
+    var checked = validateUsername(value == null ? "" : String(value));
+    if(!checked.ok) return "";
+    if(state.identity && state.identity.username === checked.username) return "";
+    return checked.username;
+  }
+  function creditSafetyMarkup(credit){
+    if(!serverUsernameActive()) return "";
+    var match = /@([a-z0-9_]{3,20})/i.exec(String(credit || ""));
+    if(!match) return "";
+    var name = safetyUsername(match[1]);
+    if(!name) return "";
+    return '<button type="button" class="username-safety-btn credit-safety" data-safety-open="1" data-username="' + escapeHtml(name) + '">Safety</button>';
+  }
+  function blockedPeopleButtonHtml(){
+    if(!serverUsernameActive()) return "";
+    return '<span class="pmi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg></span>' +
+      '<span class="pmi-text"><b>Blocked people</b><br><small>They are not told</small></span>' +
+      '<span class="pmi-chevron">›</span>';
+  }
+  function ensureBlockedPeopleItem(){
+    var menu = document.querySelector(".profile-menu");
+    if(!menu || typeof menu.querySelector !== "function" || typeof menu.appendChild !== "function") return;
+    var existing = menu.querySelector('[data-action="blocked"]');
+    if(!serverUsernameActive()){
+      if(existing && typeof existing.remove === "function") existing.remove();
+      return;
+    }
+    if(existing) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "profile-menu-item";
+    btn.setAttribute("data-action", "blocked");
+    btn.innerHTML = blockedPeopleButtonHtml();
+    btn.addEventListener("click", function(){ openSubpage("blocked"); });
+    menu.appendChild(btn);
+  }
+  function openUsernameSafety(username){
+    if(!serverUsernameActive()) return false;
+    var name = safetyUsername(username);
+    if(!name) return false;
+    ui.safetyTarget = { username: name, targetType: "user" };
+    openSubpage("safetyMenu");
+    return true;
+  }
+  function safetyFailure(res){
+    var body = res.body || {};
+    if(res.status === 429) return body.message || "That's a lot for one day. Try again tomorrow.";
+    if(res.status === 401) return "Sign in again to do that.";
+    return body.message || "That didn't work. Try again.";
+  }
+  function submitBlock(username){
+    if(!serverUsernameActive()) return Promise.resolve({ ok:false, error:"Sign in again to do that." });
+    return usernameFetch("/api/blocks", {
+      method: "POST",
+      body: JSON.stringify({ username: username })
+    }).then(function(res){
+      if(res.status === 200 && res.body && res.body.ok) return { ok:true };
+      return { ok:false, error: safetyFailure(res) };
+    });
+  }
+  function submitUnblock(username){
+    if(!serverUsernameActive()) return Promise.resolve({ ok:false, error:"Sign in again to do that." });
+    return usernameFetch("/api/blocks/" + encodeURIComponent(username), {
+      method: "DELETE"
+    }).then(function(res){
+      if(res.status === 200 && res.body && res.body.ok) return { ok:true };
+      return { ok:false, error: safetyFailure(res) };
+    });
+  }
+  function submitReport(fields){
+    fields = fields || {};
+    if(!serverUsernameActive()) return Promise.resolve({ ok:false, error:"Sign in again to do that." });
+    var payload = {
+      targetType: fields.targetType || "user",
+      reason: fields.reason,
+      note: fields.note || ""
+    };
+    if(payload.targetType === "user"){
+      payload.username = fields.username;
+      if(fields.alsoBlock) payload.alsoBlock = true;
+    } else {
+      payload.targetId = fields.targetId;
+      payload.listId = fields.listId;
+    }
+    return usernameFetch("/api/reports", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      if(res.status === 200 && res.body && res.body.ok) return { ok:true };
+      return { ok:false, error: safetyFailure(res) };
+    });
+  }
+  function buildUsernameSafetyMenu(username){
+    var name = safetyUsername(username);
+    if(!serverUsernameActive() || !name) return null;
+    var wrap = el("div", "username-safety");
+    wrap.innerHTML =
+      '<button type="button" class="username-safety-btn" data-safety-action="block" data-username="' + escapeHtml(name) + '">Block</button>' +
+      '<button type="button" class="username-safety-btn" data-safety-action="report" data-username="' + escapeHtml(name) + '">Report</button>';
+    return wrap;
+  }
+  function buildSafetyMenuPanel(){
+    var target = ui.safetyTarget || {};
+    var name = target.username || "";
+    var wrap = el("div", "safety-panel");
+    wrap.appendChild(el("div", "safety-title", name ? "@" + name : "Safety"));
+    wrap.appendChild(el("p", "safety-copy", "They won't be told who did this."));
+    var menu = buildUsernameSafetyMenu(name);
+    if(menu) wrap.appendChild(menu);
+    return wrap;
+  }
+  function buildBlockPanel(){
+    var target = ui.safetyTarget || {};
+    var name = target.username || "";
+    var wrap = el("div", "safety-panel");
+    wrap.appendChild(el("div", "safety-title", "Block @" + name + "?"));
+    wrap.appendChild(el("p", "safety-copy", "They won't be told. You can unblock them later from your profile."));
+    var go = el("button", "btn-primary btn-block", "Block");
+    go.type = "button";
+    go.addEventListener("click", function(){
+      go.disabled = true;
+      submitBlock(name).then(function(result){
+        go.disabled = false;
+        if(!result.ok){ showToast(result.error); return; }
+        showToast("Blocked. They won't be told.");
+        openSubpage("blocked");
+      }).catch(function(){
+        go.disabled = false;
+        showToast("That didn't work. Try again.");
+      });
+    });
+    var cancel = el("button", "btn-text", "Cancel");
+    cancel.type = "button";
+    cancel.addEventListener("click", function(){ openSubpage("safetyMenu"); });
+    wrap.appendChild(go);
+    wrap.appendChild(cancel);
+    return wrap;
+  }
+  function buildReportPanel(){
+    var target = ui.safetyTarget || {};
+    var name = target.username || "";
+    var wrap = el("div", "safety-panel");
+    wrap.appendChild(el("div", "safety-title", name ? "Report @" + name : "Report"));
+    wrap.appendChild(el("p", "safety-copy", "This goes to Jaderoo. The other person is not told it was you."));
+    var form = el("form", "safety-form");
+    form.innerHTML = SAFETY_REASONS.map(function(reason){
+      return '<label class="safety-choice"><input type="radio" name="safety-reason" value="' + reason.value + '"> ' + escapeHtml(reason.label) + '</label>';
+    }).join("") +
+      '<label class="safety-note-label">Note, if you want</label>' +
+      '<textarea class="field-input safety-note" maxlength="500" placeholder="Up to 500 characters"></textarea>' +
+      ((target.targetType && target.targetType !== "user") ? "" : '<label class="safety-choice"><input type="checkbox" class="safety-also-block"> Also block @' + escapeHtml(name) + '</label>');
+    var go = el("button", "btn-primary btn-block", "Send report");
+    go.type = "submit";
+    form.appendChild(go);
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var selected = form.querySelector('input[name="safety-reason"]:checked');
+      var noteEl = form.querySelector(".safety-note");
+      var also = form.querySelector(".safety-also-block");
+      if(!selected){ showToast("Pick a reason first."); return; }
+      go.disabled = true;
+      submitReport({
+        targetType: target.targetType || "user",
+        username: name,
+        targetId: target.targetId,
+        listId: target.listId,
+        reason: selected.value,
+        note: noteEl ? noteEl.value : "",
+        alsoBlock: !!(also && also.checked)
+      }).then(function(result){
+        go.disabled = false;
+        if(!result.ok){ showToast(result.error); return; }
+        showToast("Report sent. They won't be told it was you.");
+        openSubpage("blocked");
+      }).catch(function(){
+        go.disabled = false;
+        showToast("That didn't work. Try again.");
+      });
+    });
+    var cancel = el("button", "btn-text", "Cancel");
+    cancel.type = "button";
+    cancel.addEventListener("click", function(){ openSubpage("safetyMenu"); });
+    wrap.appendChild(form);
+    wrap.appendChild(cancel);
+    return wrap;
+  }
+  function buildBlockedPeoplePanel(){
+    var wrap = el("div", "safety-panel");
+    wrap.appendChild(el("div", "safety-title", "Blocked people"));
+    wrap.appendChild(el("p", "safety-copy", "Blocking is quiet. The other person is not told. Unblocking does not bring a friendship back."));
+    var list = el("div", "blocked-list");
+    wrap.appendChild(list);
+    if(!serverUsernameActive()) return wrap;
+    list.innerHTML = '<p class="safety-copy">Loading…</p>';
+    usernameFetch("/api/blocks").then(function(res){
+      var body = res.body || {};
+      if(res.status !== 200 || !body.ok || !Array.isArray(body.blocks)){
+        list.innerHTML = '<p class="safety-copy">' + escapeHtml(safetyFailure(res)) + '</p>';
+        return;
+      }
+      if(!body.blocks.length){
+        list.innerHTML = '<p class="safety-copy">You haven\'t blocked anyone.</p>';
+        return;
+      }
+      list.innerHTML = body.blocks.map(function(row){
+        var name = safetyUsername(row && row.username);
+        if(!name) return "";
+        return '<div class="blocked-row"><span class="blocked-name">@' + escapeHtml(name) + '</span><span class="blocked-actions">' +
+          '<button type="button" class="username-safety-btn" data-safety-open="1" data-username="' + escapeHtml(name) + '">Safety</button>' +
+          '<button type="button" class="safety-unblock" data-safety-unblock="1" data-username="' + escapeHtml(name) + '">Unblock</button>' +
+          '</span></div>';
+      }).join("");
+    }).catch(function(){
+      list.innerHTML = '<p class="safety-copy">Couldn\'t load that list. Try again in a little while.</p>';
+    });
+    return wrap;
+  }
+  document.addEventListener("click", function(e){
+    var node = e.target;
+    if(!node || typeof node.closest !== "function") return;
+    if(!serverUsernameActive()) return;
+    var action = node.closest("[data-safety-action]");
+    if(action){
+      var actionName = action.getAttribute("data-username");
+      var which = action.getAttribute("data-safety-action");
+      if(!openUsernameSafety(actionName)) return;
+      if(which === "block") openSubpage("safetyBlock");
+      else if(which === "report") openSubpage("safetyReport");
+      return;
+    }
+    var open = node.closest("[data-safety-open]");
+    if(open){
+      e.preventDefault();
+      openUsernameSafety(open.getAttribute("data-username"));
+      return;
+    }
+    var unblock = node.closest("[data-safety-unblock]");
+    if(!unblock) return;
+    e.preventDefault();
+    var blockedName = unblock.getAttribute("data-username");
+    submitUnblock(blockedName).then(function(result){
+      if(!result.ok){ showToast(result.error); return; }
+      showToast("Unblocked.");
+      if(ui.profileMenuOpen === "blocked") openSubpage("blocked");
+    }).catch(function(){
+      showToast("That didn't work. Try again.");
+    });
+  });
+
   var usernameCheckTimer = null;
   function scheduleUsernameCheck(value, show){
     if(!serverUsernameActive()) return;

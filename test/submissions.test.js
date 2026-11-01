@@ -7,6 +7,7 @@ const http = require("http");
 const path = require("path");
 const express = require("express");
 const submit = require("../public/submit");
+const { latestDob } = require("../public/util");
 const { validateSourceUrl } = require("../lib/validate-url");
 const { createEmailLimiter } = require("../lib/rate-limit");
 const { createSubmissionsRouter, createIpLimiter, LIMITS } = require("../routes/submissions");
@@ -74,7 +75,8 @@ function postRaw(port, urlPath, body, headers) {
 
 function postJson(port, urlPath, payload, headers) {
   return postRaw(port, urlPath, JSON.stringify(payload), Object.assign({
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "Cookie": "spark_age_ok=1"
   }, headers || {}));
 }
 
@@ -298,6 +300,31 @@ async function main() {
       spy.restore();
       check("a date of birth is dropped and not logged",
         withDob.status === 201 && !mounted.calls[0].payload.dob && logged.indexOf(dob) === -1 && withDob.body.indexOf(dob) === -1);
+
+      const noProof = await postJson(port, "/api/submissions", validBody({ email: "noproof@example.com" }), { Cookie: "" });
+      check("a submission without a server age check is rejected",
+        noProof.status === 403 && JSON.parse(noProof.body).error === "age_required" &&
+        noProof.body.indexOf("noproof@example.com") === -1,
+        noProof.status + " " + noProof.body);
+      check("a missing age check does not insert",
+        mounted.calls.every(call => call.email !== "noproof@example.com"));
+
+      function shiftIso(iso, days) {
+        const parts = iso.split("-");
+        const dt = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]) + days));
+        const p = n => (n < 10 ? "0" : "") + n;
+        return dt.getUTCFullYear() + "-" + p(dt.getUTCMonth() + 1) + "-" + p(dt.getUTCDate());
+      }
+      const tooYoung = shiftIso(latestDob(new Date()), 1);
+      const youngSpy = spyConsole();
+      const youngSubmit = await postJson(port, "/api/submissions", validBody({ email: "young@example.com", dob: tooYoung }));
+      const youngLogged = youngSpy.logs.join("\n");
+      youngSpy.restore();
+      check("an under-18 date of birth is rejected even with the age cookie",
+        youngSubmit.status === 403 && JSON.parse(youngSubmit.body).error === "age_required" &&
+        youngSubmit.body.indexOf(tooYoung) === -1 && youngLogged.indexOf(tooYoung) === -1 &&
+        mounted.calls.every(call => call.email !== "young@example.com" && !call.payload.dob),
+        youngSubmit.status + " " + youngSubmit.body);
 
       const urls = [
         ["http://example.com/a", "http"],

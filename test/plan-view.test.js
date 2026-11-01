@@ -11,10 +11,21 @@ function check(name, cond, extra) {
   if (cond) { console.log("  \x1b[32mPASS\x1b[0m " + name); pass++; }
   else { console.log("  \x1b[31mFAIL\x1b[0m " + name + (extra ? "  (" + extra + ")" : "")); fail++; }
 }
-function section(title, fn) {
+async function section(title, fn) {
   console.log("\n" + title);
-  try { fn(); }
+  try { await fn(); }
   catch (e) { check("section ran without throwing", false, String(e.stack || e.message).slice(0, 500)); }
+}
+
+function shiftIso(iso, days) {
+  const parts = iso.split("-");
+  const dt = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]) + days));
+  const p = n => (n < 10 ? "0" : "") + n;
+  return dt.getUTCFullYear() + "-" + p(dt.getUTCMonth() + 1) + "-" + p(dt.getUTCDate());
+}
+
+function jsonOk(body) {
+  return { json: () => Promise.resolve(body) };
 }
 
 function between(src, start, end) {
@@ -95,7 +106,7 @@ async function main() {
   const undated = sample.encodePlanShare({ name: "No Date Night", date: "", ideaIds: [2] });
   const prettyDate = util.fmtDate("2026-06-05");
 
-  section("harness keeps the previous exports", () => {
+  await section("harness keeps the previous exports", () => {
     PRIOR_EXPORTS.forEach(name => {
       check("still exports " + name, sample[name] != null, typeof sample[name]);
     });
@@ -107,18 +118,23 @@ async function main() {
     check("age rule is unchanged", sample.MINIMUM_AGE === 18 && sample.parseProfileAge("18") === 18 && sample.parseProfileAge("17") === 17);
   });
 
-  section("the gate runs before decode", () => {
+  await section("the gate runs before decode", () => {
     const routeSrc = between(appSrc, "function routeSharedPlan()", "function leaveSharedPlan()");
     const ageSrc = between(appSrc, "function submitSharedPlanAge(raw)", "function routeSharedPlan()");
+    const confirmSrc = between(appSrc, "function confirmAdultDob(dob)", "function finishOnboarding(");
     const bootAt = appSrc.indexOf("function boot(){");
     const bootFn = appSrc.slice(bootAt, appSrc.indexOf("\n  }", bootAt));
     check("route checks the gate before it shows a decoded plan",
       routeSrc.indexOf("sharedPlanGatePassed()") !== -1 &&
       routeSrc.indexOf("showSharedPlanDecoded(") > routeSrc.indexOf("sharedPlanGatePassed()") &&
       routeSrc.indexOf("decodePlanShare") === -1);
+    check("shared plan uses the onboarding date-of-birth check",
+      ageSrc.indexOf("confirmAdultDob(") !== -1 &&
+      confirmSrc.indexOf("SparkUtil.checkAge") !== -1 &&
+      confirmSrc.indexOf('"/api/age-check"') !== -1 &&
+      appSrc.indexOf("confirmAdultDob(profile.dob)") !== -1);
     check("a failing age returns before the cookie and before decode",
-      ageSrc.indexOf("parseProfileAge") !== -1 &&
-      ageSrc.indexOf("MINIMUM_AGE") > ageSrc.indexOf("parseProfileAge") &&
+      ageSrc.indexOf("showSharedPlanBlocked") !== -1 &&
       ageSrc.indexOf("showSharedPlanBlocked") < ageSrc.indexOf("writeAgeOkCookie") &&
       ageSrc.indexOf("writeAgeOkCookie") < ageSrc.indexOf("showSharedPlanDecoded") &&
       ageSrc.indexOf("decodePlanShare") === -1);
@@ -138,49 +154,77 @@ async function main() {
     check("opening the link shows the gate", gate && gate.getAttribute("data-shared-plan") === "gate", gate && gate.getAttribute("data-shared-plan"));
     check("decode has not run", app.sharedPlanDecodeCount === before);
     check("the plan is not on the gate", html.indexOf("Friday Night") === -1 && html.indexOf(title2) === -1 && html.indexOf(title3) === -1);
-    check("the gate asks for an age",
-      html.indexOf("Age") !== -1 && findById(gate, "shared-plan-age") != null &&
-      findById(gate, "shared-plan-age").className === "field-input",
+    const maxDob = util.latestDob(new Date());
+    const dobInput = findById(gate, "shared-plan-dob");
+    check("the gate asks for a date of birth",
+      html.indexOf("Date of birth") !== -1 && dobInput != null && dobInput.type === "date" &&
+      dobInput.className === "field-input" && dobInput.getAttribute("max") === maxDob,
       html.slice(0, 240));
     check("viewing the gate makes no request and does not read location", app.fetchCalls.length === fetches && geo === 0);
   });
 
-  section("the cookie is set only on a pass, with the stated attributes", () => {
+  await section("the cookie is set only on a pass, with the stated attributes", async () => {
+    const adult = util.latestDob(new Date());
+    const young = shiftIso(adult, 1);
     const httpApp = fresh();
     httpApp.window.location.protocol = "http:";
+    let agePosts = 0;
+    httpApp.setFetch((url, opts) => {
+      agePosts++;
+      httpApp.__age = { url: url, body: opts && opts.body };
+      return Promise.resolve(jsonOk({ ok: false, blocked: true }));
+    });
     openPlan(httpApp, named);
-    const blocked = httpApp.submitSharedPlanAge(String(httpApp.MINIMUM_AGE - 1));
+    const blocked = await httpApp.submitSharedPlanAge(young);
     const blockedHtml = textOf(blocked);
-    check("under the minimum shows the adult screen",
+    check("17 years and 364 days shows the adult screen",
       blocked.getAttribute("data-shared-plan") === "blocked" && blockedHtml.indexOf("Jaderoo is for adults 18+") !== -1,
       blockedHtml.slice(0, 180));
     check("the fail screen does not show the plan", blockedHtml.indexOf("Friday Night") === -1 && blockedHtml.indexOf(title2) === -1);
     check("a fail does not set the cookie", httpApp.document.cookie.indexOf("spark_age_ok") === -1, httpApp.document.cookie);
-    check("a fail still has not decoded", httpApp.sharedPlanDecodeCount === 0);
+    check("a fail still has not decoded or called the server",
+      httpApp.sharedPlanDecodeCount === 0 && agePosts === 0);
+    check("the rejected date is not stored", JSON.stringify(httpApp.state).indexOf(young) === -1);
 
-    const junk = httpApp.submitSharedPlanAge("nope");
-    check("an unreadable age stays on the gate", junk.getAttribute("data-shared-plan") === "gate");
-    check("an unreadable age does not set the cookie or decode",
+    const junk = await httpApp.submitSharedPlanAge("nope");
+    check("an unreadable date stays on the gate", junk.getAttribute("data-shared-plan") === "gate");
+    check("an unreadable date does not set the cookie, decode, or call the server",
+      httpApp.document.cookie.indexOf("spark_age_ok") === -1 && httpApp.sharedPlanDecodeCount === 0 && agePosts === 0);
+
+    const serverNo = await httpApp.submitSharedPlanAge(adult);
+    check("a server block shows the adult screen",
+      serverNo.getAttribute("data-shared-plan") === "blocked" && agePosts === 1 &&
+      httpApp.__age.url === "/api/age-check" && JSON.parse(httpApp.__age.body).dob === adult);
+    check("a server block does not set the cookie or decode",
       httpApp.document.cookie.indexOf("spark_age_ok") === -1 && httpApp.sharedPlanDecodeCount === 0);
+    check("the posted date is not stored", JSON.stringify(httpApp.state).indexOf(adult) === -1);
 
-    const passed = httpApp.submitSharedPlanAge(String(httpApp.MINIMUM_AGE));
+    httpApp.setFetch((url, opts) => {
+      agePosts++;
+      httpApp.__age = { url: url, body: opts && opts.body };
+      return Promise.resolve(jsonOk({ ok: true }));
+    });
+    const passed = await httpApp.submitSharedPlanAge(adult);
     check("http pass sets only the age cookie", httpApp.document.cookie === COOKIE, httpApp.document.cookie);
     check("http cookie has no Secure flag", httpApp.document.cookie.indexOf("Secure") === -1);
-    check("the cookie value is 1 and does not store the age",
-      httpApp.document.cookie.indexOf("spark_age_ok=1") === 0 && httpApp.document.cookie.indexOf("=18") === -1);
-    check("a pass decodes once and shows the plan",
+    check("the cookie value is 1 and does not store the date",
+      httpApp.document.cookie.indexOf("spark_age_ok=1") === 0 &&
+      httpApp.document.cookie.indexOf(adult) === -1 &&
+      httpApp.document.cookie.indexOf("=18") === -1);
+    check("exactly 18 decodes once and shows the plan",
       httpApp.sharedPlanDecodeCount === 1 && passed.getAttribute("data-shared-plan") === "view" &&
-      textOf(passed).indexOf("Friday Night") !== -1);
+      textOf(passed).indexOf("Friday Night") !== -1 && agePosts === 2);
 
     const httpsApp = fresh();
     httpsApp.window.location.protocol = "https:";
+    httpsApp.setFetch(() => Promise.resolve(jsonOk({ ok: true })));
     openPlan(httpsApp, named);
-    httpsApp.submitSharedPlanAge("21");
+    await httpsApp.submitSharedPlanAge(adult);
     check("https pass adds Secure", httpsApp.document.cookie === COOKIE + "; Secure", httpsApp.document.cookie);
-    check("https cookie does not store the typed age", httpsApp.document.cookie.indexOf("21") === -1);
+    check("https cookie does not store the date of birth", httpsApp.document.cookie.indexOf(adult) === -1);
   });
 
-  section("a cookie or a passing profile skips the gate", () => {
+  await section("a cookie or a passing profile skips the gate", () => {
     const cookieApp = fresh();
     const fetches = cookieApp.fetchCalls.length;
     cookieApp.document.cookie = "theme=light; spark_age_ok=1";
@@ -213,7 +257,7 @@ async function main() {
     check("a cookie skips even when the stored profile is under 18", youngView.getAttribute("data-shared-plan") === "view");
   });
 
-  section("a broken link and unresolved ideas", () => {
+  await section("a broken link and unresolved ideas", () => {
     const app = fresh();
     app.document.cookie = "spark_age_ok=1";
     const broken = openPlan(app, "v1.!!!!");
@@ -265,7 +309,7 @@ async function main() {
       directHtml.indexOf("&lt;b&gt;Nope&lt;/b&gt;") !== -1);
   });
 
-  section("saving creates one copy and leaving clears the fragment", () => {
+  await section("saving creates one copy and leaving clears the fragment", () => {
     const app = fresh();
     app.document.cookie = "spark_age_ok=1";
     app.state.location = { lat: 40.768211, lng: -111.893921, city: "Secret City Name" };
@@ -313,7 +357,7 @@ async function main() {
     check("the cleared fragment does not open the view again", after == null && app.sharedPlanDecodeCount === decodedBeforeLeave);
   });
 
-  section("the shared view is not a swipe surface", () => {
+  await section("the shared view is not a swipe surface", () => {
     const cardSrc = between(appSrc, "function buildSharedPlanCard(idea)", "function sharedPlanIdeas(");
     check("shared cards reuse the card builder without attaching a swipe",
       cardSrc.indexOf("buildSwipeCard(") !== -1 &&

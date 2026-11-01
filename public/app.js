@@ -144,7 +144,7 @@
   }
 
   /* ---------- State ---------- */
-  var MINIMUM_AGE = 18;
+  var MINIMUM_AGE = SparkUtil.MINIMUM_AGE;
 
   function parseProfileAge(value){
     if(typeof value === "number" && isFinite(value)) value = String(value);
@@ -1329,31 +1329,55 @@
     reader.readAsDataURL(file);
   });
 
-  function finishOnboarding(profile){
-    profile = profile || {};
-    var dob = String(profile.dob || "").trim();
-    if(!SparkUtil.checkAge(dob).ok) return Promise.resolve(false);
+  // Client check first, then the server. The date is not kept.
+  function confirmAdultDob(dob){
+    dob = String(dob || "").trim();
+    var checked = SparkUtil.checkAge(dob);
+    if(!checked.ok) return Promise.resolve({ ok:false, blocked: checked.blocked === true });
     return fetch("/api/age-check", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ dob: dob })
     }).then(function(r){ return r.json(); })
       .then(function(body){
-        if(!body || body.ok !== true) return false;
-        state.profile = {
-          name: String(profile.name || "").trim() || "Friend",
-          gender: profile.gender || "Woman",
-          photo: profile.photo || null,
-          ageConfirmedAt: new Date().toISOString()
-        };
-        state.onboarded = true;
-        saveState();
-        return true;
+        if(body && body.ok === true) return { ok:true, blocked:false };
+        return { ok:false, blocked: !!(body && body.blocked) };
       })
-      .catch(function(){ return false; });
+      .catch(function(){ return { ok:false, blocked:false }; });
+  }
+
+  function finishOnboarding(profile){
+    profile = profile || {};
+    return confirmAdultDob(profile.dob).then(function(result){
+      if(!result.ok) return false;
+      state.profile = {
+        name: String(profile.name || "").trim() || "Friend",
+        gender: profile.gender || "Woman",
+        photo: profile.photo || null,
+        ageConfirmedAt: new Date().toISOString()
+      };
+      state.onboarded = true;
+      saveState();
+      writeAgeOkCookie();
+      return true;
+    });
+  }
+
+  function applyDobMax(input){
+    if(!input) return "";
+    var max = SparkUtil.latestDob(new Date());
+    input.max = max;
+    if(input.setAttribute) input.setAttribute("max", max);
+    return max;
+  }
+
+  function refreshOnboardingDobMax(){
+    var input = document.getElementById("ob-dob");
+    applyDobMax(input);
   }
 
   function showAgeGate(){
+    refreshOnboardingDobMax();
     $("#view-onboarding").classList.remove("hidden");
     $("#view-tutorial").classList.add("hidden");
     $("#view-app").classList.add("hidden");
@@ -1361,6 +1385,7 @@
 
   $("#onboarding-form").addEventListener("submit", function(e){
     e.preventDefault();
+    refreshOnboardingDobMax();
     finishOnboarding({
       name: $("#ob-name").value,
       dob: $("#ob-dob").value,
@@ -1368,7 +1393,7 @@
       photo: obPhotoData
     }).then(function(ok){
       if(!ok){
-        showToast("You must be 18 or older to use Jaderoo.");
+        showToast("You must be " + MINIMUM_AGE + " or older to use Jaderoo.");
         return;
       }
       if(state.hasSeenTutorial){ enterApp(); } else { showTutorial(); }
@@ -5260,6 +5285,7 @@
   }
 
   function prefillOnboarding(){
+    refreshOnboardingDobMax();
     $("#ob-name").value = (state.profile && state.profile.name) || "";
     $("#ob-gender").value = (state.profile && state.profile.gender) || "Woman";
     if($("#ob-dob")) $("#ob-dob").value = "";
@@ -5298,9 +5324,7 @@
     return false;
   }
   function ageOkCookieString(){
-    var cookie = "spark_age_ok=1; Max-Age=31536000; Path=/; SameSite=Lax";
-    if(pageProtocol() === "https:") cookie += "; Secure";
-    return cookie;
+    return SparkUtil.ageOkCookie(pageProtocol() === "https:");
   }
   function writeAgeOkCookie(){
     document.cookie = ageOkCookieString();
@@ -5377,21 +5401,19 @@
     var scroll = el("div", "onboarding-scroll");
     scroll.appendChild(sharedPlanBrand());
     var form = el("form", "onboarding-form");
-    var label = el("label", "field-label", "Age");
-    label.setAttribute("for", "shared-plan-age");
+    var label = el("label", "field-label", "Date of birth");
+    label.setAttribute("for", "shared-plan-dob");
     form.appendChild(label);
     var input = document.createElement("input");
-    input.id = "shared-plan-age";
+    input.id = "shared-plan-dob";
     input.className = "field-input";
-    input.type = "number";
-    input.min = "1";
-    input.max = "120";
-    input.setAttribute("inputmode", "numeric");
-    input.setAttribute("autocomplete", "off");
+    input.type = "date";
     input.required = true;
-    input.setAttribute("aria-label", "Age");
+    input.setAttribute("autocomplete", "bday");
+    input.setAttribute("aria-label", "Date of birth");
+    applyDobMax(input);
     form.appendChild(input);
-    form.appendChild(el("p", "field-hint", "You must be 18 or older. We use this only to check your age and do not save it."));
+    form.appendChild(el("p", "field-hint", "You must be " + MINIMUM_AGE + " or older. We use this only to check your age and do not save it."));
     var btn = el("button", "btn-primary btn-block", "Continue");
     btn.type = "submit";
     form.appendChild(btn);
@@ -5409,7 +5431,7 @@
     var scroll = el("div", "onboarding-scroll");
     scroll.appendChild(sharedPlanBrand());
     var card = el("div", "onboarding-form");
-    var heading = el("h2", "shared-plan-message", "Jaderoo is for adults 18+");
+    var heading = el("h2", "shared-plan-message", "Jaderoo is for adults " + MINIMUM_AGE + "+");
     heading.id = "shared-plan-message";
     card.appendChild(heading);
     card.appendChild(el("p", "field-hint", "This plan stays hidden."));
@@ -5567,15 +5589,16 @@
     return showSharedPlanView(decoded);
   }
   function submitSharedPlanAge(raw){
-    var age = parseProfileAge(raw);
-    if(age == null || age < MINIMUM_AGE){
-      if(age != null && age < MINIMUM_AGE) return showSharedPlanBlocked();
-      return showSharedPlanGate();
-    }
-    writeAgeOkCookie();
-    var payload = planShareFragment();
-    if(payload == null) return null;
-    return showSharedPlanDecoded(payload);
+    return confirmAdultDob(raw).then(function(result){
+      if(!result.ok){
+        if(result.blocked) return showSharedPlanBlocked();
+        return showSharedPlanGate();
+      }
+      writeAgeOkCookie();
+      var payload = planShareFragment();
+      if(payload == null) return null;
+      return showSharedPlanDecoded(payload);
+    });
   }
   function routeSharedPlan(){
     var payload = planShareFragment();

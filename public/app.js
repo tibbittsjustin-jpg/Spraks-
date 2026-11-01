@@ -266,7 +266,7 @@
       identity: normalizeStoredIdentity(null),
       datePlans:[],      // [{id, name, date, createdAt, ideaIds:[], friendPicks:[{id,friendName,avatarEmoji,avatarColor,ideaId}]}] — named/dated planning sessions
       somedayIds:[],     // ideas saved with no active plan, or via the dedicated "Someday" button
-      doneIds:[],       // [{id, date}]
+      doneIds:[],       // [{id, date, rating?, recap?, photoKey?}] rating 1–5, recap one line, photoKey points at IndexedDB
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
       filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false, radiusMiles:SparkRadius.RADIUS_DEFAULT, localOnly:false },
@@ -282,6 +282,7 @@
 
   var pendingDobScrub = false;
   var pendingIdentitySave = false;
+  var pendingDoneNormalize = false;
   var state = loadState();
 
   function loadState(){
@@ -345,7 +346,15 @@
         plan.ideaIds = (plan.ideaIds || []).filter(resolvable);
         plan.friendPicks = (plan.friendPicks || []).filter(function(p){ return resolvable(p.ideaId); });
       });
-      parsed.doneIds = (parsed.doneIds || []).filter(function(d){ return resolvable(d.id); });
+      // Keep every field already stored on a done row (a note, a place, a
+      // photo key). Rating and recap are only reshaped: stars become 1–5,
+      // the recap becomes one line. Rows from before ratings existed stay
+      // {id, date} and show up as unrated.
+      var doneBefore = JSON.stringify(parsed.doneIds || []);
+      parsed.doneIds = (parsed.doneIds || []).filter(function(d){ return d && resolvable(d.id); }).map(function(d){
+        return SparkUtil.migrateDoneEntry(d);
+      });
+      if(JSON.stringify(parsed.doneIds) !== doneBefore) pendingDoneNormalize = true;
       parsed.profile = parsed.profile || {};
       // Existing ideas stay as they were saved. Nothing here is posted.
       // A missing status means "still on this device" and is sent only on a tap.
@@ -482,9 +491,10 @@
   }
 
   rehydrateRealIdeas();
-  if(pendingDobScrub || pendingIdentitySave){
+  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize){
     pendingDobScrub = false;
     pendingIdentitySave = false;
+    pendingDoneNormalize = false;
     saveState();
   }
 
@@ -2637,14 +2647,34 @@
 
     var doneBtn = el("button", "btn-outline" + (doneEntry ? " active" : ""),
       doneEntry ? (icon("check-circle") + " Marked Done · " + fmtDate(doneEntry.date)) : (icon("check-circle") + " Mark as Done"));
+    doneBtn.type = "button";
     doneBtn.addEventListener("click", function(){
       var idx = state.doneIds.findIndex(function(d){ return d.id === ideaId; });
-      if(idx === -1){ state.doneIds.push({ id: ideaId, date: todayISO() }); showToast("Nice! Marked as done!"); }
-      else { state.doneIds.splice(idx, 1); showToast("Removed from Done"); }
-      saveState();
-      renderContent();
+      if(idx === -1){
+        state.doneIds.push({ id: ideaId, date: todayISO() });
+        saveState();
+        renderContent();
+        openDoneRecap(ideaId, { mode:"new", announceSkip:true });
+      } else {
+        var removedKey = state.doneIds[idx].photoKey;
+        state.doneIds.splice(idx, 1);
+        saveState();
+        if(removedKey) deleteDonePhoto(removedKey);
+        if(recapSession && recapSession.ideaId === ideaId) closeDoneRecap(false);
+        showToast("Removed from Done");
+        renderContent();
+      }
     });
     actions.appendChild(doneBtn);
+    if(doneEntry){
+      var rated = !!SparkUtil.normalizeRating(doneEntry.rating);
+      var rateBtn = el("button", "btn-outline btn-block", icon("star") + " " + (rated ? "Edit rating" : "Rate this"));
+      rateBtn.type = "button";
+      rateBtn.addEventListener("click", function(){
+        openDoneRecap(ideaId, { mode: rated ? "edit" : "new" });
+      });
+      actions.appendChild(rateBtn);
+    }
     var website = visitWebsiteLink(idea);
     if(website) actions.appendChild(website);
     wrap.appendChild(actions);
@@ -3440,10 +3470,10 @@
       wrap.appendChild(emptyNote(icon("check-circle"), "No completed dates yet", "Mark ideas as done from their detail screen after you try them."));
       return wrap;
     }
-    state.doneIds.slice().reverse().forEach(function(entry){
+    SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = IDEAS_BY_ID[entry.id];
       if(!idea) return;
-      wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date) }));
+      wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date), doneEntry: entry }));
     });
     return wrap;
   }
@@ -3499,14 +3529,523 @@
       body.appendChild(el("div", "friend-pick-badge",
         picks.map(function(p){ return p.avatarEmoji + " " + escapeHtml(p.friendName); }).join(", ") + " picked this!"));
     }
+    if(opts.doneEntry) appendDoneRecap(body, opts.doneEntry);
     var mark = el("span", "saved-bookmark", icon("bookmark"));
     mark.setAttribute("aria-hidden", "true");
     card.appendChild(thumb);
     card.appendChild(body);
     card.appendChild(mark);
-    card.addEventListener("click", function(){ goToDetail(idea.id); });
+    card.addEventListener("click", function(){
+      if(opts.onOpen) opts.onOpen();
+      else goToDetail(idea.id);
+    });
     return card;
   }
+
+  function appendDoneRecap(body, entry){
+    var block = el("div", "done-recap-block");
+    var rating = SparkUtil.normalizeRating(entry.rating);
+    if(rating){
+      var stars = el("div", "done-stars");
+      stars.setAttribute("role", "img");
+      stars.setAttribute("aria-label", "Rated " + rating + " out of 5 stars");
+      stars.appendChild(el("span", "is-filled", "★★★★★".slice(0, rating)));
+      stars.appendChild(el("span", "is-empty", "☆☆☆☆☆".slice(0, 5 - rating)));
+      block.appendChild(stars);
+    }
+    var recap = SparkUtil.normalizeRecap(entry.recap);
+    if(recap) block.appendChild(el("div", "done-recap-line", escapeHtml(recap)));
+    var tools = el("div", "done-card-tools");
+    if(entry.photoKey){
+      var holder = el("span", "done-user-thumb");
+      holder.setAttribute("data-photo-key", entry.photoKey);
+      var img = el("img", "hidden");
+      img.alt = "Your photo";
+      mountDonePhoto(img, entry.photoKey);
+      holder.appendChild(img);
+      tools.appendChild(holder);
+    }
+    var rateBtn = el("button", "done-rate-btn", rating ? "Edit" : "Rate this");
+    rateBtn.type = "button";
+    rateBtn.setAttribute("aria-label", rating ? "Edit rating, photo, and recap" : "Rate this");
+    rateBtn.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      ev.preventDefault();
+      openDoneRecap(entry.id, { mode: rating ? "edit" : "new" });
+    });
+    tools.appendChild(rateBtn);
+    block.appendChild(tools);
+    body.appendChild(block);
+  }
+
+  /* ---------- Done rating, recap, and on-device photo ----------
+     The rating and the one-line recap live on the done row in local
+     state. The photo is a separate JPEG in IndexedDB, keyed by photoKey,
+     so a picture never counts against the localStorage quota. Drawing
+     the file onto a canvas and exporting JPEG drops EXIF, including
+     location. Nothing here is uploaded. */
+  var DONE_PHOTO_DB = "jaderoo-done-photos";
+  var DONE_PHOTO_STORE = "photos";
+  var donePhotoCache = {};
+  var recapSession = null;
+
+  function idbFactory(){
+    try{
+      if(typeof indexedDB !== "undefined" && indexedDB && indexedDB.open) return indexedDB;
+    }catch(err){}
+    return null;
+  }
+
+  function openDonePhotoDb(){
+    var factory = idbFactory();
+    if(!factory || typeof Promise === "undefined") return Promise.reject(new Error("idb"));
+    return new Promise(function(resolve, reject){
+      var req = factory.open(DONE_PHOTO_DB, 1);
+      req.onupgradeneeded = function(){
+        var db = req.result;
+        if(!db.objectStoreNames.contains(DONE_PHOTO_STORE)) db.createObjectStore(DONE_PHOTO_STORE);
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error || new Error("idb")); };
+    });
+  }
+
+  function putDonePhoto(key, blob){
+    return openDonePhotoDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(DONE_PHOTO_STORE, "readwrite");
+        tx.objectStore(DONE_PHOTO_STORE).put(blob, key);
+        tx.oncomplete = function(){ resolve(key); };
+        tx.onerror = function(){ reject(tx.error || new Error("idb")); };
+        tx.onabort = function(){ reject(tx.error || new Error("idb")); };
+      });
+    });
+  }
+
+  function getDonePhoto(key){
+    return openDonePhotoDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(DONE_PHOTO_STORE, "readonly");
+        var req = tx.objectStore(DONE_PHOTO_STORE).get(key);
+        req.onsuccess = function(){ resolve(req.result || null); };
+        req.onerror = function(){ reject(req.error || new Error("idb")); };
+      });
+    });
+  }
+
+  function deleteDonePhoto(key){
+    if(!key) return;
+    var cached = donePhotoCache[key];
+    if(cached && cached.url && typeof URL !== "undefined" && URL.revokeObjectURL){
+      try{ URL.revokeObjectURL(cached.url); }catch(err){}
+    }
+    delete donePhotoCache[key];
+    if(!idbFactory() || typeof Promise === "undefined") return;
+    openDonePhotoDb().then(function(db){
+      var tx = db.transaction(DONE_PHOTO_STORE, "readwrite");
+      tx.objectStore(DONE_PHOTO_STORE).delete(key);
+    }).catch(function(){});
+  }
+
+  function clearDonePhotos(){
+    Object.keys(donePhotoCache).forEach(function(key){
+      var cached = donePhotoCache[key];
+      if(cached && cached.url && typeof URL !== "undefined" && URL.revokeObjectURL){
+        try{ URL.revokeObjectURL(cached.url); }catch(err){}
+      }
+    });
+    donePhotoCache = {};
+    var factory = idbFactory();
+    if(factory && factory.deleteDatabase){
+      try{ factory.deleteDatabase(DONE_PHOTO_DB); }catch(err){}
+    }
+  }
+
+  function rememberDonePhoto(key, blob){
+    if(!key || !blob || typeof URL === "undefined" || !URL.createObjectURL) return;
+    var prev = donePhotoCache[key];
+    if(prev && prev.url && URL.revokeObjectURL){
+      try{ URL.revokeObjectURL(prev.url); }catch(err){}
+    }
+    donePhotoCache[key] = { url: URL.createObjectURL(blob) };
+  }
+
+  function loadDonePhotoUrl(key){
+    if(!key || typeof Promise === "undefined"){
+      return { then: function(){ return this; } };
+    }
+    var cached = donePhotoCache[key];
+    if(cached && cached.url) return Promise.resolve(cached.url);
+    if(cached && cached.pending) return cached.pending;
+    if(!idbFactory()) return Promise.resolve("");
+    var pending = getDonePhoto(key).then(function(blob){
+      if(!blob || typeof URL === "undefined" || !URL.createObjectURL){
+        delete donePhotoCache[key];
+        return "";
+      }
+      var url = URL.createObjectURL(blob);
+      donePhotoCache[key] = { url: url };
+      return url;
+    }).catch(function(){
+      delete donePhotoCache[key];
+      return "";
+    });
+    donePhotoCache[key] = { pending: pending };
+    return pending;
+  }
+
+  function mountDonePhoto(img, photoKey){
+    if(!img || !photoKey) return;
+    function show(url){
+      if(!url) return;
+      img.src = url;
+      if(img.classList) img.classList.remove("hidden");
+    }
+    var cached = donePhotoCache[photoKey];
+    if(cached && cached.url){
+      show(cached.url);
+      return;
+    }
+    if(!idbFactory() || typeof Promise === "undefined") return;
+    loadDonePhotoUrl(photoKey).then(show);
+  }
+
+  // Re-encode through a canvas. The stored JPEG is a new file, so camera
+  // location and the rest of the EXIF are not kept.
+  function downscaleImageFile(file){
+    return new Promise(function(resolve, reject){
+      if(!file || typeof URL === "undefined" || !URL.createObjectURL || typeof Image === "undefined"){
+        reject(new Error("photo"));
+        return;
+      }
+      var objectUrl = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        var size = SparkUtil.fitLongEdge(img.naturalWidth || img.width, img.naturalHeight || img.height, SparkUtil.PHOTO_LONG_EDGE);
+        URL.revokeObjectURL(objectUrl);
+        if(!size){ reject(new Error("photo")); return; }
+        var canvas = document.createElement("canvas");
+        canvas.width = size.width;
+        canvas.height = size.height;
+        var ctx = canvas.getContext && canvas.getContext("2d");
+        if(!ctx || !canvas.toBlob){ reject(new Error("photo")); return; }
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, size.width, size.height);
+        ctx.drawImage(img, 0, 0, size.width, size.height);
+        canvas.toBlob(function(blob){
+          if(!blob){ reject(new Error("photo")); return; }
+          resolve(blob);
+        }, "image/jpeg", 0.82);
+      };
+      img.onerror = function(){
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error("photo"));
+      };
+      img.src = objectUrl;
+    });
+  }
+
+  function findDoneEntry(ideaId){
+    for(var i = 0; i < state.doneIds.length; i++){
+      if(state.doneIds[i] && state.doneIds[i].id === ideaId) return state.doneIds[i];
+    }
+    return null;
+  }
+
+  function commitDoneRecap(ideaId, draft){
+    var entry = findDoneEntry(ideaId);
+    if(!entry) return { ok:false, error:"missing" };
+    var result = SparkUtil.applyDoneRecap(entry, draft || {});
+    if(!result.ok) return result;
+    saveState();
+    return result;
+  }
+
+  function refreshDoneSurfaces(){
+    if(ui.profileMenuOpen === "done"){
+      var sub = $("#subpage-body");
+      if(sub){
+        sub.innerHTML = "";
+        sub.appendChild(buildDoneSubpanel());
+      }
+    }
+    var appView = $("#view-app");
+    if(appView && appView.classList && appView.classList.contains("hidden")) return;
+    if(ui.screen === "detail" || ui.tab === "saved" || ui.tab === "done") renderContent();
+  }
+
+  function closeDoneRecap(skipped){
+    var session = recapSession;
+    recapSession = null;
+    if(session && session.previewUrl && typeof URL !== "undefined" && URL.revokeObjectURL){
+      try{ URL.revokeObjectURL(session.previewUrl); }catch(err){}
+      session.previewUrl = "";
+    }
+    closeOverlay("#done-recap-overlay");
+    if(skipped && session && session.announceSkip){
+      showToast("Marked as done. Rate it anytime in Jaderoo.");
+    }
+  }
+
+  function saveRecapSession(){
+    var session = recapSession;
+    if(!session) return;
+    if(!SparkUtil.normalizeRating(session.rating)){
+      showToast("Pick a star rating to save in Jaderoo.");
+      return;
+    }
+    var entry = findDoneEntry(session.ideaId);
+    if(!entry){ closeDoneRecap(false); return; }
+
+    function write(photoKey){
+      if(recapSession !== session) return;
+      var result = commitDoneRecap(session.ideaId, {
+        rating: session.rating,
+        recap: session.recap,
+        photoKey: photoKey || "",
+        removePhoto: !photoKey
+      });
+      if(!result.ok) return;
+      closeDoneRecap(false);
+      showToast("Saved in Jaderoo.");
+      refreshDoneSurfaces();
+    }
+
+    if(session.blob){
+      var key = "done-" + session.ideaId + "-" + Date.now();
+      var oldKey = session.photoKey;
+      putDonePhoto(key, session.blob).then(function(){
+        if(recapSession !== session) return;
+        rememberDonePhoto(key, session.blob);
+        if(oldKey && oldKey !== key) deleteDonePhoto(oldKey);
+        write(key);
+      }).catch(function(){
+        if(recapSession !== session) return;
+        showToast("The rating is saved in Jaderoo, but the photo could not be stored on this device.");
+        write(session.removePhoto ? "" : (oldKey || ""));
+      });
+      return;
+    }
+    if(session.removePhoto && session.photoKey) deleteDonePhoto(session.photoKey);
+    write(session.removePhoto ? "" : (session.photoKey || ""));
+  }
+
+  function buildDoneRecapForm(session){
+    session = session || {};
+    var wrap = el("div", "done-recap-form");
+    var rating = SparkUtil.normalizeRating(session.rating);
+
+    var group = el("div", "star-picker");
+    group.setAttribute("role", "radiogroup");
+    group.setAttribute("aria-label", "Rating out of 5 stars");
+    group.setAttribute("aria-describedby", "done-recap-hint");
+    for(var n = 1; n <= 5; n++){
+      var on = !!rating && n <= rating;
+      var btn = el("button", "star-btn" + (on ? " is-on" : ""), on ? "★" : "☆");
+      btn.type = "button";
+      btn.setAttribute("role", "radio");
+      btn.setAttribute("aria-checked", rating === n ? "true" : "false");
+      btn.setAttribute("aria-label", n === 1 ? "1 star" : (n + " stars"));
+      btn.setAttribute("data-rating", String(n));
+      btn.setAttribute("tabindex", (rating ? rating === n : n === 1) ? "0" : "-1");
+      group.appendChild(btn);
+    }
+    wrap.appendChild(group);
+
+    var hint = el("p", "field-hint", "Pick a star rating to save. You can skip and rate this later in Jaderoo.");
+    hint.id = "done-recap-hint";
+    hint.setAttribute("aria-live", "polite");
+    wrap.appendChild(hint);
+
+    var recapLabel = el("label", "field-label", "One-line recap");
+    recapLabel.setAttribute("for", "done-recap-input");
+    wrap.appendChild(recapLabel);
+    var input = el("input", "field-input");
+    input.id = "done-recap-input";
+    input.type = "text";
+    input.maxLength = SparkUtil.RECAP_MAX;
+    input.setAttribute("maxlength", String(SparkUtil.RECAP_MAX));
+    input.placeholder = "One line, about what you did";
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("enterkeyhint", "done");
+    input.setAttribute("aria-describedby", "done-recap-count");
+    input.value = session.recap || "";
+    wrap.appendChild(input);
+    var count = el("div", "recap-count", Array.from(input.value).length + "/" + SparkUtil.RECAP_MAX);
+    count.id = "done-recap-count";
+    wrap.appendChild(count);
+
+    var hasPhoto = !!(session.previewUrl || (session.photoKey && !session.removePhoto));
+    var photoLabel = el("label", "btn-secondary done-photo-label");
+    var photoText = el("span", "done-photo-label-text", hasPhoto ? "Replace photo" : "Add a photo");
+    var file = el("input");
+    file.type = "file";
+    file.accept = "image/*";
+    file.setAttribute("accept", "image/*");
+    file.setAttribute("aria-label", "Add a photo");
+    photoLabel.appendChild(photoText);
+    photoLabel.appendChild(file);
+    wrap.appendChild(photoLabel);
+    wrap.appendChild(el("p", "field-hint", "Optional. Your photo stays on this device."));
+
+    var preview = el("img", "done-photo-preview" + (session.previewUrl ? "" : " hidden"));
+    preview.alt = "Photo preview";
+    if(session.previewUrl) preview.src = session.previewUrl;
+    wrap.appendChild(preview);
+
+    var removeBtn = el("button", "btn-text done-photo-remove" + (hasPhoto ? "" : " hidden"), "Remove photo");
+    removeBtn.type = "button";
+    wrap.appendChild(removeBtn);
+
+    var actions = el("div", "done-recap-actions");
+    var skipBtn = el("button", "btn-secondary done-recap-skip", session.mode === "edit" ? "Cancel" : "Skip for now");
+    skipBtn.type = "button";
+    var saveBtn = el("button", "btn-primary done-recap-save", "Save");
+    saveBtn.type = "button";
+    if(!rating) saveBtn.setAttribute("disabled", "disabled");
+    saveBtn.disabled = !rating;
+    actions.appendChild(skipBtn);
+    actions.appendChild(saveBtn);
+    wrap.appendChild(actions);
+
+    function paintStars(next, focusN){
+      var buttons = group.querySelectorAll(".star-btn");
+      Array.prototype.forEach.call(buttons, function(star){
+        var value = Number(star.getAttribute("data-rating"));
+        var filled = !!next && value <= next;
+        star.classList.toggle("is-on", filled);
+        star.textContent = filled ? "★" : "☆";
+        star.setAttribute("aria-checked", next === value ? "true" : "false");
+        var tab = (next ? next === value : value === 1) ? "0" : "-1";
+        star.setAttribute("tabindex", tab);
+        if(focusN && value === focusN && star.focus) star.focus();
+      });
+      hint.textContent = next
+        ? ("Rated " + next + " out of 5.")
+        : "Pick a star rating to save. You can skip and rate this later in Jaderoo.";
+      if(next) saveBtn.removeAttribute("disabled");
+      else saveBtn.setAttribute("disabled", "disabled");
+      saveBtn.disabled = !next;
+    }
+
+    group.addEventListener("click", function(e){
+      var node = e.target;
+      if(node && node.nodeType !== 1) node = node.parentElement;
+      var star = node && node.closest ? node.closest(".star-btn") : null;
+      if(!star || !group.contains(star)) return;
+      session.rating = Number(star.getAttribute("data-rating"));
+      paintStars(session.rating, null);
+    });
+    group.addEventListener("keydown", function(e){
+      var handled = { ArrowRight:1, ArrowLeft:1, ArrowUp:1, ArrowDown:1, Home:1, End:1, "1":1, "2":1, "3":1, "4":1, "5":1 };
+      if(!handled[e.key]) return;
+      e.preventDefault();
+      session.rating = SparkUtil.moveStarRating(session.rating, e.key);
+      paintStars(session.rating, session.rating);
+    });
+    input.addEventListener("input", function(){
+      var text = String(input.value || "").replace(/[\r\n]+/g, " ");
+      if(text !== input.value) input.value = text;
+      session.recap = text;
+      count.textContent = Array.from(text).length + "/" + SparkUtil.RECAP_MAX;
+    });
+    input.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+        e.preventDefault();
+        saveRecapSession();
+      }
+    });
+    file.addEventListener("change", function(){
+      var picked = file.files && file.files[0];
+      if(!picked) return;
+      downscaleImageFile(picked).then(function(blob){
+        if(recapSession !== session) return;
+        if(session.previewUrl && URL.revokeObjectURL){
+          try{ URL.revokeObjectURL(session.previewUrl); }catch(err){}
+        }
+        session.blob = blob;
+        session.previewUrl = URL.createObjectURL(blob);
+        session.removePhoto = false;
+        preview.src = session.previewUrl;
+        preview.classList.remove("hidden");
+        removeBtn.classList.remove("hidden");
+        photoText.textContent = "Replace photo";
+      }).catch(function(){
+        showToast("Jaderoo couldn't read that photo. Try a different one.");
+      });
+      try{ file.value = ""; }catch(err){}
+    });
+    removeBtn.addEventListener("click", function(){
+      session.removePhoto = true;
+      session.blob = null;
+      if(session.previewUrl && typeof URL !== "undefined" && URL.revokeObjectURL){
+        try{ URL.revokeObjectURL(session.previewUrl); }catch(err){}
+      }
+      session.previewUrl = "";
+      preview.removeAttribute("src");
+      preview.classList.add("hidden");
+      removeBtn.classList.add("hidden");
+      photoText.textContent = "Add a photo";
+    });
+    skipBtn.addEventListener("click", function(){ closeDoneRecap(true); });
+    saveBtn.addEventListener("click", function(){ saveRecapSession(); });
+
+    if(session.photoKey && !session.previewUrl && !session.removePhoto && typeof Promise !== "undefined"){
+      mountDonePhoto(preview, session.photoKey);
+      loadDonePhotoUrl(session.photoKey).then(function(url){
+        if(!url || recapSession !== session || session.removePhoto || session.previewUrl) return;
+        preview.src = url;
+        preview.classList.remove("hidden");
+      });
+    }
+    return wrap;
+  }
+
+  function openDoneRecap(ideaId, opts){
+    if(typeof opts === "string") opts = { mode: opts };
+    opts = opts || {};
+    var entry = findDoneEntry(ideaId);
+    if(!entry) return;
+    var idea = IDEAS_BY_ID[ideaId];
+    if(recapSession && recapSession.previewUrl && typeof URL !== "undefined" && URL.revokeObjectURL){
+      try{ URL.revokeObjectURL(recapSession.previewUrl); }catch(err){}
+    }
+    recapSession = {
+      ideaId: ideaId,
+      mode: opts.mode === "edit" ? "edit" : "new",
+      announceSkip: !!opts.announceSkip,
+      rating: SparkUtil.normalizeRating(entry.rating),
+      recap: entry.recap || "",
+      photoKey: entry.photoKey || "",
+      removePhoto: false,
+      previewUrl: "",
+      blob: null
+    };
+    var title = $("#done-recap-title");
+    var sub = $("#done-recap-sub");
+    if(title) title.textContent = recapSession.mode === "edit" ? "Update your recap" : "How was it?";
+    if(sub){
+      sub.textContent = (idea && idea.title ? idea.title + ". " : "") +
+        "A star rating is required to save in Jaderoo. The photo and one-line recap are optional.";
+    }
+    var body = $("#done-recap-body");
+    if(body){
+      body.innerHTML = "";
+      body.appendChild(buildDoneRecapForm(recapSession));
+    }
+    openOverlay("#done-recap-overlay");
+    setTimeout(function(){
+      var root = $("#done-recap-body");
+      if(!root || !root.querySelector) return;
+      var selected = root.querySelector('.star-btn[aria-checked="true"]');
+      var first = root.querySelector(".star-btn");
+      var target = selected || first;
+      if(target && target.focus) target.focus();
+    }, 30);
+  }
+
+  var doneRecapCloseBtn = $("#done-recap-close");
+  if(doneRecapCloseBtn) doneRecapCloseBtn.addEventListener("click", function(){ closeDoneRecap(true); });
 
   function removeSavedIdea(id, bucket){
     removeIdeaFromBucket(id, bucket);
@@ -3614,9 +4153,10 @@
       wrap.appendChild(emptyNote(icon("check-circle"), "No completed dates yet", "Mark ideas as done from their detail screen after you try them."));
       return wrap;
     }
-    state.doneIds.slice().reverse().forEach(function(entry){
+    SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = IDEAS_BY_ID[entry.id];
-      if(idea) wrap.appendChild(buildIdeaRow(idea, "Done " + fmtDate(entry.date)));
+      if(!idea) return;
+      wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date), doneEntry: entry }));
     });
     return wrap;
   }
@@ -3842,20 +4382,18 @@
       wrap.appendChild(el("p", null, "You haven't marked any dates as done yet. Once you try an idea, mark it done from its detail screen!"));
       return wrap;
     }
-    state.doneIds.slice().reverse().forEach(function(entry){
+    SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = IDEAS_BY_ID[entry.id];
       if(!idea) return;
-      var row = el("div", "idea-row");
-      row.innerHTML =
-        '<span class="ir-icon">' + categoryIcon(idea.category) + '</span>' +
-        '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
-        '<div class="ir-sub">Done ' + fmtDate(entry.date) + '</div></span><span class="ir-chevron">›</span>';
-      row.addEventListener("click", function(){
-        closeSubpage();
-        closeProfile();
-        goToDetail(idea.id);
-      });
-      wrap.appendChild(row);
+      wrap.appendChild(buildSavedCard(idea, {
+        doneDate: fmtDate(entry.date),
+        doneEntry: entry,
+        onOpen: function(){
+          closeSubpage();
+          closeProfile();
+          goToDetail(idea.id);
+        }
+      }));
     });
     return wrap;
   }
@@ -4371,6 +4909,7 @@
 
   $("#reset-app-btn").addEventListener("click", function(){
     if(confirm("Reset all Jaderoo data on this device? This can't be undone.")){
+      clearDonePhotos();
       localStorage.removeItem(STORAGE_KEY);
       window.location.reload();
     }

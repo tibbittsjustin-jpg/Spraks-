@@ -253,6 +253,112 @@
     return { axis: "horizontal", action: "snap", threshold: threshold };
   }
 
+  // A finished date can carry a personal rating (1–5), a one-line recap,
+  // and a key for a photo stored outside localStorage. Older done rows
+  // are only {id, date}. Those stay valid and sort as unrated.
+  var RECAP_MAX = 120;
+  var PHOTO_LONG_EDGE = 1080;
+
+  function normalizeRating(value){
+    if(typeof value === "string" && value.trim() !== "") value = Number(value);
+    if(typeof value !== "number" || !isFinite(value)) return null;
+    if(Math.round(value) !== value) return null;
+    if(value < 1 || value > 5) return null;
+    return value;
+  }
+
+  function normalizeRecap(value){
+    if(value == null) return "";
+    var text = String(value).replace(/[\r\n]+/g, " ").trim();
+    var chars = Array.from(text);
+    if(chars.length <= RECAP_MAX) return text;
+    return chars.slice(0, RECAP_MAX).join("").trim();
+  }
+
+  function migrateDoneEntry(entry){
+    if(!entry || typeof entry !== "object") return entry;
+    var next = {};
+    for(var k in entry){
+      if(Object.prototype.hasOwnProperty.call(entry, k)) next[k] = entry[k];
+    }
+    var rating = normalizeRating(entry.rating);
+    if(rating) next.rating = rating;
+    else if(Object.prototype.hasOwnProperty.call(next, "rating")) delete next.rating;
+    if(Object.prototype.hasOwnProperty.call(entry, "recap")){
+      var recap = normalizeRecap(entry.recap);
+      if(recap) next.recap = recap;
+      else delete next.recap;
+    }
+    if(Object.prototype.hasOwnProperty.call(next, "photoKey")){
+      if(typeof next.photoKey !== "string" || !next.photoKey.trim()) delete next.photoKey;
+      else next.photoKey = next.photoKey.trim();
+    }
+    return next;
+  }
+
+  // Highest personal rating first. Unrated rows go last. A tie — including
+  // two unrated rows — keeps the most recently done date first.
+  function compareDoneEntries(a, b){
+    var ar = normalizeRating(a && a.rating) || 0;
+    var br = normalizeRating(b && b.rating) || 0;
+    var aRated = ar > 0;
+    var bRated = br > 0;
+    if(aRated !== bRated) return aRated ? -1 : 1;
+    if(ar !== br) return br - ar;
+    var ad = a && a.date ? String(a.date) : "";
+    var bd = b && b.date ? String(b.date) : "";
+    if(ad !== bd) return ad < bd ? 1 : -1;
+    return 0;
+  }
+
+  function sortedDoneEntries(list){
+    return (Array.isArray(list) ? list.slice() : []).sort(compareDoneEntries);
+  }
+
+  // Stars are required. Without one, the row is left untouched so a recap
+  // or photo key cannot be saved on its own. Image bytes are never copied
+  // onto the entry; only an optional photoKey is.
+  function applyDoneRecap(entry, draft){
+    if(!entry || typeof entry !== "object") return { ok:false, error:"missing" };
+    draft = draft || {};
+    var rating = normalizeRating(draft.rating);
+    if(!rating) return { ok:false, error:"rating" };
+    entry.rating = rating;
+    var recap = normalizeRecap(draft.recap);
+    if(recap) entry.recap = recap;
+    else delete entry.recap;
+    if(draft.removePhoto) delete entry.photoKey;
+    else if(typeof draft.photoKey === "string" && draft.photoKey.trim()) entry.photoKey = draft.photoKey.trim();
+    return { ok:true, entry:entry };
+  }
+
+  function moveStarRating(current, key){
+    var rating = normalizeRating(current) || 0;
+    if(key === "ArrowRight" || key === "ArrowUp") return Math.min(5, rating + 1);
+    if(key === "ArrowLeft" || key === "ArrowDown") return rating <= 1 ? 1 : rating - 1;
+    if(key === "Home") return 1;
+    if(key === "End") return 5;
+    if(key === "1" || key === "2" || key === "3" || key === "4" || key === "5") return Number(key);
+    return rating || null;
+  }
+
+  // Long edge capped around 1080px. Smaller photos keep their pixel size;
+  // the caller still re-encodes them so the original file is not stored.
+  function fitLongEdge(width, height, maxEdge){
+    var w = Number(width);
+    var h = Number(height);
+    var max = Number(maxEdge);
+    if(!isFinite(max) || max <= 0) max = PHOTO_LONG_EDGE;
+    if(!isFinite(w) || !isFinite(h) || w <= 0 || h <= 0) return null;
+    var longEdge = Math.max(w, h);
+    if(longEdge <= max) return { width: Math.round(w), height: Math.round(h) };
+    var scale = max / longEdge;
+    return {
+      width: Math.max(1, Math.round(w * scale)),
+      height: Math.max(1, Math.round(h * scale))
+    };
+  }
+
   return {
     escapeHtml: escapeHtml,
     httpsPageUrl: httpsPageUrl,
@@ -277,6 +383,16 @@
     SWIPE_FLICK_MIN_PX: SWIPE_FLICK_MIN_PX,
     SWIPE_FALLBACK_WIDTH: SWIPE_FALLBACK_WIDTH,
     lockSwipeAxis: lockSwipeAxis,
-    resolveCardSwipe: resolveCardSwipe
+    resolveCardSwipe: resolveCardSwipe,
+    RECAP_MAX: RECAP_MAX,
+    PHOTO_LONG_EDGE: PHOTO_LONG_EDGE,
+    normalizeRating: normalizeRating,
+    normalizeRecap: normalizeRecap,
+    migrateDoneEntry: migrateDoneEntry,
+    compareDoneEntries: compareDoneEntries,
+    sortedDoneEntries: sortedDoneEntries,
+    applyDoneRecap: applyDoneRecap,
+    moveStarRating: moveStarRating,
+    fitLongEdge: fitLongEdge
   };
 });

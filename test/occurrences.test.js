@@ -95,6 +95,16 @@ section("with no plan date, events show until expires_at in Denver", () => {
     }, "", elevenThirty) === true);
   check("an anytime idea still shows on a plan date after its end date",
     occ.visibleOnPlan({ occurrences: null, expires_at: "2020-01-01" }, "2026-10-26", late) === true);
+  check("11:30pm Denver is not past on the expires_at day",
+    occ.isPast({ expires_at: "2026-10-31" }, elevenThirty) === false);
+  check("just after Denver midnight that day is past",
+    occ.isPast({ expires_at: "2026-10-31" }, new Date("2026-11-01T06:00:00.000Z")) === true);
+  check("an anytime idea is not past", occ.isPast(ANYTIME, elevenThirty) === false);
+  check("a finished date list is past in Denver",
+    occ.isPast({
+      expires_at: null,
+      occurrences: { kind: "dates", dates: [{ date: "2026-10-30" }] }
+    }, elevenThirty) === true);
 });
 
 section("research ranges become a stored schedule", () => {

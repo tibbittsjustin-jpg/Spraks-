@@ -399,6 +399,14 @@
     return true;
   }
 
+  /* Past means the deck would hide it with no plan date: after expires_at,
+     or after the last specific date, on the America/Denver civil day.
+     Saved lists still show it. */
+  function isPast(idea, now) {
+    if (!idea || typeof idea !== "object") return false;
+    return visibleOnPlan(idea, "", now) === false;
+  }
+
   return {
     WEEKDAYS: WEEKDAYS,
     parseISODate: parseISODate,
@@ -407,6 +415,7 @@
     denverToday: denverToday,
     normalizeOccurrences: normalizeOccurrences,
     occursOn: occursOn,
-    visibleOnPlan: visibleOnPlan
+    visibleOnPlan: visibleOnPlan,
+    isPast: isPast
   };
 });

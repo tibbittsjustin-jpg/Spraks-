@@ -377,6 +377,14 @@ async function main() {
     check("that concert shows on its own day", occ.visibleOnPlan(dated, "2026-12-01", new Date()) === true);
     check("an anytime idea shows on a plan date", occ.visibleOnPlan(anytime, "2026-11-02", new Date()) === true);
     check("an expired row is not visible", occ.visibleOnPlan(expired, "", new Date("2026-10-31T18:00:00Z")) === false);
+    const retained = remote.retainSavedIdeas([anytime, dated], [expired, anytime]);
+    check("a feed merge keeps a saved row the feed dropped",
+      retained.length === 1 && retained[0].id === expired.id && retained[0].title === "Last year's fair");
+    check("a saved row that is still in the feed is not duplicated",
+      remote.retainSavedIdeas([expired], [expired]).length === 0);
+    const someday = ["db:100503"];
+    remote.retainSavedIdeas([], [expired]);
+    check("retaining a snapshot does not remove saved ids", someday.join() === "db:100503");
 
     const t = loadApp({});
     const before = t.computeDeck();

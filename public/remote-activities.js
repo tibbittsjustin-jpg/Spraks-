@@ -224,6 +224,34 @@
     return out;
   }
 
+  /* Feed rows the activities API no longer returns (they expired) stay
+     available to saved lists. This does not put them back on the deck and
+     does not remove anything from a saved list. */
+  function retainSavedIdeas(feedIdeas, savedIdeas) {
+    var seen = Object.create(null);
+    var feed = Array.isArray(feedIdeas) ? feedIdeas : [];
+    for (var i = 0; i < feed.length; i++) {
+      var row = feed[i];
+      if (row && row.id != null) seen[String(row.id)] = true;
+    }
+    var saved = Array.isArray(savedIdeas) ? savedIdeas : [];
+    var kept = [];
+    var keptIds = Object.create(null);
+    for (var j = 0; j < saved.length; j++) {
+      var idea = saved[j];
+      if (!idea || idea.id == null) continue;
+      var id = String(idea.id);
+      if (seen[id] || keptIds[id]) continue;
+      var copy = null;
+      try { copy = JSON.parse(JSON.stringify(idea)); } catch (err) { copy = null; }
+      var clean = sanitizeIdea(copy);
+      if (!clean) continue;
+      keptIds[clean.id] = true;
+      kept.push(clean);
+    }
+    return kept;
+  }
+
   function appendNewIds(currentIds, newIds) {
     var out = [];
     var seen = Object.create(null);
@@ -505,6 +533,7 @@
     normalizeTitle: normalizeTitle,
     mapActivityToIdea: mapActivityToIdea,
     dedupeAgainstBuiltins: dedupeAgainstBuiltins,
+    retainSavedIdeas: retainSavedIdeas,
     appendNewIds: appendNewIds,
     readCache: readCache,
     writeCache: writeCache,

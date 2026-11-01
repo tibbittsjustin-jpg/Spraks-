@@ -266,7 +266,7 @@
       hasSeenTutorial:false,
       profile:{ name:"", gender:"Woman", photo:null, ageConfirmedAt:null },
       identity: normalizeStoredIdentity(null),
-      datePlans:[],      // [{id, name, date, createdAt, ideaIds:[], friendPicks:[{id,friendName,avatarEmoji,avatarColor,ideaId}]}] — named/dated planning sessions
+      datePlans:[],      // [{id, name, date, createdAt, ideaIds:[], likes?:{[id]:likedAt}, friendPicks:[{id,friendName,avatarEmoji,avatarColor,ideaId}]}] — named/dated planning sessions
       somedayIds:[],     // ideas saved with no active plan, or via the dedicated "Someday" button
       doneIds:[],       // [{id, date, rating?, recap?, photoKey?}] rating 1–5, recap one line, photoKey points at IndexedDB
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
@@ -287,6 +287,7 @@
   var pendingIdentitySave = false;
   var pendingDoneNormalize = false;
   var pendingPinSave = false;
+  var pendingLikeSave = false;
   var state = loadState();
 
   function loadState(){
@@ -380,8 +381,12 @@
       };
       parsed.somedayIds = parsed.somedayIds.filter(resolvable);
       parsed.datePlans.forEach(function(plan){
+        // Flatten {id, likedAt} rows and drop junk likes before the id
+        // filter, then prune likes that pointed at a removed id.
+        if(SparkUtil.migrateListLikes(plan)) pendingLikeSave = true;
         plan.ideaIds = (plan.ideaIds || []).filter(resolvable);
         plan.friendPicks = (plan.friendPicks || []).filter(function(p){ return resolvable(p.ideaId); });
+        if(SparkUtil.migrateListLikes(plan)) pendingLikeSave = true;
       });
       // Keep every field already stored on a done row (a note, a place, a
       // photo key). Rating and recap are only reshaped: stars become 1–5,
@@ -528,11 +533,12 @@
   }
 
   rehydrateRealIdeas();
-  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave){
+  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave || pendingLikeSave){
     pendingDobScrub = false;
     pendingIdentitySave = false;
     pendingDoneNormalize = false;
     pendingPinSave = false;
+    pendingLikeSave = false;
     saveState();
   }
 
@@ -935,6 +941,7 @@
       if(plan){
         var idx = plan.ideaIds.indexOf(ideaId);
         if(idx !== -1) plan.ideaIds.splice(idx, 1);
+        SparkUtil.forgetListLike(plan, ideaId);
       }
     } else {
       var i2 = state.somedayIds.indexOf(ideaId);
@@ -947,6 +954,7 @@
     state.datePlans.forEach(function(plan){
       var idx = plan.ideaIds.indexOf(ideaId);
       if(idx !== -1) plan.ideaIds.splice(idx, 1);
+      SparkUtil.forgetListLike(plan, ideaId);
     });
     var i2 = state.somedayIds.indexOf(ideaId);
     if(i2 !== -1) state.somedayIds.splice(i2, 1);
@@ -3693,25 +3701,42 @@
       return wrap;
     }
 
-    // Friend-picked ideas float to the top of the list (most-recently-picked
-    // first), so the ones a friend has highlighted as their favorite are the
-    // first thing you see; everything else keeps its normal recent-first order.
-    var orderedIds = ids.slice().reverse();
-    var pickedIds = [], restIds = [];
-    orderedIds.forEach(function(id){
-      var hasPick = plan && (plan.friendPicks || []).some(function(p){ return p.ideaId === id; });
-      (hasPick ? pickedIds : restIds).push(id);
-    });
-    pickedIds.concat(restIds).forEach(function(id){
+    // Liked rows rise to the top (most recently liked first). Stored id
+    // order stays put, so a shared link does not reshuffle. Among the
+    // rest, a friend's pick still floats above the others, then newest
+    // saved. Favorites is the keep-pile and Done already has star
+    // ratings, so the like control is only on a planning list. The sort
+    // and the card accent come from SparkUtil so a group list can reuse
+    // the same likedAt flag.
+    var rows = SparkUtil.orderSavedActivities(ids, plan && plan.likes, plan && plan.friendPicks);
+    rows.forEach(function(row){
+      var id = row.id;
       var idea = ideaForSaved(id);
       if(!idea) return;
       var picks = plan ? (plan.friendPicks || []).filter(function(p){ return p.ideaId === id; }) : [];
-      var card = buildSavedCard(idea, { picks: picks });
+      var like = null;
+      if(plan){
+        like = {
+          likedAt: row.likedAt,
+          onToggle: function(){
+            togglePlanLike(plan.id, id);
+            renderContent();
+          }
+        };
+      }
+      var card = buildSavedCard(idea, { picks: picks, like: like });
       var swipeRow = buildSwipeToDeleteRow(card, function(){ removeSavedIdea(id, bucket); });
       if(picks.length) swipeRow.className = swipeRow.className + " friend-picked";
       wrap.appendChild(swipeRow);
     });
     return wrap;
+  }
+
+  function togglePlanLike(planId, ideaId, now){
+    var plan = getPlanById(planId);
+    if(!SparkUtil.toggleListLike(plan, ideaId, now == null ? Date.now() : now)) return false;
+    saveState();
+    return true;
   }
 
   function buildSavedDoneList(){
@@ -3759,10 +3784,31 @@
     return { kind:"time", label:label };
   }
 
+  function appendSavedLikeButton(card, like){
+    var on = SparkUtil.normalizeLikedAt(like && like.likedAt) != null;
+    var btn = el("button", "saved-like-btn" + (on ? " is-on" : ""));
+    btn.type = "button";
+    btn.setAttribute("type", "button");
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    btn.setAttribute("aria-label", on ? "Remove top pick" : "Like this and move it to the top");
+    btn.innerHTML = icon("star");
+    // A tap, not a swipe. Stopping the pointer here keeps it off the
+    // row's existing swipe-to-delete handler.
+    btn.addEventListener("pointerdown", function(ev){ ev.stopPropagation(); });
+    btn.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      ev.preventDefault();
+      if(like && typeof like.onToggle === "function") like.onToggle();
+    });
+    card.appendChild(btn);
+  }
+
   function buildSavedCard(idea, opts){
     opts = opts || {};
     var past = ideaIsPast(idea);
-    var card = el("div", "saved-card" + (idea && idea.unavailable ? " unavailable-item" : "") + (past ? " is-past" : ""));
+    var like = opts.like || null;
+    var likedView = like ? SparkUtil.likedItemPresentation({ id: idea && idea.id, likedAt: like.likedAt }, { past: past }) : null;
+    var card = el("div", "saved-card" + (idea && idea.unavailable ? " unavailable-item" : "") + (past ? " is-past" : "") + (likedView && likedView.liked ? " is-liked" : ""));
     var photo = ideaPhoto(idea);
     var thumb = el("div", "saved-thumb" + (photo ? " has-photo" : " is-placeholder"));
     if(photo) thumb.innerHTML = '<img alt="" src="' + escapeHtml(photo.url) + '">';
@@ -3779,6 +3825,9 @@
       var timeBadge = savedTimeBadge(idea);
       if(timeBadge) body.appendChild(el("span", "saved-badge saved-badge-" + timeBadge.kind, escapeHtml(timeBadge.label)));
     }
+    if(likedView && likedView.badge){
+      body.appendChild(el("span", "saved-badge saved-badge-liked", escapeHtml(likedView.badge)));
+    }
     var picks = opts.picks || [];
     if(picks.length){
       body.appendChild(el("div", "friend-pick-badge",
@@ -3789,7 +3838,8 @@
     mark.setAttribute("aria-hidden", "true");
     card.appendChild(thumb);
     card.appendChild(body);
-    card.appendChild(mark);
+    if(like) appendSavedLikeButton(card, like);
+    else card.appendChild(mark);
     card.addEventListener("click", function(){
       if(opts.onOpen) opts.onOpen();
       else goToDetail(idea.id);

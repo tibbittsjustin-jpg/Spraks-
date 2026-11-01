@@ -12,7 +12,9 @@ color-scheme:light;
 /* Brand. Deep jade fills buttons and selected chips. Bright jade is the
    light accent. --color-on-accent is the ink on those fills.
    Coral is reserved as a non-text fill and is not used for type.
-   Yellow is the Happening tonight chip and the Evening / Night / Tonight pills. */
+   Yellow is the Happening tonight chip and the Evening / Night / Tonight pills.
+   Orange is the liked-activity accent: the card's top edge and the star.
+   The "Top pick" label uses --color-orange-ink on --color-orange-soft. */
 --color-accent:#0B6E4F;
 --color-accent-strong:#0F4D3A;
 --color-on-accent:#fff;
@@ -22,6 +24,9 @@ color-scheme:light;
 --color-yellow:#FFD23F;
 --color-on-yellow:#0F4D3A;
 --color-coral:#FF5A5F;
+--color-orange:#E07A2F;
+--color-orange-ink:#8A3E08;
+--color-orange-soft:#FFF1E0;
 /* Ink on photographs. These stay put in both themes. */
 --color-on-photo:#fff;
 --color-ink:#0F4D3A;
@@ -138,6 +143,9 @@ color-scheme:dark;
 --color-yellow:#F2C94C;
 --color-on-yellow:#0F4D3A;
 --color-coral:#FF5A5F;
+--color-orange:#F0A05A;
+--color-orange-ink:#F6D3B0;
+--color-orange-soft:#3A2A1E;
 --color-on-photo:#fff;
 --color-ink:#0F4D3A;
 --color-open-dot:#0F4D3A;
@@ -174,6 +182,9 @@ color-scheme:dark;
 --color-yellow:#F2C94C;
 --color-on-yellow:#0F4D3A;
 --color-coral:#FF5A5F;
+--color-orange:#F0A05A;
+--color-orange-ink:#F6D3B0;
+--color-orange-soft:#3A2A1E;
 --color-on-photo:#fff;
 --color-ink:#0F4D3A;
 --color-open-dot:#0F4D3A;
@@ -1013,9 +1024,37 @@ border-radius:var(--r-pill); font-size:12px; font-weight:800; line-height:1.3;
 .saved-card.is-past .saved-thumb img,
 .saved-card.is-past .done-user-thumb img{ opacity:.75; }
 .saved-card.is-past .saved-bookmark{ color:var(--text-soft); }
+.saved-card.is-liked{
+border-top:3px solid var(--color-orange);
+background:linear-gradient(180deg, var(--color-orange-soft), var(--color-surface) 28px);
+}
+.saved-card.is-past.is-liked{
+border-top-color:color-mix(in srgb, var(--color-orange) 45%, var(--border));
+background:var(--surface-soft);
+}
 .saved-badge-past{
 background:transparent; color:var(--text-soft); border:1px solid var(--border);
 }
+.saved-badge-liked{
+background:var(--color-orange-soft); color:var(--color-orange-ink);
+border:1px solid color-mix(in srgb, var(--color-orange) 35%, transparent);
+}
+.saved-card.is-past .saved-badge-liked{
+background:transparent; color:var(--text-soft); border:1px solid var(--border);
+}
+.saved-like-btn{
+width:44px; height:44px; flex-shrink:0; margin-right:-4px;
+border:none; border-radius:12px; background:transparent; color:var(--text-soft);
+cursor:pointer; display:flex; align-items:center; justify-content:center;
+padding:0; touch-action:manipulation;
+}
+.saved-like-btn svg{ width:22px; height:22px; }
+.saved-like-btn.is-on{ color:var(--color-orange); }
+.saved-like-btn.is-on svg{ fill:currentColor; }
+.saved-card.is-past .saved-like-btn.is-on{
+color:color-mix(in srgb, var(--color-orange) 50%, var(--text-soft));
+}
+.saved-like-btn:focus-visible{ outline:2px solid var(--color-orange); outline-offset:2px; }
 .saved-screen .swipeable-row{ border-radius:var(--r-lg); margin-bottom:12px; box-shadow:var(--shadow); }
 .saved-screen .swipeable-row .saved-card{ margin-bottom:0; box-shadow:none; }
 .saved-screen .swipeable-row.friend-picked{ box-shadow:var(--shadow), 0 0 0 2px var(--accent); }

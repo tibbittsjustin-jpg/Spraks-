@@ -91,6 +91,7 @@ function loadApp(storage) {
     buildDoneRecapForm: buildDoneRecapForm, commitDoneRecap: commitDoneRecap,
     openDoneRecap: openDoneRecap,
     listSavedFolders: listSavedFolders, pinPlan: pinPlan, unpinPlan: unpinPlan,
+    togglePlanLike: togglePlanLike,
     deletePlan: deletePlan, ideaIsPast: ideaIsPast, planDeleteMessage: planDeleteMessage,
     ideaForSaved: ideaForSaved,
     get ui(){ return ui; },

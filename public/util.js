@@ -315,6 +315,215 @@
     return (Array.isArray(list) ? list.slice() : []).sort(compareDoneEntries);
   }
 
+  // A planning-list row is a bare id (older saves) or { id, likedAt }.
+  // likedAt is a positive timestamp. Missing, zero, or junk means not liked.
+  // Group lists can store the same shape and call these helpers directly.
+  function normalizeLikedAt(value){
+    if(typeof value === "string" && value.trim() !== "") value = Number(value);
+    if(typeof value !== "number" || !isFinite(value) || value <= 0) return null;
+    return value;
+  }
+
+  function listItemId(item){
+    if(item && typeof item === "object"){
+      if(Object.prototype.hasOwnProperty.call(item, "id")) return item.id;
+      return null;
+    }
+    return item;
+  }
+
+  function itemLikedAt(item){
+    if(!item || typeof item !== "object") return null;
+    return normalizeLikedAt(item.likedAt);
+  }
+
+  function isItemLiked(item){
+    return itemLikedAt(item) != null;
+  }
+
+  function listItemsFrom(ids, likes){
+    var source = Array.isArray(ids) ? ids : [];
+    var map = (likes && typeof likes === "object" && !Array.isArray(likes)) ? likes : {};
+    var out = [];
+    for(var i = 0; i < source.length; i++){
+      var raw = source[i];
+      var id = listItemId(raw);
+      if(id == null || id === "") continue;
+      var at = itemLikedAt(raw);
+      if(at == null){
+        var key = String(id);
+        if(Object.prototype.hasOwnProperty.call(map, key)) at = normalizeLikedAt(map[key]);
+        else if(Object.prototype.hasOwnProperty.call(map, id)) at = normalizeLikedAt(map[id]);
+      }
+      out.push({ id: id, likedAt: at });
+    }
+    return out;
+  }
+
+  function likesMapEqual(a, b){
+    var ak = Object.keys(a);
+    var bk = Object.keys(b);
+    if(ak.length !== bk.length) return false;
+    for(var i = 0; i < ak.length; i++){
+      if(!Object.prototype.hasOwnProperty.call(b, ak[i])) return false;
+      if(a[ak[i]] !== b[ak[i]]) return false;
+    }
+    return true;
+  }
+
+  // Older plans have no likes field: every activity stays not liked.
+  // Item objects are flattened back to ids so the rest of the app can
+  // keep using indexOf. Invalid timestamps and likes for missing ids drop.
+  // Returns true when the stored plan should be written back.
+  function migrateListLikes(plan){
+    if(!plan || typeof plan !== "object" || Array.isArray(plan)) return false;
+    var changed = false;
+    var ids = Array.isArray(plan.ideaIds) ? plan.ideaIds : null;
+    var embedded = Object.create(null);
+    if(ids){
+      var flat = [];
+      var flattened = false;
+      for(var i = 0; i < ids.length; i++){
+        var item = ids[i];
+        if(item && typeof item === "object"){
+          flattened = true;
+          if(item.id == null || item.id === "") continue;
+          flat.push(item.id);
+          var embeddedAt = normalizeLikedAt(item.likedAt);
+          if(embeddedAt != null) embedded[String(item.id)] = embeddedAt;
+        } else if(item != null && item !== ""){
+          flat.push(item);
+        } else {
+          flattened = true;
+        }
+      }
+      if(flattened){
+        plan.ideaIds = flat;
+        changed = true;
+      }
+    }
+    var currentIds = Array.isArray(plan.ideaIds) ? plan.ideaIds : [];
+    var allowed = Object.create(null);
+    for(var j = 0; j < currentIds.length; j++){
+      var current = currentIds[j];
+      if(current == null || current === "") continue;
+      allowed[String(current)] = true;
+    }
+    var had = Object.prototype.hasOwnProperty.call(plan, "likes");
+    var raw = plan.likes;
+    var rawOk = !!raw && typeof raw === "object" && !Array.isArray(raw);
+    var next = {};
+    Object.keys(embedded).forEach(function(k){
+      if(allowed[k]) next[k] = embedded[k];
+    });
+    if(rawOk){
+      Object.keys(raw).forEach(function(k){
+        var at = normalizeLikedAt(raw[k]);
+        if(at == null) return;
+        var key = String(k);
+        if(!allowed[key]) return;
+        next[key] = at;
+      });
+    }
+    if(Object.keys(next).length === 0){
+      if(had){
+        delete plan.likes;
+        return true;
+      }
+      return changed;
+    }
+    if(had && rawOk && likesMapEqual(raw, next)) return changed;
+    plan.likes = next;
+    return true;
+  }
+
+  function compareLikedItems(a, b){
+    var at = itemLikedAt(a);
+    var bt = itemLikedAt(b);
+    var aLiked = at != null;
+    var bLiked = bt != null;
+    if(aLiked !== bLiked) return aLiked ? -1 : 1;
+    if(aLiked && at !== bt) return bt - at;
+    var ao = a && typeof a.order === "number" ? a.order : 0;
+    var bo = b && typeof b.order === "number" ? b.order : 0;
+    if(ao !== bo) return ao - bo;
+    return 0;
+  }
+
+  function sortLikedItems(items){
+    return (Array.isArray(items) ? items.slice() : []).map(function(item, i){
+      return { item: item, i: i };
+    }).sort(function(a, b){
+      return compareLikedItems(a.item, b.item) || (a.i - b.i);
+    }).map(function(row){ return row.item; });
+  }
+
+  // Newest-saved first, then a friend's pick floats above other unliked
+  // rows. Liked rows move above all of that, most recently liked first.
+  // `order` on the result is the pre-like position so ties stay stable.
+  function orderSavedActivities(ids, likes, friendPicks){
+    var likedById = Object.create(null);
+    listItemsFrom(ids, likes).forEach(function(item){
+      likedById[String(item.id)] = item.likedAt;
+    });
+    var ordered = Array.isArray(ids) ? ids.slice().reverse() : [];
+    var picked = [];
+    var rest = [];
+    ordered.forEach(function(raw){
+      var id = listItemId(raw);
+      if(id == null || id === "") return;
+      var hasPick = (friendPicks || []).some(function(p){ return p && p.ideaId === id; });
+      (hasPick ? picked : rest).push(id);
+    });
+    var rows = picked.concat(rest).map(function(id, i){
+      var key = String(id);
+      var at = Object.prototype.hasOwnProperty.call(likedById, key) ? likedById[key] : null;
+      return { id: id, likedAt: at, order: i };
+    });
+    return sortLikedItems(rows);
+  }
+
+  function toggleListLike(plan, ideaId, now){
+    if(!plan || !Array.isArray(plan.ideaIds) || plan.ideaIds.indexOf(ideaId) === -1) return false;
+    var key = String(ideaId);
+    var likes = (plan.likes && typeof plan.likes === "object" && !Array.isArray(plan.likes)) ? plan.likes : {};
+    if(normalizeLikedAt(likes[key])) delete likes[key];
+    else {
+      var at = normalizeLikedAt(now);
+      likes[key] = at == null ? Date.now() : at;
+    }
+    if(Object.keys(likes).length) plan.likes = likes;
+    else delete plan.likes;
+    return true;
+  }
+
+  function forgetListLike(plan, ideaId){
+    if(!plan || !plan.likes || typeof plan.likes !== "object" || Array.isArray(plan.likes)) return false;
+    var key = String(ideaId);
+    if(!Object.prototype.hasOwnProperty.call(plan.likes, key)) return false;
+    delete plan.likes[key];
+    if(!Object.keys(plan.likes).length) delete plan.likes;
+    return true;
+  }
+
+  // Shared label and class names for a liked row. Past rows stay past;
+  // `muted` tells the caller to soften the accent instead of dropping it.
+  function likedItemPresentation(item, opts){
+    opts = opts || {};
+    var liked = isItemLiked(item);
+    var past = opts.past === true;
+    var classes = [];
+    if(liked) classes.push("is-liked");
+    if(past) classes.push("is-past");
+    return {
+      liked: liked,
+      past: past,
+      muted: liked && past,
+      badge: liked ? "Top pick" : "",
+      className: classes.join(" ")
+    };
+  }
+
   // Stars are required. Without one, the row is left untouched so a recap
   // or photo key cannot be saved on its own. Image bytes are never copied
   // onto the entry; only an optional photoKey is.
@@ -391,6 +600,18 @@
     migrateDoneEntry: migrateDoneEntry,
     compareDoneEntries: compareDoneEntries,
     sortedDoneEntries: sortedDoneEntries,
+    normalizeLikedAt: normalizeLikedAt,
+    listItemId: listItemId,
+    itemLikedAt: itemLikedAt,
+    isItemLiked: isItemLiked,
+    listItemsFrom: listItemsFrom,
+    migrateListLikes: migrateListLikes,
+    compareLikedItems: compareLikedItems,
+    sortLikedItems: sortLikedItems,
+    orderSavedActivities: orderSavedActivities,
+    toggleListLike: toggleListLike,
+    forgetListLike: forgetListLike,
+    likedItemPresentation: likedItemPresentation,
     applyDoneRecap: applyDoneRecap,
     moveStarRating: moveStarRating,
     fitLongEdge: fitLongEdge

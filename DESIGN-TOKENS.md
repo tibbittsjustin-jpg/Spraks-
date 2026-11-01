@@ -34,6 +34,9 @@ Day follows K1 v4: cream page, white surfaces, deep jade actions, forest type. N
 | `--color-yellow` | `#FFD23F` | `#F2C94C` | tonight chip / time badges only |
 | `--color-on-yellow` | `#0F4D3A` | `#0F4D3A` | ink on yellow |
 | `--color-coral` | `#FF5A5F` | `#FF5A5F` | non-text fill only; not used for type |
+| `--color-orange` | `#E07A2F` | `#F0A05A` | liked-activity edge and star; not body type |
+| `--color-orange-ink` | `#8A3E08` | `#F6D3B0` | "Top pick" label on the soft fill |
+| `--color-orange-soft` | `#FFF1E0` | `#3A2A1E` | liked-activity wash behind the top edge |
 | `--shadow-card` | `0 8px 24px rgba(15,77,58,.07)` | `0 10px 28px rgba(0,0,0,.35)` | `--shadow` |
 | `--shadow-soft` | `0 6px 16px rgba(15,77,58,.08)` | `0 6px 18px rgba(0,0,0,.32)` | buttons, rows |
 | `--shadow-nav` | `0 -10px 28px rgba(11,70,50,.18)` | `0 -10px 28px rgba(0,0,0,.4)` | bottom bar |
@@ -44,6 +47,8 @@ Day follows K1 v4: cream page, white surfaces, deep jade actions, forest type. N
 `--color-on-photo` and `--color-ink` sit on photographs and do not flip. The photo card title, tiles, and credit use `--color-on-photo`. The category pill uses `--color-ink` (`#0F4D3A`) on white.
 
 `--color-coral` is `#FF5A5F`. It is not applied to text. The Discover distance thumb uses it, with a white ring.
+
+`--color-orange` is the accent for an activity someone liked inside a planning list: a short top edge on the card and the star button. It is not body type. The "Top pick" label uses `--color-orange-ink` on `--color-orange-soft`. A past liked card keeps the gray past treatment and only a muted edge.
 
 `--color-yellow` is the Discover "Happening tonight" chip and the Evening / Night / Tonight pills. Dark text uses `--color-on-yellow` in both themes. Stat tiles are not yellow.
 

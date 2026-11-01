@@ -41,7 +41,7 @@ Node 18 or newer. Every key in `.env` is optional. Without them the matching fea
 | `public/style.css` | Layout and theme for that shell, including the design-token block. |
 | `public/util.js` | Pure helpers (`escapeHtml`, dates, hash/RNG) loaded before `app.js`. |
 | `public/submit.js` | Pure helpers for the idea form: request body, status copy, and the on-device banner. |
-| `public/data.js` | `IDEAS_DATA` (one very large line, about 1.1 MB), `DEMO_FRIENDS`, and `DATING_TIPS`. |
+| `public/data.js` | `IDEAS_DATA` (one very large line, about 1.1 MB) and `DATING_TIPS`. |
 | `data/coords/utah.json` | Per-idea Utah coordinates, keyed by idea id. Not read by the app. |
 | `data/geo/` | Nominatim cache, place queries, and overrides for `scripts/geocode-utah.js`. |
 | `scripts/geocode-utah.js` | Rerunnable Utah geocoder. Usage is in the file header. |

@@ -125,7 +125,8 @@ section("Pills are the real folders, Favorites, and Done", () => {
 
   t.ui.savedBucket = { type: "plan", planId: "plan_sat" };
   html = textOf(t.buildSavedScreen());
-  check("plan view keeps Share plan", html.indexOf("Share plan") !== -1 && html.indexOf("Share with Friends") !== -1);
+  check("plan view keeps Share plan", html.indexOf("Share plan") !== -1);
+  check("share with friends stays hidden until there are real friends", html.indexOf("Share with Friends") === -1);
   check("plan view keeps delete", html.indexOf("Delete plan") !== -1);
   check("plan date is still shown", html.indexOf("2026") !== -1);
   check("friend pick still renders", html.indexOf("picked this!") !== -1 && html.indexOf("Emma R.") !== -1);

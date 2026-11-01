@@ -29,7 +29,7 @@ const ideas = loadIdeas(path.join(ROOT, "public", "data.js"));
 // Snapshot of every field except title, description, and materials, taken
 // before the rewrite. Applying a new rewrites file does not change it.
 const FIELDS_HASH = "190f414afc0c764708e0bb1b556a54afd0a312e0e8dfd9743b9fe5cbca30d754";
-const TAIL_HASH = "d160d49c3bc336c84ed36d1108fafd5c31bb7901444d511b083c5d79e2635cad";
+const TAIL_HASH = "a0640c4922256cb7a9a086ce8c8a3afad5755221571f91faa890490c2dfe64bd";
 
 function fieldsExceptCopy(idea) {
   const out = {};

@@ -570,7 +570,7 @@ async function main() {
 
     const migrations = fs.readdirSync(path.join(__dirname, "..", "db", "migrations")).filter(name => name.endsWith(".sql")).sort();
     check("known migration files",
-      migrations.join(",") === "001_init.sql,002_over100_age21.sql,003_source_url_city.sql,004_materials.sql,006_security_hardening.sql,007_expires_at.sql,008_occurrences.sql,009_weekly_open_end.sql,010_lists_friends.sql",
+      migrations.join(",") === "001_init.sql,002_over100_age21.sql,003_source_url_city.sql,004_materials.sql,006_security_hardening.sql,007_expires_at.sql,008_occurrences.sql,009_weekly_open_end.sql,010_lists_friends.sql,012_usernames.sql",
       migrations.join(","));
     const routeSrc = fs.readFileSync(path.join(__dirname, "..", "routes", "submissions.js"), "utf8");
     check("insert writes payload and email only", routeSrc.indexOf("insert into submissions (payload, submitter_email) values ($1, $2)") !== -1);

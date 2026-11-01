@@ -20,6 +20,7 @@ const db = require("./db");
 const { checkAge, ageOkCookie, MINIMUM_AGE } = require("./public/util");
 const { createActivitiesRouter } = require("./routes/activities");
 const { createSubmissionsRouter, createIpLimiter, LIMITS } = require("./routes/submissions");
+const { createUsernameRouter } = require("./routes/username");
 
 const app = express();
 const publicDir = path.join(__dirname, "public");
@@ -279,6 +280,7 @@ return res.status(400).json({ ok: false, error: "invalid_date" });
 
 app.use("/api/activities", createActivitiesRouter());
 app.use("/api/submissions", createSubmissionsRouter());
+app.use("/api", createUsernameRouter());
 
 // Extensionless GETs are the single-page app. Anything else that static did
 // not serve — source files, dotfiles, unknown assets — is a real 404.

@@ -5174,15 +5174,177 @@
     return { ok:true };
   }
 
+  // Accounts UI is not in this build. A later sign-in leaves the Supabase
+  // access token here (raw string, or a session JSON with access_token).
+  // A sb-*-auth-token session blob is accepted too. Nothing else is read.
+  function tokenFromStored(raw){
+    if(typeof raw !== "string") return "";
+    var text = raw.trim();
+    if(!text) return "";
+    if(text.charAt(0) === "{"){
+      try {
+        var parsed = JSON.parse(text);
+        if(parsed && typeof parsed.access_token === "string" && parsed.access_token.trim()) return parsed.access_token.trim();
+      } catch(err) {}
+      return "";
+    }
+    return text;
+  }
+  function readAccessToken(){
+    var direct = "";
+    try { direct = tokenFromStored(localStorage.getItem("spark_access_token")); }
+    catch(err) { direct = ""; }
+    if(direct) return direct;
+    try {
+      if(!localStorage.length || typeof localStorage.key !== "function") return "";
+      for(var i = 0; i < localStorage.length; i++){
+        var key = localStorage.key(i);
+        if(!key || key.indexOf("sb-") !== 0 || key.indexOf("-auth-token") === -1) continue;
+        var found = tokenFromStored(localStorage.getItem(key));
+        if(found) return found;
+      }
+    } catch(err) {}
+    return "";
+  }
+  function serverUsernameActive(){
+    return !!(state.identity && state.identity.userId && readAccessToken());
+  }
+  function usernameFetch(url, options){
+    options = options || {};
+    var headers = {};
+    var token = readAccessToken();
+    if(token) headers.Authorization = "Bearer " + token;
+    if(options.body) headers["Content-Type"] = "application/json";
+    return fetch(url, {
+      method: options.method || "GET",
+      headers: headers,
+      body: options.body || undefined
+    }).then(function(res){
+      return res.json().then(function(body){
+        return { status: res.status, body: body || {} };
+      }, function(){
+        return { status: res.status, body: {} };
+      });
+    });
+  }
+  function usernameFailureMessage(body, status){
+    body = body || {};
+    if(body.message) return body.message;
+    if(body.error === "cooldown" && body.nextChangeAt) return "You can change your username again on " + SparkUtil.denverDay(body.nextChangeAt) + ".";
+    if(body.error === "taken" || body.status === "taken") return "That username is taken.";
+    if((body.error === "held" || body.status === "held") && body.heldUntil) return "That username is held until " + SparkUtil.denverDay(body.heldUntil) + ".";
+    if(body.error === "held" || body.status === "held") return "That username is held.";
+    if(body.error === "reserved" || body.status === "reserved") return "That username is reserved.";
+    if(body.error === "profanity") return "Choose a different username.";
+    if(status === 401) return "Sign in again to save a username.";
+    return "Couldn't save that username.";
+  }
+  function checkUsername(username){
+    return usernameFetch("/api/username/check?u=" + encodeURIComponent(username)).then(function(res){
+      var body = res.body || {};
+      if(body.status) return body;
+      return { status: "invalid", message: usernameFailureMessage(body, res.status) };
+    });
+  }
+  function claimUsername(username){
+    return usernameFetch("/api/username", {
+      method: "POST",
+      body: JSON.stringify({ username: username })
+    }).then(function(res){
+      var body = res.body || {};
+      if(body.ok && body.username){
+        state.identity.username = body.username;
+        saveState();
+        return { ok:true, username: body.username };
+      }
+      return {
+        ok:false,
+        error: usernameFailureMessage(body, res.status),
+        code: body.error || body.status || "request_failed",
+        nextChangeAt: body.nextChangeAt || null
+      };
+    });
+  }
+  function loadAccountUsername(){
+    if(!serverUsernameActive()) return Promise.resolve(null);
+    return usernameFetch("/api/me/username").then(function(res){
+      var body = res.body || {};
+      if(!body.ok) return null;
+      if(typeof body.username === "string" && body.username){
+        var checked = validateUsername(body.username);
+        if(checked.ok){
+          state.identity.username = checked.username;
+          saveState();
+        }
+      }
+      return body;
+    });
+  }
+  var usernameCheckTimer = null;
+  function scheduleUsernameCheck(value, show){
+    if(!serverUsernameActive()) return;
+    if(usernameCheckTimer) clearTimeout(usernameCheckTimer);
+    usernameCheckTimer = setTimeout(function(){
+      usernameCheckTimer = null;
+      var checked = validateUsername(value);
+      if(!checked.ok){
+        if(String(value || "").trim()) show(checked.message);
+        return;
+      }
+      if(SparkUtil.reservedUsername(checked.username)){
+        show("That username is reserved.");
+        return;
+      }
+      checkUsername(checked.username).then(function(look){
+        if(!look || look.status === "available") return;
+        show(look.message || usernameFailureMessage(look));
+      }).catch(function(){});
+    }, 300);
+  }
+  function submitProfileEdits(fields){
+    fields = fields || {};
+    if(!state.identity || typeof state.identity !== "object" || typeof state.identity.localId !== "string" || !state.identity.localId){
+      state.identity = normalizeStoredIdentity(state.identity);
+    }
+    if(!serverUsernameActive()) return Promise.resolve(applyProfileEdits(fields));
+    var rawUsername = fields.username == null ? "" : String(fields.username);
+    if(!rawUsername.trim()) return Promise.resolve(applyProfileEdits(fields));
+    var checked = validateUsername(rawUsername);
+    if(!checked.ok) return Promise.resolve({ ok:false, error: checked.message, code: checked.error });
+    if(checked.username === state.identity.username) return Promise.resolve(applyProfileEdits(fields));
+    return checkUsername(checked.username).then(function(look){
+      if(look && look.status && look.status !== "available"){
+        return { ok:false, error: look.message || usernameFailureMessage(look), code: look.error || look.status };
+      }
+      return claimUsername(checked.username).then(function(result){
+        if(!result.ok) return result;
+        var saved = applyProfileEdits({
+          name: fields.name,
+          gender: fields.gender,
+          photo: fields.photo,
+          username: result.username
+        });
+        if(!saved.ok) return saved;
+        return { ok:true, username: result.username };
+      });
+    }).catch(function(){
+      return { ok:false, error:"Couldn't save that username.", code:"request_failed" };
+    });
+  }
+
   function buildEditProfileSubpanel(){
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Edit Profile"));
     var form = el("form", "idea-form");
     var usernameNow = (state.identity && state.identity.username) || "";
+    var onAccount = serverUsernameActive();
+    var usernameNote = onAccount
+      ? "Saved to your account. You can change it once every 30 days."
+      : "Saved on this device only for now. It is not reserved or unique yet.";
     form.innerHTML =
       '<label>Name</label><input type="text" id="ep-name" value="' + escapeHtml(state.profile.name) + '" required>' +
       '<label>Username</label><input type="text" id="ep-username" value="' + escapeHtml(usernameNow) + '" placeholder="letters, numbers, underscores" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" aria-describedby="ep-username-note ep-username-error">' +
-      '<p class="field-hint" id="ep-username-note">Saved on this device only for now. It is not reserved or unique yet.</p>' +
+      '<p class="field-hint" id="ep-username-note">' + escapeHtml(usernameNote) + '</p>' +
       '<p class="field-error" id="ep-username-error" hidden></p>' +
       '<label>Gender</label><select id="ep-gender">' +
         ["Woman","Man","Nonbinary","Prefer not to say"].map(function(g){
@@ -5216,26 +5378,45 @@
       reader.onload = function(ev){ newPhoto = ev.target.result; };
       reader.readAsDataURL(file);
     });
-    $("#ep-username", form).addEventListener("input", function(){ showUsernameError(""); });
+    $("#ep-username", form).addEventListener("input", function(e){
+      showUsernameError("");
+      if(!serverUsernameActive()) return;
+      scheduleUsernameCheck(e && e.target ? e.target.value : "", showUsernameError);
+    });
 
     form.addEventListener("submit", function(e){
       e.preventDefault();
-      var outcome = applyProfileEdits({
+      var pending = submitProfileEdits({
         name: $("#ep-name", form).value,
         gender: $("#ep-gender", form).value,
         username: $("#ep-username", form).value,
         photo: newPhoto
       });
-      if(!outcome.ok){
-        showUsernameError(outcome.error);
-        var usernameInput = $("#ep-username", form);
-        if(usernameInput && usernameInput.focus) usernameInput.focus();
-        return;
-      }
-      showUsernameError("");
-      renderProfileHeader();
-      showToast("Profile updated!");
+      Promise.resolve(pending).then(function(outcome){
+        if(!outcome.ok){
+          showUsernameError(outcome.error);
+          var usernameInput = $("#ep-username", form);
+          if(usernameInput && usernameInput.focus) usernameInput.focus();
+          return;
+        }
+        showUsernameError("");
+        renderProfileHeader();
+        showToast("Profile updated!");
+      });
     });
+
+    if(onAccount){
+      loadAccountUsername().then(function(body){
+        if(!body) return;
+        var input = $("#ep-username", form);
+        if(input && body.username) input.value = body.username;
+        var noteEl = $("#ep-username-note", form);
+        if(noteEl && body.nextChangeAt){
+          noteEl.textContent = "You can change your username again on " + SparkUtil.denverDay(body.nextChangeAt) + ".";
+        }
+        renderProfileHeader();
+      }).catch(function(){});
+    }
 
     return wrap;
   }

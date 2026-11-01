@@ -107,6 +107,56 @@
     return { ok:true, username:username };
   }
 
+  // Lookalikes: drop underscores, then map 0/1/3/4/5/7 onto letters.
+  // 1 is tried as both i and l. Profanity strips digits instead of mapping
+  // them, so this stays next to the reserved-name check. validateUsername
+  // does not call it, so a signed-out local name is unchanged.
+  var LOOKALIKE_I = { "0":"o", "1":"i", "3":"e", "4":"a", "5":"s", "7":"t" };
+  var LOOKALIKE_L = { "0":"o", "1":"l", "3":"e", "4":"a", "5":"s", "7":"t" };
+  var RESERVED_CONTAINS = ["spark", "jaderoo", "admin", "support", "official", "moderator"];
+  var RESERVED_EXACT = ["mod", "help"];
+
+  function mapLookalikeDigits(text, digitMap){
+    var out = "";
+    for(var i = 0; i < text.length; i++){
+      var c = text.charAt(i);
+      out += digitMap[c] || c;
+    }
+    return out;
+  }
+
+  function reservedUsername(value){
+    var checked = validateUsername(value);
+    var username = checked.ok ? checked.username : String(value == null ? "" : value).trim().toLowerCase();
+    if(!username) return false;
+    var base = username.replace(/_/g, "");
+    var forms = [mapLookalikeDigits(base, LOOKALIKE_I), mapLookalikeDigits(base, LOOKALIKE_L)];
+    for(var f = 0; f < forms.length; f++){
+      for(var i = 0; i < RESERVED_CONTAINS.length; i++){
+        if(forms[f].indexOf(RESERVED_CONTAINS[i]) !== -1) return true;
+      }
+    }
+    // mod and help are exact, after leading and trailing digits are
+    // removed and before the remaining digits are mapped. "mod1" is
+    // reserved. "model" and "modern_mike" are not.
+    var trimmed = base.replace(/^[0-9]+/, "").replace(/[0-9]+$/, "");
+    var exactForms = [mapLookalikeDigits(trimmed, LOOKALIKE_I), mapLookalikeDigits(trimmed, LOOKALIKE_L)];
+    for(var e = 0; e < exactForms.length; e++){
+      if(RESERVED_EXACT.indexOf(exactForms[e]) !== -1) return true;
+    }
+    return false;
+  }
+
+  // Calendar day in America/Denver, YYYY-MM-DD. Used for hold and
+  // username-change dates so the evening before midnight UTC stays
+  // on the Utah day.
+  function denverDay(value){
+    var dt = (value instanceof Date) ? value : (value == null ? new Date() : new Date(value));
+    if(isNaN(dt.getTime())) return "";
+    var parts = denverParts(dt);
+    return parts.y + "-" + pad2(parts.mo) + "-" + pad2(parts.d);
+  }
+
   function checkAge(dob, now){
     var parsed = parseDobParts(dob);
     if(!parsed) return { ok: false, error: "invalid_date" };
@@ -617,6 +667,8 @@
     localDateISO: localDateISO,
     hashStr: hashStr,
     validateUsername: validateUsername,
+    reservedUsername: reservedUsername,
+    denverDay: denverDay,
     MINIMUM_AGE: MINIMUM_AGE,
     AGE_TIME_ZONE: AGE_TIME_ZONE,
     latestDob: latestDob,

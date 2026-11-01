@@ -1,0 +1,2258 @@
+[
+ {
+  "title": "Woodburn a Custom Design at Scorched Studio",
+  "description": "Pick a wood blank at Scorched Studio on University Parkway and woodburn your own design side by side. Studio entry is $15, plus a project such as a $14 cutting board. Closed Sundays.",
+  "category": "Building & DIY Projects",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "218 E University Pkwy, Orem, UT 84058",
+  "lat": 40.272116,
+  "lng": -111.689655,
+  "source_url": "https://www.scorchedstudio.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Book the Maker Workshop at Tandy Leather Orem",
+  "description": "Reserve bench time at Tandy Leather's Maker Workshop in Orem, which rents tools and machines by the hour, and make a leather wallet or keychain together. The store also runs hands-on leathercraft classes. Open Mon–Fri 9am–6pm and Sat 9am–4pm.",
+  "category": "Building & DIY Projects",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Creative",
+   "Chill"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "541 N 1200 W, Orem, UT 84057",
+  "lat": 40.3071,
+  "lng": -111.725,
+  "source_url": "https://tandyleather.com/pages/stores/s0171",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Make Something at the Orem Library Makerspace",
+  "description": "Make something at the free makerspace in the Orem Public Library, which has 3D printers, Cricut cutters and more. Open Mon–Fri 9am–9pm and Sat 9am–6pm; closed Sundays.",
+  "category": "Building & DIY Projects",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "58 N State St, Orem, UT 84057",
+  "lat": 40.298338,
+  "lng": -111.694671,
+  "source_url": "https://library.orem.gov/makerspace",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Drop-In Make & Take Candle at Sundance Art Studio",
+  "description": "Stop by the Sundance Art Studio, with no appointment needed, and make a candle or beaded bracelet to take home. Kits are $25 each, then you can walk the resort grounds.",
+  "category": "Building & DIY Projects",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Creative",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "8841 N Alpine Loop Rd, Sundance, UT 84604",
+  "lat": 40.39264,
+  "lng": -111.57917,
+  "source_url": "https://www.sundanceresort.com/activities/art-studio/make-take-projects/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Evening Class at Harmons Cooking School",
+  "description": "Take an evening class together at the Harmons Cooking School inside the Traverse Mountain store, with themes such as taco night, holiday sides or sushi. Classes usually run 6–8pm.",
+  "category": "Cooking, Food & Eating Challenges",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Cozy"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "1750 W Traverse Pkwy, Lehi, UT 84043",
+  "lat": 40.433599,
+  "lng": -111.878232,
+  "source_url": "https://cookingschool.harmonsgrocery.com/items/category/traverse-mountain-lehi",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-03",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-10",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-11",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-12",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-13",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-18",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-19",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-23",
+    "start": "18:00",
+    "end": "20:00"
+   },
+   {
+    "date": "2026-11-24",
+    "start": "18:00",
+    "end": "20:00"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-11-24",
+  "status": "pending"
+ },
+ {
+  "title": "Split a 24-Inch Sub at Sensuous Sandwich",
+  "description": "Order a build-your-own 24-inch sandwich ($26.29) at Sensuous Sandwich, a downtown Provo sub shop since 1980, and split it. Or attempt the 24-incher challenge, where finishing one solo in 30 minutes earns a shirt and a spot on the wall.",
+  "category": "Cooking, Food & Eating Challenges",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "163 W Center St, Provo, UT 84601",
+  "lat": 40.233398,
+  "lng": -111.661573,
+  "source_url": "https://sensuoussandwich.com/Build-Your-Own-24-p125880228",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Christmas Ravioli Night Cooking Class",
+  "description": "Make fresh pasta dough and holiday-shaped ravioli at a one-night Provo Recreation cooking class on Wed, Dec 2, 5:30–7:30pm. Ages 14+; $25 residents and $35 non-residents. A separate Christmas Pizza Night class follows on Dec 9.",
+  "category": "Cooking, Food & Eating Challenges",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Creative",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "320 W 500 N, Provo, UT 84601",
+  "lat": 40.241679,
+  "lng": -111.66423,
+  "source_url": "https://www.provo.gov/483/Cooking-Classes",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-02",
+    "start": "17:30",
+    "end": "19:30"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-02",
+  "status": "pending"
+ },
+ {
+  "title": "Saturday Winter Farmers Market at Provo Towne Centre",
+  "description": "Browse the Provo Farmers Market's indoor winter market at Provo Towne Centre on Saturdays 10am–3pm (Nov 21–Dec 19, then Jan 9–Mar 27), and taste and shop from local vendors.",
+  "category": "Cooking, Food & Eating Challenges",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "1200 Towne Centre Blvd, Provo, UT 84601",
+  "lat": 40.216586,
+  "lng": -111.663266,
+  "source_url": "https://www.provofarmersmarket.com/",
+  "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-21",
+    "end_date": "2026-12-19",
+    "weekdays": [
+     "Sat"
+    ],
+    "start": "10:00",
+    "end": "15:00"
+   },
+   {
+    "start_date": "2027-01-09",
+    "end_date": "2027-03-27",
+    "weekdays": [
+     "Sat"
+    ],
+    "start": "10:00",
+    "end": "15:00"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2027-03-27",
+  "status": "pending"
+ },
+ {
+  "title": "Brazilian Churrasco Night at Rodizio Grill",
+  "description": "Do a Brazilian steakhouse night at Rodizio Grill in the Shops at Riverwoods, where gauchos carve skewered meats tableside until you flip your card to red.",
+  "category": "Themed Nights & Dinners",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Silly"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "4801 N University Ave #710, Provo, UT 84604",
+  "lat": 40.298655,
+  "lng": -111.657673,
+  "source_url": "https://www.rodiziogrill.com/provo-riverwoods/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Hibachi Dinner Show at My Tepanyaki",
+  "description": "Sit at the grill at My Tepanyaki in Orem and watch the chef cook your hibachi dinner in front of you.",
+  "category": "Themed Nights & Dinners",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "777 E University Pkwy, Orem, UT 84097",
+  "lat": 40.273047,
+  "lng": -111.676707,
+  "source_url": "https://mytepanyaki.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "D&D One-Shot at We Geek Together",
+  "description": "Book a Dungeons & Dragons session with a professional game master at We Geek Together on the second floor of Provo Towne Centre, or drop in for a board game or card night. Open until 10pm Mon–Thu and 11pm Fri–Sat.",
+  "category": "Themed Nights & Dinners",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Silly",
+   "Creative"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "1200 Towne Centre Blvd #2090, Provo, UT 84601",
+  "lat": 40.216586,
+  "lng": -111.663266,
+  "source_url": "https://www.wegeektogether.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Wander the Aquarium at Cabela's Lehi",
+  "description": "Walk Cabela's Lehi like a free museum: the aquarium, the gun library and the archery range. Then dare each other to try on the most ridiculous camo.",
+  "category": "Mall & Store Mischief",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "2502 W Cabela's Blvd, Lehi, UT 84043",
+  "lat": 40.437681,
+  "lng": -111.888871,
+  "source_url": "https://stores.cabelas.com/us/ut/lehi/2502-west-cabelas-boulevard.html",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Outlet Challenge at Outlets at Traverse Mountain",
+  "description": "Give each other $20 and 30 minutes at the Outlets at Traverse Mountain to find the best (or worst) outfit, then reveal your finds.",
+  "category": "Mall & Store Mischief",
+  "setting": "Both",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "3700 N Cabelas Blvd, Lehi, UT 84043",
+  "lat": 40.435205,
+  "lng": -111.88439,
+  "source_url": "https://www.outletsattraversemountain.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Blind-Pick Books at Pioneer Book",
+  "description": "Get lost in the stacks at Pioneer Book, a used bookstore on Center Street. Pick a book for each other in under 10 minutes, with many used books around $6. Open until 9pm Fri–Sat; closed Sundays.",
+  "category": "Mall & Store Mischief",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "450 W Center St, Provo, UT 84601",
+  "lat": 40.234064,
+  "lng": -111.666603,
+  "source_url": "https://www.pioneerbook.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Comic Shop Dare at The Dragon's Keep",
+  "description": "Browse The Dragon's Keep, which calls itself Utah County's oldest comic and game shop. Pick a comic or a board game you think the other person will love.",
+  "category": "Mall & Store Mischief",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "260 N University Ave, Provo, UT 84601",
+  "lat": 40.237202,
+  "lng": -111.658553,
+  "source_url": "https://www.dragonskeep.com/locations/provo",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Beyond VR Arena at The Grid",
+  "description": "Suit up together in The Grid's free-roam Beyond VR arena in Pleasant Grove (up to 4 players) to slay monsters and solve puzzles. Then race its 3-story indoor electric go-kart track if you're brave.",
+  "category": "Silly, Prank & Goofy Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Silly",
+   "Adventurous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "593 S Evermore Ln, Pleasant Grove, UT 84062",
+  "lat": 40.35623,
+  "lng": -111.765226,
+  "source_url": "https://www.thegrid.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Drive the Spanish Fork Festival of Lights",
+  "description": "Cruise through the Spanish Fork Festival of Lights at Canyon View Park with the heater on and cocoa in hand. It's open from Thanksgiving Day (Nov 26, 2026) through New Year's Day. Advance tickets are required and are sold online only (sfcitytix.com, from Nov 12); there are no gate sales.",
+  "category": "Winter & Snow Adventures",
+  "setting": "Outdoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "3300 E Powerhouse Rd, Spanish Fork, UT 84660",
+  "lat": 40.082277,
+  "lng": -111.603459,
+  "source_url": "https://www.spanishfork.gov/recreation-parks-and-culture/events-and-festivals/festival-of-lights/",
+  "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-26",
+    "end_date": "2027-01-01",
+    "weekdays": [
+     "Mon",
+     "Tue",
+     "Wed",
+     "Thu",
+     "Fri",
+     "Sat",
+     "Sun"
+    ],
+    "start": null,
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2027-01-01",
+  "status": "pending"
+ },
+ {
+  "title": "Walk Luminaria at Thanksgiving Point",
+  "description": "Walk the lit-up paths of Luminaria at Ashton Gardens with timed tickets, and share a treat punch card ($18 for 5). Runs Nov 12–Jan 9, Mon–Sat; closed Sundays, Christmas Eve and Christmas Day.",
+  "category": "Winter & Snow Adventures",
+  "setting": "Outdoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "3900 N Garden Dr, Lehi, UT 84043",
+  "lat": 40.434091,
+  "lng": -111.910809,
+  "source_url": "https://thanksgivingpoint.org/events/luminaria/",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-12",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-13",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-14",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-16",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-17",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-18",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-19",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-20",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-21",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-23",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-24",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-11-25",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-26",
+    "start": "17:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-27",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-28",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-30",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-01",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-02",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-03",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-04",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-05",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-07",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-08",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-09",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-10",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-11",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-12",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-14",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-15",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-16",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-17",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-18",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-19",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-21",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-22",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-23",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-26",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-28",
+    "start": "16:00",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-29",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2027-01-01",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2027-01-02",
+    "start": "16:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2027-01-04",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-05",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-06",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-07",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-08",
+    "start": "17:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2027-01-09",
+    "start": "17:00",
+    "end": "20:30"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2027-01-09",
+  "status": "pending"
+ },
+ {
+  "title": "Night Skiing at Sundance",
+  "description": "Ski under the lights at Sundance on Monday, Wednesday, Friday and Saturday evenings, 4:30–9pm, with night lift tickets. Expect the winter parking reservation system.",
+  "category": "Winter & Snow Adventures",
+  "setting": "Outdoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Active",
+   "Adventurous"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "8841 N Alpine Loop Rd, Sundance, UT 84604",
+  "lat": 40.390903,
+  "lng": -111.577511,
+  "source_url": "https://www.sundanceresort.com/activities/skiing-snowboarding/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": true,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Snowshoe the Sundance Nordic Center Trails",
+  "description": "Rent snowshoes or classic skis at the Sundance Nordic Center and explore its 10 km of snowshoe trails and 15 km of groomed cross-country trails beneath Mt. Timpanogos.",
+  "category": "Winter & Snow Adventures",
+  "setting": "Outdoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Active",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Sundance Nordic Center, Alpine Loop Rd (SR-92), Sundance, UT 84604",
+  "lat": 40.394302,
+  "lng": -111.592712,
+  "source_url": "https://www.sundanceresort.com/activities/nordic-skiing-snowshoeing/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Night Owling Snowshoe Tour at Sundance",
+  "description": "Join a guided night snowshoe tour at the Sundance Nordic Center with Great Basin Wildlife Rescue, including live owl encounters and wildlife talks in the Timpanogos backcountry. Guide, rentals and trail pass included; runs about 6:30–8:30pm in winter.",
+  "category": "Big Bucket-List Experiences",
+  "setting": "Outdoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Night"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Sundance Nordic Center, Alpine Loop Rd (SR-92), Sundance, UT 84604",
+  "lat": 40.394302,
+  "lng": -111.592712,
+  "source_url": "https://www.sundanceresort.com/activities/nordic-skiing-snowshoeing/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": true,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Sunrise Balloon Launch at Freedom Festival Balloon Fest",
+  "description": "Get up before dawn and watch about 25 hot air balloons inflate and lift off at Fox Field during America's Freedom Festival Balloon Fest, 6–8am on three early-July mornings (July 2–4 in 2026), plus an evening Balloon Glow. Free. The 2027 dates haven't been announced yet.",
+  "category": "Big Bucket-List Experiences",
+  "setting": "Outdoor",
+  "season": [
+   "Summer"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning"
+  ],
+  "vibe": [
+   "Romantic",
+   "Adventurous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "1100 N Freedom Blvd, Provo, UT 84604",
+  "lat": 40.248418,
+  "lng": -111.663043,
+  "source_url": "https://freedomfestival.org/balloon-fest/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": true,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Soak at Saratoga Hot Springs via Inlet Park",
+  "description": "Park at Inlet Park on Utah Lake's north shore and walk to the free Saratoga Hot Springs pools. The park is open 6am–10pm and is also the trailhead for the Utah Lake Shore and Jordan River trails.",
+  "category": "Water Activities",
+  "setting": "Outdoor",
+  "season": [
+   "Fall",
+   "Winter",
+   "Spring"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "222 S Saratoga Rd, Saratoga Springs, UT 84045",
+  "lat": 40.357842,
+  "lng": -111.899616,
+  "source_url": "https://www.saratogasprings-ut.gov/facilities/facility/details/Inlet-Park-6",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Rent Pedal Boats or a Mini Sailboat at Lindon Marina",
+  "description": "Rent a paddle board, kayak, canoe, pedal boat or mini sailboat at Lindon Marina on Utah Lake. There's a beach area and picnic tables for afterward.",
+  "category": "Water Activities",
+  "setting": "Outdoor",
+  "season": [
+   "Summer"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Lindon Marina, Lindon, UT 84042",
+  "lat": 40.327828,
+  "lng": -111.763428,
+  "source_url": "https://utahlake.gov/things-to-do-at-utah-lake/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Lakeside Afternoon at Lincoln Beach",
+  "description": "Drive to Lincoln Beach, a Utah County park on the lake's southeast shore with water access, pavilions and wide mountain views, and wade or launch a kayak at sunset.",
+  "category": "Water Activities",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "4700 Lincoln Beach Rd, Spanish Fork, UT 84660",
+  "lat": 40.142448,
+  "lng": -111.803102,
+  "source_url": "https://publicworks.utahcounty.gov/parks",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Self-Guided Provo River Raft with High Country Adventure",
+  "description": "Paddle your own raft down the Provo River from High Country Adventure's Provo Canyon base. The trip takes about 90 minutes and costs $40 per adult self-guided. Open April–October.",
+  "category": "Water Activities",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Active"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "3702 E Provo Canyon Rd, Provo, UT 84604",
+  "lat": 40.3565,
+  "lng": -111.5715,
+  "source_url": "https://highcountryadventure.com/tubing/provo-river-tubing/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Rent a Kayak Trailer Pack from PK Kayaks",
+  "description": "Pick up a trailer of adult kayaks and life jackets from PK Kayaks in Provo (7–9am) and spend the day on the water, returning by 7–9pm.",
+  "category": "Water Activities",
+  "setting": "Outdoor",
+  "season": [
+   "Summer"
+  ],
+  "cost": "$100 and under",
+  "duration": "Full day",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Active"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "300 S 900 E, Provo, UT 84606",
+  "lat": 40.229518,
+  "lng": -111.642818,
+  "source_url": "https://pkkayaks.wordpress.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Riverside Picnic at Nunn's Park",
+  "description": "Picnic in the shade beside the Provo River at Nunn's Park, a historic Utah County park in Provo Canyon.",
+  "category": "Picnics & Parks",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "E Provo Canyon Rd, Provo, UT 84604",
+  "lat": 40.336584,
+  "lng": -111.612082,
+  "source_url": "https://publicworks.utahcounty.gov/parks",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Picnic at Canyon View Park in Provo Canyon",
+  "description": "Spread a blanket on the shaded lawns at Canyon View Park, a Utah County park in the mouth of Provo Canyon with pavilions and mountain views.",
+  "category": "Picnics & Parks",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "1085 E Provo Canyon Rd, Provo, UT 84604",
+  "lat": 40.322077,
+  "lng": -111.648178,
+  "source_url": "https://publicworks.utahcounty.gov/parks",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Picnic at Spanish Fork River Park",
+  "description": "Pack lunch for Spanish Fork River Park, a Utah County park along the Spanish Fork River with gathering areas and camping.",
+  "category": "Picnics & Parks",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "Spanish Fork River Park, Spanish Fork, UT 84660",
+  "lat": 40.022331,
+  "lng": -111.502698,
+  "source_url": "https://publicworks.utahcounty.gov/parks",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Loop and Picnic at Salem Pond",
+  "description": "Picnic by Salem Pond, the city's recreation pond in Salem. Check DEQ conditions first; there's no swimming near algae, and no pets are allowed in the park.",
+  "category": "Picnics & Parks",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "Salem Pond, Salem Lake Dr, Salem, UT 84653",
+  "lat": 40.050313,
+  "lng": -111.674336,
+  "source_url": "https://www.salemutah.gov/salem-pond.htm",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Country Picnic at Benjamin Park",
+  "description": "Head south to Benjamin Park, a Utah County park with broad green fields, shade trees and picnic areas.",
+  "category": "Picnics & Parks",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "3275 W 7300 S, Benjamin, UT 84660",
+  "lat": 40.097035,
+  "lng": -111.732538,
+  "source_url": "https://publicworks.utahcounty.gov/parks",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Dinner at Sundance's Tree Room",
+  "description": "Reserve a table at the Tree Room, Sundance's fine-dining restaurant. Open Tue–Sat 5–9pm; reservations strongly recommended.",
+  "category": "Romantic & Classic Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple"
+  ],
+  "food": true,
+  "address": "8841 N Alpine Loop Rd, Sundance, UT 84604",
+  "lat": 40.39135,
+  "lng": -111.578359,
+  "source_url": "https://www.sundanceresort.com/dining/tree-room/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Sunday Brunch at Sundance's Foundry Grill",
+  "description": "Drive up Provo Canyon for the Sunday brunch buffet at Sundance's Foundry Grill (9am–2pm, $55 for ages 13+). Reservations are strongly recommended.",
+  "category": "Romantic & Classic Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "8841 N Alpine Loop Rd, Sundance, UT 84604",
+  "lat": 40.39135,
+  "lng": -111.578359,
+  "source_url": "https://www.sundanceresort.com/dining/foundry-grill/",
+  "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Sun"
+    ],
+    "start": "09:00",
+    "end": "14:00"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Stroll Ashton Gardens at Thanksgiving Point",
+  "description": "Wander the 50 acres of Ashton Gardens at Thanksgiving Point. Adult tickets are $24 online or $27 at the gate; open Mon–Sat 9am–6pm.",
+  "category": "Romantic & Classic Dates",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "3900 N Garden Dr, Lehi, UT 84043",
+  "lat": 40.434091,
+  "lng": -111.910809,
+  "source_url": "https://thanksgivingpoint.org/attractions/ashton-gardens/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Butterfly Biosphere at Thanksgiving Point",
+  "description": "Step into the warm, tropical conservatory at Thanksgiving Point's Butterfly Biosphere and let butterflies land on you. Adults are $24 online; open Mon–Sat 9am–8pm.",
+  "category": "Romantic & Classic Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "3003 N Thanksgiving Way, Lehi, UT 84043",
+  "lat": 40.426092,
+  "lng": -111.887566,
+  "source_url": "https://thanksgivingpoint.org/attractions/butterfly-biosphere/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Utah Valley Civic Ballet's The Nutcracker",
+  "description": "See Utah Valley Civic Ballet's Nutcracker at the Ashton Auditorium in the Orem Library Hall on Dec 4–5 and 7, 2026.",
+  "category": "Movies & Shows",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "58 N State St, Orem, UT 84057",
+  "lat": 40.298175,
+  "lng": -111.694885,
+  "source_url": "https://uvcivicballet.org/performances/nutcracker-winter-2026/",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-04",
+    "start": "13:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-04",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "13:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-07",
+    "start": "13:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-07",
+    "start": "19:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-07",
+  "status": "pending"
+ },
+ {
+  "title": "Steel Magnolias at BYU's Black Box Theatre",
+  "description": "See BYU Theatre's Steel Magnolias in the intimate Black Box Theatre in the Arts Building, Dec 3–5, 2026. Tickets are $10–15.",
+  "category": "Movies & Shows",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "Arts Building, Brigham Young University, Provo, UT 84602",
+  "lat": 40.249851,
+  "lng": -111.647988,
+  "source_url": "https://onstage.byu.edu/arts-entertainment/steel-magnolias-2026-12-04",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-03",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-05",
+  "status": "pending"
+ },
+ {
+  "title": "BYU Theatre Ballet's Reimagined Nutcracker",
+  "description": "Catch BYU Theatre Ballet's newly reimagined Nutcracker on the Mainstage in the Arts Building, Dec 2–5, 2026 (7:30pm, plus a 2pm Saturday matinee). Tickets are $25.",
+  "category": "Movies & Shows",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Arts Building, Brigham Young University, Provo, UT 84602",
+  "lat": 40.249851,
+  "lng": -111.647988,
+  "source_url": "https://onstage.byu.edu/arts-entertainment/theatre-ballet-the-nutcracker-2026-12-05",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-02",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-03",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-05",
+  "status": "pending"
+ },
+ {
+  "title": "BYU Celebration of Christmas Concert",
+  "description": "Hear the BYU School of Music's Celebration of Christmas concert in the Music Building's Concert Hall, Dec 4–5, 2026. Tickets are $21–34.",
+  "category": "Movies & Shows",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Concert Hall, Music Building, Brigham Young University, Provo, UT 84602",
+  "lat": 40.248918,
+  "lng": -111.644036,
+  "source_url": "https://onstage.byu.edu/school-of-music/celebration-of-christmas-2026-12-04",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-12-05",
+    "start": "15:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-05",
+  "status": "pending"
+ },
+ {
+  "title": "The Music Man in Concert at BYU",
+  "description": "See BYU Theatre's concert staging of Meredith Willson's The Music Man, with student performers and a live onstage orchestra, on the Mainstage Nov 6–21, 2026.",
+  "category": "Movies & Shows",
+  "setting": "Indoor",
+  "season": [
+   "Fall"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Arts Building, Brigham Young University, Provo, UT 84602",
+  "lat": 40.249851,
+  "lng": -111.647988,
+  "source_url": "https://onstage.byu.edu/announcing-the-theatre-and-film-2026-27-season",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-06",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-07",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-11",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-12",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-13",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-14",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-14",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-18",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-19",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-20",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-11-21",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-21",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-11-21",
+  "status": "pending"
+ },
+ {
+  "title": "Free Exhibits at BYU's Museum of Peoples and Cultures",
+  "description": "Take a free self-guided tour of the archaeology and world-culture exhibits at BYU's Museum of Peoples and Cultures, open weekdays.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "2201 N Canyon Rd, Provo, UT 84604",
+  "lat": 40.262839,
+  "lng": -111.656138,
+  "source_url": "https://mpc.byu.edu/plan-your-visit",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Dinosaur Hall at the Museum of Ancient Life",
+  "description": "Walk among some 60 mounted dinosaur skeletons at Thanksgiving Point's Museum of Ancient Life. Adults are $24 online; open Mon–Sat 9am–8pm.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "2929 N Thanksgiving Way, Lehi, UT 84043",
+  "lat": 40.424661,
+  "lng": -111.885958,
+  "source_url": "https://thanksgivingpoint.org/attractions/museum-of-ancient-life/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Explore Dreamwalk Park's Immersive Rooms",
+  "description": "Wander Dreamwalk Park, an immersive art walk-through at University Place in Orem, with a decoder light and portal-jumper card. Most people spend about 2 hours, with no time limit. Open Mon–Sat until 9pm and Sun 12–4:30pm.",
+  "category": "Silly, Prank & Goofy Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Creative"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "575 E University Pkwy Suite N-237, Orem, UT 84097",
+  "lat": 40.275384,
+  "lng": -111.680863,
+  "source_url": "https://dreamwalk.com/visit/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ }
+]

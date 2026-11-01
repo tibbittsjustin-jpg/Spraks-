@@ -5,6 +5,8 @@
 const http = require("http");
 const express = require("express");
 const { createActivitiesRouter } = require("../routes/activities");
+const { mapRow, STILL_SHOWING_SQL } = require("../db/activities-repo");
+const occ = require("../public/occurrences");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -92,9 +94,10 @@ async function main() {
       const item = body.items[0];
       check("date_type maps to dateType", Array.isArray(item.dateType) && item.dateType[0] === "Solo/Couple");
       check("missing age21 maps to false", item.age21 === false);
-      check("null source_url and city map to null", item.sourceUrl === null && item.city === null);
-      check("source_url is not exposed as snake_case",
-        !Object.prototype.hasOwnProperty.call(item, "source_url") && res.body.indexOf("source_url") === -1);
+      check("null source_url and city map to null",
+        item.sourceUrl === null && item.source_url === null && item.city === null);
+      check("approved rows include source_url",
+        Object.prototype.hasOwnProperty.call(item, "source_url") && item.source_url === item.sourceUrl);
       check("materials are returned", JSON.stringify(item.materials) === JSON.stringify(["Boots", "Water"]));
       check("null materials maps to an empty list",
         Array.isArray(body.items[1].materials) && body.items[1].materials.length === 0);
@@ -146,10 +149,12 @@ async function main() {
         const ok = await request(one.address().port, "/api/activities/2");
         const okBody = JSON.parse(ok.body);
         check("approved id is 200", ok.status === 200 && okBody.id === 2 && okBody.dateType[0] === "Solo/Couple");
-        check("detail returns sourceUrl, city, and age21",
-          okBody.sourceUrl === "https://getoutgames.com/provo/" && okBody.city === "Provo" && okBody.age21 === true);
-        check("detail does not leak status or source_url",
-          ok.body.indexOf("submitter_email") === -1 && !okBody.status && ok.body.indexOf("source_url") === -1);
+        check("detail returns source_url for an approved row",
+          okBody.source_url === "https://getoutgames.com/provo/" &&
+          okBody.sourceUrl === okBody.source_url &&
+          okBody.city === "Provo" && okBody.age21 === true);
+        check("detail does not leak status or email",
+          ok.body.indexOf("submitter_email") === -1 && !okBody.status && ok.body.indexOf("\"status\"") === -1);
         const missing = await request(one.address().port, "/api/activities/999999");
         check("missing id is 404", missing.status === 404 && JSON.parse(missing.body).error === "not_found");
         const archived = await request(one.address().port, "/api/activities/340");
@@ -160,6 +165,194 @@ async function main() {
         check("too-long id is 400", longId.status === 400);
       } finally {
         await new Promise(resolve => one.close(resolve));
+      }
+    });
+
+    await section("source_url is returned only with the approved query", async () => {
+      const linkedDb = {
+        async query(text) {
+          const approvedOnly = text.indexOf("status = 'approved'") !== -1 && text.indexOf("source_url") !== -1;
+          if (!approvedOnly) {
+            return { rows: [row(9, { status: "pending", source_url: "https://secret.example/pending" })] };
+          }
+          return { rows: [row(9, { status: "approved", source_url: "https://example.com/visit" })] };
+        }
+      };
+      const linkedApp = express();
+      linkedApp.use("/api/activities", createActivitiesRouter({ db: linkedDb, isConfigured: () => true }));
+      const linked = await listen(linkedApp);
+      try {
+        const list = await request(linked.address().port, "/api/activities");
+        const listBody = JSON.parse(list.body);
+        const item = listBody.items[0];
+        check("list returns source_url for an approved row",
+          list.status === 200 && item && item.source_url === "https://example.com/visit" &&
+          item.sourceUrl === item.source_url && list.body.indexOf("secret.example") === -1);
+        check("list does not include status or email",
+          !item.status && list.body.indexOf("submitter_email") === -1 && list.body.indexOf("\"status\"") === -1);
+        const detail = await request(linked.address().port, "/api/activities/9");
+        const detailBody = JSON.parse(detail.body);
+        check("detail returns the same source_url",
+          detail.status === 200 && detailBody.source_url === "https://example.com/visit" &&
+          detail.body.indexOf("secret.example") === -1 && !detailBody.status);
+      } finally {
+        await new Promise(resolve => linked.close(resolve));
+      }
+    });
+
+    await section("pending rows stay off every public activities route", async () => {
+      const pending = row(880001, {
+        title: "Secret Pending Picnic",
+        status: "pending",
+        source: "ai",
+        tier: "free",
+        source_url: "https://example.com/pending-find",
+        city: "Provo",
+        occurrences: { kind: "dates", dates: [{ date: "2099-01-01" }] }
+      });
+      const approved = row(2, {
+        title: "Approved Hike",
+        occurrences: { kind: "dates", dates: [{ date: "2026-10-27", start: "19:00" }] }
+      });
+      function hidesPending(text) {
+        return text.indexOf("status = 'approved'") !== -1 && text.indexOf("tier = 'free'") !== -1;
+      }
+      const gate = {
+        async query(text, values) {
+          const detail = text.indexOf("id = $1") !== -1;
+          if (!hidesPending(text)) {
+            return { rows: detail ? [pending] : [pending, approved] };
+          }
+          if (detail) {
+            if (values && values[0] === pending.id) return { rows: [] };
+            if (values && values[0] === approved.id) return { rows: [approved] };
+            return { rows: [] };
+          }
+          return { rows: [approved] };
+        }
+      };
+      const gated = express();
+      gated.use("/api/activities", createActivitiesRouter({ db: gate, isConfigured: () => true }));
+      const gatedServer = await listen(gated);
+      const gatedPort = gatedServer.address().port;
+      try {
+        const list = await request(gatedPort, "/api/activities?limit=50");
+        const listBody = JSON.parse(list.body);
+        check("listing omits a pending row",
+          list.status === 200 &&
+          listBody.items.length === 1 &&
+          listBody.items[0].id === 2 &&
+          listBody.items[0].occurrences.dates[0].date === "2026-10-27" &&
+          list.body.indexOf("Secret Pending Picnic") === -1 &&
+          list.body.indexOf("880001") === -1 &&
+          list.body.indexOf("2099-01-01") === -1);
+        const located = await request(gatedPort, "/api/activities?lat=40.23&lng=-111.66&radiusMiles=10&limit=50");
+        check("radius listing omits a pending row",
+          located.status === 200 && located.body.indexOf("Secret Pending Picnic") === -1);
+        const byCity = await request(gatedPort, "/api/activities?city=Provo&limit=50");
+        check("city listing omits a pending row",
+          byCity.status === 200 && byCity.body.indexOf("Secret Pending Picnic") === -1);
+        const detail = await request(gatedPort, "/api/activities/880001");
+        check("pending detail is 404",
+          detail.status === 404 && JSON.parse(detail.body).error === "not_found" &&
+          detail.body.indexOf("Secret Pending Picnic") === -1);
+        const ok = await request(gatedPort, "/api/activities/2");
+        check("approved detail still loads", ok.status === 200 && JSON.parse(ok.body).id === 2);
+      } finally {
+        await new Promise(resolve => gatedServer.close(resolve));
+      }
+    });
+
+    await section("finished events stay off the public list and detail", async () => {
+      const denverLate = new Date("2026-11-01T05:30:00.000Z");
+      const fixtures = [
+        row(11, { title: "Expired Night", expires_at: "2026-10-30" }),
+        row(12, { title: "Ends Tonight", expires_at: "2026-10-31" }),
+        row(13, { title: "Ongoing Walk", expires_at: null }),
+        row(14, {
+          title: "Past Game",
+          expires_at: null,
+          occurrences: { kind: "dates", dates: [{ date: "2026-10-30", start: "19:00" }] }
+        }),
+        row(15, {
+          title: "Tonight Game",
+          expires_at: null,
+          occurrences: { kind: "dates", dates: [{ date: "2026-10-31" }] }
+        }),
+        row(16, {
+          title: "Old Weekly Class",
+          expires_at: null,
+          occurrences: { kind: "weekly", start: "2026-01-01", end: "2026-02-01", weekdays: ["Mon"] }
+        })
+      ];
+      const seen = [];
+      const clockDb = {
+        async query(text, values) {
+          seen.push(text);
+          const keepsCurrent = text.indexOf(STILL_SHOWING_SQL) !== -1 &&
+            text.indexOf("(expires_at IS NULL OR expires_at >= (now() AT TIME ZONE 'America/Denver')::date)") !== -1 &&
+            text.indexOf("occurrences->>'kind' IS DISTINCT FROM 'dates'") !== -1;
+          let matched = fixtures.filter(item => {
+            if (!keepsCurrent) return true;
+            return occ.visibleOnPlan(mapRow(item, false), "", denverLate);
+          });
+          if (text.indexOf("id = $1") !== -1) {
+            matched = matched.filter(item => values && item.id === values[0]);
+          }
+          return { rows: matched };
+        }
+      };
+      const clockApp = express();
+      clockApp.use("/api/activities", createActivitiesRouter({ db: clockDb, isConfigured: () => true }));
+      const clockServer = await listen(clockApp);
+      const clockPort = clockServer.address().port;
+      try {
+        const list = await request(clockPort, "/api/activities?limit=50");
+        const listBody = JSON.parse(list.body);
+        const titles = listBody.items.map(item => item.title);
+        check("list query uses the Denver date and still requires approved",
+          seen.some(text => text.indexOf("status = 'approved'") !== -1 && text.indexOf(STILL_SHOWING_SQL) !== -1));
+        check("an expired row is hidden", titles.indexOf("Expired Night") === -1);
+        check("a row expiring today in Denver is shown at 11:30pm",
+          titles.indexOf("Ends Tonight") !== -1);
+        check("a null expires_at stays on the list", titles.indexOf("Ongoing Walk") !== -1);
+        check("a past dates row with no end date is hidden", titles.indexOf("Past Game") === -1);
+        check("a dates row whose last day is today is shown", titles.indexOf("Tonight Game") !== -1);
+        check("a weekly row with no end date is not hidden by its old range",
+          titles.indexOf("Old Weekly Class") !== -1);
+        const tonight = listBody.items.find(item => item.title === "Ends Tonight");
+        check("the list returns expiresAt and expires_at",
+          tonight && tonight.expiresAt === "2026-10-31" && tonight.expires_at === "2026-10-31");
+        const ongoing = listBody.items.find(item => item.title === "Ongoing Walk");
+        check("a null end date is still present on the list item",
+          ongoing && ongoing.expiresAt === null && ongoing.expires_at === null);
+        const located = await request(clockPort, "/api/activities?lat=40.23&lng=-111.66&radiusMiles=25&limit=50");
+        const locatedSql = seen[seen.length - 1];
+        check("near-me keeps its radius logic and the Denver filter",
+          located.status === 200 &&
+          locatedSql.indexOf("ST_DWithin") !== -1 &&
+          locatedSql.indexOf("(location IS NULL OR ST_DWithin") !== -1 &&
+          locatedSql.indexOf(STILL_SHOWING_SQL) !== -1 &&
+          located.body.indexOf("Expired Night") === -1 &&
+          located.body.indexOf("Past Game") === -1);
+        const detail = await request(clockPort, "/api/activities/12");
+        const detailBody = JSON.parse(detail.body);
+        check("detail returns expiresAt and expires_at for a current row",
+          detail.status === 200 && detailBody.expiresAt === "2026-10-31" && detailBody.expires_at === "2026-10-31");
+        const detailSql = seen[seen.length - 1];
+        check("detail uses the same Denver filter and approved-only",
+          detailSql.indexOf("id = $1") !== -1 &&
+          detailSql.indexOf("status = 'approved'") !== -1 &&
+          detailSql.indexOf("tier = 'free'") !== -1 &&
+          detailSql.indexOf(STILL_SHOWING_SQL) !== -1);
+        const expired = await request(clockPort, "/api/activities/11");
+        check("an expired detail is 404",
+          expired.status === 404 && JSON.parse(expired.body).error === "not_found");
+        const past = await request(clockPort, "/api/activities/14");
+        check("a past dates detail with no end date is 404",
+          past.status === 404 && JSON.parse(past.body).error === "not_found");
+      } finally {
+        await new Promise(resolve => clockServer.close(resolve));
       }
     });
 

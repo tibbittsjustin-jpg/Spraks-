@@ -1,0 +1,931 @@
+{
+ "Take a Discovery Flight with Utah Valley Aviation": {
+  "key": "uva",
+  "city": "Provo",
+  "geo": {
+   "lat": 40.21922,
+   "lng": -111.720592,
+   "geo_source": "nominatim",
+   "osm": "way 178814253",
+   "display": "Provo Municipal Airport",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": "Airport footprint; the flight school's hangar isn't mapped."
+  },
+  "cost_mapping": {
+   "current": "Over $100",
+   "basis": "per person",
+   "evidence": "$150 per Discovery Flight (utahvalleyaviation.com and its /pricing page). Seats per flight aren't stated, so it's treated as one person: Over $100."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "Price is per flight. The page doesn't say whether a passenger can ride along, so this is listed as Solo/Couple only."
+ },
+ "15-Minute Helicopter Tour over Provo, BYU and Y Mountain": {
+  "key": "heli",
+  "city": "Spanish Fork",
+  "geo": {
+   "lat": 40.144561,
+   "lng": -111.663566,
+   "geo_source": "nominatim",
+   "osm": "way 916528724",
+   "display": "Spanish Fork Municipal Airport Woodhouse Field",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "$69/seat (R44, 15 min) = $100 and under per person."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29"
+ },
+ "Private Sunrise Hot Air Balloon Flight with Nemesis Balloon Team": {
+  "key": "balloon",
+  "city": "Utah County (American Fork, Lehi, Lindon, Pleasant Grove, Springville)",
+  "geo": {
+   "lat": null,
+   "lng": null,
+   "geo_source": "nominatim",
+   "osm": "relation 198895",
+   "display": "American Fork (city centroid)",
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "note": "No fixed launch site. City-centroid pin for American Fork, one of the listed Utah County flight locations. Needs hand-pin or a 'meeting point TBD' treatment.",
+   "changed": true,
+   "outcome": "area_based_by_utah",
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "none (area_based)",
+   "hand_pin_notes": "No fixed launch point. The launch spot is chosen at booking from several Utah County locations, so there's no pin. Research's American Fork city-centroid pin was dropped.",
+   "pre_hand_pin": [
+    40.376806,
+    -111.795915
+   ],
+   "correction_m": null,
+   "area_based": true
+  },
+  "cost_mapping": {
+   "current": "Over $100",
+   "basis": "per person",
+   "evidence": "$1,500 per private flight (the utahballoonflights.com/utah page says '$1500 exclusive packages'), so at least $750 per person for two: Over $100."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "The operator also flies in Walla Walla, WA and Northern Utah. Utah County flight locations come from utahballoonflights.com/utah. Seasons are conservative; the page has no winter flights.",
+  "hold": {
+   "status": "hold",
+   "note": "No fixed launch point (city-centroid pin). Decide whether the app can show an item with a meeting point set at booking.",
+   "checked": "2026-10-29"
+  },
+  "occurrences_note": "Private flight booked with the operator; date chosen at booking."
+ },
+ "Learn to Ice Climb in Provo Canyon with Utah Mountain Adventures": {
+  "key": "uma",
+  "city": "Provo Canyon",
+  "geo": {
+   "lat": 40.336584,
+   "lng": -111.612082,
+   "geo_source": "nominatim",
+   "osm": "relation 14412206",
+   "display": "Nunn's Park, Utah County",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": "Same point as v2's Nunn's Park item (different activity)."
+  },
+  "cost_mapping": {
+   "current": "Over $100",
+   "basis": "per person",
+   "evidence": "$279 + tax per person."
+  },
+  "expires_at_basis": "Last listed course date (Feb 27, 2027).",
+  "source_fetched": "2026-10-29",
+  "occurrences_source": "https://www.utahmountainadventures.com/courses/ice-climbing-1/",
+  "occurrences_basis": "Course Dates Dec 12, Dec 26, Jan 9, Jan 30, Feb 15 (Mon), Feb 27; \"Guides typically meet guests ... at 7:30 am\"; full day (end not stated)."
+ },
+ "Drive Through Christmas in Color at Mary & Art Dye Park": {
+  "key": "cic",
+  "city": "American Fork",
+  "geo": {
+   "lat": 40.39642,
+   "lng": -111.782504,
+   "geo_source": "nominatim",
+   "osm": "way 229600181",
+   "display": "Mary and Art Dye Park, American Fork",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$20-$30",
+   "basis": "per person",
+   "evidence": "From $34.99 per vehicle, about $17.50 each for two. That's in the $10–20 gap, so it maps conservatively to $20-$30."
+  },
+  "expires_at_basis": "Run ends Dec 30, 2026 (Now Playing Utah).",
+  "source_fetched": "2026-10-29",
+  "note": "Source is Now Playing Utah (the Utah Cultural Alliance's free listing), not christmasincolor.net, which had no Utah County detail when fetched.",
+  "occurrences_source": "https://nowplayingutah.com/event/2026-christmas-in-color-drive-thru-light-show-2/",
+  "occurrences_basis": "Nov 20 - Dec 30, 2026; \"7pm-9pm Each Night\"; the individual-date list (through Dec 20 before \"View more\") skips Thu Nov 26.",
+  "occurrences_caveat": "Individual dates after Dec 20 are behind \"View more\"; the run end (Dec 30) and \"Each Night\" come from the header."
+ },
+ "Sauna and Cold Plunge Contrast Night at Löyly Nordic Spa": {
+  "key": "loyly",
+  "city": "Orem",
+  "geo": {
+   "lat": 40.276053,
+   "lng": -111.681857,
+   "geo_source": "nominatim",
+   "osm": "node 13523327601",
+   "display": "Löyly Nordic Spa, 564 Park Avenue, Orem",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "$45/month unlimited membership. No single-visit price was found, so it's $100 and under."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "No day pass was found on the fetched pages. Confirm how a non-member visits before approving. (Löyly also has a Midvale location in Salt Lake County; this is the Orem one.)",
+  "hold": {
+   "status": "hold",
+   "note": "Confirm a non-member visit option (no day pass was found) before approving.",
+   "checked": "2026-10-29"
+  },
+  "category_check_round6": {
+   "current": "Local Provo/Utah County Business Dates",
+   "decision": "kept",
+   "reasoning": "A paid visit to a named local Orem business is what \"Local Provo/Utah County Business Dates\" covers, and data.js files its spa idea (\"Side by Side Massage\") there too. \"Romantic & Classic Dates\" is a vibe rather than a venue type, and \"Water Activities\" is for lakes, rivers and pools; neither is clearly better."
+  }
+ },
+ "Paint Splatter and Glass Throwing at Smash It Orem": {
+  "key": "smash",
+  "city": "Orem",
+  "geo": {
+   "lat": 40.293917,
+   "lng": -111.694107,
+   "geo_source": "nominatim",
+   "osm": "node 13446459828",
+   "display": "Smash it Rage Rooms, 170 State Street, Orem",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Prices load via JS and weren't readable, so it's conservatively $100 and under."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "data_js_flag": "data.js has a generic 'Rage Room Therapy'. This item is the Paint Splatter / Throw Zone at a named venue. Reviewer should judge overlap."
+ },
+ "Try Fencing at Valkyrie Fencing Club": {
+  "key": "fencing",
+  "city": "Pleasant Grove",
+  "geo": {
+   "lat": 40.36245,
+   "lng": -111.7487,
+   "geo_source": "nominatim",
+   "osm": "way 119006900",
+   "display": "State Street, Pleasant Grove (street segment)",
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "note": "No OSM address point for 560 W State St. Pinned to a State Street segment. Hand-pin.",
+   "changed": true,
+   "outcome": "hand_pinned_by_utah",
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "Address interpolation on US-89 (State St) from OSM-addressed buildings 519/527 W State (40.3617,-111.7486) and 573 State St (40.36275,-111.74961); even-number side. About 50 m accuracy.",
+   "hand_pin_notes": "Address is on the club's own page. No OSM address point for 560. Research's v3 pin (40.359761,-111.743903) is the State St bridge near Main, about 550 m east, so it was wrong.",
+   "pre_hand_pin": [
+    40.359761,
+    -111.743903
+   ],
+   "correction_m": 505
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Trial membership $100 for 8 sessions = $100 and under."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "occurrences_source": "https://www.valkyriefencingclub.com/beginning-fencing-class",
+  "occurrences_basis": "\"6:30-8:30 pm for participants ages 13 to adult\", Tue-Fri; beginners pick 2 days a week."
+ },
+ "Drop In to an Aerial Silks Class at Harmony Fitness Studio": {
+  "key": "silks",
+  "city": "Orem",
+  "geo": {
+   "lat": 40.270462,
+   "lng": -111.683155,
+   "geo_source": "nominatim",
+   "osm": "way 1103204102",
+   "display": "1431 State Street, Orem",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$20-$30",
+   "basis": "per person",
+   "evidence": "$25 single class."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "data_js_flag": "data.js has a generic 'Silks and Trapeze' idea. This is a named Orem venue.",
+  "occurrences_note": "Bookable class calendar (studio open 7 days; reservations up to 3 hours ahead); no fixed weekly slot on the page."
+ },
+ "Pull a Page on a Gutenberg Press at the Crandall Printing Museum": {
+  "key": "crandall",
+  "city": "Alpine",
+  "geo": {
+   "lat": 40.44895,
+   "lng": -111.778358,
+   "geo_source": "nominatim",
+   "osm": "way 805187044",
+   "display": "Main Street Court, Alpine (street centroid)",
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "note": "Street-level match (Main Street Court is a short court). Hand-pin to the building.",
+   "changed": true,
+   "outcome": "hand_pinned_by_utah",
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API: midpoint of Main Street Court (way 805187044), a short service court off Main St. The building is not addressed in OSM, so the pin is within about 50 m.",
+   "hand_pin_notes": "Museum's own site gives the Alpine address and 'Open by Appointment' (801-500-3099). It moved from Provo; Research's point already matched the court.",
+   "pre_hand_pin": [
+    40.448968,
+    -111.778422
+   ],
+   "correction_m": 6
+  },
+  "cost_mapping": {
+   "current": "$1-$10",
+   "basis": "per person",
+   "evidence": "$8 adults (16–64), $5 students/seniors (thecrandall.org/prices)."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "The museum moved from Provo to Alpine (it's not in data.js under either name)."
+ },
+ "Blow a Glass Flower at Holdman Studios": {
+  "key": "holdman",
+  "city": "Lehi",
+  "geo": {
+   "lat": 40.425334,
+   "lng": -111.88891,
+   "geo_source": "nominatim",
+   "osm": "way 287994364",
+   "display": "Holdman Studios and Glass Art Institute, 3001 Thanksgiving Way, Lehi",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Price NOT shown on the fetched page. A ~$57 figure appeared only in a search snippet and wasn't used. Conservatively $100 and under."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "data_js_flag": "data.js has a generic glass-ornament idea. This is a named venue (flower)."
+ },
+ "Friday Night Silent Disco at Dizzy Disco": {
+  "key": "dizzy",
+  "city": "Provo",
+  "geo": {
+   "lat": 40.220046,
+   "lng": -111.654102,
+   "geo_source": "nominatim",
+   "osm": "way 10225881",
+   "display": "1078 250 East, Provo",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$1-$10",
+   "basis": "per person",
+   "evidence": "GA 'usually $10'."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "data_js_flag": "data.js has 'Silent Disco on Wheels' (a different concept). This is a named venue.",
+  "occurrences_source": "https://dizzydiscoprovo.com/",
+  "occurrences_basis": "\"When: Every Friday, 10:00 PM - 12:00 AM\"."
+ },
+ "Run the Utah Santa Run in Matching Santa Suits": {
+  "key": "santa",
+  "city": "Salem",
+  "geo": {
+   "lat": 40.05532,
+   "lng": -111.67105,
+   "geo_source": "nominatim",
+   "osm": "way 10236764",
+   "display": "100 East, Salem (street segment)",
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "note": "Street-level match for the 60 N 100 E start. Hand-pin to the start line.",
+   "changed": true,
+   "outcome": "hand_pinned_by_utah",
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API: interpolated between addressed houses 45 and 75 N 100 E; east side of 100 E, which is the west edge of Salem City Park (way 99892157).",
+   "hand_pin_notes": "Official race page: Dec 5, 2026 in Salem, race location 60 North 100 East; looped course around Salem Pond (about 500 m south). Registration ends Dec 5 at 11:59am MST. The 4:15pm start time comes from Research and wasn't re-checked. Research's pin (40.059274,-111.671206) was about 440 m north.",
+   "pre_hand_pin": [
+    40.059274,
+    -111.671206
+   ],
+   "correction_m": 440
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "$44 per runner (virtual option $40). The price rises after Nov 4."
+  },
+  "expires_at_basis": "Race day Dec 5, 2026.",
+  "source_fetched": "2026-10-29",
+  "occurrences_source": "https://runsignup.com/Race/UT/Salem/UtahSantaRunProvo",
+  "occurrences_basis": "Re-checked 2026-10-31: 5K and 1.55 Mile both \"Time: 4:15PM MST - 5:15PM MST\", December 5, 2026."
+ },
+ "See 'A Krampus Karol' at the Angelus Theatre": {
+  "key": "krampus",
+  "city": "Spanish Fork",
+  "geo": {
+   "lat": 40.111892,
+   "lng": -111.655248,
+   "geo_source": "nominatim",
+   "osm": "way 1003852059",
+   "display": "Angelus Theatre, 165 North Main Street, Spanish Fork",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Price not shown on the events list, so conservatively $100 and under."
+  },
+  "expires_at_basis": "Run ends Dec 23, 2026.",
+  "source_fetched": "2026-10-29",
+  "note": "Billed as a 'family Christmas comedy'. It's for all ages, not kids-only.",
+  "occurrences_source": "https://angelustheatre.com/event/a-krampus-karol-4/",
+  "occurrences_basis": "\"December 9 @ 7:30 pm - 9:30 pm, December 9th - 23rd\".",
+  "occurrences_caveat": "The page gives the run (Dec 9-23) but not individual performance nights; any dark nights are not shown."
+ },
+ "Come in Costume to the Magical Museum Night at Hutchings": {
+  "key": "magical",
+  "city": "Lehi",
+  "geo": {
+   "lat": 40.388621,
+   "lng": -111.849663,
+   "geo_source": "nominatim",
+   "osm": "way 1006187544",
+   "display": "Hutchings Museum Institute, 55 North Center Street, Lehi",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$1-$10",
+   "basis": "per person",
+   "evidence": "$10 per person (ages 4+)."
+  },
+  "expires_at_basis": "Last night Nov 21, 2026.",
+  "source_fetched": "2026-10-29",
+  "note": "Billed as 'a hit for people of all ages' and family-friendly, not kids-only. Reviewer should judge the date fit.",
+  "occurrences_source": "https://www.jhutchingsmuseum.com/events/magical-museum",
+  "occurrences_basis": "\"Friday and Saturday, November 20 & 21 ... Doors open from 6:00 pm - 8:30 pm\"."
+ },
+ "Skinwalker Ranch Talk with Ben Woodruff at Hutchings Museum": {
+  "key": "skinwalker",
+  "city": "Lehi",
+  "geo": {
+   "lat": 40.388621,
+   "lng": -111.849663,
+   "geo_source": "nominatim",
+   "osm": "way 1006187544",
+   "display": "Hutchings Museum Institute, Lehi",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$1-$10",
+   "basis": "per person",
+   "evidence": "$10 per ticket."
+  },
+  "expires_at_basis": "Last session Nov 7, 2026.",
+  "source_fetched": "2026-10-29",
+  "occurrences_source": "https://www.jhutchingsmuseum.com/skinwalker-ranch",
+  "occurrences_basis": "\"November 6th at 6:00; November 7th at 4:00 & 7:00\" (am/pm not printed; evening talk read as PM)."
+ },
+ "Rock Out at 'Valhalla | Concert Edition' at the Angelus": {
+  "key": "valhalla",
+  "city": "Spanish Fork",
+  "geo": {
+   "lat": 40.111892,
+   "lng": -111.655248,
+   "geo_source": "nominatim",
+   "osm": "way 1003852059",
+   "display": "Angelus Theatre, Spanish Fork",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Price not shown on the events list, so $100 and under."
+  },
+  "expires_at_basis": "Run ends Nov 14, 2026.",
+  "source_fetched": "2026-10-29",
+  "note": "'Come dressed for Asgard' is our date-idea suggestion. The page doesn't mention a costume night.",
+  "occurrences_source": "https://angelustheatre.com/event/valhalla-concert-edition/",
+  "occurrences_basis": "\"November 12 @ 7:30 pm - 9:30 pm, November 12th - 14th\"."
+ },
+ "Neo-Soul Night: Moonspyne at the Angelus Theatre": {
+  "key": "moonspyne",
+  "city": "Spanish Fork",
+  "geo": {
+   "lat": 40.111892,
+   "lng": -111.655248,
+   "geo_source": "nominatim",
+   "osm": "way 1003852059",
+   "display": "Angelus Theatre, Spanish Fork",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$20-$30",
+   "basis": "per person",
+   "evidence": "$15 ticket. That's in the $10–20 gap, so it maps conservatively to $20-$30."
+  },
+  "expires_at_basis": "Single date Nov 7, 2026.",
+  "source_fetched": "2026-10-29",
+  "occurrences_source": "https://www.angelustheatre.com/events/",
+  "occurrences_basis": "\"Moonspyne In Concert, November 7 @ 7:30 pm - 9:30 pm\"."
+ },
+ "Timpanogos Symphony 'O Holy Night' Christmas Concert": {
+  "key": "tso",
+  "city": "Orem",
+  "geo": {
+   "lat": 40.292968,
+   "lng": -111.683576,
+   "geo_source": "nominatim",
+   "osm": "way 463710972",
+   "display": "Orem High School, Campus Drive, Orem",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Price not shown, so $100 and under."
+  },
+  "expires_at_basis": "Last performance Dec 5, 2026.",
+  "source_fetched": "2026-10-29",
+  "occurrences_source": "https://thetso.org/20262027-buytickets",
+  "occurrences_basis": "\"December 4 & 5, 2026, 7:30 p.m. Orem High School\"."
+ },
+ "Timpanogos Chorale's 'An Old Fashioned Christmas'": {
+  "key": "chorale",
+  "city": "American Fork",
+  "geo": {
+   "lat": 40.40126,
+   "lng": -111.799048,
+   "geo_source": "nominatim",
+   "osm": "way 82711907",
+   "display": "American Fork Junior High School, American Fork",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": "OSM tags the school building with a 70 East address; the chorale lists 20 W 1120 N. Same campus."
+  },
+  "cost_mapping": {
+   "current": "Free",
+   "basis": "per person",
+   "evidence": "Free (donations)."
+  },
+  "expires_at_basis": "Single date Dec 16, 2026.",
+  "source_fetched": "2026-10-29",
+  "note": "The chorale also lists a Dec 14 show at the AF Library. This item uses the Dec 16 concert.",
+  "occurrences_source": "https://www.timpanogoschorale.org/events/",
+  "occurrences_basis": "\"Wed, December 16 - Main concert @ afjh 7:00 PM\"."
+ },
+ "'It's a Wonderful Life' at the Lehi Arts Center": {
+  "key": "lehiwl",
+  "city": "Lehi",
+  "geo": {
+   "lat": 40.395776,
+   "lng": -111.849793,
+   "geo_source": "nominatim",
+   "osm": "way 1196760450",
+   "display": "Lehi Arts Center, 685 North Center Street, Lehi",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Price not shown, so $100 and under."
+  },
+  "expires_at_basis": "Run ends Dec 19, 2026.",
+  "source_fetched": "2026-10-29",
+  "note": "Fetched with WebFetch; curl got no content.",
+  "occurrences_source": "https://www.lehiarts.org/tickets",
+  "occurrences_basis": "\"It's A Wonderful Life\" Dec 4, 5, 7, 8, 10, 11, 12, 14, 15, 17, 18, 19 - 7:30PM."
+ },
+ "Self-Guided Footloose Filming Locations Tour": {
+  "key": "footloose",
+  "city": "Lehi",
+  "geo": {
+   "lat": 40.388434,
+   "lng": -111.836556,
+   "geo_source": "nominatim",
+   "osm": "way 298884907",
+   "display": "Lehi Roller Mills, 833 Main Street, Lehi",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": "Pinned at the first stop."
+  },
+  "cost_mapping": {
+   "current": "Free",
+   "basis": "per person",
+   "evidence": "https://film.utah.gov/footloose-40-years-later/"
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "Lehi Roller Mills is a working mill: view it from public areas."
+ },
+ "Pinball Duel at Nickel Mania Orem": {
+  "key": "nickel",
+  "city": "Orem",
+  "geo": {
+   "lat": 40.315389,
+   "lng": -111.70209,
+   "geo_source": "nominatim",
+   "osm": "way 33723029",
+   "display": "1000 State Street, Orem",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": "OSM's named 'Nickelmania' node is the West Jordan store (outside the bbox), so this uses the Orem address."
+  },
+  "cost_mapping": {
+   "current": "$1-$10",
+   "basis": "per person",
+   "evidence": "$2.50 admission plus games (card-loaded), so $1-$10."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "v1 rejected 'nickelmania.com' (a Dallas business). The correct site is nickelmaniaarcade.com/orem."
+ },
+ "Late-Night Board Games at Apothecoffee": {
+  "key": "apothe",
+  "city": "Orem",
+  "geo": {
+   "lat": 40.290479,
+   "lng": -111.692219,
+   "geo_source": "nominatim",
+   "osm": "way 1103213887",
+   "display": "360 State Street, Orem",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Menu prices weren't captured and the game fee is unknown, so conservatively $100 and under."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "Evening hours start Nov 1, 2026. Recheck that they're running before approving.",
+  "hold": {
+   "status": "hold",
+   "note": "Evening hours start Nov 1, 2026. Confirm they are running before approving.",
+   "checked": "2026-10-29"
+  },
+  "occurrences_source": "https://apothe.coffee/",
+  "occurrences_basis": "\"Evening hours starting November 1st, 2026: Thursdays/Fridays/Saturdays/Sundays: 7PM - 11PM\"."
+ },
+ "Bowl a Few Frames at the BYU Bowling & Games Center": {
+  "key": "byubowl",
+  "city": "Provo",
+  "geo": {
+   "lat": 40.248571,
+   "lng": -111.647347,
+   "geo_source": "nominatim",
+   "osm": "way 60110277",
+   "display": "Ernest L. Wilkinson Student Center, BYU, Provo",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$20-$30",
+   "basis": "per person",
+   "evidence": "2 games ($9–12) + $4 shoes = $13–16 per person. That's in the $10–20 gap, so it maps conservatively to $20-$30."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "data_js_flag": "Bowling is generic in data.js. This is a named venue."
+ },
+ "Cheer On UVU Men's Basketball at the UCCU Center": {
+  "key": "uvubb",
+  "city": "Orem",
+  "geo": {
+   "lat": 40.278666,
+   "lng": -111.71706,
+   "geo_source": "nominatim",
+   "osm": "way 28783742",
+   "display": "UCCU Events Center, Orem",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$100 and under",
+   "basis": "per person",
+   "evidence": "Ticket price not fetched, so $100 and under."
+  },
+  "expires_at_basis": "Last listed home game Feb 27, 2027.",
+  "source_fetched": "2026-10-29",
+  "note": "The street address '800 W University Pkwy' is UVU's campus address and wasn't on the schedule page. Coordinates are the OSM event-center footprint.",
+  "occurrences_source": "https://gouvu.com/sports/mens-basketball/schedule/2026-27",
+  "occurrences_basis": "All 14 home games listed at UCCU Center, Orem (times MT)."
+ },
+ "Wander the Hutchings Museum's Oddities in Lehi": {
+  "key": "hutch",
+  "city": "Lehi",
+  "geo": {
+   "lat": 40.388621,
+   "lng": -111.849663,
+   "geo_source": "nominatim",
+   "osm": "way 1006187544",
+   "display": "Hutchings Museum Institute, Lehi",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$1-$10",
+   "basis": "per person",
+   "evidence": "$8 ages 13+."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "Earlier rounds got 403s or wrong pages for Hutchings. The jhutchingsmuseum.com pages fetched fine on 2026-10-29. Three v3 items share this venue (visit, Magical Museum, Skinwalker)."
+ },
+ "Free Afternoon at the Peteetneet Museum in Payson": {
+  "key": "peteet",
+  "city": "Payson",
+  "geo": {
+   "lat": 40.043564,
+   "lng": -111.724136,
+   "geo_source": "nominatim",
+   "osm": "way 465911667",
+   "display": "Peteetneet Museum and Cultural Arts Center, Payson",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "Free",
+   "basis": "per person",
+   "evidence": "https://www.paysonutah.gov/270/Peteetneet"
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29"
+ },
+ "Interfaith Christmas Crèche Exhibit by the Timpanogos Temple": {
+  "key": "creche",
+  "city": "American Fork",
+  "geo": {
+   "lat": 40.394947,
+   "lng": -111.772556,
+   "geo_source": "nominatim",
+   "osm": "way 809915154",
+   "display": "900 East, American Fork (street segment near 850 N)",
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "note": "Street-level match. The temple (742 N 900 E) is at 40.39288,-111.77059; the exhibit building is just north. Hand-pin.",
+   "changed": true,
+   "outcome": "hand_pinned_by_utah",
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "Nominatim: OSM way 473490483 (The Church of Jesus Christ of Latter-day Saints, 850 900 East, American Fork).",
+   "hand_pin_notes": "Official site: Dec 1 (Tue) 3-9pm; Dec 2-4 noon-9pm; 850 N 900 E, next to Timpanogos Temple. The weekdays match 2026. Research's pin was about 120 m off on the street.",
+   "pre_hand_pin": [
+    40.394103,
+    -111.773302
+   ],
+   "correction_m": 113
+  },
+  "cost_mapping": {
+   "current": "Free",
+   "basis": "per person",
+   "evidence": "Free (no price listed; community exhibit)."
+  },
+  "expires_at_basis": "Last day Dec 4, 2026.",
+  "source_fetched": "2026-10-29",
+  "note": "Also listed at local.churchofjesuschrist.org (Pleasant Grove Utah Manila Creek Stake). 'Free' is inferred from the absence of any ticketing; reviewer should confirm.",
+  "occurrences_source": "https://christmascrecheutah.org/",
+  "occurrences_basis": "\"December 1st (Tue) 3:00pm - 9:00pm; December 2nd-4th 12:00pm - 9:00pm\"."
+ },
+ "Visit the Icelandic Monument Lighthouse in Spanish Fork": {
+  "key": "iceland",
+  "city": "Spanish Fork",
+  "geo": {
+   "lat": 40.104663,
+   "lng": -111.640934,
+   "geo_source": "nominatim",
+   "osm": "way 38895552",
+   "display": "Icelandic Monument, 400 South 800 East, Spanish Fork",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "Free",
+   "basis": "per person",
+   "evidence": "https://www.intermountainhistories.org/items/show/427"
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "The official spanishfork.org monument page timed out (curl 000, WebFetch 504). Source is Intermountain Histories (an article by a BYU author). The 'first sixteen permanent Icelandic settlers in the United States' wording comes from that page."
+ },
+ "Thistle Landslide and Ghost Town Viewpoint": {
+  "key": "thistle",
+  "city": "Spanish Fork Canyon (Thistle)",
+  "geo": {
+   "lat": 39.979634,
+   "lng": -111.503196,
+   "geo_source": "nominatim",
+   "osm": "node 150966876",
+   "display": "Thistle (OSM place node)",
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "note": "Pinned to the Thistle place node, not the US-6 viewpoint pullout. Hand-pin.",
+   "changed": true,
+   "outcome": "hand_pinned_by_utah",
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "OSM API: amenity=parking way 1573252681 beside US-6.",
+   "hand_pin_notes": "UGS GeoSight: about 12.7 mi from I-15, a large pullout on US-6 just before a massive double road cut, with overlook and signs; the town ruins are about 1.5 mi on via US-89. This parking area is the best OSM match for that pullout, but OSM doesn't name it. Research pinned the Thistle place node (39.992664,-111.497547) instead. Secondary point: Thistle town ruins.",
+   "pre_hand_pin": [
+    39.992664,
+    -111.497547
+   ],
+   "correction_m": 1527,
+   "secondary_point": {
+    "label": "Thistle town ruins, off US-89",
+    "lat": 39.992664,
+    "lng": -111.497547
+   }
+  },
+  "cost_mapping": {
+   "current": "Free",
+   "basis": "per person",
+   "evidence": "https://geology.utah.gov/map-pub/survey-notes/geosights/thistle-landslide/"
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "The UGS GeoSight ('Revisited') is dated 2005-era. The description paraphrases it. Pin = the UGS overlook pullout on US-6 (Utah hand-pin). Secondary point: Thistle town ruins, off US-89, 39.992664,-111.497547 (OSM place node 150966876; the old pin)."
+ },
+ "Volunteer a Shift at the Habitat for Humanity ReStore": {
+  "key": "habitat",
+  "city": "Orem",
+  "geo": {
+   "lat": 40.291085,
+   "lng": -111.694965,
+   "geo_source": "nominatim",
+   "osm": "way 64880642",
+   "display": "340 Orem Boulevard, Orem",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "Free",
+   "basis": "per person",
+   "evidence": "https://www.habitatuc.org/volunteer/volunteer-overview/"
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29"
+ },
+ "Sort Food at Tabitha's Way Pleasant Grove Pantry": {
+  "key": "tabitha",
+  "city": "Pleasant Grove",
+  "geo": {
+   "lat": 40.367611,
+   "lng": -111.750685,
+   "geo_source": "nominatim",
+   "osm": "way 1552734706",
+   "display": "Tabitha's Way, 675 West Garden Drive, Pleasant Grove",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "Free",
+   "basis": "per person",
+   "evidence": "https://tabithasway.org/volunteer/volunteer-pleasant-grove-pantry/"
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "Switched from the Spanish Fork pantry, whose address isn't on the page or in OSM, to Pleasant Grove (address on the page, Nominatim match). The PG page doesn't list shift hours or a minimum age; Spanish Fork lists 12+ (under 16 with an adult)."
+ },
+ "Become Project Read Literacy Tutors": {
+  "key": "projread",
+  "city": "Provo",
+  "geo": {
+   "lat": 40.241125,
+   "lng": -111.657325,
+   "geo_source": "nominatim",
+   "osm": "way 220747888",
+   "display": "Provo City Library, 550 University Avenue, Provo",
+   "needs_hand_pin": false,
+   "coords_locked": false,
+   "note": ""
+  },
+  "cost_mapping": {
+   "current": "$20-$30",
+   "basis": "per person",
+   "evidence": "$20 refundable materials fee, conservatively $20-$30."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "This is an ongoing commitment, so it's best for established couples (stage: Serious Relationship)."
+ },
+ "Hike Silver Lake Trail #036 in American Fork Canyon": {
+  "key": "silverlake",
+  "city": "American Fork Canyon",
+  "geo": {
+   "lat": 40.507144,
+   "lng": -111.656326,
+   "geo_source": "nominatim",
+   "osm": "way 973436090",
+   "display": "Silver Lake Flat Reservoir Dam",
+   "needs_hand_pin": false,
+   "coords_locked": true,
+   "note": "Pinned at the reservoir dam; the trailhead is on the north side. Hand-pin.",
+   "changed": true,
+   "outcome": "hand_pinned_by_utah",
+   "locked_source": "/workspace/spark-team/utah/research-hand-pins.json",
+   "locked_method": "Nominatim: OSM node 12288622491 'Silver Lake Trailhead' on Silver Lake Trail, Silver Lake Summer Home Area, Utah County.",
+   "hand_pin_notes": "This is the American Fork Canyon Silver Lake from the Research item (USFS Trail #036, Pleasant Grove Ranger District), not Brighton's Silver Lake in Big Cottonwood Canyon (the other Nominatim hit, Salt Lake County). The USFS page puts the trailhead on the north side of Silver Lake Flat Reservoir; the pin is there, about 620 m north of Research's dam point. The area charges a recreation fee at the canyon booth. Seasonal: summer and fall.",
+   "pre_hand_pin": [
+    40.501649,
+    -111.654407
+   ],
+   "correction_m": 632
+  },
+  "cost_mapping": {
+   "current": "$1-$10",
+   "basis": "per person",
+   "evidence": "USFS Trail #036 page: 'This is a Recreation Fee Area and you will pay your fee at the booth' (amount not on that page). Amount inferred, not stated for this trail: the same canyon's USFS Tibble Fork page (v1) gives a $10 per vehicle day-use fee, so $10 per car: $1-$10 (round 5; was Free).",
+   "note": "Fee amount is inferred, not stated: the Trail #036 page only says it is a Recreation Fee Area paid at the booth; the $10 per vehicle figure comes from the USFS Tibble Fork page (same canyon, v1). Kept at $1-$10."
+  },
+  "expires_at_basis": "null: ongoing/non-dated item",
+  "source_fetched": "2026-10-29",
+  "note": "Seasonal: hold for spring/summer 2027. Late October road and snow conditions are uncertain.",
+  "hold": {
+   "status": "hold",
+   "note": "Seasonal (Summer/Fall). Hold for approval until spring 2027, after checking road and trail conditions.",
+   "checked": "2026-10-29"
+  },
+  "occurrences_note": "Trail; seasonal (summer/fall) but open-access, so anytime in season (hold note stands)."
+ },
+ "_meta": {
+  "attribution": "Geocoding © OpenStreetMap contributors (ODbL), via Nominatim",
+  "lock_convention": "coords_locked lives in the review geo block. Round 5 (Jaderoo): the 7 Utah hand-pins for v3 are copied exactly from /workspace/spark-team/utah/research-hand-pins.json with coords_locked true, needs_hand_pin false, pre_hand_pin and correction_m (haversine, m). The Nemesis balloon item is area_based: lat/lng null, address describes the launch towns.",
+  "expires_at_convention": "Every item has expires_at: YYYY-MM-DD (last valid day, America/Denver) for dated items, null for ongoing/recurring/non-dated.",
+  "built": "2026-10-29",
+  "geocoder_ua": "SparkProvoFinds/0.1 (+https://github.com/tibbittsjustin-jpg/Spraks-)",
+  "occurrences_format": "See the Occurrences format section in provo-finds-v3-notes.md (round 5, 2026-10-31)."
+ },
+ "_dropped_v3": {
+  "Utah Valley Llamas farm tour": "The official page (sites.google.com/view/utahvalleyllamas) gives no street address ('1 mi south of Spanish Fork, next to KHQN'), Nominatim finds neither the search-only address nor KHQN, and the site copyright is 2019. Coordinates can't be verified.",
+  "Pond Town Christmas (Salem Pond floating lights)": "The salemutah.gov page only shows the 2025-26 season. 2026 dates aren't posted, so hold until they are.",
+  "Tabitha's Way Spanish Fork pantry": "The page and OSM have no address. Replaced with the Pleasant Grove pantry (address on the page, Nominatim match).",
+  "McCurdy Historical Doll Museum": "Closed: no longer exists (mccurdydollmuseum.wordpress.com).",
+  "Alpine Art Center tour": "The 'free tour' is an event-venue/wedding tour, not a public attraction.",
+  "Kitty's Cat Cafe (Orem)": "The site says 'hoping to open soon'. Not open.",
+  "LK Cooking (Lehi)": "Not accepting classes / no price or address.",
+  "Payson Community Theatre 'Ebenezer'": "No dates on the page.",
+  "BYU Divine Comedy": "No fall 2026 dates.",
+  "Fly-fishing guide (Fish Heads)": "Heber-based. The Utah County trip location is unclear.",
+  "Wreaths Across America": "Nearest listed location is Bluffdale (Salt Lake County).",
+  "Humphries Archery / Ready Gunner": "Humphries returned 403. Ready Gunner is a third-party listing for a gun range.",
+  "True REST float, BYU Clue dinner (Bean Museum), SCERA, Covey, The Ruth, Fat Daddy's, Taste117": "Venue already in data.js, or not verifiable (see v1/v2 notes).",
+  "Provo city art classes": "provo.gov returned 403.",
+  "Lehi outdoor rink": "No dates posted.",
+  "Hutchings ghost hunts / lantern tours": "Ghost-hunt page 404. Lantern tours were Oct 10 (past).",
+  "Mt Nebo trail": "Trailhead in Juab County.",
+  "Provo murder mystery": "Third-party listing; generic idea.",
+  "Owl Bar / any Sundance item": "Avoided for v3 (Sundance is heavily covered in v2; Owl Bar Old West Night was dropped in Round 4)."
+ }
+}

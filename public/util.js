@@ -158,12 +158,47 @@
     return { kind: "time", label: label };
   }
 
-  // Discover card (and any row that shares this lock): a gesture stays
-  // undecided until it leaves a 10px slop. Then it locks for the rest of
-  // the gesture — vertical when |dy| wins, horizontal only when |dx| is
-  // clearly larger (|dx| > 1.5×|dy|). A vertical lock never moves or
-  // commits a card. A horizontal lock commits only past 32% of the card
-  // width, or on a fast flick that is still clearly horizontal.
+  // A public website link. Parse with URL and keep only https:// pages
+  // that have a host and no username or password. http, javascript:, data:,
+  // blank, and anything URL cannot parse are dropped.
+  function httpsPageUrl(value){
+    if(typeof value !== "string") return "";
+    var trimmed = value.trim();
+    if(!trimmed || /\s/.test(trimmed)) return "";
+    if(!/^https:\/\//i.test(trimmed)) return "";
+    var parsed;
+    try {
+      parsed = new URL(trimmed);
+    } catch (err) {
+      return "";
+    }
+    if(parsed.protocol !== "https:") return "";
+    if(parsed.username || parsed.password) return "";
+    if(!parsed.hostname) return "";
+    if(parsed.href.slice(0, 8).toLowerCase() !== "https://") return "";
+    return parsed.href;
+  }
+
+  // Prefer source_url. An invalid source_url does not fall through.
+  // sourceUrl is the same field from the activities API. url is the
+  // optional website on a built-in idea.
+  function activityWebsite(idea){
+    if(!idea || typeof idea !== "object") return "";
+    function present(key){
+      if(!Object.prototype.hasOwnProperty.call(idea, key)) return false;
+      var value = idea[key];
+      return value != null && String(value).trim() !== "";
+    }
+    if(present("source_url")) return httpsPageUrl(idea.source_url);
+    if(present("sourceUrl")) return httpsPageUrl(idea.sourceUrl);
+    if(present("url")) return httpsPageUrl(idea.url);
+    return "";
+  }
+
+  // Shared direction lock for a pointer gesture. Stays undecided until
+  // travel leaves a 10px slop, then locks for the rest of the gesture:
+  // vertical when |dy| wins, horizontal only when |dx| > 1.5×|dy|.
+  // Callers decide what a locked axis does (scroll, drag, delete, recap).
   var SWIPE_SLOP_PX = 10;
   var SWIPE_HORIZONTAL_RATIO = 1.5;
   var SWIPE_COMMIT_FRACTION = 0.32;
@@ -182,10 +217,10 @@
     return null;
   }
 
-  // phase "move" → pending | scroll | drag
-  // phase "end"  → tap | scroll | snap | save | pass
-  // save is a rightward swipe, pass is leftward. Pass axis through once
-  // locked so a later sample cannot flip the gesture.
+  // Discover card commit. phase "move" → pending | scroll | drag.
+  // phase "end" → tap | scroll | snap | save | pass.
+  // save is rightward, pass is leftward. Pass the locked axis back in
+  // so a later sample cannot flip the gesture.
   function resolveCardSwipe(state){
     state = state || {};
     var dx = Number(state.dx) || 0;
@@ -220,6 +255,8 @@
 
   return {
     escapeHtml: escapeHtml,
+    httpsPageUrl: httpsPageUrl,
+    activityWebsite: activityWebsite,
     fmtDate: fmtDate,
     todayISO: todayISO,
     pad2: pad2,

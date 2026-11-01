@@ -1,0 +1,1716 @@
+[
+ {
+  "title": "Take a Discovery Flight with Utah Valley Aviation",
+  "description": "Book a Discovery Flight at Utah Valley Aviation at the Provo Airport: about an hour of flight time with a flight instructor for $150. Request it on their site or call 801-447-7888.",
+  "category": "Big Bucket-List Experiences",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Over $100",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Spontaneous"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple"
+  ],
+  "food": false,
+  "address": "Provo Municipal Airport, 3421 Mike Jense Pkwy, Provo, UT 84601",
+  "lat": 40.21922,
+  "lng": -111.720592,
+  "source_url": "https://utahvalleyaviation.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "15-Minute Helicopter Tour over Provo, BYU and Y Mountain",
+  "description": "Utah Helicopter flies a 15-minute tour from the Spanish Fork Airport over Provo, BYU, Y Mountain and Provo Peak. In the R44 it's $69 a seat ($208.07 for all 3 seats). Longer tours include a 45-minute Utah Valley Temple night tour at $215 a seat.",
+  "category": "Big Bucket-List Experiences",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "Spanish Fork Municipal Airport, Spanish Fork, UT 84660",
+  "lat": 40.144561,
+  "lng": -111.663566,
+  "source_url": "https://www.utahhelicopter.com/tours",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Private Sunrise Hot Air Balloon Flight with Nemesis Balloon Team",
+  "description": "Nemesis Balloon Team flies private sunrise balloon flights from Utah County spots, including American Fork, Lehi, Lindon, Pleasant Grove and Springville. The private flight is $1,500. Contact them to book and choose a launch spot.",
+  "category": "Big Bucket-List Experiences",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall"
+  ],
+  "cost": "Over $100",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning"
+  ],
+  "vibe": [
+   "Romantic",
+   "Adventurous"
+  ],
+  "stage": [
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple"
+  ],
+  "food": false,
+  "address": "Launch site chosen at booking: American Fork, Lehi, Lindon, Pleasant Grove or Springville, UT",
+  "lat": null,
+  "lng": null,
+  "source_url": "https://www.nemesisballoonteam.com/flights-services",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Learn to Ice Climb in Provo Canyon with Utah Mountain Adventures",
+  "description": "Take Utah Mountain Adventures' one-day Ice Climbing 1 course in Provo Canyon for $279 plus tax. Groups meet at 7:30am in the Nunn's Park exit lot. Upcoming dates: Dec 12 and 26, Jan 9 and 30, Feb 15 and 27.",
+  "category": "Winter & Snow Adventures",
+  "setting": "Outdoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "Over $100",
+  "duration": "Full day",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Active"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "Nunn's Park, Provo Canyon, UT 84604",
+  "lat": 40.336584,
+  "lng": -111.612082,
+  "source_url": "https://www.utahmountainadventures.com/courses/ice-climbing-1/",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-12",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-26",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2027-01-09",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2027-01-30",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2027-02-15",
+    "start": "07:30",
+    "end": null
+   },
+   {
+    "date": "2027-02-27",
+    "start": "07:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2027-02-27",
+  "status": "pending"
+ },
+ {
+  "title": "Drive Through Christmas in Color at Mary & Art Dye Park",
+  "description": "Drive through the Christmas in Color light show at Mary & Art Dye Park in American Fork, Nov 20–Dec 30, 2026. Tickets start at $34.99 per vehicle.",
+  "category": "Winter & Snow Adventures",
+  "setting": "Both",
+  "season": [
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Cozy",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "Mary & Art Dye Park, American Fork, UT 84003",
+  "lat": 40.39642,
+  "lng": -111.782504,
+  "source_url": "https://nowplayingutah.com/event/2026-christmas-in-color-drive-thru-light-show-2/",
+  "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-20",
+    "end_date": "2026-12-30",
+    "weekdays": [
+     "Mon",
+     "Tue",
+     "Wed",
+     "Thu",
+     "Fri",
+     "Sat",
+     "Sun"
+    ],
+    "start": "19:00",
+    "end": "21:00",
+    "exclude": [
+     "2026-11-26"
+    ]
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-30",
+  "status": "pending"
+ },
+ {
+  "title": "Sauna and Cold Plunge Contrast Night at Löyly Nordic Spa",
+  "description": "Löyly Nordic Spa in Orem calls itself home to the largest Finnish sauna in the US, which seats 60, plus 12 cold tubs. Unlimited memberships are $45 a month. Open Mon–Thu 6am–9pm, Fri–Sat 6am–10pm, Sun 8am–2pm.",
+  "category": "Local Provo/Utah County Business Dates",
+  "setting": "Both",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Cozy"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "564 E Park Ave, Orem, UT 84097",
+  "lat": 40.276053,
+  "lng": -111.681857,
+  "source_url": "https://www.loylynordicspa.com/orem",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Paint Splatter and Glass Throwing at Smash It Orem",
+  "description": "Book a Paint Splatter room, where you fling paint at a canvas, or the Throw Zone for glass throwing at Smash It Rage Rooms on State Street in Orem. Open Mon–Thu 3–10pm, Fri–Sat 11am–11pm, Sun 11am–6pm. Reservations recommended.",
+  "category": "Silly, Prank & Goofy Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Active"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "170 S State St, Orem, UT 84058",
+  "lat": 40.293917,
+  "lng": -111.694107,
+  "source_url": "https://smashitragerooms.com/rage-room-in-orem-utah/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Try Fencing at Valkyrie Fencing Club",
+  "description": "Valkyrie Fencing Club in Pleasant Grove runs an adult session (ages 13+) Tue–Fri 6:30–8:30pm. A trial membership is $100 for 8 sessions, and the beginning fencing class is $150 a month.",
+  "category": "Learning New Skills",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Adventurous"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "560 W State St, Pleasant Grove, UT 84062",
+  "lat": 40.36245,
+  "lng": -111.7487,
+  "source_url": "https://www.valkyriefencingclub.com/beginfencing",
+  "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Tue",
+     "Wed",
+     "Thu",
+     "Fri"
+    ],
+    "start": "18:30",
+    "end": "20:30"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Drop In to an Aerial Silks Class at Harmony Fitness Studio",
+  "description": "Take a single aerial silks class together at Harmony Fitness Studio in Orem for $25 per class (ages 14+). The studio also teaches pole.",
+  "category": "Learning New Skills",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Adventurous"
+  ],
+  "stage": [
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "1431 S State St, Orem, UT 84097",
+  "lat": 40.270462,
+  "lng": -111.683155,
+  "source_url": "https://www.harmonyfitnessstudio.com/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Pull a Page on a Gutenberg Press at the Crandall Printing Museum",
+  "description": "Book a one-hour tour at the Crandall Printing Museum, now at 65 W Main Street Ct in Alpine. Choose the Gutenberg, Benjamin Franklin or Book of Mormon printing tour. Adults are $8. Open by appointment; call 801-500-3099.",
+  "category": "Learning New Skills",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Chill",
+   "Creative"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "65 W Main Street Ct, Alpine, UT 84004",
+  "lat": 40.44895,
+  "lng": -111.778358,
+  "source_url": "https://www.thecrandall.org/tours",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Blow a Glass Flower at Holdman Studios",
+  "description": "Book a one-on-one Basic Glass Flower session at Holdman Studios on Thanksgiving Way in Lehi: up to two colors with a straight or curly stem, working molten glass at 2100°. Ages 10+. Hot-shop pieces need 24 hours to cool, so pick yours up the next day.",
+  "category": "Arts, Crafts & Making Things",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon"
+  ],
+  "vibe": [
+   "Creative",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "3001 N Thanksgiving Way, Lehi, UT 84043",
+  "lat": 40.425334,
+  "lng": -111.88891,
+  "source_url": "https://www.holdmanstudios.com/blown-glass-classes",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Friday Night Silent Disco at Dizzy Disco",
+  "description": "Put on headphones and pick a channel at Dizzy Disco's Friday silent disco in Provo, 10pm–midnight. General admission is usually $10.",
+  "category": "Silly, Prank & Goofy Dates",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Night"
+  ],
+  "vibe": [
+   "Silly",
+   "Active"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "1078 S 250 E, Provo, UT 84606",
+  "lat": 40.220046,
+  "lng": -111.654102,
+  "source_url": "https://dizzydiscoprovo.com/",
+  "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-10-31",
+    "end_date": null,
+    "weekdays": [
+     "Fri"
+    ],
+    "start": "22:00",
+    "end": "00:00"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Run the Utah Santa Run in Matching Santa Suits",
+  "description": "Sign up for the Utah Santa Run in Salem on Dec 5, 2026 at 4:15pm: a 5K or 1.55-mile loop around the Salem Pond lights. A Santa suit is included in the $44 entry, and the price goes up after Nov 4.",
+  "category": "Silly, Prank & Goofy Dates",
+  "setting": "Outdoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Active"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "60 N 100 E, Salem, UT 84653",
+  "lat": 40.05532,
+  "lng": -111.67105,
+  "source_url": "https://runsignup.com/Race/UT/Salem/UtahSantaRunProvo",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-05",
+    "start": "16:15",
+    "end": "17:15"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-05",
+  "status": "pending"
+ },
+ {
+  "title": "See 'A Krampus Karol' at the Angelus Theatre",
+  "description": "Catch 'A Krampus Karol', an offbeat Christmas comedy musical thriller in its fifth year at the Angelus Theatre in Spanish Fork. It runs Dec 9–23 at 7:30pm.",
+  "category": "Silly, Prank & Goofy Dates",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "165 N Main St, Spanish Fork, UT 84660",
+  "lat": 40.111892,
+  "lng": -111.655248,
+  "source_url": "https://www.angelustheatre.com/events/",
+  "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-12-09",
+    "end_date": "2026-12-23",
+    "weekdays": [
+     "Mon",
+     "Tue",
+     "Wed",
+     "Thu",
+     "Fri",
+     "Sat",
+     "Sun"
+    ],
+    "start": "19:30",
+    "end": "21:30"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-23",
+  "status": "pending"
+ },
+ {
+  "title": "Come in Costume to the Magical Museum Night at Hutchings",
+  "description": "Dress up for the Hutchings Museum's Magical Museum night in Lehi: live animals and 'mystical creatures', Nov 20–21, 6–8:30pm. Tickets are $10 per person.",
+  "category": "Silly, Prank & Goofy Dates",
+  "setting": "Indoor",
+  "season": [
+   "Fall"
+  ],
+  "cost": "$1-$10",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Creative"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "55 N Center St, Lehi, UT 84043",
+  "lat": 40.388621,
+  "lng": -111.849663,
+  "source_url": "https://www.jhutchingsmuseum.com/events/magical-museum",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-20",
+    "start": "18:00",
+    "end": "20:30"
+   },
+   {
+    "date": "2026-11-21",
+    "start": "18:00",
+    "end": "20:30"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-11-21",
+  "status": "pending"
+ },
+ {
+  "title": "Skinwalker Ranch Talk with Ben Woodruff at Hutchings Museum",
+  "description": "Hear Ben Woodruff talk about Skinwalker Ranch at the Hutchings Museum in Lehi: Nov 6 at 6:00, and Nov 7 at 4:00 and 7:00. Tickets are $10.",
+  "category": "Themed Nights & Dinners",
+  "setting": "Indoor",
+  "season": [
+   "Fall"
+  ],
+  "cost": "$1-$10",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Spontaneous",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "55 N Center St, Lehi, UT 84043",
+  "lat": 40.388621,
+  "lng": -111.849663,
+  "source_url": "https://www.jhutchingsmuseum.com/skinwalker-ranch",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-06",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-07",
+    "start": "16:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-07",
+    "start": "19:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-11-07",
+  "status": "pending"
+ },
+ {
+  "title": "Rock Out at 'Valhalla | Concert Edition' at the Angelus",
+  "description": "See the concert version of 'Valhalla | A Nordic Rock Opera' at the Angelus Theatre in Spanish Fork, Nov 12–14 at 7:30pm, performed by past cast members. Come dressed for Asgard.",
+  "category": "Themed Nights & Dinners",
+  "setting": "Indoor",
+  "season": [
+   "Fall"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Adventurous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "165 N Main St, Spanish Fork, UT 84660",
+  "lat": 40.111892,
+  "lng": -111.655248,
+  "source_url": "https://www.angelustheatre.com/events/",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-12",
+    "start": "19:30",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-13",
+    "start": "19:30",
+    "end": "21:30"
+   },
+   {
+    "date": "2026-11-14",
+    "start": "19:30",
+    "end": "21:30"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-11-14",
+  "status": "pending"
+ },
+ {
+  "title": "Neo-Soul Night: Moonspyne at the Angelus Theatre",
+  "description": "See Utah neo-soul band Moonspyne, fronted by Anna Hansen, at the historic Angelus Theatre in Spanish Fork on Nov 7, 7:30–9:30pm. Tickets are $15.",
+  "category": "Dancing & Live Entertainment",
+  "setting": "Indoor",
+  "season": [
+   "Fall"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "165 N Main St, Spanish Fork, UT 84660",
+  "lat": 40.111892,
+  "lng": -111.655248,
+  "source_url": "https://www.angelustheatre.com/events/",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-07",
+    "start": "19:30",
+    "end": "21:30"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-11-07",
+  "status": "pending"
+ },
+ {
+  "title": "Timpanogos Symphony 'O Holy Night' Christmas Concert",
+  "description": "Hear the Timpanogos Symphony Orchestra's 'O Holy Night' concert at Orem High School, Dec 4–5, 2026 at 7:30pm.",
+  "category": "Dancing & Live Entertainment",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Romantic",
+   "Cozy"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "Orem High School, 175 S 400 E, Orem, UT 84097",
+  "lat": 40.292968,
+  "lng": -111.683576,
+  "source_url": "https://thetso.org/20262027-buytickets",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-05",
+  "status": "pending"
+ },
+ {
+  "title": "Timpanogos Chorale's 'An Old Fashioned Christmas'",
+  "description": "The Timpanogos Chorale performs 'An Old Fashioned Christmas' at American Fork Junior High on Dec 16 at 7pm. Admission is free; donations welcome.",
+  "category": "Dancing & Live Entertainment",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Cozy",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "American Fork Jr. High, 20 W 1120 N, American Fork, UT 84003",
+  "lat": 40.40126,
+  "lng": -111.799048,
+  "source_url": "https://www.timpanogoschorale.org/events/",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-16",
+    "start": "19:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-16",
+  "status": "pending"
+ },
+ {
+  "title": "'It's a Wonderful Life' at the Lehi Arts Center",
+  "description": "See the Lehi Arts Council's 'It's a Wonderful Life' at the Lehi Arts Center, Dec 4–19 at 7:30pm.",
+  "category": "Movies & Shows",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Cozy",
+   "Romantic"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "685 N Center St, Lehi, UT 84043",
+  "lat": 40.395776,
+  "lng": -111.849793,
+  "source_url": "https://www.lehiarts.org/tickets",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-04",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-07",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-08",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-10",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-11",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-12",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-14",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-15",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-17",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-18",
+    "start": "19:30",
+    "end": null
+   },
+   {
+    "date": "2026-12-19",
+    "start": "19:30",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-19",
+  "status": "pending"
+ },
+ {
+  "title": "Self-Guided Footloose Filming Locations Tour",
+  "description": "Visit the 1984 'Footloose' filming spots in Utah County from the Utah Film Commission's guide: Lehi Roller Mills, Payson Memorial Park and the American Fork Presbyterian Church. Payson High was torn down in 2025.",
+  "category": "Movies & Shows",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Spontaneous",
+   "Silly"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Lehi Roller Mills, 833 Main St, Lehi, UT 84043",
+  "lat": 40.388434,
+  "lng": -111.836556,
+  "source_url": "https://film.utah.gov/footloose-40-years-later/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Pinball Duel at Nickel Mania Orem",
+  "description": "Challenge each other on what Nickel Mania calls Utah's largest pinball collection, at 1000 N State St in Orem. Admission is $2.50, and games run on a loadable card. Open Mon–Thu 10am–11pm and Fri–Sat 10am–midnight; closed Sundays.",
+  "category": "Games, Contests & Scavenger Hunts",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Silly",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "1000 N State St, Orem, UT 84057",
+  "lat": 40.315389,
+  "lng": -111.70209,
+  "source_url": "https://nickelmaniaarcade.com/orem/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Late-Night Board Games at Apothecoffee",
+  "description": "Apothecoffee, a coffee and tea house in Orem with table games, adds evening hours on Nov 1, 2026: Thu–Sun 7–11pm. Order drinks and play a few games.",
+  "category": "Games, Contests & Scavenger Hunts",
+  "setting": "Indoor",
+  "season": [
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening",
+   "Night"
+  ],
+  "vibe": [
+   "Cozy",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": true,
+  "address": "360 S State St, Bldg A Ste 148, Orem, UT 84058",
+  "lat": 40.290479,
+  "lng": -111.692219,
+  "source_url": "https://apothe.coffee/",
+  "age21": false,
+  "occurrences": [
+   {
+    "start_date": "2026-11-01",
+    "end_date": null,
+    "weekdays": [
+     "Thu",
+     "Fri",
+     "Sat",
+     "Sun"
+    ],
+    "start": "19:00",
+    "end": "23:00"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Bowl a Few Frames at the BYU Bowling & Games Center",
+  "description": "Bowl at the BYU Bowling & Games Center in the Wilkinson Student Center: $4.50–$6 a game plus $4 shoes. Fall hours: Mon–Thu 1–10pm, Fri 1–11pm, Sat 11am–11pm; closed Sunday.",
+  "category": "Sports, Games & Rec",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Silly",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "Wilkinson Student Center, BYU, Provo, UT 84602",
+  "lat": 40.248571,
+  "lng": -111.647347,
+  "source_url": "https://bowling.byu.edu/pricing",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Cheer On UVU Men's Basketball at the UCCU Center",
+  "description": "Catch a UVU Wolverines men's basketball home game at the UCCU Center in Orem. Home dates run Nov 2, 2026 to Feb 27, 2027.",
+  "category": "Sports, Games & Rec",
+  "setting": "Indoor",
+  "season": [
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$100 and under",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Evening"
+  ],
+  "vibe": [
+   "Active",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "UCCU Center, 800 W University Pkwy, Orem, UT 84058",
+  "lat": 40.278666,
+  "lng": -111.71706,
+  "source_url": "https://gouvu.com/sports/mens-basketball/schedule/2026-27",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-11-02",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2026-11-28",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-05",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-21",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2026-12-31",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-02",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-14",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-16",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-21",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-01-23",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-11",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-13",
+    "start": "14:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-25",
+    "start": "18:00",
+    "end": null
+   },
+   {
+    "date": "2027-02-27",
+    "start": "14:00",
+    "end": null
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2027-02-27",
+  "status": "pending"
+ },
+ {
+  "title": "Wander the Hutchings Museum's Oddities in Lehi",
+  "description": "Browse the Hutchings Museum's exhibits at 55 N Center St in Lehi. Veterans get in for $6. Admission is $8 for ages 13+. Open Tue, Fri and Sat 11–5, and Wed–Thu 11–8.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$1-$10",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "55 N Center St, Lehi, UT 84043",
+  "lat": 40.388621,
+  "lng": -111.849663,
+  "source_url": "https://www.jhutchingsmuseum.com/visit",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Free Afternoon at the Peteetneet Museum in Payson",
+  "description": "Tour the Peteetneet Museum and Cultural Arts Center in Payson, housed in the former Peteetneet School (dedicated 1901), with a period classroom exhibit. Admission is free (donations welcome). Open Tue–Fri 10–4 and Sat 10–1.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "10 N 600 E, Payson, UT 84651",
+  "lat": 40.043564,
+  "lng": -111.724136,
+  "source_url": "https://www.paysonutah.gov/270/Peteetneet",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Interfaith Christmas Crèche Exhibit by the Timpanogos Temple",
+  "description": "Walk through the Interfaith Christmas Crèche Exhibit next to the Mount Timpanogos Temple: crèche displays, a live silhouette nativity and musical performances. Dec 1, 3–9pm, and Dec 2–4, noon–9pm. No tickets are listed.",
+  "category": "Culture, Community & Local Attractions",
+  "setting": "Indoor",
+  "season": [
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Cozy",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "850 N 900 E, American Fork, UT 84003",
+  "lat": 40.394947,
+  "lng": -111.772556,
+  "source_url": "https://christmascrecheutah.org/",
+  "age21": false,
+  "occurrences": [
+   {
+    "date": "2026-12-01",
+    "start": "15:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-02",
+    "start": "12:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-03",
+    "start": "12:00",
+    "end": "21:00"
+   },
+   {
+    "date": "2026-12-04",
+    "start": "12:00",
+    "end": "21:00"
+   }
+  ],
+  "occurrences_flag": false,
+  "expires_at": "2026-12-04",
+  "status": "pending"
+ },
+ {
+  "title": "Visit the Icelandic Monument Lighthouse in Spanish Fork",
+  "description": "See the 1938 lighthouse monument in Spanish Fork. It honors the first sixteen permanent Icelandic settlers in the United States, who came to Utah in 1855.",
+  "category": "Local Utah/Idaho Spots & Day Trips",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Quick (under 1 hr)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "Icelandic Monument, 400 S 800 E, Spanish Fork, UT 84660",
+  "lat": 40.104663,
+  "lng": -111.640934,
+  "source_url": "https://www.intermountainhistories.org/items/show/427",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Thistle Landslide and Ghost Town Viewpoint",
+  "description": "Drive up Spanish Fork Canyon on US-6 to the Utah Geological Survey's Thistle landslide GeoSight: a large pullout just before a big double road cut, with an overlook and signs about the 1983 landslide that dammed the Spanish Fork River, flooded both highways and wiped out the town of Thistle. The town ruins are about 1.5 miles farther on via US-89. Stay at the pullouts; the land around is private or railroad property.",
+  "category": "Local Utah/Idaho Spots & Day Trips",
+  "setting": "Outdoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Adventurous",
+   "Spontaneous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date"
+  ],
+  "food": false,
+  "address": "US-6 pullout before the double road cut, Spanish Fork Canyon, Utah County, UT",
+  "lat": 39.979634,
+  "lng": -111.503196,
+  "source_url": "https://geology.utah.gov/map-pub/survey-notes/geosights/thistle-landslide/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Volunteer a Shift at the Habitat for Humanity ReStore",
+  "description": "Volunteer together at Habitat for Humanity of Utah County's ReStore in Orem (open Tue–Sat 10am–6pm; groups up to 15). Build sites require ages 16+. Call 801.344.8527.",
+  "category": "Service, Kindness & Community",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Active",
+   "Chill"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "340 S Orem Blvd, Orem, UT 84058",
+  "lat": 40.291085,
+  "lng": -111.694965,
+  "source_url": "https://www.habitatuc.org/volunteer/volunteer-overview/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Sort Food at Tabitha's Way Pleasant Grove Pantry",
+  "description": "Sign up for a 1–3 hour shift at Tabitha's Way local food pantry, now at 675 W Garden Dr in Pleasant Grove. Volunteers prep for clients, hand out and sort food, and help keep the pantry organized.",
+  "category": "Service, Kindness & Community",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "Free",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Chill",
+   "Active"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "675 W Garden Dr #100, Pleasant Grove, UT 84062",
+  "lat": 40.367611,
+  "lng": -111.750685,
+  "source_url": "https://tabithasway.org/volunteer/volunteer-pleasant-grove-pantry/",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Become Project Read Literacy Tutors",
+  "description": "Train as volunteer adult-literacy tutors with Project Read at the Provo City Library. Tutors are 18+ and commit about 3 hours a week for 6 months. There's a $20 refundable materials fee.",
+  "category": "Service, Kindness & Community",
+  "setting": "Indoor",
+  "season": [
+   "Spring",
+   "Summer",
+   "Fall",
+   "Winter"
+  ],
+  "cost": "$20-$30",
+  "duration": "Short (1-2 hrs)",
+  "time": [
+   "Afternoon",
+   "Evening"
+  ],
+  "vibe": [
+   "Chill"
+  ],
+  "stage": [
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple"
+  ],
+  "food": false,
+  "address": "550 N University Ave, Suite 215, Provo, UT 84601",
+  "lat": 40.241125,
+  "lng": -111.657325,
+  "source_url": "https://www.projectreadutah.org/volunteer/become-a-volunteer",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ },
+ {
+  "title": "Hike Silver Lake Trail #036 in American Fork Canyon",
+  "description": "Hike USFS Trail #036 in the North Fork of American Fork Canyon: 2.3 miles from the trailhead on the north side of Silver Lake Flat Reservoir up to the lake. American Fork Canyon is a Forest Service recreation fee area (pay at the booth). It's a summer and fall trail, so check Forest Service conditions and the canyon road before you go.",
+  "category": "Hiking & Nature",
+  "setting": "Outdoor",
+  "season": [
+   "Summer",
+   "Fall"
+  ],
+  "cost": "$1-$10",
+  "duration": "Half-day (2-5 hrs)",
+  "time": [
+   "Morning",
+   "Afternoon"
+  ],
+  "vibe": [
+   "Active",
+   "Adventurous"
+  ],
+  "stage": [
+   "First Date",
+   "Second/Third Date",
+   "Serious Relationship"
+  ],
+  "dateType": [
+   "Solo/Couple",
+   "Double Date",
+   "Group Date"
+  ],
+  "food": false,
+  "address": "North side of Silver Lake Flat Reservoir, American Fork Canyon (North Fork), Utah County, UT",
+  "lat": 40.507144,
+  "lng": -111.656326,
+  "source_url": "https://www.fs.usda.gov/r04/uinta-wasatch-cache/recreation/trails/silver-lake-trail-036",
+  "age21": false,
+  "occurrences": null,
+  "occurrences_flag": false,
+  "expires_at": null,
+  "status": "pending"
+ }
+]

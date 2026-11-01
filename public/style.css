@@ -550,6 +550,7 @@ background:linear-gradient(to top, rgba(14,15,18,.84) 0%, rgba(14,15,18,.28) 48%
 .btn-outline{
 background:var(--surface); border:1.5px solid var(--border); color:var(--text); padding:13px; border-radius:14px;
 font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;
+text-decoration:none;
 }
 .btn-outline svg{ width:16px; height:16px; }
 .btn-outline.active{ border-color:var(--accent); color:var(--accent); background:var(--surface-soft); }

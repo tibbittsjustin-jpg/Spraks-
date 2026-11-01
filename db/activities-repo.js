@@ -16,8 +16,20 @@ const OVERLAP_FIELDS = {
 
 const SELECT_COLUMNS =
   "id, title, description, materials, category, icon, setting, season, food, age21, cost, duration, " +
-  "time, vibe, stage, date_type, scene, motif, source, tier, address, city, source_url, affiliate_url, updated_at, " +
+  "time, vibe, stage, date_type, scene, motif, source, tier, address, city, source_url, " +
+  "to_char(expires_at, 'YYYY-MM-DD') AS expires_at, occurrences, affiliate_url, updated_at, " +
   "ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng";
+
+// A date column compared in America/Denver. now()::date would follow the
+// session clock, so 11:30pm in Denver would already look like tomorrow in UTC.
+const DENVER_TODAY = "(now() AT TIME ZONE 'America/Denver')::date";
+const STILL_SHOWING_SQL =
+  "(expires_at IS NULL OR expires_at >= " + DENVER_TODAY + ") AND (" +
+  "expires_at IS NOT NULL OR occurrences IS NULL OR occurrences->>'kind' IS DISTINCT FROM 'dates' OR (" +
+  "SELECT max(item->>'date') FROM jsonb_array_elements(" +
+  "CASE WHEN jsonb_typeof(occurrences->'dates') = 'array' THEN occurrences->'dates' ELSE '[]'::jsonb END" +
+  ") AS item WHERE item->>'date' ~ '^\\d{4}-\\d{2}-\\d{2}$'" +
+  ") >= to_char(" + DENVER_TODAY + ", 'YYYY-MM-DD'))";
 
 function invalidFilter(field) {
   const err = new Error("invalid_filter");
@@ -73,7 +85,7 @@ function asNumber(value) {
 function buildListQuery(params) {
   params = params || {};
   const values = [];
-  const where = ["status = 'approved'"];
+  const where = ["status = 'approved'", STILL_SHOWING_SQL];
   // Only an actual boolean opts into paid rows. The query string cannot.
   if (params.includePaid !== true) where.push("tier = 'free'");
 
@@ -206,7 +218,28 @@ function buildListQuery(params) {
   return { text: text, values: values, limit: limit, offset: offset, located: located, localOnly: localOnly };
 }
 
+// expires_at is a date, not a timestamp. A string keeps the calendar day.
+// A Date from the driver is read with local fields, which is how node-pg
+// builds a DATE (local midnight), so the day is not shifted into UTC.
+function calendarDate(value) {
+  if (value == null || value === "") return null;
+  if (typeof value === "string") {
+    const match = /^(\d{4}-\d{2}-\d{2})/.exec(value.trim());
+    return match ? match[1] : null;
+  }
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    const month = value.getMonth() + 1;
+    const day = value.getDate();
+    return value.getFullYear() + "-" +
+      (month < 10 ? "0" : "") + month + "-" +
+      (day < 10 ? "0" : "") + day;
+  }
+  return null;
+}
+
 function mapRow(row, located) {
+  const sourceUrl = row.source_url == null ? null : row.source_url;
+  const expiresAt = calendarDate(row.expires_at);
   const item = {
     id: row.id,
     title: row.title,
@@ -230,7 +263,11 @@ function mapRow(row, located) {
     tier: row.tier,
     address: row.address,
     city: row.city == null ? null : row.city,
-    sourceUrl: row.source_url == null ? null : row.source_url,
+    sourceUrl: sourceUrl,
+    source_url: sourceUrl,
+    expiresAt: expiresAt,
+    expires_at: expiresAt,
+    occurrences: row.occurrences == null ? null : row.occurrences,
     lat: row.lat == null ? null : Number(row.lat),
     lng: row.lng == null ? null : Number(row.lng),
     affiliateUrl: row.affiliate_url == null ? null : row.affiliate_url,
@@ -258,7 +295,8 @@ async function listActivities(params, db) {
 async function getActivity(id, db) {
   const runner = db || require("./index").getPool();
   const result = await runner.query(
-    "SELECT " + SELECT_COLUMNS + " FROM activities WHERE id = $1 AND status = 'approved' AND tier = 'free'",
+    "SELECT " + SELECT_COLUMNS + " FROM activities WHERE id = $1 AND status = 'approved' AND tier = 'free' AND " +
+    STILL_SHOWING_SQL,
     [id]
   );
   if (!result.rows.length) return null;
@@ -267,8 +305,11 @@ async function getActivity(id, db) {
 
 module.exports = {
   METERS_PER_MILE,
+  DENVER_TODAY,
+  STILL_SHOWING_SQL,
   buildListQuery,
   listActivities,
   getActivity,
-  mapRow
+  mapRow,
+  calendarDate
 };

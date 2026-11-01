@@ -4,19 +4,22 @@
 const fs = require("fs"), vm = require("vm"), path = require("path");
 const ROOT = process.env.SPARK_ROOT || path.join(__dirname, "..", "public");
 
-function fakeEl() {
-  const attrs = {};
+function fakeEl(tag) {
+  const attrs = Object.create(null);
   const e = {
     style: {}, dataset: {}, value: "", textContent: "", innerHTML: "", children: [],
     classList: { add(){}, remove(){}, toggle(){}, contains(){ return false; } },
     addEventListener(){}, removeEventListener(){},
     appendChild(child){ this.children.push(child); return child; },
     setAttribute(name, value){ attrs[String(name)] = String(value); },
-    getAttribute(name){ return Object.prototype.hasOwnProperty.call(attrs, String(name)) ? attrs[String(name)] : null; },
+    getAttribute(name){
+      return Object.prototype.hasOwnProperty.call(attrs, String(name)) ? attrs[String(name)] : null;
+    },
     replaceChild(){}, querySelector(){ return fakeEl(); },
     querySelectorAll(){ return []; }, insertBefore(){}, remove(){}, focus(){}, click(){},
     get parentNode(){ return fakeEl(); }, get firstChild(){ return null; },
   };
+  if (tag) e.tagName = String(tag).toUpperCase();
   return e;
 }
 
@@ -24,7 +27,7 @@ function makeSandbox(storage) {
   const document = {
     documentElement: fakeEl(), body: fakeEl(),
     querySelector(){ return fakeEl(); }, querySelectorAll(){ return []; },
-    getElementById(){ return fakeEl(); }, createElement(){ return fakeEl(); },
+    getElementById(){ return fakeEl(); }, createElement(tag){ return fakeEl(tag); },
     addEventListener(){},
   };
   const sandbox = {
@@ -39,7 +42,7 @@ function makeSandbox(storage) {
     },
     __net: { calls: [], fetch: function(){ return new Promise(function(){}); } },
     setTimeout(){}, setInterval(){}, clearTimeout(){}, clearInterval(){},
-    console, Math, Date, JSON, Object, Array, String, Number, Boolean, isNaN, parseInt, parseFloat,
+    console, Math, Date, JSON, Object, Array, String, Number, Boolean, isNaN, parseInt, parseFloat, URL,
     fetch: function(){
       sandbox.__net.calls.push(Array.prototype.slice.call(arguments));
       return sandbox.__net.fetch.apply(null, arguments);
@@ -56,7 +59,7 @@ function makeSandbox(storage) {
 function loadApp(storage) {
   const sandbox = makeSandbox(storage);
   vm.createContext(sandbox);
-  ["data.js", "motifs.js", "util.js", "radius.js", "pins.js", "photos.js", "submit.js"].forEach(f => {
+  ["data.js", "motifs.js", "util.js", "occurrences.js", "radius.js", "pins.js", "photos.js", "submit.js", "remote-activities.js"].forEach(f => {
     vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), sandbox, { filename: f });
   });
   let src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
@@ -64,6 +67,7 @@ function loadApp(storage) {
   window.__t = {
     get state(){ return state; },
     IDEAS_BY_ID: IDEAS_BY_ID, REAL_IDEAS_RUNTIME: REAL_IDEAS_RUNTIME,
+    REMOTE_IDEAS: REMOTE_IDEAS, applyRemoteIdeas: applyRemoteIdeas,
     hydrateRealIdea: hydrateRealIdea, saveState: saveState,
     addIdeaToBucket: addIdeaToBucket, removeIdeaFromBucket: removeIdeaFromBucket,
     totalSavedCount: totalSavedCount,

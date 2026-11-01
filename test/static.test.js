@@ -22,7 +22,7 @@ const MUST_404 = [
   "/db/migrations/001_init.sql",
   "/data/coords/utah.json"
 ];
-const MUST_200 = ["/", "/app.js", "/data.js", "/style.css", "/motifs.js", "/qrcode.lib.js", "/util.js", "/radius.js", "/pins.js", "/photos.js", "/photos.json", "/CREDITS.md", "/credits.html", "/submit.js", "/api/status"];
+const MUST_200 = ["/", "/app.js", "/data.js", "/style.css", "/motifs.js", "/qrcode.lib.js", "/util.js", "/radius.js", "/pins.js", "/photos.js", "/photos.json", "/CREDITS.md", "/credits.html", "/submit.js", "/remote-activities.js", "/api/status"];
 
 function request(port, urlPath) {
   return new Promise((resolve, reject) => {
@@ -75,8 +75,10 @@ async function main() {
 
     const home = await request(port, "/");
     check("home page still loads the browser scripts",
-      home.body.indexOf('src="util.js"') !== -1 && home.body.indexOf('src="photos.js"') !== -1 &&
-      home.body.indexOf('src="submit.js"') !== -1 && home.body.indexOf('src="app.js"') !== -1 &&
+      home.body.indexOf('src="util.js"') !== -1 && home.body.indexOf('src="occurrences.js"') !== -1 &&
+      home.body.indexOf('src="photos.js"') !== -1 &&
+      home.body.indexOf('src="submit.js"') !== -1 && home.body.indexOf('src="remote-activities.js"') !== -1 &&
+      home.body.indexOf('src="app.js"') !== -1 &&
       home.body.indexOf('src="data.js"') !== -1);
     check("profile links to photo credits", home.body.indexOf('data-action="credits"') !== -1);
     const creditsPage = await request(port, "/credits.html");

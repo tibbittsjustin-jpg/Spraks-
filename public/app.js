@@ -2975,7 +2975,7 @@
      YYYY-MM-DD or ""), i (built-in data.js idea ids). Addresses,
      coordinates, location, and place or event cards are not included.
      Decode drops any other fields and returns null for bad input.
-     The fragment is not read on boot. */
+     routeSharedPlan reads the fragment after the age gate. */
   var PLAN_SHARE_MAX_CHARS = 400;
   var PLAN_SHARE_MAX_IDEAS = 24;
   var PLAN_SHARE_MAX_NAME = 60;
@@ -4959,9 +4959,341 @@
     }
   }
 
+  /* ---------- Shared plan view (#plan=v1.<payload>) ----------
+     The age check runs before decode. A pass stores spark_age_ok=1 and
+     nothing else. The screen is read-only and is not the swipe deck. */
+  var sharedPlanDecodeCount = 0;
+  var sharedPlanSaved = null;
+
+  function pageProtocol(){
+    try{
+      if(window.location && typeof window.location.protocol === "string" && window.location.protocol){
+        return window.location.protocol;
+      }
+    }catch(e){}
+    try{
+      if(typeof location !== "undefined" && location && typeof location.protocol === "string") return location.protocol;
+    }catch(e2){}
+    return "";
+  }
+  function readAgeOkCookie(){
+    var raw = "";
+    try{ raw = document.cookie; }catch(e){ return false; }
+    if(typeof raw !== "string" || !raw) return false;
+    var parts = raw.split(";");
+    for(var i = 0; i < parts.length; i++){
+      var part = parts[i].replace(/^\s+/, "").replace(/\s+$/, "");
+      if(part === "spark_age_ok=1") return true;
+    }
+    return false;
+  }
+  function ageOkCookieString(){
+    var cookie = "spark_age_ok=1; Max-Age=31536000; Path=/; SameSite=Lax";
+    if(pageProtocol() === "https:") cookie += "; Secure";
+    return cookie;
+  }
+  function writeAgeOkCookie(){
+    document.cookie = ageOkCookieString();
+  }
+  function sharedPlanGatePassed(){
+    if(ageGateSatisfied(state)) return true;
+    if(readAgeOkCookie()) return true;
+    return false;
+  }
+  function planShareFragment(){
+    var hash = "";
+    try{
+      if(window.location && typeof window.location.hash === "string") hash = window.location.hash;
+    }catch(e){}
+    if(!hash){
+      try{
+        if(typeof location !== "undefined" && location && typeof location.hash === "string") hash = location.hash;
+      }catch(e2){}
+    }
+    if(hash.indexOf("#plan=") !== 0) return null;
+    return hash.slice(6);
+  }
+  function clearPlanFragment(){
+    var loc = null;
+    try{ loc = window.location; }catch(e){}
+    if(!loc) return;
+    var hash = typeof loc.hash === "string" ? loc.hash : "";
+    if(hash.indexOf("#plan=") !== 0) return;
+    var path = (typeof loc.pathname === "string" && loc.pathname) ? loc.pathname : "/";
+    var search = typeof loc.search === "string" ? loc.search : "";
+    try{
+      if(window.history && typeof window.history.replaceState === "function"){
+        window.history.replaceState(null, "", path + search);
+      }
+    }catch(e){}
+    try{
+      if(typeof loc.hash === "string" && loc.hash.indexOf("#plan=") === 0) loc.hash = "";
+    }catch(e2){}
+  }
+  function sharedPlanBrand(){
+    var mark = el("div", "brand-mark");
+    mark.innerHTML =
+      '<img class="splash-icon" src="icons/icon.svg" alt="" width="132" height="132">' +
+      '<h1 class="wordmark">JADEROO</h1>' +
+      '<p class="tagline">Things to do, near you</p>';
+    return mark;
+  }
+  function mountSharedPlan(root){
+    root.id = "shared-plan-view";
+    var phone = document.querySelector(".phone");
+    if(!phone) phone = document.body;
+    var previous = document.getElementById("shared-plan-view");
+    if(previous && previous !== root && previous.remove) previous.remove();
+    if(phone && phone.appendChild) phone.appendChild(root);
+    ["view-onboarding", "view-tutorial", "view-app"].forEach(function(id){
+      var node = document.getElementById(id);
+      if(node && node.classList) node.classList.add("hidden");
+    });
+    return root;
+  }
+  function removeSharedPlanView(){
+    var node = document.getElementById("shared-plan-view");
+    if(node && node.remove) node.remove();
+  }
+  function sharedPlanOpenButton(){
+    var btn = el("button", "btn-secondary btn-block", "Open Jaderoo");
+    btn.type = "button";
+    btn.addEventListener("click", function(){ leaveSharedPlan(); });
+    return btn;
+  }
+  function showSharedPlanGate(){
+    var root = el("div", "view shared-plan-view");
+    root.setAttribute("data-shared-plan", "gate");
+    var scroll = el("div", "onboarding-scroll");
+    scroll.appendChild(sharedPlanBrand());
+    var form = el("form", "onboarding-form");
+    var label = el("label", "field-label", "Age");
+    label.setAttribute("for", "shared-plan-age");
+    form.appendChild(label);
+    var input = document.createElement("input");
+    input.id = "shared-plan-age";
+    input.className = "field-input";
+    input.type = "number";
+    input.min = "1";
+    input.max = "120";
+    input.setAttribute("inputmode", "numeric");
+    input.setAttribute("autocomplete", "off");
+    input.required = true;
+    input.setAttribute("aria-label", "Age");
+    form.appendChild(input);
+    form.appendChild(el("p", "field-hint", "You must be 18 or older. We use this only to check your age and do not save it."));
+    var btn = el("button", "btn-primary btn-block", "Continue");
+    btn.type = "submit";
+    form.appendChild(btn);
+    form.addEventListener("submit", function(e){
+      if(e && e.preventDefault) e.preventDefault();
+      submitSharedPlanAge(input.value);
+    });
+    scroll.appendChild(form);
+    root.appendChild(scroll);
+    return mountSharedPlan(root);
+  }
+  function showSharedPlanBlocked(){
+    var root = el("div", "view shared-plan-view");
+    root.setAttribute("data-shared-plan", "blocked");
+    var scroll = el("div", "onboarding-scroll");
+    scroll.appendChild(sharedPlanBrand());
+    var card = el("div", "onboarding-form");
+    var heading = el("h2", "shared-plan-message", "Jaderoo is for adults 18+");
+    heading.id = "shared-plan-message";
+    card.appendChild(heading);
+    card.appendChild(el("p", "field-hint", "This plan stays hidden."));
+    card.appendChild(sharedPlanOpenButton());
+    scroll.appendChild(card);
+    root.appendChild(scroll);
+    return mountSharedPlan(root);
+  }
+  function showSharedPlanBroken(){
+    var root = el("div", "view shared-plan-view");
+    root.setAttribute("data-shared-plan", "broken");
+    var scroll = el("div", "onboarding-scroll");
+    scroll.appendChild(sharedPlanBrand());
+    var card = el("div", "onboarding-form");
+    var heading = el("h2", "shared-plan-message", "This link looks broken");
+    heading.id = "shared-plan-message";
+    card.appendChild(heading);
+    card.appendChild(el("p", "field-hint", "Ask the person who sent it for a new link."));
+    card.appendChild(sharedPlanOpenButton());
+    scroll.appendChild(card);
+    root.appendChild(scroll);
+    return mountSharedPlan(root);
+  }
+  function sharedPlanCardIdea(idea){
+    var copy = {};
+    var drop = {
+      lat:1, lng:1, latitude:1, longitude:1, address:1, location:1,
+      coordinates:1, mapsUrl:1, distanceMiles:1, city:1, placeName:1
+    };
+    Object.keys(idea).forEach(function(key){
+      if(drop[key]) return;
+      copy[key] = idea[key];
+    });
+    return copy;
+  }
+  function buildSharedPlanCard(idea){
+    var filters = state.filters;
+    var prev = filters ? filters.localOnly : false;
+    if(filters) filters.localOnly = false;
+    var card;
+    try{
+      card = buildSwipeCard(sharedPlanCardIdea(idea), false, 0);
+    }finally{
+      if(filters) filters.localOnly = prev;
+    }
+    card.className = (card.className ? card.className + " " : "") + "shared-plan-card";
+    if(typeof card.innerHTML === "string"){
+      card.innerHTML = card.innerHTML
+        .replace(/<span class="stamp yes">SAVE<\/span><span class="stamp no">PASS<\/span>/g, "")
+        .replace(/<div class="card-hint">[\s\S]*?<\/div>/g, "");
+    }
+    return card;
+  }
+  function sharedPlanIdeas(ideaIds){
+    var ideas = [];
+    var skipped = 0;
+    var ids = Array.isArray(ideaIds) ? ideaIds : [];
+    for(var i = 0; i < ids.length; i++){
+      var idea = IDEAS_BY_ID[ids[i]];
+      if(!idea){ skipped++; continue; }
+      ideas.push(idea);
+    }
+    return { ideas: ideas, skipped: skipped };
+  }
+  function sharedPlanSkipNote(count){
+    count = count | 0;
+    if(count <= 0) return "";
+    if(count === 1) return "1 idea couldn't be shown";
+    return count + " ideas couldn't be shown";
+  }
+  function sharedPlanSaveKey(plan){
+    var ids = plan && Array.isArray(plan.ideaIds) ? plan.ideaIds : [];
+    var name = plan && typeof plan.name === "string" ? plan.name : "";
+    var date = plan && typeof plan.date === "string" ? plan.date : "";
+    return name + "\0" + date + "\0" + ids.join(",");
+  }
+  function buildSharedPlanView(plan){
+    plan = plan || { name:"", date:"", ideaIds:[] };
+    var root = el("div", "view shared-plan-view");
+    root.setAttribute("data-shared-plan", "view");
+    var scroll = el("div", "shared-plan-scroll");
+    var title = typeof plan.name === "string" ? plan.name.trim() : "";
+    if(!title) title = "Shared plan";
+    var heading = el("h1", "display-title shared-plan-name", escapeHtml(title));
+    heading.id = "shared-plan-name";
+    scroll.appendChild(heading);
+    var dateLabel = plan.date ? fmtDate(plan.date) : "";
+    if(dateLabel){
+      var dateEl = el("p", "shared-plan-date", escapeHtml(dateLabel));
+      dateEl.id = "shared-plan-date";
+      scroll.appendChild(dateEl);
+    }
+    var packed = sharedPlanIdeas(plan.ideaIds);
+    var cards = el("div", "shared-plan-cards");
+    packed.ideas.forEach(function(idea){
+      cards.appendChild(buildSharedPlanCard(idea));
+    });
+    scroll.appendChild(cards);
+    var note = sharedPlanSkipNote(packed.skipped);
+    if(note) scroll.appendChild(el("p", "field-hint shared-plan-note", note));
+    var actions = el("div", "shared-plan-actions");
+    var saveBtn = el("button", "btn-primary btn-block", "Save to my plans");
+    saveBtn.type = "button";
+    saveBtn.id = "shared-plan-save";
+    saveBtn.addEventListener("click", function(){
+      var result = saveSharedPlan(plan);
+      saveBtn.textContent = result.message;
+    });
+    actions.appendChild(saveBtn);
+    actions.appendChild(sharedPlanOpenButton());
+    scroll.appendChild(actions);
+    root.appendChild(scroll);
+    return root;
+  }
+  function showSharedPlanView(plan){
+    return mountSharedPlan(buildSharedPlanView(plan));
+  }
+  function saveSharedPlan(plan){
+    if(!plan || typeof plan !== "object" || Array.isArray(plan)){
+      return { created:false, id:null, message:"Already in your plans" };
+    }
+    var key = sharedPlanSaveKey(plan);
+    if(sharedPlanSaved && sharedPlanSaved.key === key){
+      var again = { created:false, id:sharedPlanSaved.id, message:"Already in your plans" };
+      showToast(again.message);
+      return again;
+    }
+    var packed = sharedPlanIdeas(plan.ideaIds);
+    var ids = [];
+    packed.ideas.forEach(function(idea){ ids.push(idea.id); });
+    var name = typeof plan.name === "string" ? plan.name.trim() : "";
+    if(!name) name = "Shared plan";
+    var date = typeof plan.date === "string" ? plan.date : "";
+    var row = {
+      id: genId("plan"),
+      name: name,
+      date: date,
+      createdAt: todayISO(),
+      ideaIds: ids,
+      friendPicks: []
+    };
+    state.datePlans.push(row);
+    sharedPlanSaved = { key: key, id: row.id };
+    saveState();
+    var created = { created:true, id: row.id, message:"Saved to your plans" };
+    showToast(created.message);
+    return created;
+  }
+  function showSharedPlanDecoded(payload){
+    sharedPlanDecodeCount += 1;
+    var text = payload;
+    try{ text = decodeURIComponent(payload); }catch(e){ text = payload; }
+    var decoded = decodePlanShare(text);
+    if(!decoded) return showSharedPlanBroken();
+    return showSharedPlanView(decoded);
+  }
+  function submitSharedPlanAge(raw){
+    var age = parseProfileAge(raw);
+    if(age == null || age < MINIMUM_AGE){
+      if(age != null && age < MINIMUM_AGE) return showSharedPlanBlocked();
+      return showSharedPlanGate();
+    }
+    writeAgeOkCookie();
+    var payload = planShareFragment();
+    if(payload == null) return null;
+    return showSharedPlanDecoded(payload);
+  }
+  function routeSharedPlan(){
+    var payload = planShareFragment();
+    if(payload == null) return null;
+    if(!sharedPlanGatePassed()) return showSharedPlanGate();
+    return showSharedPlanDecoded(payload);
+  }
+  function leaveSharedPlan(){
+    clearPlanFragment();
+    removeSharedPlanView();
+    if(ageGateSatisfied(state)){
+      state.onboarded = true;
+      enterApp();
+    } else {
+      state.onboarded = false;
+      showAgeGate();
+    }
+  }
+  function onSharedPlanHash(){
+    if(planShareFragment() == null) return;
+    routeSharedPlan();
+  }
+
   /* ---------- Boot ---------- */
   function boot(){
     prefillOnboarding();
+    window.addEventListener("hashchange", onSharedPlanHash);
+    if(routeSharedPlan()) return;
     if(ageGateSatisfied(state)){
       state.onboarded = true;
       enterApp();

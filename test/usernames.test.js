@@ -184,7 +184,8 @@ function mount(options) {
     isConfigured: () => true,
     auth: auth,
     now: () => clock.now,
-    limitCheck: options.limitCheck || function () { return { limited: false, retryAfter: 0 }; }
+    limitCheck: options.limitCheck || function () { return { limited: false, retryAfter: 0 }; },
+    limitClaim: options.limitClaim || function () { return { limited: false, retryAfter: 0 }; }
   }));
   return { app: app, db: db, clock: clock, auth: auth };
 }
@@ -241,8 +242,19 @@ async function main() {
     ["spark", "admin", "support", "help", "official", "mod", "moderator", "jaderoo", "sparkle"].forEach(name => {
       check(name + " is reserved", classifyUsername(name).status === "reserved");
     });
-    check("a name that only shares a prefix is not reserved",
-      classifyUsername("helpful").status === "available" && classifyUsername("mods").status === "available");
+    ["5park", "sp_ark", "jader00", "admin1", "support_team", "0fficial", "mod", "m0d", "mod1", "help_", "he1p", "adm1n"].forEach(name => {
+      check(name + " is a reserved lookalike",
+        util.reservedUsername(name) === true && classifyUsername(name).status === "reserved",
+        JSON.stringify(classifyUsername(name)));
+    });
+    ["modern_mike", "model", "helpful_hannah", "helpful", "mods"].forEach(name => {
+      check(name + " is not reserved",
+        util.reservedUsername(name) === false && classifyUsername(name).status === "available",
+        JSON.stringify(classifyUsername(name)));
+    });
+    check("a Denver calendar day is used for hold and change dates",
+      util.denverDay("2026-07-01T00:00:00.000Z") === "2026-06-30" &&
+      util.denverDay("2026-07-01T06:00:00.000Z") === "2026-07-01");
     check("too short is invalid and makes no uniqueness claim",
       classifyUsername("ab").status === "invalid" && classifyUsername("ab").error === "too_short" &&
       classifyUsername("no").message.indexOf("taken") === -1);
@@ -299,7 +311,7 @@ async function main() {
       const blocked = await request(port, "POST", "/api/username", { username: "ada_three" }, bearer("good-a"));
       check("a second rename inside 30 days is refused with the date",
         blocked.status === 409 && blocked.json && blocked.json.error === "cooldown" &&
-        blocked.json.message === "You can change your username again on 2026-07-01." &&
+        blocked.json.message === "You can change your username again on 2026-06-30." &&
         blocked.json.nextChangeAt === "2026-07-01T00:00:00.000Z",
         blocked.text);
       check("the refused rename did not change the row",
@@ -333,7 +345,7 @@ async function main() {
       const other = await request(port, "POST", "/api/username", { username: "ada_one" }, bearer("good-b"));
       check("someone else cannot take a held name",
         other.status === 409 && other.json && other.json.error === "held" &&
-        other.json.message === "That username is held until 2026-07-01.",
+        other.json.message === "That username is held until 2026-06-30.",
         other.text);
       const looked = await request(port, "GET", "/api/username/check?u=ada_one");
       check("check reports the held name",
@@ -400,6 +412,45 @@ async function main() {
   } finally {
     await close(server);
   }
+
+  await section("claim rate limit", async () => {
+    const limiter = createWindowLimiter({ limit: 2, windowMs: 60 * 1000 });
+    const keys = [];
+    const limited = mount({
+      limitClaim: function (key) {
+        keys.push(key);
+        return limiter.check(key);
+      }
+    });
+    const httpServer = await listen(limited.app);
+    const limitedPort = httpServer.address().port;
+    try {
+      const first = await request(limitedPort, "POST", "/api/username", { username: "ada_one" }, bearer("good-a"));
+      const second = await request(limitedPort, "POST", "/api/username", { username: "ada_two" }, bearer("good-a"));
+      const third = await request(limitedPort, "POST", "/api/username", { username: "ada_three" }, bearer("good-a"));
+      check("the third claim in the window is 429",
+        first.status !== 429 && second.status !== 429 &&
+        third.status === 429 && third.json && third.json.error === "rate_limited" &&
+        third.json.message === "Too many tries. Wait a minute and try that username again." &&
+        Number(third.headers["retry-after"]) >= 1,
+        third.status + " " + third.text);
+      const other = await request(limitedPort, "POST", "/api/username", { username: "fresh_bb" }, bearer("good-b"));
+      check("a different user is not limited by the first user's claims",
+        other.status !== 429 && keys.filter(key => key === "user:" + USER_B).length === 1,
+        other.status + " " + keys.join(","));
+      const open1 = await request(limitedPort, "POST", "/api/username", { username: "someone" });
+      const open2 = await request(limitedPort, "POST", "/api/username", { username: "someone" });
+      const open3 = await request(limitedPort, "POST", "/api/username", { username: "someone" });
+      check("an anonymous claim is limited by address",
+        open1.status === 401 && open2.status === 401 &&
+        open3.status === 429 && open3.json && open3.json.message === "Too many tries. Wait a minute and try that username again." &&
+        keys.some(key => key.indexOf("ip:") === 0) &&
+        keys.every(key => key.indexOf("user:") === 0 || key.indexOf("ip:") === 0),
+        open3.status + " " + keys.join(","));
+    } finally {
+      await close(httpServer);
+    }
+  });
 
   await section("check rate limit", async () => {
     const limiter = createWindowLimiter({ limit: 2, windowMs: 60 * 1000 });

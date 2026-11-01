@@ -5230,8 +5230,9 @@
   function usernameFailureMessage(body, status){
     body = body || {};
     if(body.message) return body.message;
-    if(body.error === "cooldown" && body.nextChangeAt) return "You can change your username again on " + String(body.nextChangeAt).slice(0, 10) + ".";
+    if(body.error === "cooldown" && body.nextChangeAt) return "You can change your username again on " + SparkUtil.denverDay(body.nextChangeAt) + ".";
     if(body.error === "taken" || body.status === "taken") return "That username is taken.";
+    if((body.error === "held" || body.status === "held") && body.heldUntil) return "That username is held until " + SparkUtil.denverDay(body.heldUntil) + ".";
     if(body.error === "held" || body.status === "held") return "That username is held.";
     if(body.error === "reserved" || body.status === "reserved") return "That username is reserved.";
     if(body.error === "profanity") return "Choose a different username.";
@@ -5411,7 +5412,7 @@
         if(input && body.username) input.value = body.username;
         var noteEl = $("#ep-username-note", form);
         if(noteEl && body.nextChangeAt){
-          noteEl.textContent = "You can change your username again on " + String(body.nextChangeAt).slice(0, 10) + ".";
+          noteEl.textContent = "You can change your username again on " + SparkUtil.denverDay(body.nextChangeAt) + ".";
         }
         renderProfileHeader();
       }).catch(function(){});

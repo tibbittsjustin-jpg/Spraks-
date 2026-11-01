@@ -48,6 +48,14 @@ function createUsernameRouter(opts) {
     limit: CHECK_LIMIT,
     windowMs: CHECK_WINDOW_MS
   }).check;
+  const limitClaim = opts.limitClaim || createWindowLimiter({
+    limit: CHECK_LIMIT,
+    windowMs: CHECK_WINDOW_MS
+  }).check;
+
+  function clientAddress(req) {
+    return req.ip || (req.socket && req.socket.remoteAddress) || "unknown";
+  }
 
   async function optionalUser(req) {
     const token = bearerToken(req);
@@ -70,8 +78,7 @@ function createUsernameRouter(opts) {
   }
 
   router.get("/username/check", async (req, res) => {
-    const ip = req.ip || req.socket && req.socket.remoteAddress || "unknown";
-    const limited = limitCheck(ip);
+    const limited = limitCheck(clientAddress(req));
     if (limited.limited) {
       res.set("Retry-After", String(limited.retryAfter));
       return res.status(429).json({ ok: false, error: "rate_limited" });
@@ -109,8 +116,17 @@ function createUsernameRouter(opts) {
 
   router.post("/username", async (req, res) => {
     res.set("Cache-Control", "no-store");
-    const user = await requireUser(req, res);
-    if (!user) return;
+    const user = await optionalUser(req);
+    const limited = limitClaim(user ? ("user:" + user.id) : ("ip:" + clientAddress(req)));
+    if (limited.limited) {
+      res.set("Retry-After", String(limited.retryAfter));
+      return res.status(429).json({
+        ok: false,
+        error: "rate_limited",
+        message: "Too many tries. Wait a minute and try that username again."
+      });
+    }
+    if (!user) return res.status(401).json({ ok: false, error: "unauthorized" });
     const raw = req.body && typeof req.body.username === "string" ? req.body.username : "";
     const classified = classifyUsername(raw);
     if (!classified.ok) return res.status(statusCode(classified)).json(classified);

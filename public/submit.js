@@ -63,7 +63,7 @@
     return "Saved on this device";
   }
 
-  function submissionOutcome(httpStatus) {
+  function submissionOutcome(httpStatus, errorCode) {
     // 200 is the honeypot reply. Show the same thanks so the form does not
     // reveal that the idea was dropped.
     if (httpStatus === 201 || httpStatus === 200) {
@@ -79,6 +79,9 @@
       return { save: null, message: "You've sent a lot of ideas. Try again later." };
     }
     if (httpStatus === 403) {
+      if (errorCode === "age_cookie_required") {
+        return { save: null, confirmBirthday: true, message: "Quick check: confirm your birthday" };
+      }
       var minimum = (typeof SparkUtil !== "undefined" && SparkUtil && SparkUtil.MINIMUM_AGE) || require("./util").MINIMUM_AGE;
       return { save: null, showGate: true, message: "You must be " + minimum + " or older to use Jaderoo." };
     }

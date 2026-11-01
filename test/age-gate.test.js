@@ -157,6 +157,14 @@ async function main() {
       check("invalid date does not set the cookie", !bad.headers["set-cookie"]);
       check("server exports checkAge for a later sign-up", app.checkAge === checkAge && app.MINIMUM_AGE === MINIMUM_AGE);
 
+      const limited = await post(port, "/api/age-check", { dob: ADULT });
+      const limitedBody = JSON.parse(limited.body);
+      check("age-check returns 429 when the IP limit is hit",
+        limited.status === 429 && limitedBody.ok === false && limitedBody.error === "rate_limited" &&
+        Number(limited.headers["retry-after"]) >= 1 && !limited.headers["set-cookie"] &&
+        limited.body.indexOf(ADULT) === -1,
+        limited.status + " " + limited.body);
+
       const logged = spy.logs.join("\n");
       check("server logs omit the date of birth",
         logged.indexOf(CHILD) === -1 && logged.indexOf(ADULT) === -1 && logged.indexOf("not-a-date") === -1,

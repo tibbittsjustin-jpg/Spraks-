@@ -1006,7 +1006,10 @@
   function escapeHtml(s){ return SparkUtil.escapeHtml(s); }
   function validateUsername(value){ return SparkUtil.validateUsername(value); }
   var toastTimer = null;
+  var lastToastMessage = "";
+  var onboardingRestarts = 0;
   function showToast(msg){
+    lastToastMessage = String(msg || "");
     var t = $("#toast");
     t.textContent = msg;
     t.classList.toggle("toast-wrap", String(msg || "").length > 42);
@@ -1377,10 +1380,59 @@
   }
 
   function showAgeGate(){
+    onboardingRestarts++;
     refreshOnboardingDobMax();
     $("#view-onboarding").classList.remove("hidden");
     $("#view-tutorial").classList.add("hidden");
     $("#view-app").classList.add("hidden");
+  }
+
+  // Someone who already passed onboarding has no spark_age_ok cookie yet.
+  // Ask for a birthday here. Do not clear their profile, plans, or draft.
+  var birthdayRecheck = null;
+  function beginBirthdayRecheck(parent, draftInput, retryOpts, retry){
+    retryOpts = retryOpts || {};
+    var box = el("div", "idea-age-prompt");
+    box.setAttribute("data-age-prompt", "birthday");
+    box.appendChild(el("p", "field-hint", "Quick check: confirm your birthday"));
+    var input = document.createElement("input");
+    input.type = "date";
+    input.className = "field-input";
+    input.id = "submission-dob";
+    input.setAttribute("aria-label", "Date of birth");
+    input.required = true;
+    applyDobMax(input);
+    box.appendChild(input);
+    var btn = el("button", "btn-outline", "Continue");
+    btn.type = "button";
+    function run(dob){
+      btn.disabled = true;
+      return confirmAdultDob(dob).then(function(result){
+        if(!result.ok){
+          btn.disabled = false;
+          if(retryOpts.button) retryOpts.button.disabled = false;
+          if(result.blocked) showToast("You must be " + MINIMUM_AGE + " or older to use Jaderoo.");
+          return { ok:false, blocked: result.blocked === true };
+        }
+        writeAgeOkCookie();
+        if(box.remove) box.remove();
+        var body = SparkSubmit.buildSubmissionBody(draftInput);
+        return Promise.resolve(retry(body)).then(function(){
+          return { ok:true, body:body };
+        });
+      });
+    }
+    birthdayRecheck = run;
+    btn.addEventListener("click", function(){ run(input.value); });
+    box.appendChild(btn);
+    if(parent && parent.appendChild){
+      var kids = parent.children || [];
+      for(var i = 0; i < kids.length; i++){
+        if(kids[i] && kids[i].getAttribute && kids[i].getAttribute("data-age-prompt") === "birthday") return kids[i];
+      }
+      parent.appendChild(box);
+    }
+    return box;
   }
 
   $("#onboarding-form").addEventListener("submit", function(e){
@@ -4885,78 +4937,66 @@
     });
   }
 
-  function buildIdeaSubmitSubpanel(){
-    function rememberSubmittedIdea(input, status){
-      var row = recordSubmittedIdea({
-        title: input.title,
-        description: input.description,
-        category: input.category,
-        vibe: Array.isArray(input.vibe) ? input.vibe : []
+  function postSubmission(body){
+    return fetch("/api/submissions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(payload){
+        return { status: res.status, payload: payload || {} };
       });
-      if(!row) return null;
-      ["setting", "cost", "duration", "venueName", "city", "sourceUrl"].forEach(function(key){
-        if(typeof input[key] === "string" && input[key].trim()) row[key] = input[key].trim();
-      });
-      ["season", "time", "stage", "dateType"].forEach(function(key){
-        if(Array.isArray(input[key]) && input[key].length) row[key] = input[key].slice();
-      });
-      if(typeof input.food === "boolean") row.food = input.food;
-      if(typeof input.age21 === "boolean") row.age21 = input.age21;
-      row.status = status;
-      delete row.email;
-      delete row.lat;
-      delete row.lng;
-      delete row.location;
-      delete row.deviceId;
-      delete row.dob;
-      saveState();
-      renderProfileHeader();
-      return row;
-    }
+    }).catch(function(){
+      return { status: 0, payload: {} };
+    });
+  }
 
-    function postSubmission(body){
-      return fetch("/api/submissions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      }).then(function(res){
-        return res.json().catch(function(){ return {}; }).then(function(payload){
-          return { status: res.status, payload: payload || {} };
+  function finishSubmission(result, input, opts){
+    opts = opts || {};
+    var code = result && result.payload && result.payload.error;
+    var outcome = SparkSubmit.submissionOutcome(result && result.status, code);
+    if(outcome.confirmBirthday && ageGateSatisfied(state)){
+      var parent = opts.form;
+      if(!parent && opts.emailInput && opts.emailInput.parentNode) parent = opts.emailInput.parentNode;
+      beginBirthdayRecheck(parent, input, opts, function(body){
+        return postSubmission(body).then(function(next){
+          finishSubmission(next, input, opts);
         });
-      }).catch(function(){
-        return { status: 0, payload: {} };
       });
+      return;
     }
-
-    function finishSubmission(result, input, opts){
-      opts = opts || {};
-      var outcome = SparkSubmit.submissionOutcome(result.status);
-      if(opts.form){
-        if(outcome.highlight) highlightFields(opts.form, result.payload && result.payload.fields);
-        else highlightFields(opts.form, []);
-      }
-      if(outcome.showGate) showAgeGate();
-      if(outcome.save === "pending" && opts.existing){
-        opts.existing.status = "pending";
-        delete opts.existing.email;
-        saveState();
-        showToast(outcome.message);
-        openSubpage("idea");
-        return;
-      }
-      if(outcome.save && !opts.existing){
-        rememberSubmittedIdea(input, outcome.save);
-        showToast(outcome.message);
-        openSubpage("idea");
-        return;
-      }
-      if(outcome.highlight && opts.emailInput && result.payload && Array.isArray(result.payload.fields) && result.payload.fields.indexOf("email") !== -1){
-        opts.emailInput.classList.add("field-invalid");
-      }
+    if(opts.form){
+      if(outcome.highlight) highlightFields(opts.form, result.payload && result.payload.fields);
+      else highlightFields(opts.form, []);
+    }
+    if(outcome.showGate || outcome.confirmBirthday) showAgeGate();
+    if(outcome.save === "pending" && opts.existing){
+      opts.existing.status = "pending";
+      delete opts.existing.email;
+      saveState();
       showToast(outcome.message);
-      if(opts.button) opts.button.disabled = false;
+      openSubpage("idea");
+      return;
     }
+    if(outcome.save && !opts.existing){
+      rememberSubmittedIdea(input, outcome.save);
+      showToast(outcome.message);
+      openSubpage("idea");
+      return;
+    }
+    if(outcome.highlight && opts.emailInput && result.payload && Array.isArray(result.payload.fields) && result.payload.fields.indexOf("email") !== -1){
+      opts.emailInput.classList.add("field-invalid");
+    }
+    showToast(outcome.message);
+    if(opts.button) opts.button.disabled = false;
+  }
 
+  function confirmSubmissionBirthday(dob){
+    if(!birthdayRecheck) return Promise.resolve(null);
+    return birthdayRecheck(dob);
+  }
+
+  function buildIdeaSubmitSubpanel(){
     var wrap = el("div", null);
     wrap.appendChild(el("div", "section-title", "Got an Idea?"));
     wrap.appendChild(el("p", null, "Share a new date idea and give a short description of how to do it — great ideas may get added to Jaderoo!"));
@@ -5083,6 +5123,34 @@
     }
 
     return wrap;
+  }
+
+  function rememberSubmittedIdea(input, status){
+    var row = recordSubmittedIdea({
+      title: input.title,
+      description: input.description,
+      category: input.category,
+      vibe: Array.isArray(input.vibe) ? input.vibe : []
+    });
+    if(!row) return null;
+    ["setting", "cost", "duration", "venueName", "city", "sourceUrl"].forEach(function(key){
+      if(typeof input[key] === "string" && input[key].trim()) row[key] = input[key].trim();
+    });
+    ["season", "time", "stage", "dateType"].forEach(function(key){
+      if(Array.isArray(input[key]) && input[key].length) row[key] = input[key].slice();
+    });
+    if(typeof input.food === "boolean") row.food = input.food;
+    if(typeof input.age21 === "boolean") row.age21 = input.age21;
+    row.status = status;
+    delete row.email;
+    delete row.lat;
+    delete row.lng;
+    delete row.location;
+    delete row.deviceId;
+    delete row.dob;
+    saveState();
+    renderProfileHeader();
+    return row;
   }
 
   function applyProfileEdits(fields){

@@ -113,7 +113,12 @@
   // does not call it, so a signed-out local name is unchanged.
   var LOOKALIKE_I = { "0":"o", "1":"i", "3":"e", "4":"a", "5":"s", "7":"t" };
   var LOOKALIKE_L = { "0":"o", "1":"l", "3":"e", "4":"a", "5":"s", "7":"t" };
-  var RESERVED_CONTAINS = ["spark", "jaderoo", "admin", "support", "official", "moderator"];
+  var RESERVED_CONTAINS = ["spark", "jaderoo", "moderator"];
+  // admin, support, and official match the whole name, or the start or
+  // end when the next or previous character is not a letter. Underscores
+  // stay in place so they count as that boundary. spark and jaderoo still
+  // match anywhere, after underscores are removed.
+  var RESERVED_EDGE = ["admin", "support", "official"];
   var RESERVED_EXACT = ["mod", "help"];
 
   function mapLookalikeDigits(text, digitMap){
@@ -125,6 +130,19 @@
     return out;
   }
 
+  function reservedAtEdge(form, word){
+    if(form === word) return true;
+    if(form.length > word.length && form.indexOf(word) === 0){
+      var next = form.charAt(word.length);
+      if(next < "a" || next > "z") return true;
+    }
+    if(form.length > word.length && form.slice(form.length - word.length) === word){
+      var prev = form.charAt(form.length - word.length - 1);
+      if(prev < "a" || prev > "z") return true;
+    }
+    return false;
+  }
+
   function reservedUsername(value){
     var checked = validateUsername(value);
     var username = checked.ok ? checked.username : String(value == null ? "" : value).trim().toLowerCase();
@@ -134,6 +152,16 @@
     for(var f = 0; f < forms.length; f++){
       for(var i = 0; i < RESERVED_CONTAINS.length; i++){
         if(forms[f].indexOf(RESERVED_CONTAINS[i]) !== -1) return true;
+      }
+    }
+    var edged = [
+      username,
+      mapLookalikeDigits(username, LOOKALIKE_I),
+      mapLookalikeDigits(username, LOOKALIKE_L)
+    ];
+    for(var g = 0; g < edged.length; g++){
+      for(var w = 0; w < RESERVED_EDGE.length; w++){
+        if(reservedAtEdge(edged[g], RESERVED_EDGE[w])) return true;
       }
     }
     // mod and help are exact, after leading and trailing digits are

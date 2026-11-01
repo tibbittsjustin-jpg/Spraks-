@@ -1192,3 +1192,22 @@ cursor:default; touch-action:pan-y;
 .shared-plan-message{
 font-size:26px; font-weight:800; line-height:1.25; margin:0 0 8px; color:var(--text);
 }
+
+.safety-title{ font-size:20px; font-weight:800; color:var(--text); margin:4px 0 10px; }
+.safety-copy{ font-size:14px; line-height:1.45; color:var(--text); margin:0 0 12px; }
+.safety-choice{ display:flex; align-items:flex-start; gap:8px; margin:8px 0; font-size:14px; color:var(--text); }
+.safety-choice input{ width:auto; margin:2px 0 0; }
+.safety-note-label{ display:block; margin:14px 0 6px; font-size:12px; font-weight:700; color:var(--text-soft); }
+.safety-note{ width:100%; min-height:72px; margin-bottom:8px; }
+.username-safety{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.username-safety-btn, .safety-unblock{
+background:var(--surface-soft); color:var(--text); border:none; border-radius:999px;
+padding:8px 12px; font:inherit; font-size:13px; font-weight:700; cursor:pointer;
+}
+.credit-safety{ margin-left:8px; }
+.blocked-row{
+display:flex; align-items:center; justify-content:space-between; gap:12px;
+padding:12px 0; border-bottom:1px solid var(--border);
+}
+.blocked-name{ font-weight:700; }
+.blocked-actions{ display:flex; gap:8px; flex-shrink:0; }

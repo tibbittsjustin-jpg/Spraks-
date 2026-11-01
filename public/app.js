@@ -385,7 +385,7 @@
         // filter, then prune likes that pointed at a removed id.
         if(SparkUtil.migrateListLikes(plan)) pendingLikeSave = true;
         plan.ideaIds = (plan.ideaIds || []).filter(resolvable);
-        plan.friendPicks = (plan.friendPicks || []).filter(function(p){ return resolvable(p.ideaId); });
+        plan.friendPicks = (plan.friendPicks || []).filter(function(p){ return p && resolvable(p.ideaId); });
         if(SparkUtil.migrateListLikes(plan)) pendingLikeSave = true;
       });
       // Keep every field already stored on a done row (a note, a place, a
@@ -984,7 +984,7 @@
     var out = [];
     state.datePlans.forEach(function(plan){
       (plan.friendPicks || []).forEach(function(p){
-        if(p.ideaId === ideaId){
+        if(p && p.ideaId === ideaId){
           out.push({ friendName: p.friendName, avatarEmoji: p.avatarEmoji, avatarColor: p.avatarColor, planName: plan.name, planId: plan.id });
         }
       });
@@ -3052,31 +3052,47 @@
       presentShare(ideaShareData(ideaId));
     });
     list.appendChild(shareBtn);
-    list.appendChild(el("p", "field-hint", "Demo friends stay on this device."));
-    DEMO_FRIENDS.forEach(function(f){
+    appendRealShareFriends(list, ideaId);
+    openOverlay("#share-overlay");
+    if(readAccessToken() && !friendsCache.loaded){
+      loadFriends().then(function(){ appendRealShareFriends(list, ideaId); });
+    }
+  }
+  function appendRealShareFriends(list, ideaId){
+    if(!list || typeof list.querySelectorAll !== "function") return;
+    var old = list.querySelectorAll(".share-friend-row");
+    Array.prototype.forEach.call(old || [], function(node){
+      if(node && typeof node.remove === "function") node.remove();
+    });
+    realFriendsForPicks().forEach(function(f){
       var row = el("div", "share-friend-row");
       row.innerHTML =
-        '<span class="friend-avatar" style="background:' + f.avatarColor + '">' + f.avatarEmoji + '</span>' +
-        '<span class="friend-name">' + escapeHtml(f.name) + '</span>';
+        '<span class="friend-avatar" style="background:' + friendColor(f.username) + '">' + friendInitial(f.username) + '</span>' +
+        '<span class="friend-name">@' + escapeHtml(f.username) + '</span>';
       row.addEventListener("click", function(){
         closeOverlay("#share-overlay");
         presentShare(ideaShareData(ideaId));
       });
       list.appendChild(row);
     });
-    openOverlay("#share-overlay");
   }
   $("#share-close").addEventListener("click", function(){ closeOverlay("#share-overlay"); });
 
   /* ---------- Share-a-plan overlay ----------
-     Two steps: pick a friend, then (simulated, since there's no backend
-     connecting devices) mark which idea in the plan that friend likes best. */
-  var planShareState = { planId: null, friendIdx: null };
+     Pick one of your real friends, then mark which idea they like best.
+     That pick stays on this device. */
+  var planShareState = { planId: null, friendIdx: null, friend: null };
   function openPlanShareOverlay(planId){
     planShareState.planId = planId;
     planShareState.friendIdx = null;
+    planShareState.friend = null;
     showPlanShareStep(1);
     openOverlay("#plan-share-overlay");
+    if(readAccessToken() && !friendsCache.loaded){
+      loadFriends().then(function(){
+        if(planShareState.planId === planId && !planShareState.friend) renderPlanShareFriends();
+      });
+    }
   }
   function showPlanShareStep(step){
     $("#plan-share-step1").classList.toggle("hidden", step !== 1);
@@ -3087,13 +3103,23 @@
   function renderPlanShareFriends(){
     var list = $("#plan-share-friend-list");
     list.innerHTML = "";
-    DEMO_FRIENDS.forEach(function(f, idx){
+    var friends = realFriendsForPicks();
+    if(!friends.length){
+      list.innerHTML = '<p class="field-hint">' + (readAccessToken() ? "Add a friend from the Friends tab first." : "Sign in to add friends.") + '</p>';
+      return;
+    }
+    friends.forEach(function(f){
       var row = el("div", "share-friend-row");
       row.innerHTML =
-        '<span class="friend-avatar" style="background:' + f.avatarColor + '">' + f.avatarEmoji + '</span>' +
-        '<span class="friend-name">' + escapeHtml(f.name) + '</span>';
+        '<span class="friend-avatar" style="background:' + friendColor(f.username) + '">' + friendInitial(f.username) + '</span>' +
+        '<span class="friend-name">@' + escapeHtml(f.username) + '</span>';
       row.addEventListener("click", function(){
-        planShareState.friendIdx = idx;
+        planShareState.friend = {
+          username: f.username,
+          avatarEmoji: friendInitial(f.username),
+          avatarColor: friendColor(f.username)
+        };
+        planShareState.friendIdx = null;
         showPlanShareStep(2);
       });
       list.appendChild(row);
@@ -3101,9 +3127,9 @@
   }
   function renderPlanShareIdeas(){
     var plan = getPlanById(planShareState.planId);
-    var f = DEMO_FRIENDS[planShareState.friendIdx];
+    var f = planShareState.friend;
     if(!f) return;
-    $("#plan-share-friend-label").textContent = f.name;
+    $("#plan-share-friend-label").textContent = "@" + (f.username || f.name || "");
     var list = $("#plan-share-idea-list");
     list.innerHTML = "";
     if(!plan || !plan.ideaIds.length){
@@ -3125,12 +3151,17 @@
   }
   function commitFriendPick(ideaId){
     var plan = getPlanById(planShareState.planId);
-    var f = DEMO_FRIENDS[planShareState.friendIdx];
-    if(!plan || !f) return;
+    var f = planShareState.friend;
+    if(!f && planShareState.friendIdx != null){
+      var fromList = realFriendsForPicks()[planShareState.friendIdx];
+      if(fromList) f = { username: fromList.username, avatarEmoji: friendInitial(fromList.username), avatarColor: friendColor(fromList.username) };
+    }
+    var name = f && (f.username || f.name);
+    if(!plan || !name) return;
     if(!Array.isArray(plan.friendPicks)) plan.friendPicks = [];
     // A friend only has one active "favorite" per plan — picking again replaces it.
-    plan.friendPicks = plan.friendPicks.filter(function(p){ return p.friendName !== f.name; });
-    plan.friendPicks.push({ id: genId("pick"), friendName: f.name, avatarEmoji: f.avatarEmoji, avatarColor: f.avatarColor, ideaId: ideaId });
+    plan.friendPicks = plan.friendPicks.filter(function(p){ return p && p.friendName !== name; });
+    plan.friendPicks.push({ id: genId("pick"), friendName: name, avatarEmoji: f.avatarEmoji || friendInitial(name), avatarColor: f.avatarColor || friendColor(name), ideaId: ideaId });
     saveState();
     closeOverlay("#plan-share-overlay");
     showToast("Saved locally");
@@ -3748,9 +3779,17 @@
       var bar = el("div", "saved-plan-bar");
       var when = plan.date ? fmtDate(plan.date) : "No date set";
       bar.appendChild(el("div", "saved-plan-date", escapeHtml(when)));
-      var shareBtn = el("button", "btn-outline saved-plan-action", icon("share") + " Share with Friends");
-      shareBtn.type = "button";
-      shareBtn.addEventListener("click", function(){ openPlanShareOverlay(plan.id); });
+      if(readAccessToken() && !friendsCache.loaded){
+        loadFriends().then(function(){
+          if(ui.tab === "saved" && ui.screen === "list") renderContent();
+        });
+      }
+      if(realFriendsForPicks().length){
+        var shareBtn = el("button", "btn-outline saved-plan-action", icon("share") + " Share with Friends");
+        shareBtn.type = "button";
+        shareBtn.addEventListener("click", function(){ openPlanShareOverlay(plan.id); });
+        bar.appendChild(shareBtn);
+      }
       var linkBtn = el("button", "btn-outline saved-plan-action", icon("share") + " Share plan");
       linkBtn.type = "button";
       linkBtn.addEventListener("click", function(){ openPlanLinkOverlay(plan.id); });
@@ -3760,7 +3799,6 @@
         if(!confirmDeletePlan(plan)) return;
         deletePlan(plan.id);
       });
-      bar.appendChild(shareBtn);
       bar.appendChild(linkBtn);
       bar.appendChild(delBtn);
       wrap.appendChild(bar);
@@ -4562,73 +4600,276 @@
     return Math.round(miles) + " mi";
   }
 
-  /* ---------- Friends screen ---------- */
+  /* ---------- Friends screen ----------
+     Requests and friends for the signed-in user. A friend's own list
+     stays on the server and is never drawn here. */
+  var FRIEND_COLORS = ["#0B6E4F", "#1F6F8B", "#8C4A2F", "#3E5C3A", "#6B4C7A", "#8A5A2B"];
+  var friendsCache = { loaded: false, pending: null, failed: false, friends: [], incoming: [], outgoing: [] };
+
+  function friendInitial(username){
+    var name = String(username || "").replace(/^@/, "");
+    return name ? name.charAt(0).toUpperCase() : "?";
+  }
+  function friendColor(username){
+    var name = String(username || "");
+    var n = 0;
+    for(var i = 0; i < name.length; i++) n = (n + name.charCodeAt(i) * (i + 1)) % FRIEND_COLORS.length;
+    return FRIEND_COLORS[n];
+  }
+  function realFriendsForPicks(){
+    if(!readAccessToken()) return [];
+    return (friendsCache.friends || []).filter(function(f){
+      return f && typeof f.username === "string" && f.username;
+    });
+  }
+  function friendsBadgeCount(){
+    return friendsCache.incoming.length;
+  }
+  function updateFriendsBadge(count){
+    var n = count > 0 ? count : 0;
+    var btn = document.querySelector('.nav-btn[data-tab="friends"]');
+    if(!btn || typeof btn.querySelector !== "function") return n;
+    var badge = btn.querySelector(".nav-badge");
+    if(!n){
+      if(badge && typeof badge.remove === "function") badge.remove();
+      return 0;
+    }
+    if(!badge && typeof document.createElement === "function"){
+      badge = document.createElement("span");
+      badge.className = "nav-badge";
+      if(typeof btn.appendChild === "function") btn.appendChild(badge);
+    }
+    if(!badge) return n;
+    badge.innerHTML = String(n);
+    if(typeof badge.setAttribute === "function"){
+      badge.setAttribute("aria-label", n === 1 ? "1 friend request" : (n + " friend requests"));
+    }
+    return n;
+  }
+  function applyFriendsPayload(body){
+    body = body || {};
+    friendsCache.loaded = true;
+    friendsCache.failed = false;
+    friendsCache.friends = Array.isArray(body.friends) ? body.friends : [];
+    friendsCache.incoming = Array.isArray(body.incoming) ? body.incoming : [];
+    friendsCache.outgoing = Array.isArray(body.outgoing) ? body.outgoing : [];
+    updateFriendsBadge(friendsCache.incoming.length);
+    return friendsCache;
+  }
+  function loadFriends(){
+    if(!readAccessToken()) return Promise.resolve(null);
+    if(friendsCache.pending) return friendsCache.pending;
+    friendsCache.pending = usernameFetch("/api/friends").then(function(res){
+      var body = res.body || {};
+      if(res.status === 200 && body.ok) return applyFriendsPayload(body);
+      friendsCache.loaded = true;
+      friendsCache.failed = true;
+      friendsCache.friends = [];
+      friendsCache.incoming = [];
+      friendsCache.outgoing = [];
+      updateFriendsBadge(0);
+      return friendsCache;
+    }).catch(function(){
+      friendsCache.loaded = true;
+      friendsCache.failed = true;
+      return friendsCache;
+    }).then(function(cache){
+      friendsCache.pending = null;
+      return cache;
+    });
+    return friendsCache.pending;
+  }
+  function friendResultMessage(result){
+    if(!result) return "That didn't work. Try again.";
+    if(result.ok && result.status === "accepted") return "You're now friends.";
+    if(result.ok) return "Request sent.";
+    if(result.error) return result.error;
+    return "That didn't work. Try again.";
+  }
+  function friendNameOf(value){
+    var raw = value == null ? "" : String(value).trim();
+    if(raw.charAt(0) === "@") raw = raw.slice(1);
+    var checked = validateUsername(raw);
+    if(!checked.ok) return "";
+    return checked.username;
+  }
+  function submitFriendRequest(username){
+    if(!readAccessToken()) return Promise.resolve({ ok:false, error:"Sign in to add friends." });
+    var raw = username == null ? "" : String(username).trim();
+    if(raw.charAt(0) === "@") raw = raw.slice(1);
+    if(!raw) return Promise.resolve({ ok:false, error:"Enter a username." });
+    return usernameFetch("/api/friends/requests", {
+      method: "POST",
+      body: JSON.stringify({ username: raw })
+    }).then(function(res){
+      var body = res.body || {};
+      if(res.status === 200 && body.ok) return { ok:true, status: body.status || "pending" };
+      return { ok:false, error: body.message || "That didn't work. Try again.", code: body.error || "" };
+    });
+  }
+  function respondToFriendRequest(username, action){
+    if(!readAccessToken()) return Promise.resolve({ ok:false, error:"Sign in to add friends." });
+    var name = friendNameOf(username);
+    if(!name) return Promise.resolve({ ok:false, error:"Check the username and try again." });
+    return usernameFetch("/api/friends/requests/" + encodeURIComponent(name) + "/" + action, {
+      method: "POST"
+    }).then(function(res){
+      var body = res.body || {};
+      if(res.status === 200 && body.ok) return { ok:true, status: body.status || action };
+      return { ok:false, error: body.message || "That didn't work. Try again." };
+    });
+  }
+  function unfriendUser(username){
+    if(!readAccessToken()) return Promise.resolve({ ok:false, error:"Sign in to add friends." });
+    var name = friendNameOf(username);
+    if(!name) return Promise.resolve({ ok:false, error:"Check the username and try again." });
+    return usernameFetch("/api/friends/" + encodeURIComponent(name), {
+      method: "DELETE"
+    }).then(function(res){
+      var body = res.body || {};
+      if(res.status === 200 && body.ok) return { ok:true };
+      return { ok:false, error: body.message || "That didn't work. Try again." };
+    });
+  }
+  function signInFriendsCard(){
+    return el("div", "friends-signin", "<h3>Sign in to add friends</h3><p>Friends are people you add by their exact username.</p>");
+  }
+  function friendSafetyButtons(name){
+    if(!serverUsernameActive() || !safetyUsername(name)) return "";
+    return '<span class="username-safety">' +
+      '<button type="button" class="username-safety-btn" data-safety-action="block" data-username="' + escapeHtml(name) + '">Block</button>' +
+      '<button type="button" class="username-safety-btn" data-safety-action="report" data-username="' + escapeHtml(name) + '">Report</button>' +
+      '</span>';
+  }
+  function friendSectionsHtml(){
+    var incoming = friendsCache.incoming || [];
+    var outgoing = friendsCache.outgoing || [];
+    var friends = friendsCache.friends || [];
+    var html = '<div class="section-title requests-title">Requests (' + incoming.length + ')</div>';
+    if(!incoming.length && !outgoing.length) html += '<p class="safety-copy">No requests.</p>';
+    incoming.forEach(function(row){
+      var name = friendNameOf(row && row.username);
+      if(!name) return;
+      html += '<div class="friend-card friend-request" data-username="' + escapeHtml(name) + '">' +
+        '<span class="friend-avatar" style="background:' + friendColor(name) + '">' + friendInitial(name) + '</span>' +
+        '<span class="friend-row-main"><div class="friend-name">@' + escapeHtml(name) + '</div>' +
+        '<div class="friend-row-actions">' +
+        '<button type="button" class="btn-outline friend-accept" data-friend-action="accept" data-username="' + escapeHtml(name) + '">Accept</button>' +
+        '<button type="button" class="btn-text friend-decline" data-friend-action="decline" data-username="' + escapeHtml(name) + '">Decline</button>' +
+        '</div></span></div>';
+    });
+    outgoing.forEach(function(row){
+      var name = friendNameOf(row && row.username);
+      if(!name) return;
+      html += '<div class="friend-card friend-request outgoing" data-username="' + escapeHtml(name) + '">' +
+        '<span class="friend-avatar" style="background:' + friendColor(name) + '">' + friendInitial(name) + '</span>' +
+        '<span class="friend-row-main"><div class="friend-name">@' + escapeHtml(name) + '</div>' +
+        '<div class="friend-row-actions">' +
+        '<button type="button" class="btn-text friend-cancel" data-friend-action="cancel" data-username="' + escapeHtml(name) + '">Cancel</button>' +
+        '</div></span></div>';
+    });
+    html += '<div class="section-title">Friends</div>';
+    if(!friends.length) html += '<p class="safety-copy">No friends yet.</p>';
+    friends.forEach(function(row){
+      var name = friendNameOf(row && row.username);
+      if(!name) return;
+      html += '<div class="friend-card friend-person" data-username="' + escapeHtml(name) + '">' +
+        '<span class="friend-avatar" style="background:' + friendColor(name) + '">' + friendInitial(name) + '</span>' +
+        '<span class="friend-row-main"><div class="friend-name">@' + escapeHtml(name) + '</div>' +
+        '<div class="friend-row-actions">' +
+        '<button type="button" class="btn-text friend-unfriend" data-friend-action="unfriend" data-username="' + escapeHtml(name) + '">Unfriend</button>' +
+        friendSafetyButtons(name) +
+        '</div></span></div>';
+    });
+    return html;
+  }
+  function paintFriendSections(sections){
+    if(!sections) return;
+    if(!friendsCache.loaded){
+      sections.innerHTML = '<p class="safety-copy">Loading…</p>';
+      return;
+    }
+    if(friendsCache.failed){
+      sections.innerHTML = '<p class="safety-copy">Couldn\'t load friends. Try again in a little while.</p>';
+      return;
+    }
+    sections.innerHTML = friendSectionsHtml();
+  }
+  function buildAddFriendBox(sections){
+    var box = el("div", "add-friend-box");
+    box.appendChild(el("div", "section-title", "Add a friend"));
+    var form = el("form", "add-friend-form");
+    form.innerHTML =
+      '<input class="field-input add-friend-input" type="text" maxlength="21" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="@username" aria-label="Username">';
+    var go = el("button", "btn-primary add-friend-go", "Add");
+    go.type = "submit";
+    form.appendChild(go);
+    var result = el("p", "add-friend-result", "");
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var input = form.querySelector(".add-friend-input");
+      var raw = input ? input.value : "";
+      go.disabled = true;
+      submitFriendRequest(raw).then(function(outcome){
+        go.disabled = false;
+        result.innerHTML = escapeHtml(friendResultMessage(outcome));
+        if(!outcome.ok) return;
+        if(input) input.value = "";
+        friendsCache.loaded = false;
+        loadFriends().then(function(){ paintFriendSections(sections); });
+      }).catch(function(){
+        go.disabled = false;
+        result.innerHTML = "That didn't work. Try again.";
+      });
+    });
+    box.appendChild(form);
+    box.appendChild(result);
+    return box;
+  }
   function buildFriendsScreen(){
     var wrap = el("div", "screen friends-screen");
-    wrap.appendChild(el("div", "section-title", "You"));
-    var meCard = el("div", "friend-card");
-    meCard.innerHTML =
-      '<span class="friend-avatar" style="background:#0B6E4F">' + (state.profile.photo ? '' : icon("user")) + '</span>' +
-      '<span><div class="friend-name">' + escapeHtml(state.profile.name || "You") + '</div>' +
-      '<div class="friend-stats">' + state.doneIds.length + ' done · ' + totalSavedCount() + ' saved</div></span>';
-    if(state.profile.photo){
-      var av = $(".friend-avatar", meCard);
-      av.style.background = "transparent";
-      av.innerHTML = '<img src="' + state.profile.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">';
+    if(!readAccessToken()){
+      wrap.appendChild(signInFriendsCard());
+      return wrap;
     }
-    wrap.appendChild(meCard);
-
-    var addFriendsBtn = el("button", "btn-secondary btn-block", icon("plus") + " Add Friends");
-    addFriendsBtn.type = "button";
-    addFriendsBtn.addEventListener("click", function(){ openSubpage("addFriends"); });
-    wrap.appendChild(addFriendsBtn);
-
-    wrap.appendChild(el("div", "section-title", "Friends"));
-    DEMO_FRIENDS.forEach(function(f, idx){
-      var card = el("div", "friend-card");
-      card.innerHTML =
-        '<span class="friend-avatar" style="background:' + f.avatarColor + '">' + f.avatarEmoji + '</span>' +
-        '<span><div class="friend-name">' + escapeHtml(f.name) + '</div>' +
-        '<div class="friend-stats">' + f.doneIds.length + ' done · ' + f.savedIds.length + ' saved</div></span>';
-      card.addEventListener("click", function(){
-        ui.screen = "friendDetail"; ui.detailFriendId = idx;
-        renderContent();
+    var sections = el("div", "friend-sections");
+    wrap.appendChild(buildAddFriendBox(sections));
+    wrap.appendChild(sections);
+    paintFriendSections(sections);
+    wrap.addEventListener("click", function(e){
+      var node = e.target;
+      if(!node || typeof node.closest !== "function") return;
+      var btn = node.closest("[data-friend-action]");
+      if(!btn) return;
+      e.preventDefault();
+      var action = btn.getAttribute("data-friend-action");
+      var name = btn.getAttribute("data-username");
+      var pending = action === "unfriend" ? unfriendUser(name) : respondToFriendRequest(name, action);
+      Promise.resolve(pending).then(function(outcome){
+        if(!outcome || !outcome.ok){
+          showToast(outcome && outcome.error ? outcome.error : "That didn't work. Try again.");
+          return;
+        }
+        if(action === "accept") showToast("You're now friends.");
+        else if(action === "decline") showToast("Request declined.");
+        else if(action === "cancel") showToast("Request canceled.");
+        else showToast("Removed.");
+        friendsCache.loaded = false;
+        loadFriends().then(function(){ paintFriendSections(sections); });
+      }).catch(function(){
+        showToast("That didn't work. Try again.");
       });
-      wrap.appendChild(card);
     });
+    loadFriends().then(function(){ paintFriendSections(sections); });
     return wrap;
   }
 
-  function buildFriendDetailScreen(friendIdx){
-    var f = DEMO_FRIENDS[friendIdx];
+  function buildFriendDetailScreen(){
     var wrap = el("div", "screen friend-detail-screen");
-    if(!f){ wrap.innerHTML = '<p>Friend not found.</p>'; return wrap; }
-
-    var header = el("div", "friend-detail-header");
-    header.innerHTML =
-      '<span class="friend-avatar" style="background:' + f.avatarColor + '">' + f.avatarEmoji + '</span>' +
-      '<div><div class="profile-name-big">' + escapeHtml(f.name) + '</div>' +
-      '<div class="profile-sub">' + f.doneIds.length + ' done · ' + f.savedIds.length + ' saved</div></div>';
-    wrap.appendChild(header);
-
     var back = el("button", "back-link", "‹ Back to Friends");
     back.addEventListener("click", function(){ switchTab("friends"); });
-    wrap.insertBefore(back, header);
-
-    wrap.appendChild(el("div", "section-title", "Done"));
-    if(f.doneIds.length === 0) wrap.appendChild(el("p", null, "No dates done yet."));
-    f.doneIds.forEach(function(id){
-      var idea = IDEAS_BY_ID[id];
-      if(idea) wrap.appendChild(buildFriendIdeaRow(idea));
-    });
-
-    wrap.appendChild(el("div", "section-title", "Wants to Try"));
-    if(f.savedIds.length === 0) wrap.appendChild(el("p", null, "Nothing saved yet."));
-    f.savedIds.forEach(function(id){
-      var idea = IDEAS_BY_ID[id];
-      if(idea) wrap.appendChild(buildFriendIdeaRow(idea));
-    });
-
+    wrap.appendChild(back);
+    wrap.appendChild(el("p", null, "Friend not found."));
     return wrap;
   }
 

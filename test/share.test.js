@@ -251,11 +251,11 @@ await section("plan favorite is saved locally", () => {
     friendPicks: []
   });
   app.planShareState.planId = "plan-test";
-  app.planShareState.friendIdx = 0;
+  app.planShareState.friend = { username: "river_day", avatarEmoji: "R", avatarColor: "#1F6F8B" };
   toast.textContent = "";
   app.commitFriendPick(2);
   const picks = app.state.datePlans[app.state.datePlans.length - 1].friendPicks;
-  check("pick is stored on the plan", picks.length === 1 && picks[0].ideaId === 2 && picks[0].friendName === "Emma R.",
+  check("pick is stored on the plan", picks.length === 1 && picks[0].ideaId === 2 && picks[0].friendName === "river_day",
         JSON.stringify(picks));
   check("confirmation is Saved locally", toast.textContent === "Saved locally", toast.textContent);
   check("confirmation does not say sent", !/\bsent\b/i.test(toast.textContent));

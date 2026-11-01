@@ -1211,3 +1211,25 @@ padding:12px 0; border-bottom:1px solid var(--border);
 }
 .blocked-name{ font-weight:700; }
 .blocked-actions{ display:flex; gap:8px; flex-shrink:0; }
+
+.nav-btn[data-tab="friends"]{ position:relative; }
+.nav-badge{
+  position:absolute; top:2px; left:50%; margin-left:8px;
+  min-width:16px; height:16px; padding:0 4px; box-sizing:border-box;
+  border-radius:999px; background:var(--color-yellow); color:var(--color-on-yellow);
+  font-size:10px; font-weight:800; line-height:16px; text-align:center;
+}
+.friends-signin{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:18px 16px; margin-top:8px; box-shadow:var(--shadow-soft);
+}
+.friends-signin h3{ margin:0 0 6px; font-size:16px; color:var(--text); }
+.friends-signin p{ margin:0; font-size:13.5px; line-height:1.45; color:var(--text-soft); }
+.add-friend-box .section-title{ margin-top:4px; }
+.add-friend-form .btn-primary{ width:100%; margin-top:10px; }
+.add-friend-result{ margin:8px 0 0; font-size:13.5px; color:var(--text); }
+.add-friend-result:empty{ display:none; }
+.friend-row-main{ flex:1; min-width:0; }
+.friend-row-actions{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px; }
+.friend-row-actions .btn-outline{ padding:8px 12px; }
+.friend-row-actions .username-safety{ margin-top:0; }

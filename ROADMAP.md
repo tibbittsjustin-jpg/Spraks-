@@ -16,7 +16,7 @@ Owners: product, frontend, backend/integrations, and QA/infra. Stay inside your 
 
 5. **Idea review is still manual, and nothing is credited yet.** "Got an Idea?" posts to `POST /api/submissions` and the row stays `pending`. There is no review screen, no email verification, and no reward count. An idea saved only on the device is sent only when the person taps Send.
 
-6. **Friends, invites, and sharing are a demo.** `DEMO_FRIENDS` is four fixed people. `MOCK_CONTACTS` is six fixed phone numbers. Share and "Send Link" only toast. The plan-share flow writes a `friendPicks` entry locally so the detail screen can say that friend picked a favorite. The QR code encodes `https://spark-dates.app/invite/...`, and "Copy Invite Link" does not call the clipboard. **Suggestion:** a real accounts-and-sharing backend is a large product decision; until then, the UI should not imply a message was sent or a link was copied.
+6. **Invites are still a demo.** `MOCK_CONTACTS` is six fixed phone numbers. Share only uses the device share sheet. The plan-share flow writes a `friendPicks` entry locally so the detail screen can say that friend picked a favorite. The QR code encodes `https://spark-dates.app/invite/...`, and "Copy Invite Link" does not call the clipboard. Friends themselves are real accounts, added by exact username.
 
 7. **The catalog's audience is local even when the user is not.** 171 ideas are "Local Provo/Utah County Business Dates" and 98 are "Local Utah/Idaho Spots & Day Trips." Places search works for any lat/lng. **Suggestion:** either say Spark is a Utah County date app, or split the national catalog from the local one so other cities are not swiping Provo businesses first.
 
@@ -43,7 +43,7 @@ Almost every screen closes over the same mutable bindings inside the IIFE. A mov
 - Deck session: `deckOrderCache`. The cache is the bugfix that keeps an interleaved real spot from sitting forever N cards ahead. Recomputing the interleave after every swipe brings that bug back.
 - `artCache`, `toastTimer`, `openSwipeRowReset` (only one swipe-to-delete row stays open), `shareTargetIdeaId`, `planShareState`, `obPhotoData`, `tutorialIndex`.
 
-Globals from other scripts: `IDEAS_DATA`, `DEMO_FRIENDS`, `DATING_TIPS`, `MOTIFS`, `qrcode`. `loadState()` duplicates the real-id window as the literals `9000000` and `10000000` because `REAL_ID_MIN` is assigned later in the source. A move must not change that migration.
+Globals from other scripts: `IDEAS_DATA`, `DATING_TIPS`, `MOTIFS`, `qrcode`. `loadState()` duplicates the real-id window as the literals `9000000` and `10000000` because `REAL_ID_MIN` is assigned later in the source. A move must not change that migration.
 
 The harness exports, and therefore the names that must keep working until a step says it updates `test/harness.js`: `state`, `IDEAS_BY_ID`, `REAL_IDEAS_RUNTIME`, `hydrateRealIdea`, `saveState`, `addIdeaToBucket`, `removeIdeaFromBucket`, `totalSavedCount`, `isRealId`, `displayCost`, `localDateISO`, `computeDeck`, `matchesFilters`, `buildIdeaRow`, `finishOnboarding`, `ageGateSatisfied`.
 
@@ -77,7 +77,7 @@ Each step is its own pull request. Behavior stays the same. `npm test` stays gre
 
 14. **`computeDeck` into `deck.js`.** Move `computeDeck` and `deckOrderCache` once the pools can be passed in (`builtinIds` are already filtered here, real pool only with `state.location`). Risk: high, which is why it is not the interleave step. The signature is `JSON.stringify(filters) + "|" + builtinIds.length + "|" + extraIds.join(",")`. Seen ids are hidden after the order is fixed. A wrong cache key either reshuffles under the user or never picks up a new batch of real spots.
 
-15. **`detail.js`.** Move `buildDetailScreen`, `openShareOverlay`, `openPlanShareOverlay`, `commitFriendPick`, and their step state (`shareTargetIdeaId`, `planShareState`). Depends on plans, cover art, icons, `DEMO_FRIENDS`. Risk: high. Mark-as-done pushes `{ id, date: todayISO() }`. The hero swipe-up saves to the active plan, or Favorites when no plan is active, and then goes back. Share still only toasts.
+15. **`detail.js`.** Move `buildDetailScreen`, `openShareOverlay`, `openPlanShareOverlay`, `commitFriendPick`, and their step state (`shareTargetIdeaId`, `planShareState`). Depends on plans, cover art, and icons. Risk: high. Mark-as-done pushes `{ id, date: todayISO() }`. The hero swipe-up saves to the active plan, or Favorites when no plan is active, and then goes back. Share still only toasts.
 
 16. **`saved.js`, `done.js`, `friends.js`, `profile.js` — one screen per pull request, in that order.** Saved: folder list, bucket screen, `deletePlan`, swipe-to-delete. Done: `buildDoneScreen` and `buildDoneSubpanel`. Friends: `buildFriendsScreen`, `buildFriendDetailScreen`, invite link (`hashStr` of the name), QR, `MOCK_CONTACTS`. Profile: overlay header, subpage router, tips, idea submit, edit profile, onboarding submit, and the tutorial. Risk: medium. Onboarding and nav listeners are bound while the script evaluates, once. Moving them must not bind them again on every render, and must not bind them before `state` exists. Idea submit posts to `POST /api/submissions` and keeps a local copy in `state.submittedIdeas`.
 

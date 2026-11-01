@@ -82,6 +82,7 @@ function memoryDb() {
       { list_id: LIST_C, user_id: USER_A, item_id: ITEM_A }
     ],
     reports: [],
+    queryLog: [],
     activityWrites: 0,
     forceUnique: false,
     released: 0
@@ -108,6 +109,7 @@ function memoryDb() {
   async function query(sql, params) {
     const text = String(sql);
     params = params || [];
+    if (text !== "BEGIN" && text !== "COMMIT" && text !== "ROLLBACK") state.queryLog.push(text);
     if (/insert\s+into\s+public\.activity_items/i.test(text)) {
       state.activityWrites++;
       throw new Error("activity write");
@@ -190,10 +192,19 @@ function memoryDb() {
           item.target_type === params[1] &&
           String(item.target_id) === String(params[2]) &&
           item.reason === params[3] &&
-          String(item.list_id || "") === String(params[4] || "") &&
-          String(item.note || "") === String(params[5] || "");
+          String(item.list_id || "") === String(params[4] || "");
       });
       return { rows: rows.slice(0, 1).map(item => ({ id: item.id })) };
+    }
+    if (text === SQL.selectListVisible) {
+      const list = state.lists.filter(item => String(item.id) === String(params[0]) && !item.deleted_at)[0];
+      if (!list) return { rows: [] };
+      const owner = String(list.owner_id) === String(params[1]);
+      const active = state.members.some(member =>
+        String(member.list_id) === String(list.id) &&
+        String(member.user_id) === String(params[1]) &&
+        member.status === "active");
+      return { rows: (owner || active) ? [{ id: list.id }] : [] };
     }
     if (text === SQL.insertReport) {
       if (state.forceUnique) {
@@ -297,7 +308,7 @@ function allowAll() {
 function mount(options) {
   options = options || {};
   const db = options.db || memoryDb();
-  const auth = options.auth || authFor({ "good-a": USER_A, "good-b": USER_B, "good-c": USER_C });
+  const auth = options.auth || authFor({ "good-a": USER_A, "good-b": USER_B, "good-c": USER_C, "good-d": USER_D });
   const app = express();
   app.use(express.json());
   app.use("/api", createSafetyRouter({
@@ -446,6 +457,30 @@ async function main() {
         ctx.db.state.blocks.length === 0 &&
         ctx.db.state.friendships.length === 0 &&
         await isBlockedEitherWay(USER_A, USER_B, ctx.db) === false);
+
+      function lookups(log) {
+        return log.filter(sql =>
+          sql === SQL.selectUserByName ||
+          sql === SQL.selectEither ||
+          sql === SQL.selectSharedMemberships);
+      }
+      ctx.db.state.queryLog = [];
+      const timedMiss = await request(port, "POST", "/api/blocks", { username: "nobody_zz" }, bearer("good-a"));
+      const missLog = ctx.db.state.queryLog.slice();
+      ctx.db.state.queryLog = [];
+      const timedReal = await request(port, "POST", "/api/blocks", { username: "solo_name" }, bearer("good-a"));
+      const realLog = ctx.db.state.queryLog.slice();
+      const missLook = lookups(missLog);
+      const realLook = lookups(realLog);
+      check("a missing username takes the same lookups as one that exists",
+        timedMiss.status === 200 && timedReal.status === 200 &&
+        JSON.stringify(timedMiss.json) === JSON.stringify({ ok: true }) &&
+        missLook.length >= 3 &&
+        missLook.join("\n") === realLook.slice(0, missLook.length).join("\n") &&
+        missLog.indexOf(SQL.insertBlock) === -1 &&
+        realLog.indexOf(SQL.insertBlock) !== -1,
+        missLook.length + " vs " + realLook.length);
+      ctx.db.state.blocks = ctx.db.state.blocks.filter(item => item.blocked_id !== USER_D);
     });
 
     await section("shared lists follow the block rules", async () => {
@@ -522,8 +557,10 @@ async function main() {
         reason: "harassment",
         note: note + " more"
       }, bearer("good-a"));
-      check("a different note is a separate report",
-        otherNote.status === 200 && ctx.db.state.reports.length === 2);
+      check("a different note is still the same report",
+        otherNote.status === 200 && JSON.stringify(otherNote.json) === JSON.stringify({ ok: true }) &&
+        ctx.db.state.reports.length === 1 &&
+        ctx.db.state.reports[0].note === note);
 
       const longNote = "x".repeat(501);
       const tooLong = await request(port, "POST", "/api/reports", {
@@ -534,7 +571,7 @@ async function main() {
       }, bearer("good-a"));
       check("a note over 500 characters is refused",
         tooLong.status === 400 && tooLong.json && tooLong.json.error === "note" &&
-        ctx.db.state.reports.length === 2);
+        ctx.db.state.reports.length === 1);
       const maxNote = await request(port, "POST", "/api/reports", {
         targetType: "user",
         username: "river_day",
@@ -581,6 +618,39 @@ async function main() {
       const listRow = ctx.db.state.reports.filter(row => row.target_type === "list")[0];
       check("a list report can omit list id and still keeps the list",
         listOnly.status === 200 && listRow && listRow.target_id === LIST_C && listRow.list_id === LIST_C);
+
+      const beforeHidden = ctx.db.state.reports.length;
+      const hiddenList = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
+      const invited = await request(port, "POST", "/api/reports", {
+        targetType: "list",
+        targetId: LIST_A,
+        reason: "spam"
+      }, bearer("good-b"));
+      const outsider = await request(port, "POST", "/api/reports", {
+        targetType: "list",
+        targetId: LIST_A,
+        reason: "spam"
+      }, bearer("good-d"));
+      const missingList = await request(port, "POST", "/api/reports", {
+        targetType: "list",
+        targetId: hiddenList,
+        reason: "spam"
+      }, bearer("good-a"));
+      const hiddenItem = await request(port, "POST", "/api/reports", {
+        targetType: "list_item",
+        targetId: ITEM_A,
+        listId: LIST_A,
+        reason: "spam"
+      }, bearer("good-d"));
+      check("a list you only have an invite for is not reportable",
+        invited.status === 200 && JSON.stringify(invited.json) === JSON.stringify({ ok: true }));
+      check("an unseen list or item answers like a missing list and stores nothing",
+        outsider.status === 200 && missingList.status === 200 && hiddenItem.status === 200 &&
+        JSON.stringify(outsider.json) === JSON.stringify(missingList.json) &&
+        JSON.stringify(hiddenItem.json) === JSON.stringify({ ok: true }) &&
+        ctx.db.state.reports.length === beforeHidden &&
+        ctx.db.state.reports.every(row => String(row.list_id) !== String(LIST_A) || row.target_type === "list_invite"),
+        JSON.stringify(outsider.json) + " rows " + ctx.db.state.reports.length);
 
       const missingItemList = await request(port, "POST", "/api/reports", {
         targetType: "list_item",

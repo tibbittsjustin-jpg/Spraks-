@@ -100,7 +100,9 @@
     sun:        '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>',
     "message-circle":'<path d="M4 12a8 8 0 1114.3 4.9L21 20l-3.4-1.1A8 8 0 014 12z"/>',
     clock:      '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
-    "dollar-sign":'<path d="M12 2v20M17 6.5c0-2-2-3-5-3s-5 1.3-5 3.2c0 4 10 1.8 10 5.8 0 2-2 3.3-5 3.3s-5-1.3-5-3.3"/>'
+    "dollar-sign":'<path d="M12 2v20M17 6.5c0-2-2-3-5-3s-5 1.3-5 3.2c0 4 10 1.8 10 5.8 0 2-2 3.3-5 3.3s-5-1.3-5-3.3"/>',
+    pin:        '<path d="M9 3h6l-1 6 4 2-6 6v4h-2v-4L4 11l4-2z"/>',
+    "more-horizontal":'<circle cx="5" cy="12" r="1.35" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.35" fill="currentColor" stroke="none"/>'
   };
   function icon(name, cls){
     var body = ICONS[name] || ICONS.star;
@@ -276,6 +278,7 @@
       location:null,     // {lat, lng, grantedAt} once the user enables "Near You" real-place matching
       realIdeas:{},      // id -> full idea snapshot, for real (external) ideas the user has kept
       remoteIdeas:{},    // id -> approved activity the user saved or planned
+      pinnedPlanIds:[],  // planning-list ids, first = top of the Saved index
       settings:{ autoDarkMode:true } // auto dark mode between 9pm-6am, toggle in profile
     };
   }
@@ -283,6 +286,7 @@
   var pendingDobScrub = false;
   var pendingIdentitySave = false;
   var pendingDoneNormalize = false;
+  var pendingPinSave = false;
   var state = loadState();
 
   function loadState(){
@@ -313,6 +317,39 @@
       parsed.datePlans.forEach(function(plan){
         if(!Array.isArray(plan.friendPicks)) plan.friendPicks = [];
       });
+      // Pins are an ordered list of planning-list ids. Older saves have no
+      // list; a plan that carried pinned:true is folded in once.
+      if(!Array.isArray(parsed.pinnedPlanIds)){
+        parsed.pinnedPlanIds = [];
+        pendingPinSave = true;
+      }
+      var planIdSet = {};
+      parsed.datePlans.forEach(function(plan){
+        if(plan && plan.id != null) planIdSet[plan.id] = true;
+      });
+      var seenPins = {};
+      var pins = [];
+      parsed.pinnedPlanIds.forEach(function(id){
+        if(id == null || !planIdSet[id] || seenPins[id]){
+          if(id == null || !planIdSet[id] || seenPins[id]) pendingPinSave = true;
+          return;
+        }
+        seenPins[id] = true;
+        pins.push(id);
+      });
+      parsed.datePlans.forEach(function(plan){
+        if(!plan || plan.id == null) return;
+        if(plan.pinned === true && !seenPins[plan.id]){
+          pins.push(plan.id);
+          seenPins[plan.id] = true;
+          pendingPinSave = true;
+        }
+        if(Object.prototype.hasOwnProperty.call(plan, "pinned")){
+          delete plan.pinned;
+          pendingPinSave = true;
+        }
+      });
+      parsed.pinnedPlanIds = pins;
       // One-time migration: fold any legacy flat "savedIds" (from before the
       // date-planning feature existed) into the new Someday bucket, then clear
       // it so it can't resurrect already-removed ideas on a later load.
@@ -491,10 +528,11 @@
   }
 
   rehydrateRealIdeas();
-  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize){
+  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave){
     pendingDobScrub = false;
     pendingIdentitySave = false;
     pendingDoneNormalize = false;
+    pendingPinSave = false;
     saveState();
   }
 
@@ -607,14 +645,57 @@
     return typeof id === "string" && id.indexOf("db:") === 0;
   }
 
+  function cloneIdeaSnapshot(idea){
+    if(!idea || typeof idea !== "object") return null;
+    try { return JSON.parse(JSON.stringify(idea)); }
+    catch(err){ return idea; }
+  }
+
   function syncRemoteIdeaSnapshots(){
     var keep = {};
     keptIdeaIds().forEach(function(id){
       if(!isRemoteIdeaId(id)) return;
       var idea = IDEAS_BY_ID[id] || (state.remoteIdeas || {})[id];
-      if(idea) keep[id] = idea;
+      var copy = cloneIdeaSnapshot(idea);
+      if(!copy) return;
+      if(copy.id == null) copy.id = id;
+      if(!isRemoteIdeaId(copy.id)) return;
+      keep[id] = copy;
     });
     state.remoteIdeas = keep;
+  }
+
+  // The activities feed drops past events. Saved lists keep their snapshot
+  // so the card still renders. Nothing here removes an id from a list.
+  function restoreSavedRemoteSnapshots(){
+    var store = state.remoteIdeas || {};
+    var snaps = [];
+    Object.keys(store).forEach(function(id){
+      if(store[id]) snaps.push(store[id]);
+    });
+    var dropped = snaps;
+    if(typeof SparkRemoteActivities !== "undefined" && SparkRemoteActivities.retainSavedIdeas){
+      dropped = SparkRemoteActivities.retainSavedIdeas(REMOTE_IDEAS, snaps);
+    }
+    dropped.forEach(function(idea){
+      if(idea && idea.id != null && !IDEAS_BY_ID[idea.id]) IDEAS_BY_ID[idea.id] = idea;
+    });
+    snaps.forEach(function(idea){
+      if(idea && idea.id != null && !IDEAS_BY_ID[idea.id]) IDEAS_BY_ID[idea.id] = idea;
+    });
+  }
+
+  function ideaForSaved(id){
+    if(id == null) return null;
+    if(IDEAS_BY_ID[id]) return IDEAS_BY_ID[id];
+    restoreSavedRemoteSnapshots();
+    if(IDEAS_BY_ID[id]) return IDEAS_BY_ID[id];
+    var real = state.realIdeas && state.realIdeas[id];
+    if(real){
+      IDEAS_BY_ID[id] = real;
+      return real;
+    }
+    return null;
   }
 
   function rehydrateRemoteIdeas(){
@@ -702,6 +783,7 @@
     } else if(added.length){
       updateResultCount();
     }
+    restoreSavedRemoteSnapshots();
     return added;
   }
 
@@ -797,7 +879,7 @@
   var ui = {
     tab:"discover", screen:"list", detailIdeaId:null, detailFriendId:null, filterDraft:null, profileMenuOpen:null,
     activePlanId:null,   // id of the date plan currently being swiped for; null = casual/Someday mode
-    savedBucket:null,    // {type:"plan", planId} | {type:"someday"} — which Saved folder is currently open
+    savedBucket:null,    // null = lists index; {type:"plan", planId} | {type:"someday"} | {type:"done"}
     planDraft:null       // {name, date} while the "Plan a Date" overlay is open
   };
 
@@ -1472,6 +1554,7 @@
     if(f.tonight === true && !SparkUtil.suitsTonight(idea)) return false;
     var plan = getActivePlan();
     var planDate = plan && typeof plan.date === "string" ? plan.date : "";
+    // Deck only. A saved list keeps the idea after this day passes.
     if(!SparkOccurrences.visibleOnPlan(idea, planDate, new Date())) return false;
     return true;
   }
@@ -2509,6 +2592,7 @@
 
   /* ---------- Detail screen ---------- */
   function buildDetailScreen(ideaId){
+    ideaForSaved(ideaId);
     var idea = IDEAS_BY_ID[ideaId];
     var wrap = el("div", "screen detail-screen");
     if(!idea){
@@ -3303,43 +3387,112 @@
     return row;
   }
 
-  // Saved is one screen: pill tabs for each date plan, Favorites, and Done,
-  // then the ideas in the selected folder. The big SAVED title stays in the
-  // top bar. Opening an idea, swiping to remove it, sharing a plan, and
-  // planning a new date all still work.
+  function isPlanPinned(planId){
+    return Array.isArray(state.pinnedPlanIds) && state.pinnedPlanIds.indexOf(planId) !== -1;
+  }
+
+  function pinPlan(planId){
+    if(!getPlanById(planId)) return false;
+    if(!Array.isArray(state.pinnedPlanIds)) state.pinnedPlanIds = [];
+    var idx = state.pinnedPlanIds.indexOf(planId);
+    if(idx !== -1) state.pinnedPlanIds.splice(idx, 1);
+    state.pinnedPlanIds.unshift(planId);
+    saveState();
+    return true;
+  }
+
+  function unpinPlan(planId){
+    if(!Array.isArray(state.pinnedPlanIds)) state.pinnedPlanIds = [];
+    var idx = state.pinnedPlanIds.indexOf(planId);
+    if(idx === -1) return false;
+    state.pinnedPlanIds.splice(idx, 1);
+    saveState();
+    return true;
+  }
+
+  function planDeleteMessage(plan){
+    var name = plan && plan.name ? String(plan.name) : "this list";
+    return 'Delete "' + name + '" from Jaderoo? This can\'t be undone.';
+  }
+
+  function confirmDeletePlan(plan){
+    if(typeof confirm !== "function") return false;
+    return confirm(planDeleteMessage(plan)) === true;
+  }
+
+  function ideaIsPast(idea, now){
+    if(!idea || idea.unavailable === true) return false;
+    if(typeof SparkOccurrences === "undefined" || typeof SparkOccurrences.isPast !== "function") return false;
+    return SparkOccurrences.isPast(idea, now || new Date()) === true;
+  }
+
+  // Saved opens on an index of lists. A tap opens one list, and All lists
+  // comes back. Order: pinned planning lists, Favorites, other planning
+  // lists, then Done.
   function buildSavedScreen(){
+    restoreSavedRemoteSnapshots();
     var wrap = el("div", "screen saved-screen");
+    if(!ui.savedBucket){
+      wrap.appendChild(buildSavedIndex());
+      return wrap;
+    }
     var folders = listSavedFolders();
-    var active = resolveSavedFolder(folders);
-    wrap.appendChild(buildSavedPillRow(folders, active));
+    var active = null;
+    for(var i = 0; i < folders.length; i++){
+      if(sameSavedBucket(folders[i].bucket, ui.savedBucket)){ active = folders[i]; break; }
+    }
+    if(!active){
+      ui.savedBucket = null;
+      wrap.appendChild(buildSavedIndex());
+      return wrap;
+    }
+    wrap.appendChild(buildSavedBackBar(active));
     if(active.bucket.type === "done") wrap.appendChild(buildSavedDoneList());
     else wrap.appendChild(buildSavedBucketScreen(active.bucket));
     return wrap;
   }
 
-  // User-created date plans, then the Favorites bucket, then the Done list.
-  // Counts are the same lengths the old folder rows showed.
+  function folderForPlan(plan){
+    return {
+      key: "plan:" + plan.id,
+      bucket: { type:"plan", planId: plan.id },
+      label: plan.name || "Plan",
+      count: (plan.ideaIds || []).length,
+      pinned: isPlanPinned(plan.id),
+      dateLabel: plan.date ? fmtDate(plan.date) : "No date set",
+      kind: "plan"
+    };
+  }
+
   function listSavedFolders(){
     var folders = [];
-    state.datePlans.slice().reverse().forEach(function(plan){
-      folders.push({
-        key: "plan:" + plan.id,
-        bucket: { type:"plan", planId: plan.id },
-        label: plan.name,
-        count: (plan.ideaIds || []).length
-      });
+    var pinnedSet = {};
+    var pinnedIds = Array.isArray(state.pinnedPlanIds) ? state.pinnedPlanIds : [];
+    pinnedIds.forEach(function(id){
+      var plan = getPlanById(id);
+      if(!plan || pinnedSet[id]) return;
+      pinnedSet[id] = true;
+      folders.push(folderForPlan(plan));
     });
     folders.push({
       key: "someday",
       bucket: { type:"someday" },
       label: "Favorites",
-      count: state.somedayIds.length
+      count: state.somedayIds.length,
+      pinned: false,
+      kind: "someday"
+    });
+    state.datePlans.slice().reverse().forEach(function(plan){
+      if(!plan || pinnedSet[plan.id]) return;
+      folders.push(folderForPlan(plan));
     });
     folders.push({
       key: "done",
       bucket: { type:"done" },
       label: "Done",
-      count: state.doneIds.length
+      count: state.doneIds.length,
+      pinned: false,
+      kind: "done"
     });
     return folders;
   }
@@ -3350,52 +3503,146 @@
     return true;
   }
 
-  function resolveSavedFolder(folders){
-    var i;
-    if(ui.savedBucket){
-      for(i = 0; i < folders.length; i++){
-        if(sameSavedBucket(folders[i].bucket, ui.savedBucket)) return folders[i];
-      }
-    }
-    for(i = 0; i < folders.length; i++){
-      if(folders[i].bucket.type === "someday" && folders[i].count > 0) return folders[i];
-    }
-    for(i = 0; i < folders.length; i++){
-      if(folders[i].count > 0) return folders[i];
-    }
-    return folders[0];
+  function buildSavedBackBar(folder){
+    var bar = el("div", "saved-back-bar");
+    var back = el("button", "back-link saved-back", "‹ All lists");
+    back.type = "button";
+    back.addEventListener("click", function(){
+      ui.savedBucket = null;
+      renderContent();
+    });
+    bar.appendChild(back);
+    bar.appendChild(el("h2", "saved-open-title", escapeHtml(folder.label) + " · " + folder.count));
+    return bar;
   }
 
-  function buildSavedPillRow(folders, active){
-    var bar = el("div", "saved-pill-bar");
-    var row = el("div", "saved-pills");
-    row.setAttribute("role", "tablist");
-    folders.forEach(function(folder){
-      var on = sameSavedBucket(folder.bucket, active.bucket);
-      var pill = el("button", "saved-pill" + (on ? " is-active" : ""),
-        escapeHtml(folder.label) + " · " + folder.count);
-      pill.type = "button";
-      pill.setAttribute("role", "tab");
-      pill.setAttribute("aria-selected", on ? "true" : "false");
-      pill.dataset.bucket = folder.key;
-      pill.addEventListener("click", function(){
-        ui.savedBucket = folder.bucket;
+  function closeSavedListMenus(){
+    var menus = document.querySelectorAll(".saved-list-actions");
+    Array.prototype.forEach.call(menus, function(node){ node.hidden = true; });
+    var buttons = document.querySelectorAll(".saved-list-more");
+    Array.prototype.forEach.call(buttons, function(node){
+      node.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function buildSavedIndex(){
+    var wrap = el("div", "saved-index");
+    var add = el("button", "btn-secondary btn-block saved-index-add", icon("plus") + " Plan a New Date");
+    add.type = "button";
+    add.addEventListener("click", openPlanOverlay);
+    wrap.appendChild(add);
+    var folders = listSavedFolders();
+    var groups = [
+      { title:"Pinned", items: folders.filter(function(f){ return f.kind === "plan" && f.pinned; }) },
+      { title:"Favorites", items: folders.filter(function(f){ return f.kind === "someday"; }) },
+      { title:"Plans", items: folders.filter(function(f){ return f.kind === "plan" && !f.pinned; }) },
+      { title:"Done", items: folders.filter(function(f){ return f.kind === "done"; }) }
+    ];
+    groups.forEach(function(group){
+      if(!group.items.length) return;
+      wrap.appendChild(el("div", "section-title saved-index-title", escapeHtml(group.title)));
+      group.items.forEach(function(folder){
+        wrap.appendChild(buildSavedIndexEntry(folder));
+      });
+    });
+    return wrap;
+  }
+
+  function buildSavedIndexEntry(folder){
+    var card = el("div", "saved-list-card" + (folder.pinned ? " is-pinned" : ""));
+    var row = el("div", "saved-list-main");
+    var open = el("button", "saved-list-open");
+    open.type = "button";
+    var glyph = folder.kind === "done" ? "check-circle" : (folder.kind === "someday" ? "star" : (folder.pinned ? "pin" : "calendar"));
+    var sub = folder.kind === "plan"
+      ? (folder.dateLabel || "No date set")
+      : (folder.kind === "someday" ? "Ideas you want to keep" : "Dates you've tried");
+    open.innerHTML =
+      '<span class="saved-list-icon">' + icon(glyph) + '</span>' +
+      '<span class="saved-list-text">' +
+        '<span class="saved-list-name">' + escapeHtml(folder.label) + " · " + folder.count + '</span>' +
+        '<span class="saved-list-sub">' + escapeHtml(sub) + '</span>' +
+      '</span>';
+    open.addEventListener("click", function(){
+      ui.savedBucket = folder.bucket;
+      renderContent();
+    });
+    row.appendChild(open);
+
+    if(folder.kind === "plan"){
+      var more = el("button", "saved-list-more", icon("more-horizontal"));
+      more.type = "button";
+      more.setAttribute("aria-label", "Actions for " + folder.label);
+      more.setAttribute("aria-haspopup", "menu");
+      more.setAttribute("aria-expanded", "false");
+      var actions = el("div", "saved-list-actions");
+      actions.hidden = true;
+      actions.setAttribute("role", "menu");
+      var pinBtn = el("button", "btn-outline saved-list-action", folder.pinned ? "Unpin list" : "Pin list");
+      pinBtn.type = "button";
+      pinBtn.setAttribute("role", "menuitem");
+      pinBtn.addEventListener("click", function(ev){
+        ev.stopPropagation();
+        if(folder.pinned) unpinPlan(folder.bucket.planId);
+        else pinPlan(folder.bucket.planId);
         renderContent();
       });
-      row.appendChild(pill);
-    });
-    var add = el("button", "saved-pill saved-pill-add", icon("plus") + '<span class="saved-pill-add-label">Plan a New Date</span>');
-    add.type = "button";
-    add.setAttribute("aria-label", "Plan a New Date");
-    add.addEventListener("click", openPlanOverlay);
-    bar.appendChild(row);
-    bar.appendChild(add);
-    return bar;
+      var delBtn = el("button", "btn-text danger saved-list-action", "Delete list");
+      delBtn.type = "button";
+      delBtn.setAttribute("role", "menuitem");
+      delBtn.addEventListener("click", function(ev){
+        ev.stopPropagation();
+        var plan = getPlanById(folder.bucket.planId);
+        if(!confirmDeletePlan(plan || { name: folder.label })) return;
+        deletePlan(folder.bucket.planId);
+      });
+      function closeThisMenu(){
+        actions.hidden = true;
+        more.setAttribute("aria-expanded", "false");
+      }
+      function onMenuKey(ev){
+        if(ev.key === "Escape"){
+          closeThisMenu();
+          if(more.focus) more.focus();
+        }
+      }
+      more.addEventListener("click", function(ev){
+        ev.stopPropagation();
+        var willOpen = !!actions.hidden;
+        closeSavedListMenus();
+        if(!willOpen) return;
+        actions.hidden = false;
+        more.setAttribute("aria-expanded", "true");
+        var first = actions.querySelector && actions.querySelector("button");
+        if(first && first.focus) first.focus();
+      });
+      more.addEventListener("keydown", onMenuKey);
+      actions.addEventListener("keydown", onMenuKey);
+      actions.appendChild(pinBtn);
+      actions.appendChild(delBtn);
+      row.appendChild(more);
+      card.appendChild(row);
+      card.appendChild(actions);
+      var plan = getPlanById(folder.bucket.planId);
+      return buildSwipeToDeleteRow(card, function(){ deletePlan(folder.bucket.planId); }, {
+        confirm: function(){ return confirmDeletePlan(plan || { name: folder.label }); }
+      });
+    }
+
+    var chev = el("span", "saved-list-chevron", "›");
+    chev.setAttribute("aria-hidden", "true");
+    row.appendChild(chev);
+    card.appendChild(row);
+    return card;
   }
 
   function deletePlan(planId){
     var idx = state.datePlans.findIndex(function(p){ return p.id === planId; });
     if(idx !== -1) state.datePlans.splice(idx, 1);
+    if(Array.isArray(state.pinnedPlanIds)){
+      var pinAt = state.pinnedPlanIds.indexOf(planId);
+      if(pinAt !== -1) state.pinnedPlanIds.splice(pinAt, 1);
+    }
     if(ui.activePlanId === planId) ui.activePlanId = null;
     if(ui.savedBucket && ui.savedBucket.type === "plan" && ui.savedBucket.planId === planId) ui.savedBucket = null;
     saveState();
@@ -3424,7 +3671,10 @@
       linkBtn.addEventListener("click", function(){ openPlanLinkOverlay(plan.id); });
       var delBtn = el("button", "btn-text saved-plan-delete", "Delete plan");
       delBtn.type = "button";
-      delBtn.addEventListener("click", function(){ deletePlan(plan.id); });
+      delBtn.addEventListener("click", function(){
+        if(!confirmDeletePlan(plan)) return;
+        deletePlan(plan.id);
+      });
       bar.appendChild(shareBtn);
       bar.appendChild(linkBtn);
       bar.appendChild(delBtn);
@@ -3453,7 +3703,7 @@
       (hasPick ? pickedIds : restIds).push(id);
     });
     pickedIds.concat(restIds).forEach(function(id){
-      var idea = IDEAS_BY_ID[id];
+      var idea = ideaForSaved(id);
       if(!idea) return;
       var picks = plan ? (plan.friendPicks || []).filter(function(p){ return p.ideaId === id; }) : [];
       var card = buildSavedCard(idea, { picks: picks });
@@ -3471,7 +3721,7 @@
       return wrap;
     }
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
-      var idea = IDEAS_BY_ID[entry.id];
+      var idea = ideaForSaved(entry.id);
       if(!idea) return;
       wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date), doneEntry: entry }));
     });
@@ -3511,7 +3761,8 @@
 
   function buildSavedCard(idea, opts){
     opts = opts || {};
-    var card = el("div", "saved-card" + (idea && idea.unavailable ? " unavailable-item" : ""));
+    var past = ideaIsPast(idea);
+    var card = el("div", "saved-card" + (idea && idea.unavailable ? " unavailable-item" : "") + (past ? " is-past" : ""));
     var photo = ideaPhoto(idea);
     var thumb = el("div", "saved-thumb" + (photo ? " has-photo" : " is-placeholder"));
     if(photo) thumb.innerHTML = '<img alt="" src="' + escapeHtml(photo.url) + '">';
@@ -3520,10 +3771,14 @@
     body.appendChild(el("div", "saved-card-title", escapeHtml(idea.title)));
     var meta = savedMetaParts(idea, opts.doneDate);
     if(meta.length) body.appendChild(el("div", "saved-card-meta", escapeHtml(meta.join(" · "))));
-    var badge = savedStatusBadge(idea);
-    if(badge) body.appendChild(el("span", "saved-badge saved-badge-" + badge.kind, escapeHtml(badge.label)));
-    var timeBadge = savedTimeBadge(idea);
-    if(timeBadge) body.appendChild(el("span", "saved-badge saved-badge-" + timeBadge.kind, escapeHtml(timeBadge.label)));
+    if(past){
+      body.appendChild(el("span", "saved-badge saved-badge-past", "Past"));
+    } else {
+      var badge = savedStatusBadge(idea);
+      if(badge) body.appendChild(el("span", "saved-badge saved-badge-" + badge.kind, escapeHtml(badge.label)));
+      var timeBadge = savedTimeBadge(idea);
+      if(timeBadge) body.appendChild(el("span", "saved-badge saved-badge-" + timeBadge.kind, escapeHtml(timeBadge.label)));
+    }
     var picks = opts.picks || [];
     if(picks.length){
       body.appendChild(el("div", "friend-pick-badge",
@@ -4057,7 +4312,8 @@
   // Wraps a row element so a big right-to-left swipe reveals a Delete button.
   // Tracks the single currently-open row so opening a new one closes the last.
   var openSwipeRowReset = null;
-  function buildSwipeToDeleteRow(innerEl, onDelete){
+  function buildSwipeToDeleteRow(innerEl, onDelete, opts){
+    opts = opts || {};
     var wrapper = el("div", "swipeable-row");
     var action = el("div", "swipe-delete-action");
     var delBtn = el("button", "swipe-delete-btn", icon("trash-2") + " Delete");
@@ -4132,6 +4388,10 @@
 
     delBtn.addEventListener("click", function(ev){
       ev.stopPropagation();
+      if(typeof opts.confirm === "function" && opts.confirm() !== true){
+        closeRow(true);
+        return;
+      }
       wrapper.style.transition = "opacity .2s ease, max-height .2s ease, margin .2s ease";
       wrapper.style.maxHeight = wrapper.offsetHeight + "px";
       requestAnimationFrame(function(){
@@ -4154,7 +4414,7 @@
       return wrap;
     }
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
-      var idea = IDEAS_BY_ID[entry.id];
+      var idea = ideaForSaved(entry.id);
       if(!idea) return;
       wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date), doneEntry: entry }));
     });
@@ -4383,7 +4643,7 @@
       return wrap;
     }
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
-      var idea = IDEAS_BY_ID[entry.id];
+      var idea = ideaForSaved(entry.id);
       if(!idea) return;
       wrap.appendChild(buildSavedCard(idea, {
         doneDate: fmtDate(entry.date),

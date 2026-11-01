@@ -988,6 +988,48 @@ border-radius:var(--r-pill); font-size:12px; font-weight:800; line-height:1.3;
 .saved-screen .swipeable-row .saved-card{ margin-bottom:0; box-shadow:none; }
 .saved-screen .swipeable-row.friend-picked{ box-shadow:var(--shadow), 0 0 0 2px var(--accent); }
 .saved-card .friend-pick-badge{ margin-top:6px; }
+.done-recap-block{ margin-top:6px; }
+.done-stars{ font-size:14px; font-weight:800; letter-spacing:1px; line-height:1.2; }
+.done-stars .is-filled{ color:var(--accent); }
+.done-stars .is-empty{ color:var(--text-soft); }
+.done-recap-line{
+margin-top:3px; font-size:13px; font-weight:600; color:var(--text); line-height:1.3;
+white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.done-card-tools{ display:flex; align-items:center; gap:8px; margin-top:6px; }
+.done-user-thumb{
+width:44px; height:44px; border-radius:10px; overflow:hidden; flex-shrink:0;
+background:var(--surface-soft); border:1px solid var(--border); display:inline-flex;
+}
+.done-user-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.done-rate-btn{
+background:none; border:none; padding:4px 0; margin:0; color:var(--accent);
+font-weight:800; font-size:13px; cursor:pointer; font-family:inherit;
+}
+.done-rate-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.done-recap-overlay{ z-index:90; }
+.done-recap-sheet{ max-height:92%; overflow-y:auto; }
+.star-picker{ display:flex; gap:6px; margin:4px 0 2px; }
+.star-picker .star-btn{
+width:44px; height:44px; border-radius:10px; border:1.5px solid var(--border);
+background:var(--surface-soft); color:var(--text-soft); font-size:22px; line-height:1;
+cursor:pointer; padding:0; font-family:inherit;
+}
+.star-picker .star-btn.is-on{ color:var(--accent); border-color:var(--accent); background:var(--surface); }
+.star-picker .star-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.done-photo-label{ position:relative; margin-top:8px; overflow:hidden; }
+.done-photo-label input{
+position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; font-size:16px;
+}
+.done-photo-preview{
+width:100%; max-height:180px; object-fit:cover; border-radius:14px; margin-top:8px;
+background:var(--surface-soft); display:block;
+}
+.done-photo-remove{ display:block; padding-left:0; }
+.recap-count{ margin-top:4px; text-align:right; font-size:11.5px; color:var(--text-soft); }
+.done-recap-actions{ display:flex; gap:10px; margin-top:18px; }
+.done-recap-actions .btn-primary,
+.done-recap-actions .btn-secondary{ flex:1; margin-top:0; }
 .plan-link-body{ overflow-y:auto; min-height:0; }
 .plan-link-omit{ margin:0 0 12px; }
 

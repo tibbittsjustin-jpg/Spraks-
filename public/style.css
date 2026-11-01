@@ -1092,3 +1092,25 @@ background:var(--surface-soft); border:1.5px solid var(--border); border-radius:
 .detail-real-addr{ font-size:12.5px; color:var(--text-soft); margin-bottom:10px; }
 .detail-real-link svg{ width:15px; height:15px; }
 .idea-row.unavailable-item .ir-sub{ color:var(--text-soft); }
+
+/* ---------- Shared plan link ---------- */
+.shared-plan-view{ background:var(--bg); z-index:4; }
+.shared-plan-scroll{
+overflow-y:auto; height:100%; padding:32px 20px 28px;
+display:flex; flex-direction:column;
+}
+.shared-plan-name{
+font-size:36px; line-height:.95; margin:4px 0 10px; max-width:none; overflow:visible;
+}
+.shared-plan-date{ margin:0 0 16px; font-size:16px; font-weight:800; color:var(--text); }
+.shared-plan-cards{ display:flex; flex-direction:column; gap:14px; }
+.shared-plan-view .shared-plan-card{
+position:relative; inset:auto; width:auto; height:440px; margin:0;
+cursor:default; touch-action:pan-y;
+}
+.shared-plan-view .shared-plan-card:active{ cursor:default; }
+.shared-plan-note{ margin:2px 2px 0; }
+.shared-plan-actions .btn-block{ margin-top:12px; }
+.shared-plan-message{
+font-size:26px; font-weight:800; line-height:1.25; margin:0 0 8px; color:var(--text);
+}

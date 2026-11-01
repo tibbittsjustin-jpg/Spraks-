@@ -62,7 +62,14 @@ Onboarding asks for a date of birth and will not continue unless the person is
 The route answers `{ "ok": true }` or `{ "ok": false, "blocked": true }`. A
 malformed date is `{ "ok": false, "error": "invalid_date" }` with status 400.
 The date is not written to disk, the database, or the log, and it is not
-echoed back. The browser stores only `ageConfirmedAt`.
+echoed back. The browser stores only `ageConfirmedAt`. A pass also sets
+`spark_age_ok=1` (`Max-Age=31536000; Path=/; SameSite=Lax`, plus `Secure`
+on https). Age is the America/Denver calendar day, so the evening before
+a birthday still counts as 17. The same check runs before a shared `#plan=`
+link is shown. `checkAge` is exported from the server for a later Accounts
+sign-up. This route uses the same IP limits as idea submissions: 5 requests
+per 10 minutes and 20 per day. A limited request is `429` with
+`rate_limited`.
 
 ## Submitting an idea
 
@@ -82,9 +89,14 @@ The email is required. It is stored only in `submissions.submitter_email`
 not returned, and not written to the log. The form tells the person it will be
 used later to credit a verified email. Verification itself is not built yet.
 
-`ageConfirmed` must be `true`. That is the same flag the age screen already
-keeps on the device. The route does not accept a date of birth. A signed
-check from the age route is a later change.
+`ageConfirmed` must be `true`. That flag alone is not enough. The route
+also requires the `spark_age_ok` cookie from a passed `/api/age-check`, or
+a date of birth that the server checks itself. A date that is under 18 is
+rejected (`age_required`). A missing or invalid `spark_age_ok` cookie, with
+no date for the server to check, is `age_cookie_required`. The date is not
+stored, logged, or returned. Someone who already passed onboarding on this
+device is asked to confirm their birthday in place; that does not clear
+their profile, plans, or draft.
 
 Limits are counted in memory for this one process: 5 requests per 10 minutes
 and 20 per day for an IP address, and 10 per day for an email address. The
@@ -104,6 +116,7 @@ is sent only from its own Send button.
 
 There is no new migration. `verified_at` and an IP hash are not stored. City
 is optional. Errors are generic: `invalid_submission`, `age_required`,
+`age_cookie_required`,
 `too_large`, `rate_limited`, `unavailable`, `request_failed`.
 
 Nearby-place search rounds the user's coordinates to two decimal places

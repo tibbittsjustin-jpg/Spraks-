@@ -107,7 +107,7 @@ function createSubmissionsRouter(opts) {
     ipBurst,
     ipDay,
     function validate(req, res, next) {
-      const result = validateSubmission(req.body);
+      const result = validateSubmission(req.body, { cookie: req.headers.cookie });
       if (!result.ok) {
         const body = { ok: false, error: result.error };
         if (result.fields && result.fields.length) body.fields = result.fields;

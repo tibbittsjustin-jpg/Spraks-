@@ -567,14 +567,14 @@ async function main() {
     await applyMigrationFiles(pool, ["001_init.sql", "002_over100_age21.sql", "004_materials.sql"]);
     await seed({ pool: pool, connectionString: connectionString, coordsDir: emptyDir });
     const beforeUpgrade = await pool.query(
-      "select id, title, description, category, age21, status, source from activities order by id"
+      "select id, title, description, category, age21, status, source, cost from activities order by id"
     );
     await pool.query(
       "insert into submissions (payload, submitter_email) values ('{\"title\":\"Hi\"}'::jsonb, 'Before@Move.dev')"
     );
     const upgrade = await migrate({ pool: pool, connectionString: connectionString });
     const afterUpgrade = await pool.query(
-      "select id, title, description, category, age21, status, source, source_url, city from activities order by id"
+      "select id, title, description, category, age21, status, source, source_url, city, cost, cost_unit from activities order by id"
     );
     check("upgrade applies 003 and 006 and skips 001 and 002",
       upgrade.applied.indexOf("003_source_url_city.sql") !== -1 &&
@@ -595,6 +595,15 @@ async function main() {
           next.source_url == null && next.city == null;
       });
     check("003 and 006 on a seeded database leave rows untouched", upgradedSame, String(afterUpgrade.rows.length));
+    check("018 applies on upgrade and leaves stored costs and cost_unit untouched",
+      upgrade.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
+      upgrade.applied.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0) &&
+      beforeUpgrade.rows.length === afterUpgrade.rows.length &&
+      beforeUpgrade.rows.every((row, i) => {
+        const next = afterUpgrade.rows[i];
+        return next && row.id === next.id && row.cost === next.cost && next.cost_unit == null;
+      }),
+      upgrade.applied.join(","));
     const keptEmail = await pool.query(
       "select (submitter_email = 'before@move.dev') as same, submitter_email::text as raw from submissions"
     );
@@ -611,6 +620,11 @@ async function main() {
     check("migration 004 applied", first.applied.indexOf("004_materials.sql") !== -1, first.applied.join(","));
     check("migration 006 applied", first.applied.indexOf("006_security_hardening.sql") !== -1, first.applied.join(","));
     check("migration 010 applied", first.applied.indexOf("010_lists_friends.sql") !== -1, first.applied.join(","));
+    check("migration 018 applied without 016 or 017",
+      first.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
+      first.applied.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0) &&
+      first.skipped.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0),
+      first.applied.join(","));
     check("005 is not required for 006 to apply",
       first.applied.indexOf("005_subscriptions.sql") === -1 &&
       first.applied.indexOf("006_security_hardening.sql") > first.applied.indexOf("004_materials.sql"),
@@ -622,7 +636,8 @@ async function main() {
       second.skipped.indexOf("003_source_url_city.sql") !== -1 &&
       second.skipped.indexOf("004_materials.sql") !== -1 &&
       second.skipped.indexOf("006_security_hardening.sql") !== -1 &&
-      second.skipped.indexOf("010_lists_friends.sql") !== -1);
+      second.skipped.indexOf("010_lists_friends.sql") !== -1 &&
+      second.skipped.indexOf("018_cost_bands_20.sql") !== -1);
     let reran = true;
     try {
       await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "003_source_url_city.sql"), "utf8"));
@@ -655,6 +670,91 @@ async function main() {
       reran010Error = err.message;
     }
     check("010 sql can run twice on a database that already has it", reran010, reran010Error);
+    const sql018 = fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "018_cost_bands_20.sql"), "utf8");
+    check("018 names both sets of bands with ascii hyphens",
+      sql018.indexOf("'$1-$10'") !== -1 &&
+      sql018.indexOf("'$20-$30'") !== -1 &&
+      sql018.indexOf("'$100 and under'") !== -1 &&
+      sql018.indexOf("'Over $100'") !== -1 &&
+      sql018.indexOf("'$1-$20'") !== -1 &&
+      sql018.indexOf("'$21-$40'") !== -1 &&
+      sql018.indexOf("'$41-$60'") !== -1 &&
+      sql018.indexOf("'$61-$80'") !== -1 &&
+      sql018.indexOf("'$81-$100'") !== -1 &&
+      sql018.indexOf("activities_cost_unit_check") !== -1 &&
+      sql018.indexOf("\u2013") === -1 &&
+      sql018.indexOf("\u2014") === -1);
+    await pool.query(
+      "alter table activities add constraint activities_cost_other_check " +
+      "check (cost in ('Free', '$1-$10', '$20-$30', '$100 and under', 'Over $100'))"
+    );
+    let reran018 = true;
+    let reran018Error = "";
+    try {
+      await pool.query(sql018);
+      await pool.query(sql018);
+    } catch (err) {
+      reran018 = false;
+      reran018Error = err.message;
+    }
+    check("018 sql can run twice", reran018, reran018Error);
+    const costChecks = await pool.query(
+      "select con.conname, pg_get_constraintdef(con.oid) as def " +
+      "from pg_constraint con " +
+      "join pg_class rel on rel.oid = con.conrelid " +
+      "join pg_namespace nsp on nsp.oid = rel.relnamespace " +
+      "where nsp.nspname = 'public' and rel.relname = 'activities' and con.contype = 'c' " +
+      "and exists (select 1 from pg_attribute att where att.attrelid = rel.oid " +
+      "and att.attnum = any (con.conkey) and att.attname = 'cost' and not att.attisdropped)"
+    );
+    const costDef = costChecks.rows[0] ? costChecks.rows[0].def : "";
+    check("018 drops a differently named cost check and keeps one widened check",
+      costChecks.rows.length === 1 &&
+      costChecks.rows[0].conname === "activities_cost_check" &&
+      costDef.indexOf("$1-$10") !== -1 &&
+      costDef.indexOf("$20-$30") !== -1 &&
+      costDef.indexOf("$100 and under") !== -1 &&
+      costDef.indexOf("Over $100") !== -1 &&
+      costDef.indexOf("$1-$20") !== -1 &&
+      costDef.indexOf("$21-$40") !== -1 &&
+      costDef.indexOf("$41-$60") !== -1 &&
+      costDef.indexOf("$61-$80") !== -1 &&
+      costDef.indexOf("$81-$100") !== -1 &&
+      costDef.indexOf("\u2013") === -1,
+      JSON.stringify(costChecks.rows));
+    const unitChecks = await pool.query(
+      "select con.conname, pg_get_constraintdef(con.oid) as def " +
+      "from pg_constraint con " +
+      "join pg_class rel on rel.oid = con.conrelid " +
+      "join pg_namespace nsp on nsp.oid = rel.relnamespace " +
+      "where nsp.nspname = 'public' and rel.relname = 'activities' and con.contype = 'c' " +
+      "and (con.conname = 'activities_cost_unit_check' or exists (" +
+      "select 1 from pg_attribute att where att.attrelid = rel.oid " +
+      "and att.attnum = any (con.conkey) and att.attname = 'cost_unit' and not att.attisdropped))"
+    );
+    const unitDef = unitChecks.rows[0] ? unitChecks.rows[0].def : "";
+    check("cost_unit check is named activities_cost_unit_check",
+      unitChecks.rows.length === 1 &&
+      unitChecks.rows[0].conname === "activities_cost_unit_check" &&
+      unitDef.indexOf("per car") !== -1,
+      JSON.stringify(unitChecks.rows));
+    const keptChecks = await pool.query(
+      "select con.conname from pg_constraint con " +
+      "join pg_class rel on rel.oid = con.conrelid " +
+      "join pg_namespace nsp on nsp.oid = rel.relnamespace " +
+      "where nsp.nspname = 'public' and rel.relname = 'activities' and con.conname = any($1::text[])",
+      [[
+        "activities_setting_check",
+        "activities_duration_check",
+        "activities_affiliate_url_check",
+        "activities_source_url_https",
+        "activities_occurrences_shape",
+        "activities_source_key_check",
+        "activities_source_credit_check"
+      ]]
+    );
+    check("018 leaves the other activity checks in place",
+      keptChecks.rows.length === 7, JSON.stringify(keptChecks.rows));
 
     const fnConfig = await pool.query(
       "select proname, proconfig from pg_proc p " +
@@ -803,6 +903,78 @@ async function main() {
       costCode = err.code;
     }
     check("a cost outside the check is rejected", costCode === "23514", costCode);
+    const bandIds = [];
+    async function insertedBand(cost, label) {
+      try {
+        const inserted = await pool.query(
+          "insert into activities (title, category, setting, cost, duration) " +
+          "values ($1, 'Hiking & Nature', 'Outdoor', $2, 'Quick (under 1 hr)') returning id, cost",
+          [label + " " + cost, cost]
+        );
+        bandIds.push(inserted.rows[0].id);
+        return inserted.rows[0].cost === cost;
+      } catch (err) {
+        return err.code || err.message;
+      }
+    }
+    const oldBands = ["Free", "$1-$10", "$20-$30", "$100 and under", "Over $100"];
+    const newBands = ["$1-$20", "$21-$40", "$41-$60", "$61-$80", "$81-$100"];
+    for (const cost of oldBands) {
+      const result = await insertedBand(cost, "Old");
+      check("old cost " + cost + " inserts", result === true, String(result));
+    }
+    for (const cost of newBands) {
+      const result = await insertedBand(cost, "New");
+      check("new cost " + cost + " inserts", result === true, String(result));
+    }
+    let perCarId = null;
+    let nullUnitId = null;
+    let perCarValue = null;
+    let nullUnitValue = "missing";
+    try {
+      const perCar = await pool.query(
+        "insert into activities (title, category, setting, cost, duration, cost_unit) " +
+        "values ('Park fee', 'Hiking & Nature', 'Outdoor', '$1-$20', 'Quick (under 1 hr)', 'per car') " +
+        "returning id, cost_unit"
+      );
+      perCarId = perCar.rows[0].id;
+      perCarValue = perCar.rows[0].cost_unit;
+      bandIds.push(perCarId);
+    } catch (err) {
+      perCarValue = err.code || err.message;
+    }
+    try {
+      const nullUnit = await pool.query(
+        "insert into activities (title, category, setting, cost, duration, cost_unit) " +
+        "values ('No unit', 'Hiking & Nature', 'Outdoor', 'Free', 'Quick (under 1 hr)', null) " +
+        "returning id, cost_unit"
+      );
+      nullUnitId = nullUnit.rows[0].id;
+      nullUnitValue = nullUnit.rows[0].cost_unit;
+      bandIds.push(nullUnitId);
+    } catch (err) {
+      nullUnitValue = err.code || err.message;
+    }
+    check("cost_unit per car inserts", perCarValue === "per car", String(perCarValue));
+    check("cost_unit null inserts", nullUnitId != null && nullUnitValue === null, String(nullUnitValue));
+    let mileCode = null;
+    try {
+      await pool.query(
+        "insert into activities (title, category, setting, cost, duration, cost_unit) " +
+        "values ('Per mile', 'Hiking & Nature', 'Outdoor', 'Free', 'Quick (under 1 hr)', 'per mile')"
+      );
+    } catch (err) {
+      mileCode = err.code;
+    }
+    check("cost_unit per mile is rejected", mileCode === "23514", mileCode);
+    const costUnitCol = await pool.query(
+      "select data_type, is_nullable, column_default from information_schema.columns " +
+      "where table_schema = 'public' and table_name = 'activities' and column_name = 'cost_unit'"
+    );
+    check("cost_unit is nullable text with no default",
+      costUnitCol.rows[0] && costUnitCol.rows[0].data_type === "text" &&
+      costUnitCol.rows[0].is_nullable === "YES" && costUnitCol.rows[0].column_default == null,
+      JSON.stringify(costUnitCol.rows[0]));
     const ageCol = await pool.query(
       "select is_nullable, column_default from information_schema.columns " +
       "where table_schema = 'public' and table_name = 'activities' and column_name = 'age21'"
@@ -872,7 +1044,7 @@ async function main() {
       JSON.stringify(matCol.rows[0]));
     await pool.query("delete from activities where id = any($1::int[])", [[
       overCost.rows[0].id, acceptedUrl.rows[0].id, nullUrl.rows[0].id, maxAccepted.rows[0].id
-    ]]);
+    ].concat(bandIds)]);
 
     const app = require("../server");
     server = await new Promise(resolve => {
@@ -900,7 +1072,8 @@ async function main() {
     const freshCols = await pool.query(
       "select count(*) filter (where source_url is not null)::int as urls, " +
       "count(*) filter (where city is not null)::int as cities, " +
-      "count(*) filter (where age21 is null)::int as null_age " +
+      "count(*) filter (where age21 is null)::int as null_age, " +
+      "count(*) filter (where cost_unit is not null)::int as units " +
       "from activities where source = 'curated'"
     );
     check("migrate after seed is a no-op",
@@ -913,6 +1086,7 @@ async function main() {
     check("seed without coords leaves source_url and city null",
       freshCols.rows[0].urls === 0 && freshCols.rows[0].cities === 0 && freshCols.rows[0].null_age === 0,
       JSON.stringify(freshCols.rows[0]));
+    check("seed leaves cost_unit null", freshCols.rows[0].units === 0, JSON.stringify(freshCols.rows[0]));
 
     const center = { lat: 40.76, lng: -111.89 };
     const pins = [

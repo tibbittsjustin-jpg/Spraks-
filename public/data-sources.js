@@ -71,6 +71,11 @@
   var UGRC_SGID_INTRO_TEMPLATE = "Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID). Data Sources: UGRC SGID (data modified). Layers used: {list each layer title, linked to its dataset page}. Licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Changes made by Jaderoo: records filtered to activity types, polygons and lines reduced to points, trail segments combined by trail name, fields renamed and reformatted, and our own short summaries added. Neither UGRC nor the State of Utah endorses Jaderoo.";
   var UGRC_SGID_DISCLAIMER = "UGRC disclaimer (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\"";
   var UGRC_SGID_GNIS = "GNIS place names originate from the U.S. Geological Survey Geographic Names Information System. Credit: U.S. Geological Survey.";
+  // R8.5. The lead-in is bold on the page. This sits under the shared
+  // UGRC block, which already shows the unmodified disclaimer once.
+  var ADDRESS_POINTS_DATASET = "https://opendata.gis.utah.gov/datasets/3f4f7a8efcd147febeca8bacaea67a14_0";
+  var EVENT_LOCATIONS_LEAD = "Event locations (geocoding).";
+  var EVENT_LOCATIONS_PAGE = "Event locations (geocoding). Map locations for event addresses are calculated by matching each venue address against Utah Address Points, a dataset in the Utah Geospatial Resource Center (UGRC) State Geographic Information Database (SGID), https://opendata.gis.utah.gov/datasets/3f4f7a8efcd147febeca8bacaea67a14_0, licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Data Sources: UGRC SGID (data modified). Changes we made: we keep only the matched location, converted to latitude/longitude, and don't show or republish the address list. Locations may be approximate. Neither UGRC nor the State of Utah endorses Jaderoo.";
   var GNIS_USGS_CREDIT = "Credit: U.S. Geological Survey.";
   var GNIS_ACCESS = "Check access and conditions before you go.";
   var GNIS_NOTE = GNIS_USGS_CREDIT + " " + GNIS_ACCESS;
@@ -553,6 +558,15 @@
     return "<p>" + html + "</p>";
   }
 
+  function paragraphBoldLead(text, lead, phrases) {
+    var source = String(text || "");
+    var label = String(lead || "");
+    if (!label || source.indexOf(label) !== 0) return paragraphPhrases(source, phrases);
+    var rest = paragraphPhrases(source.slice(label.length), phrases);
+    var inner = rest.slice(3, rest.length - 4);
+    return "<p><strong>" + escapeHtml(label) + "</strong>" + inner + "</p>";
+  }
+
   function creditList(items) {
     var html = "<ul>";
     items.forEach(function (item) {
@@ -620,6 +634,10 @@
     html.push(paragraph(UGRC_SGID_GNIS));
     html.push(paragraph(GNIS_ACCESS));
     html.push("</div>");
+    html.push(paragraphBoldLead(EVENT_LOCATIONS_PAGE, EVENT_LOCATIONS_LEAD, [
+      { text: ADDRESS_POINTS_DATASET, href: ADDRESS_POINTS_DATASET },
+      { text: CC_BY, href: CC_BY }
+    ]));
     html.push("<h2>USDA Forest Service</h2>");
     html.push(creditList([USFS_SOURCE]));
     html.push(paragraphPhrases(USFS_PAGE, USFS_SOURCE.pagePhrases));
@@ -660,6 +678,9 @@
     UGRC_SGID_INTRO: UGRC_SGID_INTRO,
     UGRC_SGID_DISCLAIMER: UGRC_SGID_DISCLAIMER,
     UGRC_SGID_GNIS: UGRC_SGID_GNIS,
+    ADDRESS_POINTS_DATASET: ADDRESS_POINTS_DATASET,
+    EVENT_LOCATIONS_LEAD: EVENT_LOCATIONS_LEAD,
+    EVENT_LOCATIONS_PAGE: EVENT_LOCATIONS_PAGE,
     GNIS_USGS_CREDIT: GNIS_USGS_CREDIT,
     GNIS_ACCESS: GNIS_ACCESS,
     GNIS_NOTE: GNIS_NOTE,

@@ -70,6 +70,12 @@ const BLM_CREDIT = "via Bureau of Land Management";
 const BLM_PAGE = "Bureau of Land Management (BLM). Recreation site information from the BLM National Recreation Sites and Facilities map service (compiled by BLM from Recreation.gov's Recreation Information Database), https://www.blm.gov/programs/recreation. U.S. Government work. No claim to original U.S. Government works. Use of this data does not imply endorsement by the BLM or the U.S. Department of the Interior.";
 const BLM_RECREATION = "https://www.blm.gov/programs/recreation";
 const BLM_SAMPLE = "https://www.blm.gov/visit/search-details/14494/2";
+const USGS_GNIS_LEAD = "USGS GNIS.";
+const USGS_GNIS_URL = "https://www.usgs.gov/tools/geographic-names-information-system-gnis";
+const USGS_GNIS_PAGE = "USGS GNIS. Some place names and locations come from the Geographic Names Information System (GNIS), U.S. Geological Survey, " + USGS_GNIS_URL + ". Credit: U.S. Geological Survey. Locations are approximate. Features may be on private or closed land, so check access and conditions before you go. Neither USGS nor the U.S. government endorses Jaderoo.";
+const CENSUS_LEAD = "U.S. Census Bureau.";
+const CENSUS_URL = "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html";
+const CENSUS_PAGE = "U.S. Census Bureau. Some general city or area locations are center points we calculated from the U.S. Census Bureau's 2023 Cartographic Boundary Files (places), " + CENSUS_URL + ". These show the general area, not the exact venue location. Credit: U.S. Census Bureau. The Census Bureau didn't produce or review these center points, and neither the Census Bureau nor the U.S. government endorses Jaderoo.";
 const ROUND8_LAYERS = [
   ["ugrc_monuments", "Utah Monuments and Markers", "63de4118823e4e3eba943ca43caefc72", "Utah Monuments and Markers (Utah Division of State History)" + UGRC_VIA],
   ["ugrc_boat_ramps", "Utah Boat Ramps", "0d12b74c39eb453088e992bf089d9890", "Utah Boat Ramps" + UGRC_VIA],
@@ -601,6 +607,52 @@ function main() {
       check("the route serves the exact OpenStreetMap line",
         bodyText.indexOf(OSM_LINE) !== -1 && routeOsmAttrs.indexOf('href="' + OSM_HREF + '"') !== -1,
         routeOsmAttrs);
+      function paragraphBlock(html, lead) {
+        const marker = "<strong>" + lead + "</strong>";
+        const at = html.indexOf(marker);
+        if (at < 0) return "";
+        const start = html.lastIndexOf("<p", at);
+        const end = html.indexOf("</p>", at);
+        if (start < 0 || end < 0) return "";
+        return html.slice(start, end + 4);
+      }
+      function exactHref(html, urlText) {
+        const attrs = anchorAttrsFor(html, urlText);
+        const match = /href="([^"]*)"/.exec(attrs);
+        return match ? match[1] : "";
+      }
+      const usgsBlock = paragraphBlock(res.body, USGS_GNIS_LEAD);
+      const censusBlock = paragraphBlock(res.body, CENSUS_LEAD);
+      const eventsAt = res.body.indexOf("<h2>Event listings</h2>");
+      const blmAt = res.body.indexOf("<h2>Bureau of Land Management (BLM)</h2>");
+      check("the USGS GNIS paragraph appears on /sources once",
+        occurrences(bodyText, USGS_GNIS_PAGE) === 1 && visibleText(usgsBlock) === USGS_GNIS_PAGE,
+        String(occurrences(bodyText, USGS_GNIS_PAGE)));
+      check("the USGS GNIS link href equals its URL",
+        exactHref(usgsBlock, USGS_GNIS_URL) === USGS_GNIS_URL);
+      check("the USGS GNIS block has no img",
+        usgsBlock.length > 0 && usgsBlock.toLowerCase().indexOf("<img") === -1);
+      check("the Census paragraph appears on /sources once",
+        occurrences(bodyText, CENSUS_PAGE) === 1 && visibleText(censusBlock) === CENSUS_PAGE,
+        String(occurrences(bodyText, CENSUS_PAGE)));
+      check("the Census link href equals its URL",
+        exactHref(censusBlock, CENSUS_URL) === CENSUS_URL);
+      check("the Census block has no img",
+        censusBlock.length > 0 && censusBlock.toLowerCase().indexOf("<img") === -1);
+      check("gazetteer is absent from /sources",
+        res.body.toLowerCase().indexOf("gazetteer") === -1);
+      check("USGS and Census credits sit with the place-data credits, before Event listings",
+        blmAt !== -1 &&
+        res.body.indexOf("<strong>" + USGS_GNIS_LEAD + "</strong>") > blmAt &&
+        res.body.indexOf("<strong>" + CENSUS_LEAD + "</strong>") > res.body.indexOf("<strong>" + USGS_GNIS_LEAD + "</strong>") &&
+        eventsAt > res.body.indexOf("<strong>" + CENSUS_LEAD + "</strong>"));
+      check("the place-data paragraphs match the module constants",
+        sources.USGS_GNIS_PAGE === USGS_GNIS_PAGE &&
+        sources.USGS_GNIS_URL === USGS_GNIS_URL &&
+        sources.USGS_GNIS_LEAD === USGS_GNIS_LEAD &&
+        sources.CENSUS_PAGE === CENSUS_PAGE &&
+        sources.CENSUS_URL === CENSUS_URL &&
+        sources.CENSUS_LEAD === CENSUS_LEAD);
       const home = await request(server.address().port, "/");
       check("home loads the sources script and links Sources",
         home.status === 200 &&

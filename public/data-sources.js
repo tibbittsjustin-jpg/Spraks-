@@ -85,6 +85,14 @@
   var BLM_CREDIT = "via Bureau of Land Management";
   var BLM_PAGE = "Bureau of Land Management (BLM). Recreation site information from the BLM National Recreation Sites and Facilities map service (compiled by BLM from Recreation.gov's Recreation Information Database), https://www.blm.gov/programs/recreation. U.S. Government work. No claim to original U.S. Government works. Use of this data does not imply endorsement by the BLM or the U.S. Department of the Interior.";
   var BLM_RECREATION = "https://www.blm.gov/programs/recreation";
+  // Sources page only. No source_key and no per-card line. The Utah GNIS
+  // Place Names credit (ugrc_gnis) stays as it is.
+  var USGS_GNIS_LEAD = "USGS GNIS.";
+  var USGS_GNIS_URL = "https://www.usgs.gov/tools/geographic-names-information-system-gnis";
+  var USGS_GNIS_PAGE = "USGS GNIS. Some place names and locations come from the Geographic Names Information System (GNIS), U.S. Geological Survey, " + USGS_GNIS_URL + ". Credit: U.S. Geological Survey. Locations are approximate. Features may be on private or closed land, so check access and conditions before you go. Neither USGS nor the U.S. government endorses Jaderoo.";
+  var CENSUS_LEAD = "U.S. Census Bureau.";
+  var CENSUS_URL = "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html";
+  var CENSUS_PAGE = "U.S. Census Bureau. Some general city or area locations are center points we calculated from the U.S. Census Bureau's 2023 Cartographic Boundary Files (places), " + CENSUS_URL + ". These show the general area, not the exact venue location. Credit: U.S. Census Bureau. The Census Bureau didn't produce or review these center points, and neither the Census Bureau nor the U.S. government endorses Jaderoo.";
   var BULK_LOADER_NOTES = "Set activities.source_key to key. The key selects the credit line; source_credit may be omitted or set to that same sentence (1 to 500 characters, no control characters). UGRC layers: set source_url to datasetUrl. usfs: set source_url to the record recareaurl. blm: set source_url to the record BLMRecURL. source_url must be https. Do not store Sources page paragraphs in source_credit.";
 
   function ugrcDatasetUrl(itemId) {
@@ -647,6 +655,12 @@
     html.push("<h2>Bureau of Land Management (BLM)</h2>");
     html.push(creditList([BLM_SOURCE]));
     html.push(paragraphPhrases(BLM_PAGE, BLM_SOURCE.pagePhrases));
+    html.push(paragraphBoldLead(USGS_GNIS_PAGE, USGS_GNIS_LEAD, [
+      { text: USGS_GNIS_URL, href: USGS_GNIS_URL }
+    ]));
+    html.push(paragraphBoldLead(CENSUS_PAGE, CENSUS_LEAD, [
+      { text: CENSUS_URL, href: CENSUS_URL }
+    ]));
     html.push("<p>" + htmlForParts([{
       text: OSM_LOCATIONS_LINE,
       href: httpsPageUrl(OSM_COPYRIGHT_HREF),
@@ -698,6 +712,12 @@
     BLM_CREDIT: BLM_CREDIT,
     BLM_PAGE: BLM_PAGE,
     BLM_RECREATION: BLM_RECREATION,
+    USGS_GNIS_LEAD: USGS_GNIS_LEAD,
+    USGS_GNIS_URL: USGS_GNIS_URL,
+    USGS_GNIS_PAGE: USGS_GNIS_PAGE,
+    CENSUS_LEAD: CENSUS_LEAD,
+    CENSUS_URL: CENSUS_URL,
+    CENSUS_PAGE: CENSUS_PAGE,
     UGRC_ROUND8: UGRC_ROUND8,
     ROUND8_SOURCES: ROUND8_SOURCES,
     BULK_LOADER_NOTES: BULK_LOADER_NOTES,

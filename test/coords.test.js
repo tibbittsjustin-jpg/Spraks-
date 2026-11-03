@@ -154,7 +154,7 @@ section("real data/coords/utah.json", () => {
     console.log("  (no utah.json, skipping real-file checks)");
     return;
   }
-  const ideas = loadIdeas(path.join(__dirname, "..", "public", "data.js"));
+  const ideas = loadIdeas(path.join(__dirname, "..", "data", "ideas-catalog.js"));
   const ids = new Set(ideas.map(idea => idea.id));
   const json = JSON.parse(fs.readFileSync(file, "utf8"));
   const norm = normalizeCoords(json, { knownIds: ids });

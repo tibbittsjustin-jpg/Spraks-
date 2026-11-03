@@ -23,14 +23,16 @@ const KEY = "spark_state_v1";
 const ROOT = path.join(__dirname, "..");
 
 section("removed ideas are absent", () => {
-  const ideas = loadIdeas(path.join(ROOT, "public", "data.js"));
+  const ideas = loadIdeas(path.join(ROOT, "data", "ideas-catalog.js"));
+  const starter = loadIdeas(path.join(ROOT, "public", "data.js"));
   const ids = new Set(ideas.map(idea => idea.id));
+  const starterIds = new Set(starter.map(idea => idea.id));
   REMOVED.forEach(id => {
-    check("#" + id + " is not in the catalog", !ids.has(id));
+    check("#" + id + " is not in the catalog", !ids.has(id) && !starterIds.has(id));
   });
   const t = loadApp({});
-  check("IDEAS_BY_ID matches the catalog length",
-    Object.keys(t.IDEAS_BY_ID).length === ideas.length, String(Object.keys(t.IDEAS_BY_ID).length));
+  check("IDEAS_BY_ID matches the offline starter",
+    Object.keys(t.IDEAS_BY_ID).length === starter.length, String(Object.keys(t.IDEAS_BY_ID).length));
   REMOVED.forEach(id => {
     check("#" + id + " is not in IDEAS_BY_ID", !t.IDEAS_BY_ID[id]);
   });

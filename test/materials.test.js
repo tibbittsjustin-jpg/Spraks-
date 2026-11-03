@@ -24,7 +24,7 @@ function section(title, fn) {
 }
 
 const ROOT = path.join(__dirname, "..");
-const ideas = loadIdeas(path.join(ROOT, "public", "data.js"));
+const ideas = loadIdeas(path.join(ROOT, "data", "ideas-catalog.js"));
 
 // Snapshot of every field except title, description, and materials, taken
 // before the rewrite. Applying a new rewrites file does not change it.
@@ -118,6 +118,9 @@ section("detail screen", () => {
   const t = loadApp({});
   const listed = ideas.filter(idea => idea.materials.length > 0)[0];
   const empty = ideas.filter(idea => idea.materials.length === 0)[0];
+  // The deck ships a starter set. Detail still has to render any catalog row.
+  t.IDEAS_BY_ID[listed.id] = listed;
+  t.IDEAS_BY_ID[empty.id] = empty;
   const listedScreen = t.buildDetailScreen(listed.id);
   const list = byClass(listedScreen, "detail-materials-list")[0];
   const listedClasses = (listedScreen.children || []).map(node => node.className);

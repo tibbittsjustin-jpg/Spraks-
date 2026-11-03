@@ -68,6 +68,7 @@ function loadApp(storage) {
     get state(){ return state; },
     IDEAS_BY_ID: IDEAS_BY_ID, REAL_IDEAS_RUNTIME: REAL_IDEAS_RUNTIME,
     REMOTE_IDEAS: REMOTE_IDEAS, applyRemoteIdeas: applyRemoteIdeas,
+    remoteScopeKey: remoteScopeKey,
     hydrateRealIdea: hydrateRealIdea, saveState: saveState,
     addIdeaToBucket: addIdeaToBucket, removeIdeaFromBucket: removeIdeaFromBucket,
     totalSavedCount: totalSavedCount,

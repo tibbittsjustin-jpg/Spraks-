@@ -64,22 +64,32 @@ function memStorage() {
   };
 }
 
-function jsonPage(items, limit, offset, nextOffset) {
+function jsonPage(items, limit, nextCursor) {
   return {
     ok: true,
     json: async function () {
-      return { items: items, limit: limit, offset: offset, nextOffset: nextOffset };
+      return { items: items, limit: limit, nextCursor: nextCursor || null };
     }
   };
 }
 
-function pageItems(offset, limit, total) {
+function cursorFor(offset) {
+  return Buffer.from(String(offset), "utf8").toString("base64url");
+}
+
+function offsetOf(cursor) {
+  if (!cursor) return 0;
+  return Number(Buffer.from(cursor, "base64url").toString("utf8"));
+}
+
+function pageItems(cursor, limit, total) {
+  const offset = offsetOf(cursor);
   const items = [];
   for (let i = 0; i < limit && offset + i < total; i++) {
     items.push(row(100000 + offset + i, { title: "Paged " + (offset + i), lat: null, lng: null, distanceMiles: null }));
   }
-  const nextOffset = offset + items.length < total && items.length === limit ? offset + items.length : null;
-  return { items: items, nextOffset: nextOffset };
+  const nextCursor = offset + items.length < total && items.length === limit ? cursorFor(offset + items.length) : null;
+  return { items: items, nextCursor: nextCursor };
 }
 
 function queryOf(url) {
@@ -194,7 +204,7 @@ async function main() {
     let fetches = 0;
     const fetchFn = () => {
       fetches += 1;
-      return Promise.resolve(jsonPage([], 100, 0, null));
+      return Promise.resolve(jsonPage([], 100, null));
     };
     const again = await remote.syncActivities({
       storage: storage, fetch: fetchFn, now: () => t0 + 1000, deviceId: "device-should-not-send", localId: "loc_secret"
@@ -289,22 +299,23 @@ async function main() {
       fetch: function (url) {
         urls.push(String(url));
         const query = queryOf(url);
-        const offset = Number(query.searchParams.get("offset") || 0);
+        const cursor = query.searchParams.get("cursor");
         const limit = Number(query.searchParams.get("limit"));
-        const page = pageItems(offset, limit, total);
-        return Promise.resolve(jsonPage(page.items, limit, offset, page.nextOffset));
+        const page = pageItems(cursor, limit, total);
+        return Promise.resolve(jsonPage(page.items, limit, page.nextCursor));
       }
     });
     check("three pages cover five rows", urls.length === 3 && result.ok === true && result.ideas.length === 5, String(urls.length));
-    const offsets = urls.map(url => queryOf(url).searchParams.get("offset"));
-    check("offsets advance", offsets.join() === "0,2,4", offsets.join());
-    urls.forEach(url => {
+    const cursors = urls.map(url => queryOf(url).searchParams.get("cursor"));
+    check("cursors advance", cursors[0] == null && cursors[1] && cursors[2] && cursors[1] !== cursors[2], cursors.join());
+    urls.forEach((url, index) => {
       const query = queryOf(url);
       const keys = [];
       query.searchParams.forEach((_value, key) => keys.push(key));
       keys.sort();
-      check("only limit, offset, rounded location, and radius are sent",
-        keys.join() === "lat,limit,lng,offset,radiusMiles", keys.join());
+      const expected = index === 0 ? "lat,limit,lng,radiusMiles" : "cursor,lat,limit,lng,radiusMiles";
+      check("only limit, cursor, rounded location, and radius are sent",
+        keys.join() === expected, keys.join());
       check("latitude is rounded", query.searchParams.get("lat") === "40.23");
       check("longitude is rounded", query.searchParams.get("lng") === "-111.66");
       check("the precise location is not in the url",
@@ -319,10 +330,10 @@ async function main() {
       fetch: function (url) {
         cappedUrls.push(String(url));
         const query = queryOf(url);
-        const offset = Number(query.searchParams.get("offset") || 0);
+        const cursor = query.searchParams.get("cursor");
         const limit = Number(query.searchParams.get("limit"));
-        const page = pageItems(offset, limit, 10);
-        return Promise.resolve(jsonPage(page.items, limit, offset, page.nextOffset));
+        const page = pageItems(cursor, limit, 10);
+        return Promise.resolve(jsonPage(page.items, limit, page.nextCursor));
       }
     });
     check("a cap stops the pages", capped.ideas.length === 3 && cappedUrls.length === 2, capped.ideas.length + " / " + cappedUrls.length);
@@ -331,12 +342,12 @@ async function main() {
     await remote.fetchApprovedActivities({
       fetch: function (url) {
         plain.push(String(url));
-        return Promise.resolve(jsonPage([], 100, 0, null));
+        return Promise.resolve(jsonPage([], 100, null));
       }
     });
     const plainKeys = [];
     queryOf(plain[0]).searchParams.forEach((_value, key) => plainKeys.push(key));
-    check("without a location only the page is sent", plainKeys.sort().join() === "limit,offset", plainKeys.join());
+    check("without a location only the page size is sent", plainKeys.sort().join() === "limit", plainKeys.join());
     check("a missing fix is not sent as the Gulf of Guinea",
       remote.locationBucket(null, null) === "none" && remote.roundPair(null, null) == null);
   });
@@ -467,7 +478,8 @@ async function main() {
       setItem(key, value) { store[key] = String(value); }
     };
     const idea = remote.mapActivityToIdea(row(100700, { title: "Offline orchard visit" }));
-    remote.writeCache(storage, "none", [idea], Date.now());
+    const scope = loadApp({}).remoteScopeKey();
+    remote.writeCache(storage, "none", [idea], Date.now(), scope);
     const t = loadApp(store);
     check("the cached activity is in the deck without a network call",
       t.REMOTE_IDEAS.some(item => item.id === idea.id) &&

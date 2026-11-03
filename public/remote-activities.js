@@ -16,13 +16,16 @@
 })(this, function () {
   "use strict";
 
-  // 3: activities now carry source_key and source_credit. A phone that
-  // cached version 1 would keep showing rows with no credit line.
-  var API_VERSION = "3";
+  // 4: pages are a cursor, not an offset dump. A version 3 cache was the
+  // first thousand rows and must not be treated as a finished cursor page.
+  // 3 added source_key and source_credit.
+  var API_VERSION = "4";
   var CACHE_TTL_MS = 6 * 60 * 60 * 1000;
   var STORAGE_KEY = "spark_remote_activities_v1";
   var PAGE_LIMIT = 100;
-  var MAX_ITEMS = 1000;
+  // One page unless the caller raises maxItems. The deck asks for the next
+  // cursor as the person swipes, instead of downloading the catalog.
+  var MAX_ITEMS = 100;
   var MAX_PAGES = 20;
   var FETCH_TIMEOUT_MS = 60000;
   // The activities API sorts pins nearest-first when lat/lng are present,
@@ -53,8 +56,8 @@
     return pair.lat + "," + pair.lng;
   }
 
-  function cacheKey(version, bucket) {
-    return String(version) + "|" + String(bucket);
+  function cacheKey(version, bucket, scope) {
+    return String(version) + "|" + String(bucket) + "|" + String(scope || "");
   }
 
   function ideaId(raw) {
@@ -309,11 +312,12 @@
     }
   }
 
-  function readCache(storage, bucket, now) {
-    var empty = { hit: false, fresh: false, ideas: [] };
+  function readCache(storage, bucket, now, scope) {
+    var empty = { hit: false, fresh: false, ideas: [], nextCursor: null };
+    var scopeKey = scope || "";
     var store = loadStore(storage);
-    var entry = store[cacheKey(API_VERSION, bucket)];
-    if (!entry || entry.v !== API_VERSION || entry.bucket !== bucket || !Array.isArray(entry.ideas)) return empty;
+    var entry = store[cacheKey(API_VERSION, bucket, scopeKey)];
+    if (!entry || entry.v !== API_VERSION || entry.bucket !== bucket || entry.scope !== scopeKey || !Array.isArray(entry.ideas)) return empty;
     var savedAt = Number(entry.savedAt);
     if (!isFinite(savedAt)) return empty;
     var when = typeof now === "number" ? now : Date.now();
@@ -323,10 +327,11 @@
       var idea = sanitizeIdea(entry.ideas[i]);
       if (idea) ideas.push(idea);
     }
-    return { hit: true, fresh: age >= 0 && age < CACHE_TTL_MS, ideas: ideas, savedAt: savedAt };
+    var nextCursor = typeof entry.nextCursor === "string" && entry.nextCursor ? entry.nextCursor : null;
+    return { hit: true, fresh: age >= 0 && age < CACHE_TTL_MS, ideas: ideas, savedAt: savedAt, nextCursor: nextCursor };
   }
 
-  function writeCache(storage, bucket, ideas, now) {
+  function writeCache(storage, bucket, ideas, now, scope, nextCursor) {
     if (!storage || typeof storage.setItem !== "function") return false;
     try {
       var store = loadStore(storage);
@@ -336,11 +341,14 @@
         var idea = sanitizeIdea(rows[i]);
         if (idea) clean.push(idea);
       }
-      store[cacheKey(API_VERSION, bucket)] = {
+      var scopeKey = scope || "";
+      store[cacheKey(API_VERSION, bucket, scopeKey)] = {
         v: API_VERSION,
         bucket: bucket,
+        scope: scopeKey,
         savedAt: typeof now === "number" ? now : Date.now(),
-        ideas: clean
+        ideas: clean,
+        nextCursor: typeof nextCursor === "string" && nextCursor ? nextCursor : null
       };
       storage.setItem(STORAGE_KEY, JSON.stringify(store));
       return true;
@@ -357,12 +365,20 @@
     return !!(err && (err.name === "AbortError" || err.code === 20));
   }
 
-  function pageUrl(base, offset, limit, lat, lng, radiusMiles) {
-    var params = ["limit=" + limit, "offset=" + offset];
+  function pageUrl(base, cursor, limit, lat, lng, radiusMiles, filters) {
+    var params = ["limit=" + limit];
+    if (cursor) params.push("cursor=" + encodeURIComponent(cursor));
     if (lat != null && lng != null) {
       params.push("lat=" + lat);
       params.push("lng=" + lng);
-      if (radiusMiles != null) params.push("radiusMiles=" + radiusMiles);
+      if (radiusMiles != null) params.push("radiusMiles=" + encodeURIComponent(String(radiusMiles)));
+    }
+    if (filters && typeof filters === "object") {
+      Object.keys(filters).forEach(function (key) {
+        var value = filters[key];
+        if (value == null || value === "") return;
+        params.push(encodeURIComponent(key) + "=" + encodeURIComponent(String(value)));
+      });
     }
     var path = base || "/api/activities";
     return path + (path.indexOf("?") === -1 ? "?" : "&") + params.join("&");
@@ -374,7 +390,12 @@
     if (typeof opts.timeoutMs === "number" && isFinite(opts.timeoutMs) && opts.timeoutMs > 0) timeoutMs = opts.timeoutMs;
     var rounded = roundPair(opts.lat, opts.lng);
     var pageLimit = clampInt(opts.limit, 1, 200, PAGE_LIMIT);
-    var maxItems = clampInt(opts.maxItems, 1, 5000, MAX_ITEMS);
+    var maxItems = clampInt(opts.maxItems, 1, 20000, PAGE_LIMIT);
+    var radiusMiles = null;
+    if (rounded) {
+      radiusMiles = opts.radiusMiles;
+      if (typeof radiusMiles !== "number" || !isFinite(radiusMiles)) radiusMiles = NEARBY_RADIUS_MILES;
+    }
 
     return new Promise(function (resolve) {
       var settled = false;
@@ -424,11 +445,13 @@
         url: opts.url,
         lat: rounded && rounded.lat,
         lng: rounded && rounded.lng,
-        radiusMiles: rounded ? NEARBY_RADIUS_MILES : null,
+        radiusMiles: radiusMiles,
+        filters: opts.filters || null,
+        cursor: typeof opts.cursor === "string" && opts.cursor ? opts.cursor : null,
         limit: pageLimit,
         maxItems: maxItems
-      }).then(function (ideas) {
-        finish({ ok: true, ideas: ideas });
+      }).then(function (page) {
+        finish({ ok: true, ideas: page.ideas, nextCursor: page.nextCursor || null });
       }, function (err) {
         if (settled || timedOut) return;
         var aborted = isAbort(err) || (opts.signal && opts.signal.aborted) || (controller && controller.signal && controller.signal.aborted);
@@ -449,14 +472,18 @@
   function collectPages(fetchFn, signal, opts) {
     var ideas = [];
     var seen = Object.create(null);
-    var offset = 0;
+    var cursor = opts.cursor || null;
+    var nextCursor = null;
     var pages = 0;
 
     function step() {
       if (signal && signal.aborted) return Promise.reject(abortError());
-      if (ideas.length >= opts.maxItems || pages >= MAX_PAGES) return Promise.resolve(ideas.slice(0, opts.maxItems));
+      if (ideas.length >= opts.maxItems || pages >= MAX_PAGES) {
+        nextCursor = cursor;
+        return Promise.resolve({ ideas: ideas.slice(0, opts.maxItems), nextCursor: nextCursor });
+      }
       var pageLimit = Math.min(opts.limit, opts.maxItems - ideas.length);
-      var url = pageUrl(opts.url, offset, pageLimit, opts.lat, opts.lng, opts.radiusMiles);
+      var url = pageUrl(opts.url, cursor, pageLimit, opts.lat, opts.lng, opts.radiusMiles, opts.filters);
       pages += 1;
       return Promise.resolve(fetchFn(url, {
         method: "GET",
@@ -475,13 +502,15 @@
           seen[idea.id] = true;
           ideas.push(idea);
         }
-        var next = body.nextOffset;
-        if (!items.length || items.length < pageLimit || next == null || ideas.length >= opts.maxItems) {
-          return ideas.slice(0, opts.maxItems);
+        var next = body && typeof body.nextCursor === "string" && body.nextCursor ? body.nextCursor : null;
+        if (!next || next === cursor || !items.length || items.length < pageLimit) {
+          nextCursor = null;
+          return { ideas: ideas.slice(0, opts.maxItems), nextCursor: null };
         }
-        var nextOffset = Number(next);
-        if (!isFinite(nextOffset) || nextOffset <= offset) return ideas.slice(0, opts.maxItems);
-        offset = nextOffset;
+        if (ideas.length >= opts.maxItems) {
+          return { ideas: ideas.slice(0, opts.maxItems), nextCursor: next };
+        }
+        cursor = next;
         return step();
       });
     }
@@ -499,7 +528,8 @@
     opts = opts || {};
     var now = typeof opts.now === "function" ? opts.now() : Date.now();
     var bucket = locationBucket(opts.lat, opts.lng);
-    var cached = readCache(opts.storage, bucket, now);
+    var scope = typeof opts.scope === "string" ? opts.scope : "";
+    var cached = readCache(opts.storage, bucket, now, scope);
     var builtins = opts.builtins || [];
 
     function pack(list, meta) {
@@ -508,12 +538,14 @@
         fresh: meta.fresh,
         fromCache: meta.fromCache,
         bucket: bucket,
+        scope: scope,
+        nextCursor: meta.nextCursor || null,
         ideas: dedupeAgainstBuiltins(list || [], builtins)
       };
     }
 
     if (cached.fresh && !opts.force) {
-      return Promise.resolve(pack(cached.ideas, { ok: true, fresh: true, fromCache: true }));
+      return Promise.resolve(pack(cached.ideas, { ok: true, fresh: true, fromCache: true, nextCursor: cached.nextCursor }));
     }
 
     return fetchApprovedActivities({
@@ -524,17 +556,20 @@
       signal: opts.signal,
       timeoutMs: opts.timeoutMs,
       limit: opts.limit,
-      maxItems: opts.maxItems
+      maxItems: opts.maxItems,
+      cursor: opts.cursor,
+      filters: opts.filters,
+      radiusMiles: opts.radiusMiles
     }).then(function (result) {
       if (result && result.ok) {
         var ideas = dedupeAgainstBuiltins(result.ideas, builtins);
-        writeCache(opts.storage, bucket, ideas, now);
-        return pack(ideas, { ok: true, fresh: true, fromCache: false });
+        writeCache(opts.storage, bucket, ideas, now, scope, result.nextCursor);
+        return pack(ideas, { ok: true, fresh: true, fromCache: false, nextCursor: result.nextCursor });
       }
-      return pack(cached.ideas, { ok: false, fresh: false, fromCache: cached.hit });
+      return pack(cached.ideas, { ok: false, fresh: false, fromCache: cached.hit, nextCursor: cached.nextCursor });
     }, function () {
       warnQuiet("Activities could not be loaded.");
-      return pack(cached.ideas, { ok: false, fresh: false, fromCache: cached.hit });
+      return pack(cached.ideas, { ok: false, fresh: false, fromCache: cached.hit, nextCursor: cached.nextCursor });
     });
   }
 

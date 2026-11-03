@@ -85,7 +85,7 @@ function validate(entry) {
 }
 
 // ---- Load data.js, isolating the IDEAS_DATA array from the rest of the file ----
-const dataPath = path.join(ROOT, "public", "data.js");
+const dataPath = path.join(ROOT, "data", "ideas-catalog.js");
 const src = fs.readFileSync(dataPath, "utf8");
 const start = src.indexOf("[");
 let depth = 0, end = -1;

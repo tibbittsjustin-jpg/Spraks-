@@ -5,7 +5,7 @@
 const http = require("http");
 const express = require("express");
 const { createActivitiesRouter } = require("../routes/activities");
-const { mapRow, STILL_SHOWING_SQL } = require("../db/activities-repo");
+const { mapRow, STILL_SHOWING_SQL, encodeCursor } = require("../db/activities-repo");
 const occ = require("../public/occurrences");
 
 let pass = 0, fail = 0;
@@ -107,14 +107,16 @@ async function main() {
       check("snake_case columns are not exposed",
         !Object.prototype.hasOwnProperty.call(item, "date_type") &&
         !Object.prototype.hasOwnProperty.call(item, "affiliate_url"));
-      check("nextOffset advances by a full page", body.nextOffset === 2 && body.limit === 2 && body.offset === 0);
+      check("a full page returns an opaque cursor",
+        typeof body.nextCursor === "string" && body.nextCursor.length > 8 &&
+        body.limit === 2 && body.offset == null && body.nextOffset == null);
       check("public cache without coordinates", res.headers["cache-control"] === "public, max-age=300");
     });
 
     await section("short page and located cache", async () => {
       const res = await request(port, "/api/activities?limit=5&lat=40.76&lng=-111.89");
       const body = JSON.parse(res.body);
-      check("nextOffset is null when the page is short", body.nextOffset === null, JSON.stringify(body.nextOffset));
+      check("nextCursor is null when the page is short", body.nextCursor == null, JSON.stringify(body.nextCursor));
       check("private cache when lat/lng are present", res.headers["cache-control"] === "private, max-age=60");
     });
 
@@ -326,15 +328,32 @@ async function main() {
         const ongoing = listBody.items.find(item => item.title === "Ongoing Walk");
         check("a null end date is still present on the list item",
           ongoing && ongoing.expiresAt === null && ongoing.expires_at === null);
+        const beforeLocated = seen.length;
         const located = await request(clockPort, "/api/activities?lat=40.23&lng=-111.66&radiusMiles=25&limit=50");
-        const locatedSql = seen[seen.length - 1];
-        check("near-me keeps its radius logic and the Denver filter",
+        const locatedSqls = seen.slice(beforeLocated);
+        const pinnedSql = locatedSqls.filter(text => text.indexOf("ST_DWithin") !== -1).join("\n");
+        const generalSql = locatedSqls.filter(text => text.indexOf("AND location IS NULL") !== -1).join("\n");
+        const denverCmp = "(expires_at IS NULL OR expires_at >= (now() AT TIME ZONE 'America/Denver')::date)";
+        check("near-me keeps its radius split and the Denver day boundary",
           located.status === 200 &&
-          locatedSql.indexOf("ST_DWithin") !== -1 &&
-          locatedSql.indexOf("(location IS NULL OR ST_DWithin") !== -1 &&
-          locatedSql.indexOf(STILL_SHOWING_SQL) !== -1 &&
+          pinnedSql.indexOf("ST_DWithin") !== -1 &&
+          pinnedSql.indexOf("ORDER BY location <->") !== -1 &&
+          pinnedSql.indexOf(denverCmp) !== -1 &&
+          pinnedSql.indexOf(STILL_SHOWING_SQL) !== -1 &&
+          generalSql.indexOf(denverCmp) !== -1 &&
           located.body.indexOf("Expired Night") === -1 &&
-          located.body.indexOf("Past Game") === -1);
+          located.body.indexOf("Past Game") === -1 &&
+          located.body.indexOf("Ends Tonight") !== -1);
+        const beforeCursor = seen.length;
+        const pageToken = encodeCursor({ p: "n", id: 12, d: "10.5" });
+        const paged = await request(clockPort, "/api/activities?lat=40.23&lng=-111.66&radiusMiles=25&limit=50&cursor=" + encodeURIComponent(pageToken));
+        const pagedSql = seen.slice(beforeCursor).join("\n");
+        check("a cursor page keeps an event through the end of its Denver day",
+          paged.status === 200 &&
+          pagedSql.indexOf(denverCmp) !== -1 &&
+          pagedSql.indexOf("10.5") === -1 &&
+          paged.body.indexOf("Ends Tonight") !== -1 &&
+          paged.body.indexOf("Expired Night") === -1);
         const detail = await request(clockPort, "/api/activities/12");
         const detailBody = JSON.parse(detail.body);
         check("detail returns expiresAt and expires_at for a current row",

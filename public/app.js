@@ -455,8 +455,14 @@
   var REMOTE_IDEAS = [];         // approved activities from /api/activities
   var remoteFreshBucket = null;
   var remotePendingBucket = null;
+  var remoteLoadedBucket = null;
+  var remoteNextCursor = null;
+  var remoteFillInFlight = false;
+  var remoteAutoFills = 0;
   var remoteFetchGen = 0;
   var remoteAbort = null;
+  var REMOTE_FILL_AHEAD = 8;
+  var REMOTE_AUTO_CAP = 6;
   var realIdeasLoading = false;
   var realKeyToId = {};          // stableKey -> numeric id
   var realIdToKey = {};          // numeric id -> stableKey
@@ -571,6 +577,7 @@
     state.location = null;
     saveState();
     renderContent();
+    refreshRemoteActivities();
   }
 
   // Turns one raw generated card (from /api/nearby-ideas) into a full idea
@@ -793,22 +800,72 @@
     return added;
   }
 
+  function remoteFilterParams(){
+    var f = state.filters || {};
+    var out = {};
+    ["duration", "cost", "time", "setting", "vibe", "season", "stage", "dateType"].forEach(function(key){
+      if(f[key] && f[key].length) out[key] = f[key].join(",");
+    });
+    if(f.food === true) out.food = "true";
+    else if(f.food === false) out.food = "false";
+    if(f.hide21 === true) out.hide21 = "true";
+    if(f.localOnly === true) out.localOnly = "1";
+    return out;
+  }
+
+  function remoteRadiusMiles(){
+    if(state.filters && state.filters.localOnly === true) return SparkRadius.clampRadiusMiles(state.filters.radiusMiles);
+    return SparkRemoteActivities.NEARBY_RADIUS_MILES;
+  }
+
+  // Location is already rounded inside the activities module. This key uses
+  // that same bucket plus the filters, so a cache entry cannot mix radii.
+  function remoteScopeKey(){
+    var f = state.filters || {};
+    return JSON.stringify({
+      duration: f.duration || [],
+      cost: f.cost || [],
+      time: f.time || [],
+      setting: f.setting || [],
+      vibe: f.vibe || [],
+      season: f.season || [],
+      stage: f.stage || [],
+      dateType: f.dateType || [],
+      food: f.food === true ? true : (f.food === false ? false : null),
+      hide21: f.hide21 === true,
+      localOnly: f.localOnly === true,
+      radius: state.filters && state.filters.localOnly === true ? SparkRadius.clampRadiusMiles(f.radiusMiles) : SparkRemoteActivities.NEARBY_RADIUS_MILES
+    });
+  }
+
+  function remoteBucketKey(){
+    var loc = state.location;
+    return SparkRemoteActivities.locationBucket(loc && loc.lat, loc && loc.lng) + "|" + remoteScopeKey();
+  }
+
   function hydrateRemoteCache(){
     if(typeof SparkRemoteActivities === "undefined") return;
     try {
       var loc = state.location;
       var bucket = SparkRemoteActivities.locationBucket(loc && loc.lat, loc && loc.lng);
-      var cached = SparkRemoteActivities.readCache(localStorage, bucket, Date.now());
-      if(cached && cached.hit && cached.ideas && cached.ideas.length) applyRemoteIdeas(cached.ideas);
+      var scope = remoteScopeKey();
+      var cached = SparkRemoteActivities.readCache(localStorage, bucket, Date.now(), scope);
+      if(cached && cached.hit && cached.ideas && cached.ideas.length){
+        applyRemoteIdeas(cached.ideas);
+        remoteNextCursor = cached.nextCursor || null;
+        remoteLoadedBucket = remoteBucketKey();
+      }
     } catch (err) {}
   }
 
-  // At most once per location bucket: on open, when the saved copy is older
-  // than about six hours, or when the rough location changes. Never on swipe.
+  // At most once per location-and-filter bucket: on open, when the saved
+  // copy is older than about six hours, or when the rough location or the
+  // filters change. A swipe asks for the next cursor instead of refetching.
   function refreshRemoteActivities(){
     if(typeof SparkRemoteActivities === "undefined") return;
     var loc = state.location;
-    var bucket = SparkRemoteActivities.locationBucket(loc && loc.lat, loc && loc.lng);
+    var scope = remoteScopeKey();
+    var bucket = remoteBucketKey();
     if(remoteFreshBucket === bucket || remotePendingBucket === bucket) return;
     if(remoteAbort){
       try { remoteAbort.abort(); } catch (err) {}
@@ -825,7 +882,12 @@
       storage: localStorage,
       lat: loc && loc.lat,
       lng: loc && loc.lng,
+      scope: scope,
+      filters: remoteFilterParams(),
+      radiusMiles: remoteRadiusMiles(),
       builtins: IDEAS_DATA,
+      limit: SparkRemoteActivities.PAGE_LIMIT,
+      maxItems: SparkRemoteActivities.PAGE_LIMIT,
       fetch: function(url, options){ return fetch(url, options); },
       signal: controller ? controller.signal : undefined,
       timeoutMs: SparkRemoteActivities.FETCH_TIMEOUT_MS
@@ -833,12 +895,70 @@
       if(generation !== remoteFetchGen) return;
       if(remoteAbort === controller) remoteAbort = null;
       remotePendingBucket = null;
+      if(!result || !result.fromCache){
+        REMOTE_IDEAS = [];
+        deckOrderCache = null;
+        remoteAutoFills = 0;
+      }
+      remoteLoadedBucket = bucket;
+      remoteNextCursor = result && result.nextCursor || null;
       if(result && result.ideas && result.ideas.length) applyRemoteIdeas(result.ideas);
+      else {
+        var deckEl = $("#deck");
+        if(deckEl){ renderDeckCards(deckEl); updateResultCount(); }
+      }
       if(result && result.ok) remoteFreshBucket = bucket;
+      maybeFillDeck();
     }).catch(function(){
       if(generation !== remoteFetchGen) return;
       if(remoteAbort === controller) remoteAbort = null;
       remotePendingBucket = null;
+    });
+  }
+
+  // One more server page when the deck is running out. Offline and a short
+  // page leave the starter set on screen.
+  function maybeFillDeck(){
+    if(!remoteNextCursor || remoteFillInFlight) return;
+    if(typeof SparkRemoteActivities === "undefined") return;
+    if(remoteAutoFills >= REMOTE_AUTO_CAP) return;
+    var deck;
+    try { deck = computeDeck(); } catch (err) { return; }
+    if(!deck || deck.remaining.length >= REMOTE_FILL_AHEAD) return;
+    remoteAutoFills += 1;
+    loadMoreRemote();
+  }
+
+  function loadMoreRemote(){
+    if(!remoteNextCursor || remoteFillInFlight) return;
+    if(typeof SparkRemoteActivities === "undefined") return;
+    var loc = state.location;
+    var bucket = remoteBucketKey();
+    var cursor = remoteNextCursor;
+    var generation = remoteFetchGen;
+    remoteFillInFlight = true;
+    SparkRemoteActivities.fetchApprovedActivities({
+      lat: loc && loc.lat,
+      lng: loc && loc.lng,
+      filters: remoteFilterParams(),
+      radiusMiles: remoteRadiusMiles(),
+      cursor: cursor,
+      limit: SparkRemoteActivities.PAGE_LIMIT,
+      maxItems: SparkRemoteActivities.PAGE_LIMIT,
+      fetch: function(url, options){ return fetch(url, options); },
+      timeoutMs: SparkRemoteActivities.FETCH_TIMEOUT_MS
+    }).then(function(result){
+      remoteFillInFlight = false;
+      if(generation !== remoteFetchGen || remoteLoadedBucket !== bucket) return;
+      if(!result || !result.ok){
+        remoteNextCursor = null;
+        return;
+      }
+      remoteNextCursor = result.nextCursor || null;
+      if(result.ideas && result.ideas.length) applyRemoteIdeas(result.ideas);
+      maybeFillDeck();
+    }).catch(function(){
+      remoteFillInFlight = false;
     });
   }
 
@@ -1878,6 +1998,18 @@
     if(!deckEl) return;
     renderDeckCards(deckEl);
     updateResultCount();
+    // Local on is the only time the slider changes which rows the server
+    // returns. Dragging the slider refetches once the finger pauses.
+    if(state.filters && state.filters.localOnly === true) scheduleRemoteRefresh();
+  }
+
+  var remoteRefreshTimer = null;
+  function scheduleRemoteRefresh(){
+    if(remoteRefreshTimer) clearTimeout(remoteRefreshTimer);
+    remoteRefreshTimer = setTimeout(function(){
+      remoteRefreshTimer = null;
+      refreshRemoteActivities();
+    }, 350);
   }
 
   function updateFilterBadge(){
@@ -2544,6 +2676,8 @@
       // Stay on Discover and keep swiping instead of jumping to another screen.
       var deckEl = $("#deck");
       if(deckEl) { renderDeckCards(deckEl); updateResultCount(); }
+      remoteAutoFills = 0;
+      maybeFillDeck();
     }, 260);
   }
 
@@ -2663,12 +2797,14 @@
     saveState();
     closeOverlay("#filter-overlay");
     if(ui.tab === "discover") renderContent();
+    refreshRemoteActivities();
   });
   $("#filter-apply").addEventListener("click", function(){
     state.filters = ui.filterDraft;
     saveState();
     closeOverlay("#filter-overlay");
     if(ui.tab === "discover") renderContent();
+    refreshRemoteActivities();
   });
 
   /* ---------- Plan a Date overlay ---------- */

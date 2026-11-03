@@ -95,15 +95,23 @@ async function expectFail(promise) {
 
 async function fetchAll(port, query) {
   const items = [];
-  let offset = 0;
-  for (let guard = 0; guard < 40; guard++) {
+  const seen = new Set();
+  let cursor = null;
+  for (let guard = 0; guard < 80; guard++) {
     const joiner = query ? "&" : "";
-    const res = await request(port, "/api/activities?" + query + joiner + "limit=200&offset=" + offset);
+    let urlPath = "/api/activities?" + query + joiner + "limit=200";
+    if (cursor) urlPath += "&cursor=" + encodeURIComponent(cursor);
+    const res = await request(port, urlPath);
     if (res.status !== 200) throw new Error("list failed " + res.status + " " + res.body.slice(0, 180));
     const body = JSON.parse(res.body);
-    items.push.apply(items, body.items);
-    if (body.nextOffset == null) return items;
-    offset = body.nextOffset;
+    body.items.forEach(item => {
+      if (seen.has(item.id)) throw new Error("duplicate id " + item.id);
+      seen.add(item.id);
+      items.push(item);
+    });
+    if (body.nextCursor == null) return items;
+    if (body.nextCursor === cursor) throw new Error("cursor did not advance");
+    cursor = body.nextCursor;
   }
   throw new Error("pagination did not end");
 }
@@ -553,7 +561,7 @@ async function main() {
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
   const connectionString = process.env.TEST_DATABASE_URL;
   const pool = new Pool(Object.assign({}, poolConfig(connectionString), { connectionTimeoutMillis: 8000 }));
-  const ideas = loadIdeas(path.join(__dirname, "..", "public", "data.js"));
+  const ideas = loadIdeas(path.join(__dirname, "..", "data", "ideas-catalog.js"));
   const byId = {};
   ideas.forEach(idea => { byId[idea.id] = idea; });
   const emptyDir = fs.mkdtempSync(path.join(os.tmpdir(), "spark-no-coords-"));

@@ -26,15 +26,18 @@ function section(title, fn) {
   }
 }
 
-const TRAILHEAD = "Trailhead data: Utah Trailheads, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: coordinates converted to latitude/longitude; fields selected and reformatted.";
-const PARK = "Park data: Utah Parks Local, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted.";
+const TRAILHEAD = "Utah Trailheads, via UGRC SGID · CC BY 4.0 · data modified";
+const PARK = "Utah Parks Local, via UGRC SGID · CC BY 4.0 · data modified";
+const PARKS_CHANGE = "Utah Parks Local: park areas reduced to approximate center points; parks marked 'Future' (not yet open) removed; fields selected, acreage rounded and reformatted.";
+const RETIRED_TRAILHEAD = "Trailhead data: Utah Trailheads, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: coordinates converted to latitude/longitude; fields selected and reformatted.";
+const RETIRED_PARK = "Park data: Utah Parks Local, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted.";
 const UGRC_HEADING = "Utah Trailheads and Utah Parks Local (UGRC)";
 const UGRC_LINES = [
   "Utah Trailheads and Utah Parks Local",
   "Data Sources: UGRC SGID (data modified).",
   "Source: Utah Geospatial Resource Center (UGRC, formerly AGRC), State Geographic Information Database (SGID). Datasets: Utah Trailheads (https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0) and Utah Parks Local (https://opendata.gis.utah.gov/datasets/818536733987486b8082e4c5dec0a1dd_0).",
   "License: Creative Commons Attribution 4.0 International (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/. UGRC license policy: https://gis.utah.gov/documentation/policy/license/.",
-  "Changes we made: Utah Trailheads: coordinates converted to latitude/longitude; fields selected and reformatted. Utah Parks Local: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted. We don't add any other information to these datasets.",
+  "Changes we made: Utah Trailheads: coordinates converted to latitude/longitude; fields selected and reformatted. Utah Parks Local: park areas reduced to approximate center points; parks marked 'Future' (not yet open) removed; fields selected, acreage rounded and reformatted. We don't add any other information to these datasets.",
   "UGRC and the State of Utah don't endorse Jaderoo and aren't responsible for how we use or show this data.",
   "Disclaimer from UGRC (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\""
 ];
@@ -49,6 +52,34 @@ const NOT_AFFILIATED = "Jaderoo is not affiliated with or endorsed by any of the
 const CHECK_CONDITIONS = "Check conditions before you go.";
 const COPYRIGHT = "© 2026 Jaderoo. No claim to original U.S. Government works.";
 const CC_BY = "https://creativecommons.org/licenses/by/4.0/";
+const UGRC_VIA = ", via UGRC SGID · CC BY 4.0 · data modified";
+const UGRC_SGID_INTRO_TEMPLATE = "Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID). Data Sources: UGRC SGID (data modified). Layers used: {list each layer title, linked to its dataset page}. Licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Changes made by Jaderoo: records filtered to activity types, polygons and lines reduced to points, trail segments combined by trail name, fields renamed and reformatted, and our own short summaries added. Neither UGRC nor the State of Utah endorses Jaderoo.";
+const UGRC_SGID_DISCLAIMER = "UGRC disclaimer (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\"";
+const UGRC_SGID_GNIS = "GNIS place names originate from the U.S. Geological Survey Geographic Names Information System. Credit: U.S. Geological Survey.";
+const GNIS_USGS_CREDIT = "Credit: U.S. Geological Survey.";
+const GNIS_ACCESS = "Check access and conditions before you go.";
+const GNIS_NOTE = GNIS_USGS_CREDIT + " " + GNIS_ACCESS;
+const USFS_CREDIT = "via USDA Forest Service";
+const USFS_PAGE = "USDA Forest Service. Recreation site information from the U.S. Forest Service Recreation Opportunities dataset (Enterprise Data Warehouse), https://www.fs.usda.gov/. U.S. Government work. No claim to original U.S. Government works. Data may be incomplete or out of date; check with the managing forest before you go. Use of this data does not imply endorsement by the USDA Forest Service.";
+const USFS_HOME = "https://www.fs.usda.gov/";
+const USFS_SAMPLE = "https://www.fs.usda.gov/recarea/uwcnf/recarea/?recid=9744";
+const BLM_CREDIT = "via Bureau of Land Management";
+const BLM_PAGE = "Bureau of Land Management (BLM). Recreation site information from the BLM National Recreation Sites and Facilities map service (compiled by BLM from Recreation.gov's Recreation Information Database), https://www.blm.gov/programs/recreation. U.S. Government work. No claim to original U.S. Government works. Use of this data does not imply endorsement by the BLM or the U.S. Department of the Interior.";
+const BLM_RECREATION = "https://www.blm.gov/programs/recreation";
+const BLM_SAMPLE = "https://www.blm.gov/visit/search-details/14494/2";
+const ROUND8_LAYERS = [
+  ["ugrc_monuments", "Utah Monuments and Markers", "63de4118823e4e3eba943ca43caefc72", "Utah Monuments and Markers (Utah Division of State History)" + UGRC_VIA],
+  ["ugrc_boat_ramps", "Utah Boat Ramps", "0d12b74c39eb453088e992bf089d9890", "Utah Boat Ramps" + UGRC_VIA],
+  ["ugrc_golf", "Utah Golf Courses", "d1f957478ea24659a7badb754a22b91c", "Utah Golf Courses" + UGRC_VIA],
+  ["ugrc_libraries", "Utah Public Libraries", "f6cf0c8ef65344b6a6e5ebeaa108f549", "Utah Public Libraries (Utah State Library Division)" + UGRC_VIA],
+  ["ugrc_peaks", "Utah Highest Peaks", "27faf1a5aef2429fb2d660139b6583d6", "Utah Highest Peaks" + UGRC_VIA],
+  ["ugrc_ski_resorts", "Utah Ski Area Resort Locations", "24029712a33f47feacc7b3f2ef75f179", "Utah Ski Area Resort Locations" + UGRC_VIA],
+  ["ugrc_cemeteries", "Utah Cemeteries", "f54d1c00020940ec95a729b39518e020", "Utah Cemeteries" + UGRC_VIA],
+  ["ugrc_historic_trails", "Utah Historic Trails", "20742e3d34354509b8a9f567f1003509", "Utah Historic Trails" + UGRC_VIA],
+  ["ugrc_trails", "Utah Trails and Pathways", "3080c0a2859a4d23a279e17e17c703c8", "Utah Trails and Pathways (UGRC, WFRC)" + UGRC_VIA],
+  ["ugrc_ski_trails", "Utah Ski Trails XC", "c94307ff26e641159510005e076f5bfd", "Utah Ski Trails XC" + UGRC_VIA],
+  ["ugrc_gnis", "Utah GNIS Place Names", "153301fffc8a4128884833e2f7ee1d6e", "Name and location: Utah GNIS Place Names (USGS GNIS)" + UGRC_VIA]
+];
 
 function visibleText(html) {
   return String(html || "")
@@ -106,6 +137,12 @@ section("exact quick-reference strings", () => {
   check("the disclaimer quotes as is and as available",
     UGRC_LINES[6].indexOf("provided \"as is\" and \"as available\"") !== -1 &&
     UGRC_LINES[6].indexOf("hold the State of Utah harmless") !== -1);
+  check("the parks change note names Future parks and stops before boundaries",
+    UGRC_LINES[4].indexOf(PARKS_CHANGE) !== -1 &&
+    UGRC_LINES.join("\n").indexOf("park boundaries used to show which park a place is in") === -1 &&
+    UGRC_LINES.join("\n").indexOf("proposed, planned and closed parks removed") === -1);
+  check("trailhead and park credits are the short canonical lines",
+    TRAILHEAD === "Utah Trailheads" + UGRC_VIA && PARK === "Utah Parks Local" + UGRC_VIA);
 });
 
 section("credit line on the card and the detail", () => {
@@ -155,6 +192,14 @@ section("credit line on the card and the detail", () => {
   });
   const parkText = visibleText(t.buildSwipeCard(oldPark, false).innerHTML);
   check("an older parks credit renders the exact current line", parkText.indexOf(PARK) !== -1 && parkText.indexOf("polygons reduced") === -1);
+  const retiredPark = idea({ id: 880010, source_credit: RETIRED_PARK });
+  const retiredParkText = visibleText(t.buildSwipeCard(retiredPark, false).innerHTML);
+  check("the retired parks sentence renders the canonical line",
+    retiredParkText.indexOf(PARK) !== -1 && retiredParkText.indexOf("proposed, planned and closed") === -1);
+  const retiredTrail = idea({ id: 880011, source_credit: RETIRED_TRAILHEAD });
+  const retiredTrailText = visibleText(t.buildSwipeCard(retiredTrail, false).innerHTML);
+  check("the retired trailhead sentence renders the canonical line",
+    retiredTrailText.indexOf(TRAILHEAD) !== -1 && retiredTrailText.indexOf("coordinates converted") === -1);
   const parkDetail = walkText(t.buildDetailScreen(oldPark.id));
   check("park detail says approximate location", parkDetail.indexOf("Approximate location.") !== -1 && parkDetail.indexOf(PARK) !== -1);
 
@@ -258,6 +303,199 @@ section("activities API carries the credit columns", () => {
     umfa.source_key === "umfa" && umfa.sourceCredit === "via UMFA" && umfa.source_credit === "via UMFA");
 });
 
+section("round 8 credit lines and sources blocks", () => {
+  const dotAt = UGRC_VIA.indexOf("SGID") + 5;
+  check("the UGRC separator is a middle dot", UGRC_VIA.charCodeAt(dotAt) === 0x00B7);
+  const titles = ROUND8_LAYERS.map(row => row[1]).join(", ");
+  const intro = UGRC_SGID_INTRO_TEMPLATE.replace("{list each layer title, linked to its dataset page}", titles);
+  check("round 8 UGRC intro matches the module", sources.UGRC_SGID_INTRO === intro);
+  check("the new UGRC block does not repeat Utah Trailheads", intro.indexOf("Utah Trailheads") === -1);
+  check("round 8 disclaimer matches the module", sources.UGRC_SGID_DISCLAIMER === UGRC_SGID_DISCLAIMER);
+  check("round 8 GNIS origin line matches the module", sources.UGRC_SGID_GNIS === UGRC_SGID_GNIS);
+  check("GNIS carries the USGS credit and the access caution",
+    sources.GNIS_USGS_CREDIT === GNIS_USGS_CREDIT &&
+    sources.GNIS_ACCESS === GNIS_ACCESS &&
+    sources.GNIS_NOTE === GNIS_NOTE &&
+    GNIS_NOTE.indexOf(GNIS_USGS_CREDIT) !== -1 &&
+    GNIS_NOTE.indexOf(GNIS_ACCESS) !== -1);
+  check("USFS credit and sources block match",
+    sources.USFS_CREDIT === USFS_CREDIT && sources.USFS_PAGE === USFS_PAGE && sources.USFS_HOME === USFS_HOME);
+  check("BLM credit and sources block match, including the 403 notice",
+    sources.BLM_CREDIT === BLM_CREDIT && sources.BLM_PAGE === BLM_PAGE &&
+    sources.BLM_RECREATION === BLM_RECREATION &&
+    BLM_PAGE.indexOf("No claim to original U.S. Government works.") !== -1);
+  check("USFS block says the data does not imply endorsement",
+    USFS_PAGE.indexOf("Use of this data does not imply endorsement by the USDA Forest Service.") !== -1);
+  check("BLM block says the data does not imply endorsement",
+    BLM_PAGE.indexOf("Use of this data does not imply endorsement by the BLM or the U.S. Department of the Interior.") !== -1);
+  check("section 9 UGRC block matches the published lines",
+    sources.TRAILHEAD_CREDIT === TRAILHEAD && sources.PARK_CREDIT === PARK &&
+    sources.UGRC_HEADING === UGRC_HEADING &&
+    JSON.stringify(sources.UGRC_LINES) === JSON.stringify(UGRC_LINES) &&
+    sources.UGRC_LINES[4].indexOf(PARKS_CHANGE) !== -1);
+
+  const byKey = Object.create(null);
+  sources.ROUND8_SOURCES.forEach(row => { byKey[row.key] = row; });
+  check("round 8 publishes 13 loader keys", sources.ROUND8_SOURCES.length === 13 && ROUND8_LAYERS.length === 11);
+  ROUND8_LAYERS.forEach(row => {
+    const item = byKey[row[0]];
+    const dataset = "https://opendata.gis.utah.gov/datasets/" + row[2] + "_0";
+    check(row[0] + " credit is exact", item && item.credit === row[3] && item.title === row[1]);
+    check(row[0] + " dataset url", item && item.datasetUrl === dataset && item.itemId === row[2]);
+    check(row[0] + " key fits the column", /^[a-z0-9][a-z0-9_-]{0,63}$/.test(row[0]) && row[3].length <= 500);
+    const view = sources.creditView({ source_key: row[0] });
+    const joined = view.parts.map(part => part.text).join("");
+    check(row[0] + " linked parts rebuild the credit", joined === row[3]);
+    const sgid = view.parts.find(part => part.text === "UGRC SGID");
+    const ccby = view.parts.find(part => part.text === "CC BY 4.0");
+    check(row[0] + " links UGRC SGID and CC BY 4.0",
+      sgid && sgid.href === dataset && ccby && ccby.href === CC_BY);
+  });
+  check("usfs loader uses recareaurl",
+    byKey.usfs && byKey.usfs.credit === USFS_CREDIT && byKey.usfs.sourceUrlField === "recareaurl" && byKey.usfs.linkItem === true);
+  check("blm loader uses BLMRecURL",
+    byKey.blm && byKey.blm.credit === BLM_CREDIT && byKey.blm.sourceUrlField === "BLMRecURL" && byKey.blm.linkItem === true);
+  check("loader notes name the three url fields",
+    sources.BULK_LOADER_NOTES.indexOf("datasetUrl") !== -1 &&
+    sources.BULK_LOADER_NOTES.indexOf("recareaurl") !== -1 &&
+    sources.BULK_LOADER_NOTES.indexOf("BLMRecURL") !== -1 &&
+    sources.BULK_LOADER_NOTES.indexOf("source_key") !== -1);
+
+  const page = sources.renderPage();
+  const text = visibleText(page);
+  [intro, UGRC_SGID_DISCLAIMER, UGRC_SGID_GNIS, GNIS_ACCESS, GNIS_USGS_CREDIT, USFS_CREDIT, USFS_PAGE, BLM_CREDIT, BLM_PAGE]
+    .concat(ROUND8_LAYERS.map(row => row[3]))
+    .forEach(sentence => {
+      check("sources page includes " + sentence.slice(0, 42), text.indexOf(sentence) !== -1);
+    });
+  check("disclaimer quotes are escaped in the html",
+    page.indexOf("provided &quot;as is&quot; and &quot;as available&quot;") !== -1);
+  check("USFS home link does not swallow the period",
+    page.indexOf('href="' + USFS_HOME + '"') !== -1 && page.indexOf('href="' + USFS_HOME + '."') === -1);
+  check("BLM recreation link does not swallow the period",
+    page.indexOf('href="' + BLM_RECREATION + '"') !== -1 && page.indexOf('href="' + BLM_RECREATION + '."') === -1);
+  ROUND8_LAYERS.forEach(row => {
+    const dataset = "https://opendata.gis.utah.gov/datasets/" + row[2] + "_0";
+    check("page links " + row[1], page.indexOf('href="' + dataset + '"') !== -1 && page.indexOf('id="' + row[0] + '"') !== -1);
+  });
+  check("page has no images", page.indexOf("<img") === -1 && page.indexOf("<svg") === -1);
+  check("page does not name Smokey", page.toLowerCase().indexOf("smokey") === -1);
+  ["Daughters of Utah Pioneers", "StateParksInfo", "DPR_Landmark"].forEach(name => {
+    check("unverified layer is not listed: " + name, text.indexOf(name) === -1 && intro.indexOf(name) === -1);
+  });
+
+  const t = loadApp({});
+  const base = t.IDEAS_BY_ID[2];
+  function idea(extra) {
+    const row = Object.assign({}, base, extra);
+    delete row.photo;
+    t.IDEAS_BY_ID[row.id] = row;
+    return row;
+  }
+  const monuments = idea({
+    id: 881001,
+    source_key: "ugrc_monuments",
+    source_credit: "<img src=x onerror=alert(1)>",
+    source_url: "javascript:alert(1)"
+  });
+  const monumentsHtml = t.buildSwipeCard(monuments, false).innerHTML;
+  const monumentsText = visibleText(monumentsHtml);
+  check("monuments card shows the exact credit", monumentsText.indexOf(ROUND8_LAYERS[0][3]) !== -1);
+  check("monuments card links the dataset and the license",
+    monumentsHtml.indexOf('href="https://opendata.gis.utah.gov/datasets/63de4118823e4e3eba943ca43caefc72_0"') !== -1 &&
+    monumentsHtml.indexOf('href="' + CC_BY + '"') !== -1);
+  check("monuments card drops a hostile stored credit and a javascript url",
+    monumentsHtml.indexOf("<img") === -1 && monumentsHtml.indexOf("onerror") === -1 && monumentsHtml.indexOf("javascript:") === -1);
+  check("monuments card says to check conditions", monumentsText.indexOf(CHECK_CONDITIONS) !== -1);
+  const monumentsDetail = walkText(t.buildDetailScreen(monuments.id));
+  check("monuments detail shows the exact credit", monumentsDetail.indexOf(ROUND8_LAYERS[0][3]) !== -1);
+
+  const gnis = idea({ id: 881002, source_key: "ugrc_gnis" });
+  const gnisHtml = t.buildSwipeCard(gnis, false).innerHTML;
+  const gnisText = visibleText(gnisHtml);
+  const gnisCredit = ROUND8_LAYERS.filter(row => row[0] === "ugrc_gnis")[0][3];
+  check("GNIS card shows the exact credit", gnisText.indexOf(gnisCredit) !== -1);
+  check("GNIS card includes the USGS credit", gnisText.indexOf(GNIS_USGS_CREDIT) !== -1);
+  check("GNIS card includes the access caution", gnisText.indexOf(GNIS_ACCESS) !== -1);
+  const gnisDetail = t.buildDetailScreen(gnis.id);
+  const gnisDetailText = walkText(gnisDetail);
+  check("GNIS detail includes the credit, the USGS line, and the access caution",
+    gnisDetailText.indexOf(gnisCredit) !== -1 &&
+    gnisDetailText.indexOf(GNIS_USGS_CREDIT) !== -1 &&
+    gnisDetailText.indexOf(GNIS_ACCESS) !== -1);
+  const gnisHrefs = hrefs(gnisDetail);
+  check("GNIS detail links the dataset and the license",
+    gnisHrefs.indexOf("https://opendata.gis.utah.gov/datasets/153301fffc8a4128884833e2f7ee1d6e_0") !== -1 &&
+    gnisHrefs.indexOf(CC_BY) !== -1);
+
+  const usfs = idea({ id: 881004, source_key: "usfs", source_url: USFS_SAMPLE, source_credit: "<b>Smokey</b>" });
+  const usfsHtml = t.buildSwipeCard(usfs, false).innerHTML;
+  check("USFS card uses the exact credit", visibleText(usfsHtml).indexOf(USFS_CREDIT) !== -1);
+  check("USFS credit links the record recareaurl", usfsHtml.indexOf('href="' + USFS_SAMPLE + '"') !== -1);
+  check("USFS card has no shield name, no Smokey, and no injected markup",
+    usfsHtml.toLowerCase().indexOf("smokey") === -1 && usfsHtml.indexOf("<b>") === -1 && usfsHtml.indexOf("<img") === -1);
+  check("USFS detail keeps the exact credit and the conditions note",
+    walkText(t.buildDetailScreen(usfs.id)).indexOf(USFS_CREDIT) !== -1 &&
+    walkText(t.buildDetailScreen(usfs.id)).indexOf(CHECK_CONDITIONS) !== -1);
+
+  const blm = idea({ id: 881005, source_key: "blm", source_url: BLM_SAMPLE });
+  const blmHtml = t.buildSwipeCard(blm, false).innerHTML;
+  check("BLM card uses the exact credit", visibleText(blmHtml).indexOf(BLM_CREDIT) !== -1);
+  check("BLM credit links the record BLMRecURL", blmHtml.indexOf('href="' + BLM_SAMPLE + '"') !== -1);
+  check("BLM detail shows the exact credit", walkText(t.buildDetailScreen(blm.id)).indexOf(BLM_CREDIT) !== -1);
+
+  const bareUsfs = idea({ id: 881006, source_key: "usfs", source_url: "javascript:alert(1)" });
+  check("a javascript recareaurl is not used as a link",
+    t.buildSwipeCard(bareUsfs, false).innerHTML.indexOf("javascript:") === -1);
+});
+
+section("round 8 mapping omits sources still on hold", () => {
+  // OpenStreetMap and ODbL are not banned on the rendered page. Another
+  // change may add one temporary line there. They must not be source keys
+  // or credit lines in this mapping.
+  const keys = sources.ENTRIES.map(entry => entry.key);
+  const credits = sources.ENTRIES.map(entry => entry.credit);
+  const titles = sources.ROUND8_SOURCES.map(entry => entry.title || "");
+  const mapped = keys.concat(credits).concat(titles).join("\n");
+  [
+    "OpenStreetMap",
+    "ODbL",
+    "Wikidata",
+    "RIDB",
+    "NPS API",
+    "NPS Data API",
+    "via Wikidata",
+    "Data Source: Recreation.gov",
+    "Place data © OpenStreetMap contributors"
+  ].forEach(phrase => {
+    check("credit mapping does not include " + phrase, mapped.indexOf(phrase) === -1);
+  });
+  ["osm", "odbl", "openstreetmap", "wikidata", "ridb", "nps_api", "nps-api", "recreation_gov"].forEach(key => {
+    check("no source_key " + key, keys.indexOf(key) === -1);
+  });
+  check("ugrc_schools is not a source key",
+    keys.indexOf("ugrc_schools") === -1 &&
+    sources.ROUND8_SOURCES.every(entry => entry.key !== "ugrc_schools") &&
+    sources.creditView({ source_key: "ugrc_schools" }) == null);
+  const heldPage = sources.renderPage();
+  const heldText = visibleText(heldPage);
+  check("sources page does not list Utah Schools",
+    heldText.indexOf("Utah Schools") === -1 &&
+    heldText.indexOf("ugrc_schools") === -1 &&
+    heldPage.indexOf("333206ff129346e3b8660e8f6f48540e") === -1);
+  check("no source_key looks like a held round 8 source",
+    keys.every(key => !/osm|odbl|wikidata|ridb|openstreetmap|nps_api|nps-api/i.test(key)));
+  check("the only nps key is still the section 9 one",
+    keys.filter(key => key.indexOf("nps") !== -1).join(",") === "nps" &&
+    sources.NPS_CREDIT === NPS_CREDIT &&
+    sources.NPS_PAGE.indexOf("NPS API") === -1 &&
+    sources.NPS_PAGE.indexOf("NPS Data API") === -1);
+  const pageText = visibleText(sources.renderPage());
+  ["Wikidata", "RIDB", "NPS API", "NPS Data API", "via Wikidata", "Data Source: Recreation.gov"].forEach(phrase => {
+    check("sources page does not add " + phrase, pageText.indexOf(phrase) === -1);
+  });
+});
+
 function main() {
   return section("Sources page", async () => {
     const page = sources.renderPage();
@@ -294,6 +532,10 @@ function main() {
       check("the route serves the exact UGRC disclaimer", bodyText.indexOf(UGRC_LINES[6]) !== -1);
       check("the route serves the not-affiliated line", bodyText.indexOf(NOT_AFFILIATED) !== -1);
       check("the route serves the NPS 403 notice", bodyText.indexOf(NPS_NOTICE) !== -1);
+      check("the route serves the round 8 UGRC disclaimer", bodyText.indexOf(UGRC_SGID_DISCLAIMER) !== -1);
+      check("the route serves the USFS block", bodyText.indexOf(USFS_PAGE) !== -1);
+      check("the route serves the BLM block", bodyText.indexOf(BLM_PAGE) !== -1);
+      check("the route serves the GNIS access caution", bodyText.indexOf(GNIS_ACCESS) !== -1);
       check("the route serves the CC BY link", res.body.indexOf('href="' + CC_BY + '"') !== -1);
       const home = await request(server.address().port, "/");
       check("home loads the sources script and links Sources",
@@ -331,6 +573,9 @@ function main() {
       /revoke all on table public\.activities from authenticated/i.test(sql));
     check("the migration creates no policy and grants nothing",
       /create policy/i.test(sql) === false && /\bgrant\b/i.test(sql) === false);
+    check("016 and 017 stay unused and 018 is the cost-band migration",
+      files.indexOf("018_cost_bands_20.sql") !== -1 &&
+      files.every(name => name.indexOf("016_") !== 0 && name.indexOf("017_") !== 0));
   }));
 }
 

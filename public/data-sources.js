@@ -591,6 +591,9 @@
     return html;
   }
 
+  var OSM_LOCATIONS_LINE = "Some locations © OpenStreetMap contributors, available under the Open Database License (ODbL)";
+  var OSM_COPYRIGHT_HREF = "https://www.openstreetmap.org/copyright";
+
   function renderPage() {
     var html = [];
     html.push("<!DOCTYPE html>");
@@ -644,6 +647,11 @@
     html.push("<h2>Bureau of Land Management (BLM)</h2>");
     html.push(creditList([BLM_SOURCE]));
     html.push(paragraphPhrases(BLM_PAGE, BLM_SOURCE.pagePhrases));
+    html.push("<p>" + htmlForParts([{
+      text: OSM_LOCATIONS_LINE,
+      href: httpsPageUrl(OSM_COPYRIGHT_HREF),
+      external: true
+    }]) + "</p>");
     html.push("<h2>Event listings</h2>");
     html.push('<p class="muted">Each event listing links to the organizer and shows the credit below.</p>');
     html.push(groupList("events"));

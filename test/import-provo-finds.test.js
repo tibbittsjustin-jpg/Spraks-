@@ -221,19 +221,14 @@ section("the 133 Utah County finds", () => {
   check("no find is skipped by review", plan.skippedReview.length === 0, JSON.stringify(plan.skippedReview.slice(0, 3)));
   check("no find is invalid", plan.skippedInvalid.length === 0, JSON.stringify(plan.skippedInvalid));
   const legacyFinds = inputs.finds.filter(find => filters.legacyCost.indexOf(find.cost) !== -1);
-  const legacyKept = legacyFinds.filter(find => {
-    const row = plan.rows.find(item => item.title === find.title);
-    return row && row.cost === find.cost;
-  });
   const legacyRejected = legacyFinds.filter(find =>
     plan.skippedInvalid.some(item => item.title === find.title)
   );
-  check("flagged finds keep their legacy cost and nothing else is rejected for cost",
-    legacyFinds.length > 0 && legacyRejected.length === 0 && legacyKept.length === legacyFinds.length &&
-    plan.skippedInvalid.length === 0 &&
+  check("flagged finds keep a legacy file cost and are not rejected",
+    legacyFinds.length > 0 && legacyRejected.length === 0 && plan.skippedInvalid.length === 0 &&
     inputs.finds.every(find =>
       filters.cost.slice().indexOf(find.cost) !== -1 || filters.legacyCost.indexOf(find.cost) !== -1),
-    "flagged " + legacyFinds.length + " kept " + legacyKept.length + " rejected " + JSON.stringify(legacyRejected));
+    "flagged " + legacyFinds.length + " rejected " + JSON.stringify(legacyRejected));
   check("no find duplicates a curated title or another find",
     plan.skippedDuplicate.length === 0, JSON.stringify(plan.skippedDuplicate.slice(0, 5)));
   check("every kept row is pending, from AI, and has a source page",

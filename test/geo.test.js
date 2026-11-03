@@ -76,7 +76,7 @@ const axe = byId[1854];
 check("#1854 is axe throwing at Heber Hatchets on University Avenue in Provo",
   !!axe && axe.title === "Axe Throwing at Heber Hatchets Provo" &&
   /Heber Hatchets/.test(axe.description) && /University Avenue in Provo/.test(axe.description) &&
-  axe.cost === "$1-$20",
+  axe.cost === "$20-$30",
   axe ? axe.title : "missing");
 const slate = byId[1876];
 check("#1876 copy is indoor modern American at the Marriott",

@@ -5,7 +5,8 @@
 
    node db/place-loader.js --dir /path/to/json
    node db/place-loader.js --dir /path/to/json --apply
-   node db/place-loader.js --promote --dataset ugrc_parks
+
+   Promotion is place_staging_promote() in SQL, not a loader flag.
 */
 "use strict";
 
@@ -354,7 +355,7 @@ async function run(options) {
     const client = await pool.connect();
     try {
       await migrate({ client: client, connectionString: connectionString });
-      if (options.apply || options.promote) await assertActivityCostReady(client);
+      if (options.apply) await assertActivityCostReady(client);
       await client.query("BEGIN");
       await syncCostBandsLive(client);
       await applySql(client, planned.rows, rules);
@@ -376,14 +377,16 @@ async function run(options) {
 }
 
 function parseArgs(argv) {
-  const args = { apply: false, promote: false, dir: null, dataset: null };
+  const args = { apply: false, dir: null };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--apply") args.apply = true;
-    else if (arg === "--promote") args.promote = true;
     else if (arg === "--dir") args.dir = argv[++i];
-    else if (arg === "--dataset") args.dataset = argv[++i];
-    else if (arg === "--approve-dataset") args.approve = argv[++i];
+    else if (arg === "--promote" || arg === "--approve-dataset" || arg === "--dataset") {
+      const err = new Error(arg + " was removed. Promotion is place_staging_promote() in SQL.");
+      err.code = "cli_flag_removed";
+      throw err;
+    }
   }
   return args;
 }
@@ -413,5 +416,6 @@ module.exports = {
   run: run,
   assertActivityCostReady: assertActivityCostReady,
   syncCostBandsLive: syncCostBandsLive,
+  parseArgs: parseArgs,
   GENERIC_TIGHT_M: GENERIC_TIGHT_M
 };

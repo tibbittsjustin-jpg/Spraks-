@@ -518,6 +518,9 @@ language plpgsql as $$
 declare
   ds_status text;
   batch_status text;
+  batch_dataset text;
+  mismatch_id bigint;
+  mismatch_dataset text;
   live_mode text;
   inserted integer := 0;
   refused jsonb := '[]'::jsonb;
@@ -533,9 +536,27 @@ begin
     end if;
   end if;
   if p_batch is not null then
-    select approval_status into batch_status from place_approval_batches where id = p_batch;
+    select approval_status, dataset_key into batch_status, batch_dataset
+      from place_approval_batches where id = p_batch;
     if batch_status is distinct from 'approved' then
       raise exception 'refusing to promote unapproved batch' using errcode = 'P0001';
+    end if;
+    select approval_status into ds_status from place_datasets where dataset_key = batch_dataset;
+    if ds_status is distinct from 'approved' then
+      raise exception 'refusing to promote unapproved dataset %', batch_dataset using errcode = 'P0001';
+    end if;
+    if p_dataset is not null and p_dataset is distinct from batch_dataset then
+      raise exception 'refusing to promote batch %: dataset % does not match batch dataset %',
+        p_batch, p_dataset, batch_dataset using errcode = 'P0001';
+    end if;
+    select s.id, s.dataset_key into mismatch_id, mismatch_dataset
+      from place_staging s
+      where s.approval_batch_id = p_batch
+        and s.dataset_key is distinct from batch_dataset
+      limit 1;
+    if mismatch_id is not null then
+      raise exception 'refusing to promote batch %: staging row % belongs to dataset % not %',
+        p_batch, mismatch_id, mismatch_dataset, batch_dataset using errcode = 'P0001';
     end if;
   end if;
 
@@ -570,7 +591,7 @@ begin
     and s.setting is not null
     and s.duration is not null
     and (p_dataset is null or s.dataset_key = p_dataset)
-    and (p_batch is null or s.approval_batch_id = p_batch)
+    and (p_batch is null or (s.approval_batch_id = p_batch and s.dataset_key = batch_dataset))
     and not exists (
       select 1 from activities a
       where a.dataset_key = s.dataset_key and a.source_record_id = s.source_record_id

@@ -7,7 +7,7 @@ node db/place-loader.js --dir /path/to/json
 PLACE_DATABASE_URL=postgres://place_loader@127.0.0.1/place_staging_test node db/place-loader.js --dir /path/to/json
 ```
 
-`--apply` commits the staging rows on that local database. `--promote --dataset <key>` is refused unless that dataset's `approval_status` is `approved` (or the batch is approved). Promoted rows land in `activities` as `pending`. Review rows, excluded rows, rows that need a hand pin, and rows outside Utah stay in staging.
+`--apply` commits the staging rows on that local database. The loader does not promote and does not approve a dataset. Promotion is a SQL call, `place_staging_promote(dataset, batch)`. It refuses an unapproved dataset. A batch call also refuses when that batch's dataset is unapproved, and when any staging row in the batch belongs to a different dataset. Promoted rows land in `activities` as `pending`. Review rows, excluded rows, rows that need a hand pin, and rows outside Utah stay in staging.
 
 `016_nearby_keyset.sql` is main's nearby index migration and is left as main wrote it. `015_source_credit.sql` and `018_cost_bands_20.sql` are already on main. `db/migrate.js` applies `017_place_staging.sql` after `018`, even though the filename sorts earlier. `017` does not add `activities.cost_unit` and does not change the activities cost check.
 

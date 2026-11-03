@@ -3,12 +3,14 @@
    coordinates are refused. OSM may only raise a suspicious-pin flag. */
 "use strict";
 
+/* Whole words and host labels only. Bingham, Applegate, and Googleville
+   are place names, not Bing, Apple, or Google. */
 const BANNED = [
-  { code: "osm", test: /openstreetmap|\bosm\b/i },
-  { code: "nominatim", test: /nominatim/i },
-  { code: "google", test: /google/i },
-  { code: "apple", test: /apple/i },
-  { code: "bing", test: /bing/i }
+  { code: "osm", test: /\b(?:openstreetmap|osm)\b/i },
+  { code: "nominatim", test: /\bnominatim\b/i },
+  { code: "google", test: /\bgoogle\b/i },
+  { code: "apple", test: /\bapple\b/i },
+  { code: "bing", test: /\b(?:bing|virtualearth)\b/i }
 ];
 
 function bannedCoordinateSource(source) {

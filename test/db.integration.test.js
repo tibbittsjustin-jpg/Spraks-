@@ -627,6 +627,80 @@ async function exerciseCostBandPromote(pool) {
   );
 }
 
+async function exerciseBatchPromoteGuards(pool) {
+  async function dataset(key, status) {
+    await pool.query(
+      "insert into place_datasets (dataset_key, title, owner, license_code, credit_line, legal_ref, " +
+      "approval_status, priority, dedupe_radius_m, load_enabled, license_checked_on, license_info_seen) " +
+      "values ($1, $1, 'test', 'CC-BY-4.0', 'probe credit', 'test', $2, 1, 150, true, '2026-11-02', 'seen')",
+      [key, status]
+    );
+  }
+  async function stage(key, recordId, batchId) {
+    await pool.query(
+      "insert into place_staging (dataset_key, source_record_id, title, description, category, setting, " +
+      "cost, cost_band_new, duration, source_credit, link_flag, dedupe_radius_m, tag_review, dedupe_result, " +
+      "approval_batch_id) values ($1, $2, $2, '', 'Hiking & Nature', 'Outdoor', 'Free', 'Free', " +
+      "'Short (1-2 hrs)', 'probe credit', 'dataset', 150, false, 'new', $3)",
+      [key, recordId, batchId]
+    );
+  }
+  await dataset("promote_pending", "pending");
+  const pendingBatch = (await pool.query("select gen_random_uuid() as id")).rows[0].id;
+  await pool.query(
+    "insert into place_approval_batches (id, dataset_key, approval_status) values ($1, 'promote_pending', 'approved')",
+    [pendingBatch]
+  );
+  await stage("promote_pending", "pending-row", pendingBatch);
+  let unapproved = "";
+  try {
+    await pool.query("select place_staging_promote(null, $1)", [pendingBatch]);
+  } catch (err) {
+    unapproved = err.message || "";
+  }
+  const pendingLeft = await pool.query(
+    "select status from place_staging where dataset_key = 'promote_pending' and source_record_id = 'pending-row'"
+  );
+  check("a batch promote refuses an unapproved dataset",
+    unapproved.indexOf("refusing to promote unapproved dataset promote_pending") !== -1 &&
+    pendingLeft.rows[0] && pendingLeft.rows[0].status === "pending",
+    unapproved);
+
+  await dataset("promote_home", "approved");
+  await dataset("promote_other", "approved");
+  const mixedBatch = (await pool.query("select gen_random_uuid() as id")).rows[0].id;
+  await pool.query(
+    "insert into place_approval_batches (id, dataset_key, approval_status) values ($1, 'promote_home', 'approved')",
+    [mixedBatch]
+  );
+  await stage("promote_home", "home-row", mixedBatch);
+  await stage("promote_other", "other-row", mixedBatch);
+  let mismatch = "";
+  try {
+    await pool.query("select place_staging_promote(null, $1)", [mixedBatch]);
+  } catch (err) {
+    mismatch = err.message || "";
+  }
+  const mixed = await pool.query(
+    "select dataset_key, status from place_staging where approval_batch_id = $1 order by dataset_key",
+    [mixedBatch]
+  );
+  const promoted = await pool.query(
+    "select count(*)::int as n from activities where dataset_key in ('promote_home', 'promote_other')"
+  );
+  check("a batch promote refuses a row from a different dataset",
+    mismatch.indexOf("belongs to dataset promote_other not promote_home") !== -1 &&
+    mixed.rows.length === 2 && mixed.rows.every(row => row.status === "pending") &&
+    promoted.rows[0].n === 0,
+    mismatch);
+
+  await pool.query("delete from place_source_credits where dataset_key in ('promote_pending', 'promote_home', 'promote_other')");
+  await pool.query("delete from activities where dataset_key in ('promote_pending', 'promote_home', 'promote_other')");
+  await pool.query("delete from place_staging where dataset_key in ('promote_pending', 'promote_home', 'promote_other')");
+  await pool.query("delete from place_approval_batches where dataset_key in ('promote_pending', 'promote_home')");
+  await pool.query("delete from place_datasets where dataset_key in ('promote_pending', 'promote_home', 'promote_other')");
+}
+
 async function main() {
   if (!process.env.TEST_DATABASE_URL) {
     console.log("  SKIP db integration (TEST_DATABASE_URL unset)");
@@ -1596,6 +1670,7 @@ async function main() {
 
     await exerciseListSchema(pool);
     await exerciseCostBandPromote(pool);
+    await exerciseBatchPromoteGuards(pool);
   } catch (err) {
     check("integration suite", false, (err && (err.stack || err.message) || String(err)).slice(0, 500));
   } finally {

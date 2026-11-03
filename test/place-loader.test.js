@@ -309,6 +309,19 @@ check("promote refuses an unapproved dataset", migration.indexOf("refusing to pr
 check("cost_unit is on activities and staging", migration.indexOf("cost_unit") !== -1);
 check("016 is main's nearby index migration",
   fs.existsSync(path.join(__dirname, "..", "db", "migrations", "016_nearby_keyset.sql")));
+check("the loader does not accept promote or approve flags", () => {
+  let promote = "";
+  let approve = "";
+  try { loader.parseArgs(["--promote", "--dataset", "ugrc_parks"]); }
+  catch (err) { promote = err.code; }
+  try { loader.parseArgs(["--approve-dataset", "ugrc_parks"]); }
+  catch (err) { approve = err.code; }
+  const readme = fs.readFileSync(path.join(__dirname, "..", "db", "place-loader", "README.md"), "utf8");
+  const cli = fs.readFileSync(path.join(__dirname, "..", "db", "place-loader.js"), "utf8");
+  return promote === "cli_flag_removed" && approve === "cli_flag_removed" &&
+    readme.indexOf("--promote") === -1 && readme.indexOf("--approve-dataset") === -1 &&
+    cli.indexOf('arg === "--promote"') !== -1;
+});
 check("the loader refuses a remote database", () => {
   let code = "";
   try { loader.assertLocalDatabase("postgres://user:pw@db.supabase.co:5432/postgres"); }
@@ -356,6 +369,28 @@ check("museum and pool prices stay in review, and a state park fee is per car", 
     pool.costRequested === "$1-$20" && pool.tagReview === true &&
     missingFee.costRequested == null && missingFee.tagReview === true &&
     dayUse.costRequested === "$1-$20" && dayUse.costUnit === "per car";
+});
+check("Bingham Canyon is not a Bing source, and Bing Maps and bing.com are refused", () => {
+  const canyon = coords.acceptCoordinates(40.52, -112.15, "Bingham Canyon");
+  const gate = coords.acceptCoordinates(40.3, -111.7, "Applegate");
+  const ville = coords.acceptCoordinates(40.3, -111.7, "Googleville");
+  let maps = "";
+  let host = "";
+  let earth = "";
+  try { coords.acceptCoordinates(40.5, -112.1, "Bing Maps"); }
+  catch (err) { maps = err.code; }
+  try { coords.acceptCoordinates(40.5, -112.1, "bing.com"); }
+  catch (err) { host = err.code; }
+  try { coords.acceptCoordinates(40.5, -112.1, "virtualearth"); }
+  catch (err) { earth = err.code; }
+  return canyon.lat === 40.52 && canyon.suspiciousPin === false &&
+    gate.lat === 40.3 && ville.lat === 40.3 &&
+    maps === "rejected_coordinate_source" &&
+    host === "rejected_coordinate_source" &&
+    earth === "rejected_coordinate_source" &&
+    coords.bannedCoordinateSource("Bingham Canyon") == null &&
+    coords.bannedCoordinateSource("Bing Maps") === "bing" &&
+    coords.bannedCoordinateSource("bing.com") === "bing";
 });
 check("an OSM or Nominatim coordinate is refused", () => {
   let osm = "";

@@ -1,0 +1,2562 @@
+[
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-001 priority 10 | field_status verified_in_output | Local city/county parks (layer excludes state and federal parks)."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Outdoor"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-002 priority 10 | field_status verified_in_output | Park polygons are outdoor spaces."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "season:Spring",
+   "season:Summer",
+   "season:Fall",
+   "season:Winter"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-003 priority 10 | field_status verified_in_output | Local parks are open year-round, but winter appeal is unclear; review per rule sample."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-004 priority 10 | field_status verified_in_output | Local public parks have no entry fee. Special-use parks may charge (see TYPE rule)."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "time:Morning",
+   "time:Afternoon",
+   "time:Evening"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-005 priority 10 | field_status verified_in_output | Most city parks close at night (hours not in data), so Night is left off."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-006 priority 10 | field_status verified_in_output | A walk or picnic in a park is low key."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "stage:First Date",
+   "stage:Second/Third Date",
+   "stage:Serious Relationship"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-007 priority 10 | field_status verified_in_output | Public, free and low pressure: fits any stage."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "dateType:Solo/Couple",
+   "dateType:Double Date",
+   "dateType:Group Date"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-008 priority 10 | field_status verified_in_output | Open public space; any group size."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "food:false"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-009 priority 10 | field_status verified_in_output | No food service in the data; a picnic is optional, set in copy not in the flag."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "age21:false"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_parks-010 priority 10 | field_status verified_in_output | Public parks are not alcohol-centered."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "ACRES",
+  "match_value": "^[01](\\.\\d+)?$",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Quick (under 1 hr)"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range <2; match on the bare number text (strip $ and commas first) | rule ugrc_parks-011 priority 20 | field_status verified_in_output | fallback: Short (1-2 hrs) at 0.5 when ACRES is null/0 | Under 2 acres is a pocket park; a short stop."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "ACRES",
+  "match_value": "^([2-9]|[1-4]\\d)(\\.\\d+)?$",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Short (1-2 hrs)"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >=2 and <50; match on the bare number text (strip $ and commas first) | rule ugrc_parks-012 priority 20 | field_status verified_in_output | Typical neighborhood or community park visit."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "ACRES",
+  "match_value": "^([5-9]\\d|[1-9]\\d{2,})(\\.\\d+)?$",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Half-day (2-5 hrs)"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "numeric range >=50; match on the bare number text (strip $ and commas first) | rule ugrc_parks-013 priority 20 | field_status verified_in_output | Large parks can fill a half-day, but size alone doesn't prove it."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Regional Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-014 priority 20 | field_status verified_in_output | Large destination park."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "County Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-015 priority 20 | field_status verified_in_output | Named destination park."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Community Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-016 priority 20 | field_status verified_in_output | Amenity park."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "City Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-017 priority 20 | field_status verified_in_output | Named city park."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Neighborhood Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-018 priority 20 | field_status verified_in_output | Small local park; low novelty but valid."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-019 priority 20 | field_status verified_in_output | Generic TYPE (1,095 rows); fine for category, says nothing else."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Public Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-020 priority 20 | field_status verified_in_output | Generic TYPE."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Nature Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-021 priority 20 | field_status verified_in_output | Nature focus; could also be Hiking & Nature."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Linear Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-022 priority 20 | field_status verified_in_output | Linear parks are usually trail corridors; walk or bike."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Linear Park",
+  "match_type": "exact",
+  "filter_values": [
+   "vibe:Active",
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-023 priority 20 | field_status verified_in_output | Walking or biking a path."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "^(Ball\\ Park|Soccer)$",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Sports, Games & Rec"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-024 priority 20 | field_status verified_in_output | Sports fields; idea is a pickup game."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "^(Ball\\ Park|Soccer)$",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Active"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-025 priority 20 | field_status verified_in_output | Playing a sport."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Special Use Park",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.4,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_parks-026 priority 20 | field_status verified_in_output | Could be a skate park, splash pad, pool, cemetery or golf course; cost and fit vary."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Special Use Park",
+  "match_type": "exact",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.4,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_parks-027 priority 20 | field_status verified_in_output | Special-use sites may charge."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "^(Mini\\ Park|Green\\ Space|Public\\ Open\\ Space)$",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_parks-028 priority 20 | field_status verified_in_output | Pocket parks and open space are often too small or bare to be an outing; candidate for exclusion."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Equestrian",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Sports, Games & Rec"
+  ],
+  "confidence_score": 0.4,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_parks-029 priority 20 | field_status verified_in_output | Equestrian center; activity needs horses or an event; 1 row."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Campground",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Local Utah/Idaho Spots & Day Trips"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_parks-030 priority 20 | field_status verified_in_output | 1 row; camping may need Overnight and a fee."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "TYPE",
+  "match_value": "Campground",
+  "match_type": "exact",
+  "filter_values": [
+   "duration:Overnight"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_parks-031 priority 20 | field_status verified_in_output | Camping."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(cemetery|memorial gardens?)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "action:exclude"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule ugrc_parks-032 priority 40 | field_status verified_in_output | Cemeteries are not an activity listing."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(splash ?pad|tot ?lot|playground|kids?\\b)",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule ugrc_parks-033 priority 40 | field_status verified_in_output | Child-focused feature; conflicts with 18+ framing."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(dog park|off[- ]leash)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "action:exclude"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-034 priority 40 | field_status verified_in_output | Dog parks are out (Justin, Nov 2)."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(skate ?park|bike park|pump track)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Sports, Games & Rec"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-035 priority 30 | field_status verified_in_output | Skate or bike park."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(skate ?park|bike park|pump track)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Active",
+   "vibe:Adventurous"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-036 priority 30 | field_status verified_in_output | Skate or bike park."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(golf|disc golf)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Sports, Games & Rec"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule ugrc_parks-037 priority 30 | field_status verified_in_output | Golf course or disc golf; a course may charge (disc golf usually free)."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(pond|lake|reservoir|beach|river|marina)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Water Activities"
+  ],
+  "confidence_score": 0.55,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_parks-038 priority 30 | field_status verified_in_output | Water in the name; may just be a park beside water."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(garden|arboretum|botanical)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-039 priority 30 | field_status verified_in_output | Gardens. No Romantic default (neutral activities framing)."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(sports? (complex|park)|fields?|ball ?park|softball|baseball)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Sports, Games & Rec"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-040 priority 30 | field_status verified_in_output | Sports complex."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(trail|parkway|greenway)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-041 priority 31 | field_status verified_in_output | Trail corridor named as a park; beats the water-name rule (e.g. Jordan River Parkway)."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)^(park|ball park|sports park|public park|city park|open space|green space)$",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold_generic_name"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule ugrc_parks-042 priority 40 | field_status verified_in_output | 478 of 2,104 rows (23%) are named only 'Park' (406), 'Ball Park' (40), 'Sports Park' (27), 'Public Park' (17) etc. A card titled 'Park' is not usable; needs a name rule (e.g. 'Park in <City>') or exclusion."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(detention|retention|debris basin|well ?(house|site)|water tank|tank site)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "action:exclude"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule ugrc_parks-043 priority 40 | field_status verified_in_output | Stormwater and utility parcels (about 20 rows by name) are not outings. 'Canal' is NOT excluded: canal trails are real walking paths (sample: Canal Trail, Saratoga Springs)."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(school|elementary|church|seminary)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule ugrc_parks-044 priority 40 | field_status verified_in_output | School or church grounds: access may be limited."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(pool|aquatic|swim)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Water Activities"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-045 priority 35 | field_status verified_in_output | Public pool; seasonal and ticketed."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(pool|aquatic|swim)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$1-$20"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule ugrc_parks-046 priority 35 | field_status verified_in_output | Pool admission likely under $20 per person; unverified per city."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "(?i)\\b(college|university)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-047 priority 30 | field_status verified_in_output | Campus grounds are in (Justin, Nov 2). Normal park tags."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "NAME",
+  "match_value": "\\s/|/\\s|--",
+  "match_type": "regex",
+  "filter_values": [
+   "action:clean_title"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-048 priority 40 | field_status verified_in_output | Slash or double-dash names (e.g. 'Forrester Acres/ Richard Hansen Baseball Field') need a title cleanup; no dashes in titles."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "STATUS",
+  "match_value": "^(Proposed|Planned|Closed)$",
+  "match_type": "regex",
+  "filter_values": [
+   "action:exclude"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_parks-049 priority 40 | field_status verified_in_source_not_output | Drop Proposed, Planned and Closed parks. pull_anytime.py already skips them (line 101), so the output and the sample contain none; the loader must still apply this rule because STATUS is not carried into the output."
+ },
+ {
+  "dataset": "ugrc_parks",
+  "match_field": "CITY",
+  "match_value": "^\\s*$",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "field missing or empty | rule ugrc_parks-050 priority 40 | field_status verified_in_output | No city: city must come from the SGID polygon lookup (Research 2.2 step 3)."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-001 priority 10 | field_status verified_in_output | A trailhead is a hike or ride start."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Outdoor"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-002 priority 10 | field_status verified_in_output | Outdoor by definition."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "season:Spring",
+   "season:Summer",
+   "season:Fall"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-003 priority 10 | field_status verified_in_output | fallback: Spring|Summer|Fall at 0.6 | Many Utah trailheads are snowbound or gated in winter; SeasonalRestriction would settle it but isn't in the output."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-004 priority 10 | field_status verified_in_output | fallback: Free at 0.6 | Most trailheads are free, but canyon fee areas (USFS/NPS/State) exist and the data doesn't say."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Half-day (2-5 hrs)"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-005 priority 10 | field_status verified_in_output | Hike length is unknown; half-day is the median guess."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "time:Morning",
+   "time:Afternoon"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-006 priority 10 | field_status verified_in_output | Daylight hiking."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Active",
+   "vibe:Adventurous"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-007 priority 10 | field_status verified_in_output | Hiking."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "stage:First Date",
+   "stage:Second/Third Date",
+   "stage:Serious Relationship"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-008 priority 10 | field_status verified_in_output | Any stage."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "dateType:Solo/Couple",
+   "dateType:Double Date",
+   "dateType:Group Date"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-009 priority 10 | field_status verified_in_output | Any group size."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "food:false"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-010 priority 10 | field_status verified_in_output | No food."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "age21:false"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule ugrc_trailheads-011 priority 10 | field_status verified_in_output | Not alcohol-centered."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "PrimaryName",
+  "match_value": "(?i)\\b(BST|JRP)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "action:expand_title_abbreviation"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule ugrc_trailheads-012 priority 40 | field_status verified_in_output | BST = Bonneville Shoreline Trail and JRP = Jordan River Parkway are likely but unverified; 29 rows. Not a filter: a title hold."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "PrimaryName",
+  "match_value": "(?i)\\b(resort|ski)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Winter & Snow Adventures"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule ugrc_trailheads-014 priority 30 | field_status verified_in_output | Trailhead at a ski resort; may be a summer trail."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "PrimaryName",
+  "match_value": "(?i)\\b(lake|reservoir|river|falls?|springs?)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Active",
+   "vibe:Adventurous",
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_trailheads-015 priority 30 | field_status verified_in_output | Water destination softens the vibe; unverified."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "PrimaryName",
+  "match_value": "(?i)\\b(park|nature center|parkway)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Short (1-2 hrs)"
+  ],
+  "confidence_score": 0.55,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_trailheads-016 priority 30 | field_status verified_in_output | Urban park or parkway trailhead; likely a shorter walk."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "PrimaryName",
+  "match_value": "(?i)\\b(peak|summit|mountain|rim|pass|basin)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Full day"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule ugrc_trailheads-017 priority 30 | field_status verified_in_output | Peaks and rims are often long; unverified."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "PrimaryName",
+  "match_value": "(?i)\\b(OHV|ATV|jeep)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Outdoor Adventure & Extreme Sports"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule ugrc_trailheads-018 priority 30 | field_status verified_in_output | Motorized trail; needs a vehicle."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "location",
+  "match_value": "UT",
+  "match_type": "exact",
+  "filter_values": [
+   "action:city_polygon_lookup"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_trailheads-019 priority 40 | field_status verified_in_output | All 568 rows have location 'UT' only; city comes from the SGID municipal polygon lookup (Research 2.2 step 3). Automated, not a review."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "SeasonalRestriction",
+  "match_value": "\\S",
+  "match_type": "regex",
+  "filter_values": [
+   "action:season_from_text"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule ugrc_trailheads-021 priority 30 | field_status verified_in_source_not_output | Real Hub field; values not seen yet. If it says closed in winter, drop Winter; parse rules TBD once Research keeps the field."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "Features",
+  "match_value": "(values unseen)",
+  "match_type": "keyword",
+  "filter_values": [
+   "setting:Outdoor"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule ugrc_trailheads-022 priority 30 | field_status verified_in_source_not_output | Real Hub field; values not seen (e.g. restrooms/parking?). Placeholder until Research keeps it."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "InfoURL",
+  "match_value": "\\S",
+  "match_type": "regex",
+  "filter_values": [
+   "action:use_infourl_as_link"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule ugrc_trailheads-023 priority 30 | field_status verified_in_source_not_output | Land manager page beats the Hub item page (Research 2.2 step 7). Not a filter."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-001 priority 10 | field_status verified_in_output | Museums are local attractions."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Indoor"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-002 priority 10 | field_status verified_in_output | Most museums are indoors; gardens, zoos, living history and open-air cabins are exceptions (rules below)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "season:Spring",
+   "season:Summer",
+   "season:Fall",
+   "season:Winter"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-003 priority 10 | field_status verified_in_output | Indoor museums are year-round; small seasonal museums exist (hours not in data)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$1-$20"
+  ],
+  "confidence_score": 0.4,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "dataset default | rule museums-004 priority 10 | field_status verified_in_output | fallback: route to review; no auto default | No admission data in the output. Many small history museums are free or donation, larger ones charge more."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Short (1-2 hrs)"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-005 priority 10 | field_status verified_in_output | Typical museum visit."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "time:Morning",
+   "time:Afternoon"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-006 priority 10 | field_status verified_in_output | Museum hours are daytime; hours not in data."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-007 priority 10 | field_status verified_in_output | Low-key browsing."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "stage:First Date",
+   "stage:Second/Third Date",
+   "stage:Serious Relationship"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-008 priority 10 | field_status verified_in_output | Any stage."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "dateType:Solo/Couple",
+   "dateType:Double Date",
+   "dateType:Group Date"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-009 priority 10 | field_status verified_in_output | Any group size."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "food:false"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-010 priority 10 | field_status verified_in_output | No food service in data."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "age21:false"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule museums-011 priority 10 | field_status verified_in_output | Not alcohol-centered."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "History",
+  "match_type": "exact",
+  "filter_values": [
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-012 priority 20 | field_status verified_in_source_not_output | History museum (185 listings)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "Art",
+  "match_type": "exact",
+  "filter_values": [
+   "vibe:Chill",
+   "vibe:Creative"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-013 priority 20 | field_status verified_in_source_not_output | Art museum (22)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "^(Paleontology|Natural\\ History|Geology|Science|Archaeology|Anthropology|Mining|Railroad|Aviation|Military|Cultural)$",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-014 priority 20 | field_status verified_in_source_not_output | Subject museums."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "Planetarium",
+  "match_type": "exact",
+  "filter_values": [
+   "vibe:Chill",
+   "vibe:Cozy"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-015 priority 20 | field_status verified_in_source_not_output | Planetarium shows; often ticketed."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "Planetarium",
+  "match_type": "exact",
+  "filter_values": [
+   "time:Afternoon",
+   "time:Evening"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule museums-016 priority 20 | field_status verified_in_source_not_output | Shows often run later; unverified per venue."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "Garden",
+  "match_type": "exact",
+  "filter_values": [
+   "setting:Outdoor"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-017 priority 20 | field_status verified_in_source_not_output | Gardens (6)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "Garden",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule museums-018 priority 20 | field_status verified_in_source_not_output | Garden walk could also stay in Culture."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "Garden",
+  "match_type": "exact",
+  "filter_values": [
+   "season:Spring",
+   "season:Summer",
+   "season:Fall"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-019 priority 20 | field_status verified_in_source_not_output | Gardens peak outside winter."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "^(Zoological|Aquarium)$",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Both"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-020 priority 20 | field_status verified_in_source_not_output | Zoos are outdoor, aquariums indoor; Both is the safe value."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "^(Zoological|Aquarium)$",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill",
+   "vibe:Silly"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-021 priority 20 | field_status verified_in_source_not_output | Animals; light fun."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "^(Zoological|Aquarium)$",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Half-day (2-5 hrs)"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule museums-022 priority 20 | field_status verified_in_source_not_output | Zoo visits run longer."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "Living History",
+  "match_type": "exact",
+  "filter_values": [
+   "setting:Both"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-023 priority 20 | field_status verified_in_source_not_output | Indoor exhibits plus outdoor grounds."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "Children's",
+  "match_type": "exact",
+  "filter_values": [
+   "vibe:Silly",
+   "vibe:Creative"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule museums-024 priority 30 | field_status verified_in_source_not_output | Children's museums are in (Justin, Nov 2). Hands-on exhibits; Silly or Creative fits an adult visit."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "museum_type",
+  "match_value": "^\\s*$",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "field missing or empty | rule museums-025 priority 10 | field_status verified_in_source_not_output | No type captured."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\b(DUP|daughters of utah pioneers|relic hall|pioneer cabin|cabin)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule museums-026 priority 30 | field_status verified_in_output | DUP relic halls and cabins are often free/donation with limited hours; unverified, and some cabins are viewable outside only."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\(DUP\\)|\\bDUP\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "action:clean_title"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule museums-027 priority 40 | field_status verified_in_output | Expand or drop the DUP tag in the title (82 names contain 'DUP')."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)dinosaur park|sculpture (park|garden)|open[- ]air",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Both"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-028 priority 30 | field_status verified_in_output | Outdoor exhibits (sample: Ogden George S. Eccles Dinosaur Park)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i),? inc\\.?$|--|\\s/|/\\s",
+  "match_type": "regex",
+  "filter_values": [
+   "action:clean_title"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-029 priority 40 | field_status verified_in_output | Strip ', Inc', double dashes and odd slashes from titles."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\bstate park\\b|national park|national monument|\\b(visitor cent(er|re))\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "action:dedupe_prefer_stateparks_nps"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule museums-030 priority 40 | field_status verified_in_output | Museum listings that are part of a state park or NPS unit (sample: Frontier Homestead, Camp Floyd/Stage Coach Inn, Capitol Reef Visitor Center Museum) merge into the State Parks/NPS row per Research's priority."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\b(rehabilitation|rehab|sanctuary|research cent(er|re))\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule museums-031 priority 40 | field_status verified_in_output | May not be open to drop-in visitors (sample: Wildlife Rehabilitation Center of Northern Utah)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\b(visitor cent(er|re))\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Local Utah/Idaho Spots & Day Trips"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule museums-032 priority 30 | field_status verified_in_output | Visitor centers are trip stops; may duplicate an NPS/State Parks row."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\b(gallery|arts? cent(er|re)|fine arts?)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill",
+   "vibe:Creative"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-033 priority 30 | field_status verified_in_output | Art gallery."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\b(planetarium)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill",
+   "vibe:Cozy"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-034 priority 30 | field_status verified_in_output | Planetarium (also if type missing)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\b(university|BYU|college)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "dateType:Solo/Couple",
+   "dateType:Double Date",
+   "dateType:Group Date"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-035 priority 30 | field_status verified_in_output | Campus museums: usually free; cost unverified."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\b(children'?s|kids|discovery (gateway|center))\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule museums-036 priority 30 | field_status verified_in_output | Children's museums are in (Justin, Nov 2). Same category as other museums. Plain 'discovery' is not matched (sample: St George Dinosaur Discovery Site is a fossil site)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "name",
+  "match_value": "(?i)\\b(winery|brewery|distillery|saloon|bar)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "age21:true"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule museums-037 priority 40 | field_status verified_in_output | Alcohol venue in a museum listing: age21 plus age_21_gate hold."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "location",
+  "match_value": "(?i)^(?!.*\\b(utah|UT)\\b)",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "negated match: field does NOT match (?i)\\b(utah|UT)\\b | rule museums-038 priority 40 | field_status verified_in_output | Address not in Utah or missing."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Local Utah/Idaho Spots & Day Trips"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-001 priority 10 | field_status verified_in_output | State parks are day-trip destinations."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Outdoor"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-002 priority 10 | field_status verified_in_output | Mostly outdoor; museums are the exception."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "season:Spring",
+   "season:Summer",
+   "season:Fall",
+   "season:Winter"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-003 priority 10 | field_status verified_in_output | Most are open year-round (hours not captured); water parks peak in summer."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$1-$20"
+  ],
+  "confidence_score": 0.4,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "dataset default | rule stateparks-004 priority 10 | field_status verified_in_output | fallback: route to review | Day-use fees are per vehicle and vary by park; not captured (Antelope Island $15 per car was seen in an earlier task; others unread). Needs a per-park fee value from the park page."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Half-day (2-5 hrs)"
+  ],
+  "confidence_score": 0.65,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-005 priority 10 | field_status verified_in_output | Usually a drive plus a few hours."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "time:Morning",
+   "time:Afternoon"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-006 priority 10 | field_status verified_in_output | Day use; some parks stay open to 10 p.m. (e.g. Antelope Island 6 a.m.–10 p.m.), not captured."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Adventurous",
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-007 priority 10 | field_status verified_in_output | Scenic outing."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "stage:First Date",
+   "stage:Second/Third Date",
+   "stage:Serious Relationship"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-008 priority 10 | field_status verified_in_output | Any stage; longer drives suit later stages but not enough to restrict."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "dateType:Solo/Couple",
+   "dateType:Double Date",
+   "dateType:Group Date"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-009 priority 10 | field_status verified_in_output | Any group size."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "food:false"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-010 priority 10 | field_status verified_in_output | No food in data."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "age21:false"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule stateparks-011 priority 10 | field_status verified_in_output | Not alcohol-centered."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\bmuseum\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule stateparks-012 priority 30 | field_status verified_in_output | Park museum (Anasazi, Camp Floyd, Edge of the Cedars, Territorial Statehouse, Field House, Fremont Indian, Frontier Homestead)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\bmuseum\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Both"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule stateparks-013 priority 30 | field_status verified_in_output | Museum plus grounds; Indoor if no grounds (review)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\bmuseum\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Short (1-2 hrs)"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule stateparks-014 priority 30 | field_status verified_in_output | Museum visit."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\bmuseum\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule stateparks-015 priority 30 | field_status verified_in_output | Museum visit."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "hours (park page 'Hours :' line)",
+  "match_value": "(?i)10 p\\.m\\.",
+  "match_type": "regex",
+  "filter_values": [
+   "time:Morning",
+   "time:Afternoon",
+   "time:Evening"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule stateparks-016 priority 20 | field_status verified_in_source_not_output | Park pages carry an 'Hours :' line (Goblin Valley and Antelope Island: 6 a.m. – 10 p.m.). Not in stateparks.json today."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "day_use_fee (park 'Park Fees' page)",
+  "match_value": "^(0\\.\\d*[1-9]\\d*|(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)(\\.\\d+)?|20(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$1-$20"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >0 and <=20; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-017 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "day_use_fee (park 'Park Fees' page)",
+  "match_value": "^(20\\.\\d*[1-9]\\d*|(21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39)(\\.\\d+)?|40(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$21-$40"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >20 and <=40; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-018 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "day_use_fee (park 'Park Fees' page)",
+  "match_value": "^(40\\.\\d*[1-9]\\d*|(41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)(\\.\\d+)?|60(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$41-$60"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >40 and <=60; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-019 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "day_use_fee (park 'Park Fees' page)",
+  "match_value": "^(60\\.\\d*[1-9]\\d*|(61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79)(\\.\\d+)?|80(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$61-$80"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >60 and <=80; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-020 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "day_use_fee (park 'Park Fees' page)",
+  "match_value": "^(80\\.\\d*[1-9]\\d*|(81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99)(\\.\\d+)?|100(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$81-$100"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >80 and <=100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-021 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "day_use_fee (park 'Park Fees' page)",
+  "match_value": "^(100\\.\\d*[1-9]\\d*|(10[1-9]|1[1-9]\\d|[2-9]\\d\\d|[1-9]\\d{3,})(\\.\\d+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Over $100"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-022 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "day_use_fee (park 'Park Fees' page)",
+  "match_value": "^(0\\.\\d*[1-9]\\d*|[1-9]\\d*(\\.\\d+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost_unit:per car"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cost_unit is a proposed NEW non-filter field (display label only), not in filters.js | numeric range >0; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-023 priority 20 | field_status unverified (fee page not read) | State park day-use fees are per vehicle; show the per car label (Justin, Nov 2)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\b(monument|heritage park|old iron town|homestead)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.65,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule stateparks-024 priority 30 | field_status verified_in_output | Historic site; Bridal Veil Falls is a 'State Monument' but is a waterfall (conflict: see the Bridal Veil rule)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)bridal veil falls",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule stateparks-025 priority 35 | field_status verified_in_output | Waterfall, despite 'State Monument' in the name."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\b(lake|reservoir|bay|willard|deer creek|jordanelle|rockport|hyrum|yuba|starvation|sand hollow|quail creek|gunlock|scofield|otter creek|piute|red fleet|steinaker|huntington|millsite|lost creek|east canyon|echo|palisade|bear lake)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Water Activities"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule stateparks-026 priority 30 | field_status verified_in_output | Reservoir or lake park (name list from the 50 rows; water use unverified per park)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\b(lake|reservoir|bay|willard|deer creek|jordanelle|rockport|hyrum|yuba|starvation|sand hollow|quail creek|gunlock|scofield|otter creek|piute|red fleet|steinaker|huntington|millsite|lost creek|east canyon|echo|palisade|bear lake)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "season:Spring",
+   "season:Summer",
+   "season:Fall"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule stateparks-027 priority 30 | field_status verified_in_output | Water parks peak in warm months; still open in winter."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\bOHV\\b|coral pink sand dunes",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Outdoor Adventure & Extreme Sports"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule stateparks-028 priority 30 | field_status verified_in_output | OHV riding needs a vehicle; dunes allow OHV and hiking."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)flight park",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Outdoor Adventure & Extreme Sports"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule stateparks-029 priority 30 | field_status verified_in_output | Paragliding/hang gliding site; watching is free, flying needs a pilot."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)rail trail",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule stateparks-030 priority 30 | field_status verified_in_output | Rail trail: walk or bike."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)rail trail",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule stateparks-031 priority 30 | field_status verified_in_output | Trail access is likely free, unlike per-vehicle parks; unverified until the fee page is read."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)goosenecks|overlook",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Short (1-2 hrs)"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule stateparks-032 priority 30 | field_status verified_in_output | Overlook park; a short stop unless you stay for stars."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\b(goblin valley|dead horse point|kodachrome|goosenecks|snow canyon|escalante petrified forest|antelope island|great salt lake|utahraptor|danger cave)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Local Utah/Idaho Spots & Day Trips"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule stateparks-033 priority 30 | field_status verified_in_output | Scenic/landmark parks."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "name",
+  "match_value": "(?i)\\b(goblin valley|dead horse point|antelope island|kodachrome|goosenecks)\\b",
+  "match_type": "regex",
+  "filter_values": [
+   "time:Morning",
+   "time:Afternoon",
+   "time:Evening",
+   "time:Night"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "rule stateparks-034 priority 30 | field_status verified_in_output | Dark-sky parks: star viewing is a real use. Antelope Island and Goblin Valley certification and hours must be checked per park (only Antelope Island verified today)."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "lat",
+  "match_value": "^\\s*$",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "field missing or empty | rule stateparks-035 priority 40 | field_status verified_in_output | No pin parsed from the page; Utah to hand-pin."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Local Utah/Idaho Spots & Day Trips"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-001 priority 10 | field_status verified_in_output | Monuments and recreation areas are day trips."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Outdoor"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-002 priority 10 | field_status verified_in_output | Park units."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "season:Spring",
+   "season:Summer",
+   "season:Fall",
+   "season:Winter"
+  ],
+  "confidence_score": 0.55,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "dataset default | rule nps-003 priority 10 | field_status verified_in_output | Open year-round mostly; high-elevation units close roads in winter (Cedar Breaks, Timpanogos Cave tours)."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Full day"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-004 priority 10 | field_status verified_in_output | Most Utah units are a long drive from the Wasatch Front."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "time:Morning",
+   "time:Afternoon"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-005 priority 10 | field_status verified_in_output | Daylight visit."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Adventurous"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-006 priority 10 | field_status verified_in_output | Big scenic trip."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "stage:First Date",
+   "stage:Second/Third Date",
+   "stage:Serious Relationship"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-007 priority 10 | field_status verified_in_output | Any stage."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "dateType:Solo/Couple",
+   "dateType:Double Date",
+   "dateType:Group Date"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-008 priority 10 | field_status verified_in_output | Any group size."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "food:false"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-009 priority 10 | field_status verified_in_output | No food."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "*",
+  "match_value": ".*",
+  "match_type": "regex",
+  "filter_values": [
+   "age21:false"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "dataset default | rule nps-010 priority 10 | field_status verified_in_output | Not alcohol-centered."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^(0(\\.0+)?|does not charge an entrance fee)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule nps-011 priority 20 | field_status verified_in_source_not_output | From /<code>/planyourvisit/fees.htm. Timpanogos Cave has no entrance fee but cave tours are ticketed, so it needs review."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^(0\\.\\d*[1-9]\\d*|(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)(\\.\\d+)?|20(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$1-$20"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >0 and <=20; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-012 priority 20 | field_status verified_in_source_not_output | Per-car fee in band. Today: Capitol Reef, Golden Spike, Hovenweep, Natural Bridges ($20 per car). Cents round up to the next dollar."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^(20\\.\\d*[1-9]\\d*|(21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39)(\\.\\d+)?|40(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$21-$40"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >20 and <=40; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-013 priority 20 | field_status verified_in_source_not_output | Per-car fee in band. Today: Arches, Bryce, Canyonlands, Cedar Breaks, Dinosaur, Glen Canyon, Zion ($25 to $35 per car). Cents round up to the next dollar."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^(40\\.\\d*[1-9]\\d*|(41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)(\\.\\d+)?|60(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$41-$60"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >40 and <=60; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-014 priority 20 | field_status verified_in_source_not_output | Per-car fee in band; none of the 17 units today. Cents round up to the next dollar."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^(60\\.\\d*[1-9]\\d*|(61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79)(\\.\\d+)?|80(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$61-$80"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >60 and <=80; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-015 priority 20 | field_status verified_in_source_not_output | Per-car fee in band; none of the 17 units today. Cents round up to the next dollar."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^(80\\.\\d*[1-9]\\d*|(81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99)(\\.\\d+)?|100(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$81-$100"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >80 and <=100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-016 priority 20 | field_status verified_in_source_not_output | Per-car fee in band; none of the 17 units today. Cents round up to the next dollar."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^(100\\.\\d*[1-9]\\d*|(10[1-9]|1[1-9]\\d|[2-9]\\d\\d|[1-9]\\d{3,})(\\.\\d+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Over $100"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "numeric range >100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-017 priority 20 | field_status verified_in_source_not_output | Per-car fee in band; none of the 17 units today. Cents round up to the next dollar."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^(0\\.\\d*[1-9]\\d*|[1-9]\\d*(\\.\\d+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost_unit:per car"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cost_unit is a proposed NEW non-filter field (display label only), not in filters.js | numeric range >0; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-018 priority 20 | field_status verified_in_source_not_output | NPS Private Vehicle fees are per car; show the per car label (Justin, Nov 2). Free units get no label."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "private_vehicle_fee",
+  "match_value": "^\\s*$",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.4,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "field missing or empty | rule nps-019 priority 20 | field_status verified_in_source_not_output | fallback: route to review | No Private Vehicle line on the fees page (historic trails, Rainbow Bridge, Mormon Pioneer)."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "name",
+  "match_value": "(?i)national park$",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Big Bucket-List Experiences"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule nps-020 priority 30 | field_status verified_in_output | Arches, Bryce, Canyonlands, Capitol Reef, Zion."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "name",
+  "match_value": "(?i)national monument$",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Local Utah/Idaho Spots & Day Trips"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule nps-021 priority 30 | field_status verified_in_output | Monuments."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "name",
+  "match_value": "(?i)national monument$",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Half-day (2-5 hrs)"
+  ],
+  "confidence_score": 0.55,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule nps-022 priority 30 | field_status verified_in_output | Smaller units; drive time varies."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "name",
+  "match_value": "(?i)national recreation area",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Water Activities"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "rule nps-023 priority 30 | field_status verified_in_output | Glen Canyon NRA is Lake Powell; boating, but also overlooks."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "name",
+  "match_value": "(?i)national historical park",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "rule nps-024 priority 30 | field_status verified_in_output | Golden Spike: history site."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "name",
+  "match_value": "(?i)national historic trail",
+  "match_type": "regex",
+  "filter_values": [
+   "action:exclude"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule nps-025 priority 40 | field_status verified_in_output | Historic trails span several states, have no single place or pin (location 'Santa Fe, NM'). Not a place listing; possible later as specific Utah trail sites."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "name",
+  "match_value": "(?i)timpanogos cave",
+  "match_type": "regex",
+  "filter_values": [
+   "duration:Half-day (2-5 hrs)"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "rule nps-026 priority 35 | field_status verified_in_output | Cave tour plus a steep hike; seasonal and ticketed (fees page: no entrance fee)."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "location",
+  "match_value": "^(?!.*, UT$)",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "negated match: field does NOT match , UT$ | rule nps-027 priority 40 | field_status verified_in_output | Office address is outside Utah (Dinosaur CO, Glen Canyon/Rainbow Bridge Page AZ, Hovenweep Cortez CO). Pin must be the Utah part of the unit."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "source_url",
+  "match_value": "^(?!.*^https://www\\.nps\\.gov/)",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold_link_not_nps_gov"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "negated match: field does NOT match ^https://www\\.nps\\.gov/ | rule nps-028 priority 40 | field_status verified_in_output | NPS rows may only link to nps.gov pages (Legal: facts plus link). Any other host goes to review. All 17 current rows are https://www.nps.gov/<code>/index.htm."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "lat",
+  "match_value": "^\\s*$",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "field missing or empty | rule nps-029 priority 40 | field_status verified_in_output | nps.json has no coordinates for any unit; Utah must pin each (17 rows)."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "leisure=park",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Picnics & Parks"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-001 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Same as Research's example."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "highway=trailhead",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-002 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Trailhead node."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "tourism=museum",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-003 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Museum."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "tourism=viewpoint",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Local Utah/Idaho Spots & Day Trips"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-004 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Scenic stop; quick visit."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "leisure=garden",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-005 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Private gardens are tagged too; check access=*."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "amenity=theatre",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Dancing & Live Entertainment"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-006 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Venue, not an event; idea is 'see a show'."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "amenity=cinema",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Movies & Shows"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-007 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Cinema."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "leisure=bowling_alley",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Sports, Games & Rec"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-008 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Bowling."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "leisure=miniature_golf",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Sports, Games & Rec"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-009 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Mini golf."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "leisure=escape_game",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Games, Contests & Scavenger Hunts"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-010 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Escape room."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "sport=climbing + leisure=sports_centre",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Outdoor Adventure & Extreme Sports"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-011 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Climbing gym."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "tourism=zoo / tourism=aquarium",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.75,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-012 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Zoo or aquarium."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "amenity=ice_cream / amenity=cafe",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Cooking, Food & Eating Challenges"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-013 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Food spot: food=true; huge count, low novelty."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "amenity=bar / amenity=pub / craft=brewery / amenity=nightclub",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Dancing & Live Entertainment"
+  ],
+  "confidence_score": 0.6,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-014 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. age21=true plus age_21_gate hold (Research 2.2 step 5)."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "leisure=playground / amenity=kindergarten / leisure=water_park(kids)",
+  "match_type": "keyword",
+  "filter_values": [
+   "action:exclude"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-015 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Child-focused; 18+ framing."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "leisure=dog_park",
+  "match_type": "keyword",
+  "filter_values": [
+   "action:exclude"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-016 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Dog parks are out (Justin, Nov 2)."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "amenity=place_of_worship / landuse=cemetery / amenity=grave_yard",
+  "match_type": "keyword",
+  "filter_values": [
+   "action:exclude"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-017 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Not an activity listing."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "leisure=pitch / leisure=sports_centre (no sport tag)",
+  "match_type": "keyword",
+  "filter_values": [
+   "category:Sports, Games & Rec"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-018 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Too generic."
+ },
+ {
+  "dataset": "osm",
+  "match_field": "osm_tags",
+  "match_value": "shop=*",
+  "match_type": "keyword",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.4,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "OSM phase 2 sketch, tags unverified, ODbL not cleared by Legal | rule osm-019 priority 20 | field_status unverified (OSM not cleared; tag counts unknown) | Phase 2 sketch. Shops: only via curated rules (e.g. Mall & Store Mischief); default hold."
+ }
+]

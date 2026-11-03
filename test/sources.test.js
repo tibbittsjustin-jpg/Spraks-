@@ -56,6 +56,9 @@ const UGRC_VIA = ", via UGRC SGID · CC BY 4.0 · data modified";
 const UGRC_SGID_INTRO_TEMPLATE = "Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID). Data Sources: UGRC SGID (data modified). Layers used: {list each layer title, linked to its dataset page}. Licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Changes made by Jaderoo: records filtered to activity types, polygons and lines reduced to points, trail segments combined by trail name, fields renamed and reformatted, and our own short summaries added. Neither UGRC nor the State of Utah endorses Jaderoo.";
 const UGRC_SGID_DISCLAIMER = "UGRC disclaimer (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\"";
 const UGRC_SGID_GNIS = "GNIS place names originate from the U.S. Geological Survey Geographic Names Information System. Credit: U.S. Geological Survey.";
+const ADDRESS_POINTS_DATASET = "https://opendata.gis.utah.gov/datasets/3f4f7a8efcd147febeca8bacaea67a14_0";
+const EVENT_LOCATIONS_LEAD = "Event locations (geocoding).";
+const EVENT_LOCATIONS_PAGE = "Event locations (geocoding). Map locations for event addresses are calculated by matching each venue address against Utah Address Points, a dataset in the Utah Geospatial Resource Center (UGRC) State Geographic Information Database (SGID), https://opendata.gis.utah.gov/datasets/3f4f7a8efcd147febeca8bacaea67a14_0, licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Data Sources: UGRC SGID (data modified). Changes we made: we keep only the matched location, converted to latitude/longitude, and don't show or republish the address list. Locations may be approximate. Neither UGRC nor the State of Utah endorses Jaderoo.";
 const GNIS_USGS_CREDIT = "Credit: U.S. Geological Survey.";
 const GNIS_ACCESS = "Check access and conditions before you go.";
 const GNIS_NOTE = GNIS_USGS_CREDIT + " " + GNIS_ACCESS;
@@ -89,6 +92,21 @@ function visibleText(html) {
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&amp;/g, "&");
+}
+
+function occurrences(haystack, needle) {
+  const text = String(haystack || "");
+  const find = String(needle || "");
+  if (!find) return 0;
+  let count = 0;
+  let from = 0;
+  while (from <= text.length) {
+    const at = text.indexOf(find, from);
+    if (at === -1) break;
+    count++;
+    from = at + find.length;
+  }
+  return count;
 }
 
 function walkText(node) {
@@ -312,6 +330,11 @@ section("round 8 credit lines and sources blocks", () => {
   check("the new UGRC block does not repeat Utah Trailheads", intro.indexOf("Utah Trailheads") === -1);
   check("round 8 disclaimer matches the module", sources.UGRC_SGID_DISCLAIMER === UGRC_SGID_DISCLAIMER);
   check("round 8 GNIS origin line matches the module", sources.UGRC_SGID_GNIS === UGRC_SGID_GNIS);
+  check("event locations paragraph matches the module",
+    sources.EVENT_LOCATIONS_PAGE === EVENT_LOCATIONS_PAGE &&
+    sources.EVENT_LOCATIONS_LEAD === EVENT_LOCATIONS_LEAD &&
+    sources.ADDRESS_POINTS_DATASET === ADDRESS_POINTS_DATASET &&
+    EVENT_LOCATIONS_PAGE.indexOf(EVENT_LOCATIONS_LEAD) === 0);
   check("GNIS carries the USGS credit and the access caution",
     sources.GNIS_USGS_CREDIT === GNIS_USGS_CREDIT &&
     sources.GNIS_ACCESS === GNIS_ACCESS &&
@@ -533,6 +556,29 @@ function main() {
       check("the route serves the not-affiliated line", bodyText.indexOf(NOT_AFFILIATED) !== -1);
       check("the route serves the NPS 403 notice", bodyText.indexOf(NPS_NOTICE) !== -1);
       check("the route serves the round 8 UGRC disclaimer", bodyText.indexOf(UGRC_SGID_DISCLAIMER) !== -1);
+      check("the event locations paragraph appears on /sources once",
+        occurrences(bodyText, EVENT_LOCATIONS_PAGE) === 1,
+        String(occurrences(bodyText, EVENT_LOCATIONS_PAGE)));
+      check("the UGRC disclaimer still appears on /sources once",
+        occurrences(bodyText, UGRC_SGID_DISCLAIMER) === 1,
+        String(occurrences(bodyText, UGRC_SGID_DISCLAIMER)));
+      const ugrcHeading = res.body.indexOf('id="ugrc-sgid"');
+      const disclaimerAt = res.body.indexOf("UGRC disclaimer (unmodified)");
+      const blockEnd = res.body.indexOf("</div>", disclaimerAt);
+      const eventAt = res.body.indexOf("<strong>" + EVENT_LOCATIONS_LEAD + "</strong>");
+      check("the paragraph sits under the shared UGRC block",
+        ugrcHeading !== -1 && disclaimerAt > ugrcHeading && blockEnd > disclaimerAt && eventAt > blockEnd);
+      check("event location urls are links whose text is the url",
+        res.body.indexOf('href="' + ADDRESS_POINTS_DATASET + '"') !== -1 &&
+        res.body.indexOf(">" + ADDRESS_POINTS_DATASET + "</a>") !== -1 &&
+        res.body.indexOf('href="' + ADDRESS_POINTS_DATASET + ',"') === -1 &&
+        res.body.indexOf(">" + CC_BY + "</a>") !== -1);
+      check("the page does not use the UGRC Web API wording",
+        bodyText.indexOf("api.mapserv.utah.gov") === -1 &&
+        bodyText.indexOf("UGRC Web API") === -1);
+      check("the page does not add a per-pin Location line",
+        bodyText.indexOf("Location: Utah Address Points") === -1 &&
+        bodyText.indexOf("Location: UGRC Web API") === -1);
       check("the route serves the USFS block", bodyText.indexOf(USFS_PAGE) !== -1);
       check("the route serves the BLM block", bodyText.indexOf(BLM_PAGE) !== -1);
       check("the route serves the GNIS access caution", bodyText.indexOf(GNIS_ACCESS) !== -1);

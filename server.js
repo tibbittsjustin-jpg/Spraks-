@@ -286,6 +286,12 @@ app.use("/api", createUsernameRouter());
 app.use("/api", createSafetyRouter());
 app.use("/api", createFriendsRouter());
 
+const dataSources = require("./public/data-sources");
+app.get(["/sources", "/sources/"], (req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("html").send(dataSources.renderPage());
+});
+
 // Extensionless GETs are the single-page app. Anything else that static did
 // not serve — source files, dotfiles, unknown assets — is a real 404.
 // Unknown /api routes stay JSON so a missing path is not an HTML page.

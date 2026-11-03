@@ -16,7 +16,7 @@ const OVERLAP_FIELDS = {
 
 const SELECT_COLUMNS =
   "id, title, description, materials, category, icon, setting, season, food, age21, cost, duration, " +
-  "time, vibe, stage, date_type, scene, motif, source, tier, address, city, source_url, " +
+  "time, vibe, stage, date_type, scene, motif, source, tier, address, city, source_url, source_key, source_credit, " +
   "to_char(expires_at, 'YYYY-MM-DD') AS expires_at, occurrences, affiliate_url, updated_at, " +
   "ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng";
 
@@ -265,6 +265,10 @@ function mapRow(row, located) {
     city: row.city == null ? null : row.city,
     sourceUrl: sourceUrl,
     source_url: sourceUrl,
+    sourceKey: row.source_key == null ? null : row.source_key,
+    source_key: row.source_key == null ? null : row.source_key,
+    sourceCredit: row.source_credit == null ? null : row.source_credit,
+    source_credit: row.source_credit == null ? null : row.source_credit,
     expiresAt: expiresAt,
     expires_at: expiresAt,
     occurrences: row.occurrences == null ? null : row.occurrences,

@@ -1,0 +1,337 @@
+/* Source credits on cards and detail, the public Sources page,
+   and migration 015. No database. Exact sentences are Legal's
+   attribution quick reference, copied character for character. */
+"use strict";
+
+const fs = require("fs");
+const http = require("http");
+const path = require("path");
+const sources = require("../public/data-sources");
+const { buildListQuery, mapRow } = require("../db/activities-repo");
+const remote = require("../public/remote-activities");
+const { loadApp } = require("./harness");
+
+let pass = 0, fail = 0;
+function check(name, cond, extra) {
+  if (cond) { console.log("  \x1b[32mPASS\x1b[0m " + name); pass++; }
+  else { console.log("  \x1b[31mFAIL\x1b[0m " + name + (extra ? "  (" + extra + ")" : "")); fail++; }
+}
+function section(title, fn) {
+  console.log("\n" + title);
+  try {
+    const result = fn();
+    if (result && typeof result.then === "function") return result;
+  } catch (e) {
+    check("section ran without throwing", false, String(e.stack || e.message).slice(0, 500));
+  }
+}
+
+const TRAILHEAD = "Trailhead data: Utah Trailheads, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: coordinates converted to latitude/longitude; fields selected and reformatted.";
+const PARK = "Park data: Utah Parks Local, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted.";
+const UGRC_HEADING = "Utah Trailheads and Utah Parks Local (UGRC)";
+const UGRC_LINES = [
+  "Utah Trailheads and Utah Parks Local",
+  "Data Sources: UGRC SGID (data modified).",
+  "Source: Utah Geospatial Resource Center (UGRC, formerly AGRC), State Geographic Information Database (SGID). Datasets: Utah Trailheads (https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0) and Utah Parks Local (https://opendata.gis.utah.gov/datasets/818536733987486b8082e4c5dec0a1dd_0).",
+  "License: Creative Commons Attribution 4.0 International (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/. UGRC license policy: https://gis.utah.gov/documentation/policy/license/.",
+  "Changes we made: Utah Trailheads: coordinates converted to latitude/longitude; fields selected and reformatted. Utah Parks Local: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted. We don't add any other information to these datasets.",
+  "UGRC and the State of Utah don't endorse Jaderoo and aren't responsible for how we use or show this data.",
+  "Disclaimer from UGRC (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\""
+];
+const STATE_PARKS_CREDIT = "via Utah State Parks";
+const STATE_PARKS_PAGE = "Utah State Parks. Park names, locations and links come from the Utah Division of State Parks website (https://stateparks.utah.gov/). We list facts only, write our own descriptions, and link to each park's official page. We don't copy State Parks pages, photos or logos. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by Utah State Parks or the State of Utah. Check the park's official page for hours, fees and closures before you go.";
+const NPS_CREDIT = "via National Park Service (nps.gov)";
+const NPS_PAGE = "National Park Service. Names, locations and links for national park units in Utah come from nps.gov, a U.S. Department of the Interior website. No claim to original U.S. Government works. We don't use NPS photos or the NPS Arrowhead, and the National Park Service doesn't endorse Jaderoo. Check the park's nps.gov page for current conditions, alerts and closures.";
+const NPS_NOTICE = "No claim to original U.S. Government works.";
+const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
+const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
+const NOT_AFFILIATED = "Jaderoo is not affiliated with or endorsed by any of these sources.";
+const CHECK_CONDITIONS = "Check conditions before you go.";
+const COPYRIGHT = "© 2026 Jaderoo. No claim to original U.S. Government works.";
+const CC_BY = "https://creativecommons.org/licenses/by/4.0/";
+
+function visibleText(html) {
+  return String(html || "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&quot;/g, "\"")
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+}
+
+function walkText(node) {
+  if (!node || typeof node !== "object") return "";
+  let out = node.textContent || "";
+  (node.children || []).forEach(child => { out += walkText(child); });
+  return out;
+}
+
+function hrefs(node, acc) {
+  acc = acc || [];
+  if (!node || typeof node !== "object") return acc;
+  if (typeof node.getAttribute === "function") {
+    const href = node.getAttribute("href");
+    if (href) acc.push(href);
+  }
+  (node.children || []).forEach(child => hrefs(child, acc));
+  return acc;
+}
+
+function request(port, urlPath) {
+  return new Promise((resolve, reject) => {
+    http.get({ port: port, path: urlPath }, res => {
+      const chunks = [];
+      res.on("data", c => chunks.push(c));
+      res.on("end", () => resolve({
+        status: res.statusCode,
+        body: Buffer.concat(chunks).toString("utf8")
+      }));
+    }).on("error", reject);
+  });
+}
+
+section("exact quick-reference strings", () => {
+  check("trailhead credit matches the module", sources.TRAILHEAD_CREDIT === TRAILHEAD);
+  check("park credit matches the module", sources.PARK_CREDIT === PARK);
+  check("UGRC heading matches", sources.UGRC_HEADING === UGRC_HEADING);
+  check("UGRC block matches line for line", JSON.stringify(sources.UGRC_LINES) === JSON.stringify(UGRC_LINES));
+  check("state parks credit and page match",
+    sources.STATE_PARKS_CREDIT === STATE_PARKS_CREDIT && sources.STATE_PARKS_PAGE === STATE_PARKS_PAGE);
+  check("NPS credit, page, and 403 notice match",
+    sources.NPS_CREDIT === NPS_CREDIT && sources.NPS_PAGE === NPS_PAGE && sources.NPS_NOTICE === NPS_NOTICE);
+  check("museums credit and page match",
+    sources.MUSEUMS_CREDIT === MUSEUMS_CREDIT && sources.MUSEUMS_PAGE === MUSEUMS_PAGE);
+  check("the notice is inside the NPS page text", NPS_PAGE.indexOf(NPS_NOTICE) !== -1);
+  check("the disclaimer quotes as is and as available",
+    UGRC_LINES[6].indexOf("provided \"as is\" and \"as available\"") !== -1 &&
+    UGRC_LINES[6].indexOf("hold the State of Utah harmless") !== -1);
+});
+
+section("credit line on the card and the detail", () => {
+  const t = loadApp({});
+  const base = t.IDEAS_BY_ID[2];
+  function idea(extra) {
+    const row = Object.assign({}, base, extra);
+    delete row.photo;
+    t.IDEAS_BY_ID[row.id] = row;
+    return row;
+  }
+  const plain = idea({ id: 880001, source_key: null, source_credit: null, source_url: "https://example.com/plain" });
+  const plainCard = t.buildSwipeCard(plain, false);
+  check("a row with no source credit has no credit line", plainCard.innerHTML.indexOf("source-credit") === -1);
+
+  const trail = idea({
+    id: 880002,
+    source_key: "ugrc_trailheads",
+    source_url: "https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0",
+    source_credit: "<img src=x onerror=alert(1)>"
+  });
+  const trailCard = t.buildSwipeCard(trail, false);
+  const trailText = visibleText(trailCard.innerHTML);
+  check("the card shows the exact trailhead credit", trailText.indexOf(TRAILHEAD) === 0 || trailText.indexOf(TRAILHEAD) !== -1, trailText.slice(0, 80));
+  check("the card does not use the old geocoded wording", trailText.indexOf("locations geocoded") === -1);
+  check("the license link is clickable on the card",
+    trailCard.innerHTML.indexOf('href="' + CC_BY + '"') !== -1);
+  check("the dataset page is linked from the card",
+    trailCard.innerHTML.indexOf('href="https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0"') !== -1);
+  check("the card credit links to Sources", trailCard.innerHTML.indexOf('href="/sources#ugrc_trailheads"') !== -1);
+  check("a hostile stored credit is not injected when the key is known",
+    trailCard.innerHTML.indexOf("<img") === -1 && trailCard.innerHTML.indexOf("onerror") === -1);
+
+  const trailDetail = t.buildDetailScreen(trail.id);
+  const trailDetailText = walkText(trailDetail);
+  check("the detail shows the exact trailhead credit", trailDetailText.indexOf(TRAILHEAD) !== -1);
+  check("trailhead detail says to check conditions", trailDetailText.indexOf(CHECK_CONDITIONS) !== -1);
+  const trailHrefs = hrefs(trailDetail);
+  check("detail license and dataset links are real anchors",
+    trailHrefs.indexOf(CC_BY) !== -1 &&
+    trailHrefs.indexOf("https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0") !== -1);
+  check("detail links to the report section", trailHrefs.indexOf("/sources#report") !== -1);
+
+  const oldPark = idea({
+    id: 880003,
+    source_credit: "Park data: Utah Parks Local, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: polygons reduced to center points and reformatted."
+  });
+  const parkText = visibleText(t.buildSwipeCard(oldPark, false).innerHTML);
+  check("an older parks credit renders the exact current line", parkText.indexOf(PARK) !== -1 && parkText.indexOf("polygons reduced") === -1);
+  const parkDetail = walkText(t.buildDetailScreen(oldPark.id));
+  check("park detail says approximate location", parkDetail.indexOf("Approximate location.") !== -1 && parkDetail.indexOf(PARK) !== -1);
+
+  const nps = idea({
+    id: 880004,
+    source_key: "nps",
+    source_url: "https://www.nps.gov/arch/index.htm",
+    source_credit: NPS_CREDIT
+  });
+  const npsCard = t.buildSwipeCard(nps, false);
+  check("the NPS card uses the exact credit", visibleText(npsCard.innerHTML).indexOf(NPS_CREDIT) !== -1);
+  check("the NPS credit links to the unit page",
+    npsCard.innerHTML.indexOf('href="https://www.nps.gov/arch/index.htm"') !== -1);
+  const npsDetail = t.buildDetailScreen(nps.id);
+  check("NPS detail keeps the exact credit and does not add an Arrowhead",
+    walkText(npsDetail).indexOf(NPS_CREDIT) !== -1 && walkText(npsDetail).toLowerCase().indexOf("arrowhead") === -1);
+
+  const museum = idea({
+    id: 880005,
+    source_key: "museums",
+    source_url: "https://artsandmuseums.utah.gov/utah-museums-directory/listing/alf-engen-ski-museum-2/"
+  });
+  check("the museum card uses the exact division credit",
+    visibleText(t.buildSwipeCard(museum, false).innerHTML).indexOf(MUSEUMS_CREDIT) !== -1);
+  check("the museum credit links to the directory listing",
+    t.buildSwipeCard(museum, false).innerHTML.indexOf('href="https://artsandmuseums.utah.gov/utah-museums-directory/listing/alf-engen-ski-museum-2/"') !== -1);
+
+  const parks = idea({
+    id: 880006,
+    source_credit: STATE_PARKS_CREDIT,
+    source_url: "https://stateparks.utah.gov/parks/antelope-island/"
+  });
+  check("state parks card is the exact via line", visibleText(t.buildSwipeCard(parks, false).innerHTML).indexOf(STATE_PARKS_CREDIT) !== -1);
+  check("state parks credit links to the park page",
+    t.buildSwipeCard(parks, false).innerHTML.indexOf('href="https://stateparks.utah.gov/parks/antelope-island/"') !== -1);
+
+  const hostile = idea({
+    id: 880007,
+    source_credit: "<script>alert(1)</script>",
+    source_url: "javascript:alert(1)"
+  });
+  const hostileHtml = t.buildSwipeCard(hostile, false).innerHTML;
+  check("an unknown credit is escaped",
+    hostileHtml.indexOf("<script>") === -1 && hostileHtml.indexOf("&lt;script&gt;") !== -1);
+  check("a javascript source url is not used as a link", hostileHtml.indexOf("javascript:") === -1);
+
+  const event = idea({ id: 880008, source_credit: "via University of Utah", source_url: "https://events.utah.edu/example" });
+  check("an event credit the row carries is shown",
+    visibleText(t.buildSwipeCard(event, false).innerHTML).indexOf("via University of Utah") !== -1);
+
+  const withPhoto = Object.assign({}, base, {
+    id: 880009,
+    source_key: "ugrc_trailheads",
+    source_url: "https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0"
+  });
+  t.IDEAS_BY_ID[withPhoto.id] = withPhoto;
+  const photoCard = t.buildSwipeCard(withPhoto, false);
+  check("a photo card still shows the exact trailhead credit",
+    photoCard.className.indexOf("has-photo") !== -1 && visibleText(photoCard.innerHTML).indexOf(TRAILHEAD) !== -1);
+
+  const appSrc = fs.readFileSync(path.join(__dirname, "..", "public", "app.js"), "utf8");
+  const fn = appSrc.slice(appSrc.indexOf("function appendSourceCredit"), appSrc.indexOf("function photoOverlayHtml"));
+  check("detail credit uses textContent and setAttribute, not innerHTML",
+    fn.indexOf("textContent") !== -1 && fn.indexOf("setAttribute") !== -1 && fn.indexOf("innerHTML") === -1);
+});
+
+section("activities API carries the credit columns", () => {
+  const q = buildListQuery({});
+  check("the list query selects source_key and source_credit",
+    q.text.indexOf("source_key") !== -1 && q.text.indexOf("source_credit") !== -1);
+  const row = mapRow({
+    id: 9, title: "T", description: "", category: "Hiking & Nature", icon: "",
+    setting: "Outdoor", season: [], food: false, cost: "Free", duration: "Short (1-2 hrs)",
+    time: [], vibe: [], stage: [], date_type: [], scene: null, motif: null,
+    source: "curated", tier: "free", address: null, lat: null, lng: null,
+    affiliate_url: null, updated_at: null,
+    source_key: "ugrc_trailheads",
+    source_credit: TRAILHEAD,
+    source_url: "https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0"
+  }, false);
+  check("mapRow returns both names for the credit",
+    row.source_key === "ugrc_trailheads" && row.sourceKey === row.source_key &&
+    row.source_credit === TRAILHEAD && row.sourceCredit === row.source_credit);
+  const idea = remote.mapActivityToIdea({
+    id: 100501,
+    title: "Trailhead",
+    source_key: "UGC_Nope!",
+    source_credit: "via <b>UMFA</b>",
+    source_url: "https://umfa.utah.edu/event"
+  });
+  check("a bad source key is dropped and the credit text is kept",
+    idea.source_key == null && idea.source_credit === "via <b>UMFA</b>");
+  const umfa = remote.mapActivityToIdea({
+    id: 100502,
+    title: "Gallery",
+    source_key: "umfa",
+    source_credit: "via UMFA",
+    source_url: "https://umfa.utah.edu/event"
+  });
+  check("a cleared event key and credit survive the deck mapping",
+    umfa.source_key === "umfa" && umfa.sourceCredit === "via UMFA" && umfa.source_credit === "via UMFA");
+});
+
+function main() {
+  return section("Sources page", async () => {
+    const page = sources.renderPage();
+    const text = visibleText(page);
+    [TRAILHEAD, PARK, UGRC_HEADING].concat(UGRC_LINES).concat([
+      STATE_PARKS_CREDIT, STATE_PARKS_PAGE, NPS_CREDIT, NPS_PAGE, NPS_NOTICE,
+      MUSEUMS_CREDIT, MUSEUMS_PAGE, NOT_AFFILIATED, CHECK_CONDITIONS, COPYRIGHT,
+      "via University of Utah", "via UMFA", "via Provo City Library", "via BYU Calendar",
+      "via Weber State University", "via Box Elder Chamber of Commerce",
+      "Info from Box Elder Chamber of Commerce", "Info from Beaver County Fair",
+      "Jaderoo isn't affiliated with the organizer.",
+      "Report or remove a listing"
+    ]).forEach(sentence => {
+      check("page text includes " + sentence.slice(0, 48), text.indexOf(sentence) !== -1);
+    });
+    check("the CC BY license is a link", page.indexOf('href="' + CC_BY + '"') !== -1);
+    check("the UGRC policy is a link", page.indexOf('href="https://gis.utah.gov/documentation/policy/license/"') !== -1);
+    check("the report link is a mailto", page.indexOf('href="mailto:support@jaderoo.com?subject=Report%20or%20remove%20a%20listing"') !== -1);
+    ["via The City Library", "Salt Lake City Public Library", "via Pleasant Grove", "locations geocoded", "polygons reduced to center points", "Data: Utah UGRC"].forEach(banned => {
+      check("page does not list " + banned, text.indexOf(banned) === -1);
+    });
+
+    const previous = process.env.DATABASE_URL;
+    process.env.DATABASE_URL = "";
+    delete require.cache[require.resolve("../server")];
+    const app = require("../server");
+    const server = await new Promise(resolve => {
+      const listening = app.listen(0, () => resolve(listening));
+    });
+    try {
+      const res = await request(server.address().port, "/sources");
+      const bodyText = visibleText(res.body);
+      check("/sources is 200", res.status === 200, String(res.status));
+      check("the route serves the exact UGRC disclaimer", bodyText.indexOf(UGRC_LINES[6]) !== -1);
+      check("the route serves the not-affiliated line", bodyText.indexOf(NOT_AFFILIATED) !== -1);
+      check("the route serves the NPS 403 notice", bodyText.indexOf(NPS_NOTICE) !== -1);
+      check("the route serves the CC BY link", res.body.indexOf('href="' + CC_BY + '"') !== -1);
+      const home = await request(server.address().port, "/");
+      check("home loads the sources script and links Sources",
+        home.status === 200 &&
+        home.body.indexOf('src="data-sources.js"') !== -1 &&
+        home.body.indexOf('data-action="sources"') !== -1 &&
+        home.body.indexOf(NPS_NOTICE) !== -1);
+    } finally {
+      if (previous == null) delete process.env.DATABASE_URL;
+      else process.env.DATABASE_URL = previous;
+      await new Promise(resolve => server.close(resolve));
+    }
+  }).then(() => section("migration 015", () => {
+    const dir = path.join(__dirname, "..", "db", "migrations");
+    const files = fs.readdirSync(dir).filter(name => name.endsWith(".sql")).sort();
+    check("015 exists and 005 and 011 stay unused",
+      files.indexOf("015_source_credit.sql") !== -1 &&
+      files.every(name => name.indexOf("005_") !== 0 && name.indexOf("011_") !== 0),
+      files.join(","));
+    const sql = fs.readFileSync(path.join(dir, "015_source_credit.sql"), "utf8");
+    check("columns are added only if missing",
+      /alter table public\.activities add column if not exists source_key text/i.test(sql) &&
+      /alter table public\.activities add column if not exists source_credit text/i.test(sql));
+    check("constraints are idempotent",
+      sql.indexOf("activities_source_key_check") !== -1 &&
+      sql.indexOf("activities_source_credit_check") !== -1 &&
+      (sql.match(/duplicate_object/g) || []).length >= 2);
+    check("credit length stays within 500 and rejects control characters",
+      sql.indexOf("char_length(source_credit) between 1 and 500") !== -1 &&
+      sql.indexOf("[[:cntrl:]]") !== -1);
+    check("RLS stays enabled and deny-all is repeated",
+      /alter table public\.activities enable row level security/i.test(sql) &&
+      /revoke all on table public\.activities from public/i.test(sql) &&
+      /revoke all on table public\.activities from anon/i.test(sql) &&
+      /revoke all on table public\.activities from authenticated/i.test(sql));
+    check("the migration creates no policy and grants nothing",
+      /create policy/i.test(sql) === false && /\bgrant\b/i.test(sql) === false);
+  }));
+}
+
+module.exports = main().then(() => ({ pass: pass, fail: fail }));

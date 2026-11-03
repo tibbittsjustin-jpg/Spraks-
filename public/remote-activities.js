@@ -16,10 +16,13 @@
 })(this, function () {
   "use strict";
 
-  // 4: pages are a cursor, not an offset dump. A version 3 cache was the
-  // first thousand rows and must not be treated as a finished cursor page.
+  // 5: saved lists also cache catalog rows fetched by id. Those rows keep
+  // the numeric id the list stored. A version 4 cache was pages only.
+  // 4: pages are a cursor, not an offset dump.
   // 3 added source_key and source_credit.
-  var API_VERSION = "4";
+  var API_VERSION = "5";
+  var CATALOG_BUCKET = "catalog-ids";
+  var ID_BATCH = 200;
   var CACHE_TTL_MS = 6 * 60 * 60 * 1000;
   var STORAGE_KEY = "spark_remote_activities_v1";
   var PAGE_LIMIT = 100;
@@ -573,8 +576,141 @@
     });
   }
 
+  function mapCatalogIdea(row) {
+    var idea = mapActivityToIdea(row);
+    if (!idea || idea.dbId == null) return null;
+    idea.id = idea.dbId;
+    idea.pendingLoad = false;
+    return idea;
+  }
+
+  function sanitizeCatalogIdea(idea) {
+    if (!idea || typeof idea !== "object") return null;
+    var id = typeof idea.id === "number" ? idea.id : Number(idea.id);
+    if (!isFinite(id) || Math.floor(id) !== id || id < 1 || id > 999999999) return null;
+    if (typeof idea.title !== "string" || !idea.title.trim()) return null;
+    if (idea.pendingLoad === true) return null;
+    idea.id = id;
+    idea.title = idea.title.trim();
+    ["materials", "season", "time", "vibe", "stage", "dateType"].forEach(function (key) {
+      if (!Array.isArray(idea[key])) idea[key] = [];
+    });
+    if (idea.food !== true) idea.food = false;
+    if (idea.age21 !== true) idea.age21 = false;
+    return idea;
+  }
+
+  function catalogIdList(value) {
+    var parts = Array.isArray(value) ? value : String(value == null ? "" : value).split(",");
+    var out = [];
+    var seen = Object.create(null);
+    for (var i = 0; i < parts.length; i++) {
+      var raw = String(parts[i] == null ? "" : parts[i]).trim();
+      if (!raw) continue;
+      if (!/^\d{1,9}$/.test(raw)) return null;
+      var id = Number(raw);
+      if (!isFinite(id) || id < 1 || seen[id]) continue;
+      seen[id] = true;
+      out.push(id);
+    }
+    return out;
+  }
+
+  function readCatalogCache(storage, now) {
+    var empty = { hit: false, fresh: false, ideas: [] };
+    var store = loadStore(storage);
+    var entry = store[cacheKey(API_VERSION, CATALOG_BUCKET, "")];
+    if (!entry || entry.v !== API_VERSION || entry.bucket !== CATALOG_BUCKET || !Array.isArray(entry.ideas)) return empty;
+    var savedAt = Number(entry.savedAt);
+    if (!isFinite(savedAt)) return empty;
+    var when = typeof now === "number" ? now : Date.now();
+    var age = when - savedAt;
+    var ideas = [];
+    for (var i = 0; i < entry.ideas.length; i++) {
+      var idea = sanitizeCatalogIdea(entry.ideas[i]);
+      if (idea) ideas.push(idea);
+    }
+    return { hit: ideas.length > 0, fresh: age >= 0 && age < CACHE_TTL_MS, ideas: ideas, savedAt: savedAt };
+  }
+
+  function writeCatalogCache(storage, ideas, now) {
+    if (!storage || typeof storage.setItem !== "function") return false;
+    try {
+      var store = loadStore(storage);
+      var clean = [];
+      var rows = Array.isArray(ideas) ? ideas : [];
+      var seen = Object.create(null);
+      for (var i = 0; i < rows.length; i++) {
+        var idea = sanitizeCatalogIdea(rows[i]);
+        if (!idea || seen[idea.id]) continue;
+        seen[idea.id] = true;
+        clean.push(idea);
+      }
+      store[cacheKey(API_VERSION, CATALOG_BUCKET, "")] = {
+        v: API_VERSION,
+        bucket: CATALOG_BUCKET,
+        scope: "",
+        savedAt: typeof now === "number" ? now : Date.now(),
+        ideas: clean
+      };
+      storage.setItem(STORAGE_KEY, JSON.stringify(store));
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function fetchActivitiesByIds(opts) {
+    opts = opts || {};
+    var ids = catalogIdList(opts.ids);
+    if (!ids) return Promise.resolve({ ok: false, ideas: [], missing: [], reason: "error" });
+    if (!ids.length) return Promise.resolve({ ok: true, ideas: [], missing: [] });
+    if (typeof opts.fetch !== "function") return Promise.resolve({ ok: false, ideas: [], missing: ids.slice(), reason: "error" });
+    var base = opts.url || "/api/activities/by-ids";
+    var chunks = [];
+    for (var c = 0; c < ids.length; c += ID_BATCH) chunks.push(ids.slice(c, c + ID_BATCH));
+    var ideas = [];
+    var seen = Object.create(null);
+
+    function run(index) {
+      if (index >= chunks.length) {
+        var got = Object.create(null);
+        for (var i = 0; i < ideas.length; i++) got[ideas[i].id] = true;
+        var missing = [];
+        for (var j = 0; j < ids.length; j++) if (!got[ids[j]]) missing.push(ids[j]);
+        return { ok: true, ideas: ideas, missing: missing };
+      }
+      var path = base + (base.indexOf("?") === -1 ? "?" : "&") + "ids=" + chunks[index].join(",");
+      return Promise.resolve(opts.fetch(path, {
+        method: "GET",
+        signal: opts.signal || undefined,
+        headers: { "Accept": "application/json" }
+      })).then(function (res) {
+        if (!res || res.ok !== true || typeof res.json !== "function") throw new Error("bad status");
+        return res.json();
+      }).then(function (body) {
+        var items = body && Array.isArray(body.items) ? body.items : null;
+        if (!items) throw new Error("bad body");
+        for (var i = 0; i < items.length; i++) {
+          var idea = mapCatalogIdea(items[i]);
+          if (!idea || seen[idea.id]) continue;
+          seen[idea.id] = true;
+          ideas.push(idea);
+        }
+        return run(index + 1);
+      });
+    }
+
+    return Promise.resolve().then(function () { return run(0); }).then(null, function () {
+      warnQuiet("Activities could not be loaded.");
+      return { ok: false, ideas: [], missing: ids.slice(), reason: "error" };
+    });
+  }
+
   return {
     API_VERSION: API_VERSION,
+    CATALOG_BUCKET: CATALOG_BUCKET,
+    ID_BATCH: ID_BATCH,
     CACHE_TTL_MS: CACHE_TTL_MS,
     STORAGE_KEY: STORAGE_KEY,
     PAGE_LIMIT: PAGE_LIMIT,
@@ -594,6 +730,10 @@
     readCache: readCache,
     writeCache: writeCache,
     fetchApprovedActivities: fetchApprovedActivities,
-    syncActivities: syncActivities
+    syncActivities: syncActivities,
+    mapCatalogIdea: mapCatalogIdea,
+    readCatalogCache: readCatalogCache,
+    writeCatalogCache: writeCatalogCache,
+    fetchActivitiesByIds: fetchActivitiesByIds
   };
 });

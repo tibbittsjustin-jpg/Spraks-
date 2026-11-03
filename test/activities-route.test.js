@@ -375,6 +375,63 @@ async function main() {
       }
     });
 
+    await section("by-ids returns approved current rows only", async () => {
+      const approved = row(4, { title: "Idea Four", status: "approved", expires_at: "2099-01-01" });
+      const pending = row(6, { title: "Secret Pending", status: "pending", expires_at: null });
+      const expired = row(7, { title: "Expired Idea", status: "approved", expires_at: "2020-01-01" });
+      const seen = [];
+      const idDb = {
+        async query(text, values) {
+          seen.push({ text: text, values: values });
+          const keeps = text.indexOf("status = 'approved'") !== -1 &&
+            text.indexOf("tier = 'free'") !== -1 &&
+            text.indexOf(STILL_SHOWING_SQL) !== -1 &&
+            text.indexOf("id = ANY($1::int[])") !== -1;
+          const ids = values && values[0] || [];
+          const pool = [approved, pending, expired];
+          if (!keeps) return { rows: pool };
+          return {
+            rows: pool.filter(item =>
+              ids.indexOf(item.id) !== -1 &&
+              item.status === "approved" &&
+              item.expires_at !== "2020-01-01"
+            )
+          };
+        }
+      };
+      const idApp = express();
+      idApp.use("/api/activities", createActivitiesRouter({ db: idDb, isConfigured: () => true }));
+      const idServer = await listen(idApp);
+      const idPort = idServer.address().port;
+      try {
+        const ok = await request(idPort, "/api/activities/by-ids?ids=4,6,7,4");
+        const body = JSON.parse(ok.body);
+        const sql = seen[0] || { text: "", values: [] };
+        check("by-ids is 200 and is not captured as an id", ok.status === 200, String(ok.status) + " " + ok.body.slice(0, 120));
+        check("only the approved current id is returned",
+          body.items && body.items.length === 1 && body.items[0].id === 4 && body.items[0].title === "Idea Four");
+        check("pending and expired rows are omitted",
+          ok.body.indexOf("Secret Pending") === -1 && ok.body.indexOf("Expired Idea") === -1);
+        check("ids are one integer parameter and the Denver rule is in the SQL",
+          Array.isArray(sql.values[0]) && sql.values[0].join(",") === "4,6,7" &&
+          sql.text.indexOf("(expires_at IS NULL OR expires_at >= (now() AT TIME ZONE 'America/Denver')::date)") !== -1 &&
+          sql.text.indexOf("lat=") === -1);
+        const bad = await request(idPort, "/api/activities/by-ids?ids=4,nope");
+        const badBody = JSON.parse(bad.body);
+        check("an invalid id is 400", bad.status === 400 && badBody.error === "invalid_filter" && badBody.field === "ids");
+        const empty = await request(idPort, "/api/activities/by-ids");
+        check("missing ids are 400", empty.status === 400 && JSON.parse(empty.body).field === "ids");
+        const many = [];
+        for (let i = 1; i <= 201; i++) many.push(String(i));
+        const over = await request(idPort, "/api/activities/by-ids?ids=" + many.join(","));
+        check("more than 200 ids is 400", over.status === 400 && JSON.parse(over.body).field === "ids");
+        const repeated = await request(idPort, "/api/activities/by-ids?ids=4&ids=6");
+        check("repeated ids parameters are accepted", repeated.status === 200);
+      } finally {
+        await new Promise(resolve => idServer.close(resolve));
+      }
+    });
+
     await section("database not configured", async () => {
       const off = express();
       off.use("/api/activities", createActivitiesRouter({

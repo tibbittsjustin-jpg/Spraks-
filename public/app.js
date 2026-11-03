@@ -698,6 +698,169 @@
     });
   }
 
+  var catalogHydrated = [];
+  var catalogGone = Object.create(null);
+  var catalogFlight = null;
+  var catalogRetryTimer = null;
+
+  function isBuiltinCatalogId(id){
+    if(typeof id === "string" && id.indexOf("db:") === 0) return false;
+    var n = typeof id === "number" ? id : Number(id);
+    if(!isFinite(n) || Math.floor(n) !== n || n < 1 || n >= 9000000) return false;
+    return true;
+  }
+
+  function catalogNumericId(id){
+    if(!isBuiltinCatalogId(id)) return null;
+    return typeof id === "number" ? id : Number(id);
+  }
+
+  function placeholderCatalogIdea(id){
+    var n = catalogNumericId(id);
+    var gone = !!(n != null && catalogGone[n]);
+    return {
+      id: n == null ? id : n,
+      title: gone ? "No longer available" : "Saved idea",
+      description: gone ? "This idea is no longer in the catalog." : "This idea will load when you're back online.",
+      category: "Culture, Community & Local Attractions",
+      icon: "",
+      setting: "Indoor",
+      season: [],
+      food: false,
+      age21: false,
+      cost: "",
+      duration: "",
+      time: [],
+      vibe: [],
+      stage: [],
+      dateType: [],
+      materials: [],
+      unavailable: gone,
+      pendingLoad: !gone
+    };
+  }
+
+  function attachCatalogMedia(idea){
+    if(!idea || idea.id == null) return idea;
+    if(typeof IDEA_PHOTOS !== "undefined" && IDEA_PHOTOS){
+      var entry = IDEA_PHOTOS[idea.id] || IDEA_PHOTOS[String(idea.id)];
+      if(entry && typeof entry === "object"){
+        var url = typeof entry.url === "string" ? entry.url.trim() : "";
+        if(url) idea.photo = { url: url, credit: typeof entry.credit === "string" ? entry.credit : "" };
+      }
+    }
+    if(typeof IDEA_PINS !== "undefined" && IDEA_PINS && !SparkRadius.ideaPoint(idea)){
+      var pin = IDEA_PINS[idea.id] != null ? IDEA_PINS[idea.id] : IDEA_PINS[String(idea.id)];
+      var point = SparkRadius.ideaPoint(pin);
+      if(point){
+        idea.lat = point.lat;
+        idea.lng = point.lng;
+      }
+    }
+    return idea;
+  }
+
+  function referencedCatalogIds(){
+    var ids = keptIdeaIds();
+    (state.datePlans || []).forEach(function(plan){
+      if(!plan || !plan.likes) return;
+      Object.keys(plan.likes).forEach(function(key){ ids.push(key); });
+    });
+    if(ui.detailIdeaId != null) ids.push(ui.detailIdeaId);
+    return ids;
+  }
+
+  function missingCatalogIds(){
+    var out = [];
+    var seen = Object.create(null);
+    referencedCatalogIds().forEach(function(id){
+      var n = catalogNumericId(id);
+      if(n == null || seen[n] || catalogGone[n]) return;
+      if(IDEAS_BY_ID[n] || IDEAS_BY_ID[String(n)]) return;
+      seen[n] = true;
+      out.push(n);
+    });
+    return out;
+  }
+
+  function applyCatalogIdeas(ideas){
+    var rows = Array.isArray(ideas) ? ideas : [];
+    var known = Object.create(null);
+    catalogHydrated.forEach(function(idea){ if(idea && idea.id != null) known[idea.id] = true; });
+    rows.forEach(function(raw){
+      if(!raw || raw.id == null) return;
+      var idea = attachCatalogMedia(raw);
+      idea.pendingLoad = false;
+      idea.id = catalogNumericId(idea.id) || idea.id;
+      IDEAS_BY_ID[idea.id] = idea;
+      delete catalogGone[idea.id];
+      if(!known[idea.id]){
+        known[idea.id] = true;
+        catalogHydrated.push(idea);
+      }
+    });
+  }
+
+  function loadCatalogCache(){
+    if(typeof SparkRemoteActivities === "undefined" || !SparkRemoteActivities.readCatalogCache) return;
+    try {
+      var cached = SparkRemoteActivities.readCatalogCache(localStorage, Date.now());
+      if(cached && cached.ideas && cached.ideas.length) applyCatalogIdeas(cached.ideas);
+    } catch (err) {}
+  }
+
+  function refreshOpenLists(){
+    var view = $("#view-app");
+    if(!view || (view.classList && view.classList.contains && view.classList.contains("hidden"))) return;
+    if(ui.screen === "detail" || ui.tab === "saved" || ui.tab === "done"){
+      try { renderContent(); } catch (err) {}
+    }
+  }
+
+  function scheduleCatalogRetry(){
+    if(catalogRetryTimer) return;
+    catalogRetryTimer = setTimeout(function(){
+      catalogRetryTimer = null;
+      hydrateMissingCatalogIdeas();
+    }, 20000);
+  }
+
+  function hydrateMissingCatalogIdeas(){
+    if(typeof SparkRemoteActivities === "undefined" || !SparkRemoteActivities.fetchActivitiesByIds){
+      return Promise.resolve({ ok: false, ideas: [] });
+    }
+    var ids = missingCatalogIds();
+    if(!ids.length) return Promise.resolve({ ok: true, ideas: [] });
+    if(catalogFlight) return catalogFlight;
+    catalogFlight = SparkRemoteActivities.fetchActivitiesByIds({
+      ids: ids,
+      fetch: function(url, options){ return fetch(url, options); }
+    }).then(function(result){
+      catalogFlight = null;
+      if(!result || !result.ok){
+        scheduleCatalogRetry();
+        refreshOpenLists();
+        return result || { ok: false, ideas: [] };
+      }
+      if(catalogRetryTimer){
+        clearTimeout(catalogRetryTimer);
+        catalogRetryTimer = null;
+      }
+      applyCatalogIdeas(result.ideas || []);
+      (result.missing || []).forEach(function(id){ catalogGone[id] = true; });
+      try {
+        SparkRemoteActivities.writeCatalogCache(localStorage, catalogHydrated, Date.now());
+      } catch (err) {}
+      refreshOpenLists();
+      return result;
+    }).catch(function(){
+      catalogFlight = null;
+      scheduleCatalogRetry();
+      return { ok: false, ideas: [] };
+    });
+    return catalogFlight;
+  }
+
   function ideaForSaved(id){
     if(id == null) return null;
     if(IDEAS_BY_ID[id]) return IDEAS_BY_ID[id];
@@ -708,6 +871,7 @@
       IDEAS_BY_ID[id] = real;
       return real;
     }
+    if(isBuiltinCatalogId(id)) return placeholderCatalogIdea(id);
     return null;
   }
 
@@ -885,7 +1049,7 @@
       scope: scope,
       filters: remoteFilterParams(),
       radiusMiles: remoteRadiusMiles(),
-      builtins: IDEAS_DATA,
+      builtins: IDEAS_DATA.concat(catalogHydrated),
       limit: SparkRemoteActivities.PAGE_LIMIT,
       maxItems: SparkRemoteActivities.PAGE_LIMIT,
       fetch: function(url, options){ return fetch(url, options); },
@@ -907,7 +1071,10 @@
         var deckEl = $("#deck");
         if(deckEl){ renderDeckCards(deckEl); updateResultCount(); }
       }
-      if(result && result.ok) remoteFreshBucket = bucket;
+      if(result && result.ok){
+        remoteFreshBucket = bucket;
+        hydrateMissingCatalogIdeas();
+      }
       maybeFillDeck();
     }).catch(function(){
       if(generation !== remoteFetchGen) return;
@@ -2886,8 +3053,8 @@
 
   /* ---------- Detail screen ---------- */
   function buildDetailScreen(ideaId){
-    ideaForSaved(ideaId);
-    var idea = IDEAS_BY_ID[ideaId];
+    var idea = ideaForSaved(ideaId);
+    if(idea && idea.pendingLoad) hydrateMissingCatalogIdeas();
     var wrap = el("div", "screen detail-screen");
     if(!idea){
       wrap.innerHTML = '<p>Idea not found.</p>';
@@ -4038,6 +4205,7 @@
       var id = row.id;
       var idea = ideaForSaved(id);
       if(!idea) return;
+      if(idea.pendingLoad) hydrateMissingCatalogIdeas();
       var picks = plan ? (plan.friendPicks || []).filter(function(p){ return p.ideaId === id; }) : [];
       var like = null;
       if(plan){
@@ -4073,6 +4241,7 @@
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = ideaForSaved(entry.id);
       if(!idea) return;
+      if(idea.pendingLoad) hydrateMissingCatalogIdeas();
       wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date), doneEntry: entry }));
     });
     return wrap;
@@ -4792,6 +4961,7 @@
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = ideaForSaved(entry.id);
       if(!idea) return;
+      if(idea.pendingLoad) hydrateMissingCatalogIdeas();
       wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date), doneEntry: entry }));
     });
     return wrap;
@@ -5241,6 +5411,7 @@
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = ideaForSaved(entry.id);
       if(!idea) return;
+      if(idea.pendingLoad) hydrateMissingCatalogIdeas();
       wrap.appendChild(buildSavedCard(idea, {
         doneDate: fmtDate(entry.date),
         doneEntry: entry,
@@ -6615,6 +6786,8 @@
 
   rehydrateRemoteIdeas();
   hydrateRemoteCache();
+  loadCatalogCache();
+  hydrateMissingCatalogIdeas();
 
   boot();
 })();

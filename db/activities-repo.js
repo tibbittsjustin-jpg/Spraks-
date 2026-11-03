@@ -505,6 +505,44 @@ async function listActivities(params, db) {
   };
 }
 
+const MAX_ID_BATCH = 200;
+
+function parseIdList(value) {
+  const parts = splitList(value);
+  if (!parts.length) throw invalidFilter("ids");
+  const ids = [];
+  const seen = new Set();
+  parts.forEach(part => {
+    if (!/^\d{1,9}$/.test(part)) throw invalidFilter("ids");
+    const id = Number(part);
+    if (!Number.isInteger(id) || id < 1) throw invalidFilter("ids");
+    if (seen.has(id)) return;
+    seen.add(id);
+    ids.push(id);
+  });
+  if (ids.length > MAX_ID_BATCH) throw invalidFilter("ids");
+  return ids;
+}
+
+// Approved free rows that are still showing, by id. No location, no paging.
+// Ids the caller asked for that are pending, paid, or finished are omitted.
+function activitiesByIdsQuery(ids) {
+  const list = parseIdList(ids);
+  return {
+    text: "SELECT " + SELECT_COLUMNS + " FROM activities WHERE id = ANY($1::int[]) AND status = 'approved' AND tier = 'free' AND " +
+      STILL_SHOWING_SQL + " ORDER BY id",
+    values: [list],
+    ids: list
+  };
+}
+
+async function listActivitiesByIds(ids, db) {
+  const built = activitiesByIdsQuery(ids);
+  const runner = db || require("./index").getPool();
+  const result = await runner.query(built.text, built.values);
+  return { items: result.rows.map(row => mapRow(row, false)) };
+}
+
 async function getActivity(id, db) {
   const runner = db || require("./index").getPool();
   const result = await runner.query(
@@ -522,6 +560,10 @@ module.exports = {
   STILL_SHOWING_SQL,
   buildListQuery,
   listActivities,
+  listActivitiesByIds,
+  activitiesByIdsQuery,
+  parseIdList,
+  MAX_ID_BATCH,
   getActivity,
   mapRow,
   calendarDate,

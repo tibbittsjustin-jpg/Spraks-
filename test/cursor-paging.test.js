@@ -224,7 +224,7 @@ section("the browser does not load the full catalog", () => {
   const appSrc = fs.readFileSync(path.join(root, "public", "app.js"), "utf8");
   check("the client asks for a cursor page",
     remoteSrc.indexOf("cursor=") !== -1 && remoteSrc.indexOf("offset=") === -1 && appSrc.indexOf("ideas-catalog") === -1);
-  check("activity cache version moved to 4", remoteSrc.indexOf('API_VERSION = "4"') !== -1);
+  check("activity cache version moved to 5", remoteSrc.indexOf('API_VERSION = "5"') !== -1);
 });
 
 module.exports = { pass: pass, fail: fail };

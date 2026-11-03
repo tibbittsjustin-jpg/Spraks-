@@ -40,9 +40,11 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 const COST_BANDS = [
   { cost: "Free", lo: 0, hi: 0 },
-  { cost: "$1-$10", lo: 1, hi: 10 },
-  { cost: "$20-$30", lo: 20, hi: 30 },
-  { cost: "$100 and under", lo: 31, hi: 100 },
+  { cost: "$1-$20", lo: 1, hi: 20 },
+  { cost: "$21-$40", lo: 21, hi: 40 },
+  { cost: "$41-$60", lo: 41, hi: 60 },
+  { cost: "$61-$80", lo: 61, hi: 80 },
+  { cost: "$81-$100", lo: 81, hi: 100 },
   { cost: "Over $100", lo: 101, hi: Infinity }
 ];
 
@@ -51,14 +53,14 @@ const INSERT_SQL =
   "title, description, category, icon, setting, season, food, cost, duration, " +
   "time, vibe, stage, date_type, scene, motif, materials, age21, " +
   "status, source, tier, address, city, source_url, expires_at, occurrences, " +
-  "location, coords_locked, geo_status, geo_confidence, geo_source, geo_resolved_at" +
+  "location, coords_locked, geo_status, geo_confidence, geo_source, geo_resolved_at, cost_unit" +
   ") select " +
   "$1, $2, $3, $4, $5, $6::text[], $7, $8, $9, " +
   "$10::text[], $11::text[], $12::text[], $13::text[], $14, $15, $16::text[], $17, " +
   "'pending', 'ai', 'free', $18, $19, $20, $21::date, $22::jsonb, " +
   "case when $23::double precision is null or $24::double precision is null then null " +
   "else ST_SetSRID(ST_MakePoint($24::double precision, $23::double precision), 4326)::geography end, " +
-  "$25, $26, $27, $28, $29::date " +
+  "$25, $26, $27, $28, $29::date, $30 " +
   "where not exists (" +
   "select 1 from activities existing " +
   "where existing.source = 'ai' " +
@@ -175,6 +177,7 @@ function cityFromCoords(lat, lng, placePins) {
 }
 
 function closestCost(price) {
+  if (price > 0) price = Math.ceil(price - 1e-9);
   let best = COST_BANDS[0];
   let bestDist = Infinity;
   for (let i = 0; i < COST_BANDS.length; i++) {
@@ -227,16 +230,25 @@ function representativePrice(proposed, evidence) {
   return (Math.min.apply(null, prices) + Math.max.apply(null, prices)) / 2;
 }
 
-/* Review cost notes sometimes name a band the database does not have
-   ($10-$20, a $30-$100 band). Store the nearest real band, or leave the
-   find's own valid cost when the note is unsure. */
+/* Review notes may still name a retired band ($10-$20, or an old
+   $30-$100 note). Store the nearest current band, or leave the find's
+   own valid cost — including a legacyCost string on a flagged find —
+   when the note is unsure. */
+function isNewBand(value) {
+  return filters.cost.slice().indexOf(value) !== -1;
+}
+
+function isStoredCost(value) {
+  return isNewBand(value) || filters.legacyCost.indexOf(value) !== -1;
+}
+
 function mapProposedCost(current, proposed, evidence) {
-  const stored = filters.cost.indexOf(current) === -1 ? null : current;
+  const stored = isStoredCost(current) ? current : null;
   const text = typeof proposed === "string" ? proposed.trim() : "";
   if (!text || /^no change\b/i.test(text)) {
     return { cost: stored, unmapped: null };
   }
-  if (filters.cost.indexOf(text) !== -1) {
+  if (isNewBand(text)) {
     return { cost: text, unmapped: null };
   }
   if (/^(unconfirmed|unknown)\b/i.test(text)) {
@@ -357,7 +369,7 @@ function buildRow(find, review, pin, placePins, unmapped, handPinsApplied) {
   if (!setting) return { error: "setting" };
   if (!duration) return { error: "duration" };
 
-  let cost = choiceOrNull(find.cost, filters.cost);
+  let cost = choiceOrNull(find.cost, filters.cost.slice().concat(filters.legacyCost));
   if (!cost) return { error: "cost" };
   if (review && review.cost_mapping) {
     const mapped = mapProposedCost(cost, review.cost_mapping.proposed, review.cost_mapping.evidence);
@@ -432,6 +444,8 @@ function buildRow(find, review, pin, placePins, unmapped, handPinsApplied) {
   else if (find.food != null) pushUnmapped(unmapped, title, "food", find.food, false, "not a boolean");
 
   const coordsLocked = !!(review && review.geo && review.geo.coords_locked === true);
+  const rawUnit = find.cost_unit != null ? find.cost_unit : find.costUnit;
+  const costUnit = rawUnit === "per car" ? "per car" : null;
 
   return {
     row: {
@@ -468,6 +482,7 @@ function buildRow(find, review, pin, placePins, unmapped, handPinsApplied) {
       geo_confidence: geoConfidence,
       geo_source: geoSource,
       geo_resolved_at: geoResolvedAt,
+      cost_unit: costUnit,
       origin: "batch"
     }
   };
@@ -648,7 +663,8 @@ function rowValues(row) {
     row.geo_status,
     row.geo_confidence,
     row.geo_source,
-    row.geo_resolved_at
+    row.geo_resolved_at,
+    row.cost_unit == null ? null : row.cost_unit
   ];
 }
 

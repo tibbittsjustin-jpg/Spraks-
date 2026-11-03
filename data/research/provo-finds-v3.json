@@ -49,7 +49,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Quick (under 1 hr)",
   "time": [
    "Afternoon",
@@ -193,7 +193,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$20-$30",
+  "cost": "$21-$40",
   "duration": "Quick (under 1 hr)",
   "time": [
    "Evening",
@@ -253,7 +253,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$61-$80",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Morning",
@@ -293,7 +293,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Quick (under 1 hr)",
   "time": [
    "Afternoon",
@@ -335,7 +335,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -387,7 +387,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$20-$30",
+  "cost": "$21-$40",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -426,7 +426,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Morning",
@@ -468,7 +468,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$61-$80",
   "duration": "Quick (under 1 hr)",
   "time": [
    "Afternoon"
@@ -508,7 +508,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Night"
@@ -556,7 +556,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$41-$60",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Afternoon",
@@ -601,7 +601,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -655,7 +655,7 @@
   "season": [
    "Fall"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -704,7 +704,7 @@
   "season": [
    "Fall"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Afternoon",
@@ -759,7 +759,7 @@
   "season": [
    "Fall"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -813,7 +813,7 @@
   "season": [
    "Fall"
   ],
-  "cost": "$20-$30",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -856,7 +856,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -948,7 +948,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -1091,7 +1091,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Afternoon",
@@ -1132,7 +1132,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening",
@@ -1187,7 +1187,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$20-$30",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Afternoon",
@@ -1227,7 +1227,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$81-$100",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -1339,7 +1339,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Afternoon",
@@ -1647,7 +1647,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$20-$30",
+  "cost": "$21-$40",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Afternoon",
@@ -1682,7 +1682,7 @@
    "Summer",
    "Fall"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Half-day (2-5 hrs)",
   "time": [
    "Morning",

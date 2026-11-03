@@ -10,7 +10,7 @@ Owners: product, frontend, backend/integrations, and QA/infra. Stay inside your 
 
 2. **Bring `SETUP.md` in line with the app.** The "How to use the new feature" section still says to tap "Find Real Ideas Near You" and then look for a "Near You" block on the detail screen. `enterApp()` requests location with no button, and nearby cards are mixed into the deck. The detail block is titled "Real Nearby Spot."
 
-3. **Budget bands still skip some real prices.** The catalog filter now includes `Over $100`, and alcohol-centered ideas can be hidden with Hide 21+. There is still a gap between $10 and $20. The place-idea prompt in `server.js` still lists the four older bands. Live listings were removed, so there is no event price band left to update.
+3. **Budget bands now step by $20.** The filter is Free, $1-$20, $21-$40, $41-$60, $61-$80, $81-$100, and Over $100. Prices are per person, and a park entrance fee can be marked per car on the card. The place-idea prompt in `server.js` lists those bands. A flagged row with no price still stores `$20-$30` or `$100 and under` and shows that label; the filter matches it under every new band it could fall in. Alcohol-centered ideas can be hidden with Hide 21+. Live listings were removed, so there is no separate event price band.
 
 4. **The birthday-coupon line is gone.** Onboarding used to promise a birthday-month flag. The date of birth is now only an 18+ check (`POST /api/age-check`) and is not stored. The profile keeps `ageConfirmedAt` instead. No coupon data exists.
 

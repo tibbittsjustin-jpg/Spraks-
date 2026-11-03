@@ -16,6 +16,7 @@ function shiftIso(iso, days) {
   return dt.getUTCFullYear() + "-" + p(dt.getUTCMonth() + 1) + "-" + p(dt.getUTCDate());
 }
 const { validateSourceUrl } = require("../lib/validate-url");
+const { validateSubmission } = require("../lib/submission");
 const { createEmailLimiter } = require("../lib/rate-limit");
 const { createSubmissionsRouter, createIpLimiter, LIMITS } = require("../routes/submissions");
 const { loadApp } = require("./harness");
@@ -142,6 +143,17 @@ function payloadHasForbidden(payload) {
 }
 
 async function main() {
+  await section("new submissions accept the seven bands only", () => {
+    const accepted = validateSubmission(validBody({ cost: "$21-$40" }), { cookie: "spark_age_ok=1" });
+    check("a new band is accepted", accepted.ok === true && accepted.payload.cost === "$21-$40", JSON.stringify(accepted));
+    const legacy = validateSubmission(validBody({ cost: "$20-$30" }), { cookie: "spark_age_ok=1" });
+    check("a legacy cost is rejected",
+      legacy.ok === false && legacy.fields && legacy.fields.indexOf("cost") !== -1, JSON.stringify(legacy));
+    const renamed = validateSubmission(validBody({ cost: "$1-$10" }), { cookie: "spark_age_ok=1" });
+    check("the retired $1-$10 band is rejected",
+      renamed.ok === false && renamed.fields && renamed.fields.indexOf("cost") !== -1);
+  });
+
   await section("saved-idea helpers", () => {
     const dirty = {
       title: " Sunset picnic ",
@@ -570,7 +582,7 @@ async function main() {
 
     const migrations = fs.readdirSync(path.join(__dirname, "..", "db", "migrations")).filter(name => name.endsWith(".sql")).sort();
     check("known migration files",
-      migrations.join(",") === "001_init.sql,002_over100_age21.sql,003_source_url_city.sql,004_materials.sql,006_security_hardening.sql,007_expires_at.sql,008_occurrences.sql,009_weekly_open_end.sql,010_lists_friends.sql,012_usernames.sql,013_safety_reports.sql,014_report_identity.sql,015_source_credit.sql,016_nearby_keyset.sql,018_cost_bands_20.sql",
+      migrations.join(",") === "001_init.sql,002_over100_age21.sql,003_source_url_city.sql,004_materials.sql,006_security_hardening.sql,007_expires_at.sql,008_occurrences.sql,009_weekly_open_end.sql,010_lists_friends.sql,012_usernames.sql,013_safety_reports.sql,014_report_identity.sql,015_source_credit.sql,016_nearby_keyset.sql,018_cost_bands_20.sql,019_cost_bands_20_rename.sql",
       migrations.join(","));
     const routeSrc = fs.readFileSync(path.join(__dirname, "..", "routes", "submissions.js"), "utf8");
     check("insert writes payload and email only", routeSrc.indexOf("insert into submissions (payload, submitter_email) values ($1, $2)") !== -1);

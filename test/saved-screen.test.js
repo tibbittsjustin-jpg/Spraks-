@@ -59,7 +59,7 @@ section("Missing photo gets a placeholder; distance and open now render when set
   const plainHtml = textOf(plainCard);
   check("placeholder class with no image",
     classesOf(plainCard).indexOf("is-placeholder") !== -1 && plainHtml.indexOf("<img") === -1);
-  check("cost still shows", plainHtml.indexOf("$1-$10") !== -1);
+  check("cost still shows", plainHtml.indexOf("$1-$20") !== -1);
 
   const rich = copyIdea(t, 2);
   rich.distanceMiles = 3.2;

@@ -167,6 +167,10 @@ To turn it on with Supabase:
    `npm run db:migrate` applies every file in `db/migrations/` in filename
    order. A missing number does not stop later files. `002_over100_age21.sql`
    allows the `Over $100` cost and adds the `age21` column.
+   `018_cost_bands_20.sql` widens the cost check so the old labels and the
+   $20 bands can sit side by side, and adds nullable `cost_unit` (`per car`
+   or null). `019_cost_bands_20_rename.sql` renames a stored `$1-$10` to
+   `$1-$20` and does nothing else. `017` is reserved and is not in this repo.
    `003_source_url_city.sql` adds nullable `source_url` (https only, at most
    2048 characters) and nullable `city`. `004_materials.sql` adds a non-null
    `materials` text array that defaults to empty. There is no `005` yet.

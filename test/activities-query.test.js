@@ -79,6 +79,20 @@ section("filters become parameters", () => {
   check("Over $100 is an accepted cost",
     over.text.indexOf("cost = ANY(") !== -1 && JSON.stringify(over.values).indexOf("Over $100") !== -1);
   check("Over $100 stays out of the SQL text", over.text.indexOf("Over $100") === -1);
+  const mid = buildListQuery({ cost: "$21-$40" });
+  const midValues = mid.values.find(value => Array.isArray(value) && value.indexOf("$21-$40") !== -1);
+  check("a $21-$40 filter expands to the legacy strings that can fall in it",
+    !!midValues && midValues.indexOf("$20-$30") !== -1 && midValues.indexOf("$100 and under") !== -1 &&
+    midValues.indexOf("$1-$10") === -1,
+    JSON.stringify(midValues));
+  const low = buildListQuery({ cost: "$1-$20" });
+  const lowValues = low.values.find(value => Array.isArray(value) && value.indexOf("$1-$20") !== -1);
+  check("a $1-$20 filter also matches $1-$10 and $20-$30",
+    !!lowValues && lowValues.indexOf("$1-$10") !== -1 && lowValues.indexOf("$20-$30") !== -1 &&
+    lowValues.indexOf("$100 and under") === -1,
+    JSON.stringify(lowValues));
+  check("a legacy label is not itself a filter value", throwsFilter({ cost: "$20-$30" }, "cost"));
+  check("cost_unit is selected", buildListQuery({}).text.indexOf("cost_unit") !== -1);
   const hidden = buildListQuery({ hide21: "true" });
   check("hide21=true keeps age21 rows out", hidden.text.indexOf("age21 = false") !== -1);
   check("hide21=true does not interpolate the query string", hidden.text.indexOf("true") === -1);

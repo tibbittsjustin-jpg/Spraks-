@@ -73,8 +73,10 @@ const thinNotes = Object.values(coords).filter(e => e.status === "flagged" && !(
 check("flagged entries keep a note and are not #1854", thinNotes.length === 0 && coords["1854"].status !== "flagged", thinNotes.map(e => e.id).join(","));
 
 const axe = byId[1854];
-check("#1854 copy does not say Heber",
-  !!axe && !/heber/i.test(axe.title + " " + axe.description),
+check("#1854 is axe throwing at Heber Hatchets on University Avenue in Provo",
+  !!axe && axe.title === "Axe Throwing at Heber Hatchets Provo" &&
+  /Heber Hatchets/.test(axe.description) && /University Avenue in Provo/.test(axe.description) &&
+  axe.cost === "$1-$20",
   axe ? axe.title : "missing");
 const slate = byId[1876];
 check("#1876 copy is indoor modern American at the Marriott",

@@ -16,7 +16,7 @@ const PLACE_A = { placeId:"ChIJ_AAA", title:"Sunset Ridge Trail Walk", descripti
   placeName:"Sunset Ridge Trail", address:"1 Ridge Rd, Provo, UT", cost:"Free", setting:"Outdoor",
   vibe:["Chill"], food:false, durationGuess:"Short (1-2 hrs)", rating:4.6 };
 const PLACE_B = { placeId:"ChIJ_BBB", title:"Late Night Ramen Run", description:"Slurp away.",
-  placeName:"Kaiju Ramen", address:"99 Center St, Provo, UT", cost:"$20-$30", setting:"Indoor",
+  placeName:"Kaiju Ramen", address:"99 Center St, Provo, UT", cost:"$21-$40", setting:"Indoor",
   vibe:["Cozy"], food:true, durationGuess:"Short (1-2 hrs)", rating:4.4 };
 
 const store = {};   // shared across the reload tests

@@ -14,6 +14,7 @@ const {
   planImport,
   loadDefaultInputs
 } = require("../db/import-provo-finds");
+const filters = require("../shared/filters");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -56,14 +57,17 @@ const inputs = loadDefaultInputs();
 const plan = planImport(inputs);
 
 section("cost bands", () => {
-  check("11.99 is closer to $1-$10 than to $20-$30", closestCost(11.99) === "$1-$10");
-  check("16 is closer to $20-$30", closestCost(16) === "$20-$30");
-  check("a tie above $10 uses the higher band", closestCost(15) === "$20-$30");
-  check("40 stays in $100 and under", closestCost(40) === "$100 and under");
+  check("11.99 rounds into $1-$20", closestCost(11.99) === "$1-$20");
+  check("16 is $1-$20", closestCost(16) === "$1-$20");
+  check("20 is $1-$20, 20.01 is $21-$40, and 40.50 is $41-$60",
+    closestCost(20) === "$1-$20" && closestCost(20.01) === "$21-$40" && closestCost(40.50) === "$41-$60");
+  check("40 is $21-$40", closestCost(40) === "$21-$40");
+  check("100 is $81-$100 and 100.01 is Over $100",
+    closestCost(100) === "$81-$100" && closestCost(100.01) === "Over $100");
   check("an exact enum is kept",
-    mapProposedCost("$20-$30", "Over $100", "$124").cost === "Over $100" &&
-    mapProposedCost("$20-$30", "Over $100", "$124").unmapped == null);
-  check("no change keeps the find cost",
+    mapProposedCost("$21-$40", "Over $100", "$124").cost === "Over $100" &&
+    mapProposedCost("$21-$40", "Over $100", "$124").unmapped == null);
+  check("no change keeps a legacy find cost",
     mapProposedCost("$20-$30", "no change (a $30–$100 band would fit)", "").cost === "$20-$30");
   const unsure = mapProposedCost("$100 and under", "unknown; possibly Over $100", "price TBA");
   check("an unknown note leaves the valid cost and is reported",
@@ -129,7 +133,7 @@ section("mapping, hand pins, and idempotency on fixtures", () => {
       lat: 40.1,
       lng: -111.5,
       source_url: "https://example.com/ride",
-      cost: "$20-$30"
+      cost: "$21-$40"
     }),
     find({
       title: "Unlocked Pin",
@@ -155,7 +159,7 @@ section("mapping, hand pins, and idempotency on fixtures", () => {
   const reviews = {
     "Locked Ride": {
       geo: { lat: 40.11, lng: -111.51, coords_locked: true },
-      cost_mapping: { current: "$20-$30", proposed: "$10-$20", evidence: "Fall special $11.99." }
+      cost_mapping: { current: "$21-$40", proposed: "$10-$20", evidence: "Fall special $11.99." }
     },
     "Unlocked Pin": { geo: { coords_locked: false }, city: "Orem" },
     "No Fixed Launch": { geo: { lat: 40.376806, lng: -111.795915, coords_locked: false }, city: "American Fork" },
@@ -180,7 +184,7 @@ section("mapping, hand pins, and idempotency on fixtures", () => {
     ride && ride.lat === 40.163866 && ride.lng === -111.50108);
   check("coords_locked follows the review, and the hand pin city is used",
     ride && ride.coords_locked === true && ride.city === "Springville" && ride.address.indexOf("Junction") === 0);
-  check("$10-$20 maps to the closest real band", ride && ride.cost === "$1-$10");
+  check("$10-$20 maps to the closest real band", ride && ride.cost === "$1-$20");
   const unlocked = byTitle["Unlocked Pin"];
   check("a hand pin can move the point without locking it",
     unlocked && unlocked.lat === 40.36245 && unlocked.lng === -111.7487 && unlocked.coords_locked === false &&
@@ -216,6 +220,20 @@ section("the 133 Utah County finds", () => {
   check("curated catalog is 1994 ideas", inputs.ideaCount === 1994, String(inputs.ideaCount));
   check("no find is skipped by review", plan.skippedReview.length === 0, JSON.stringify(plan.skippedReview.slice(0, 3)));
   check("no find is invalid", plan.skippedInvalid.length === 0, JSON.stringify(plan.skippedInvalid));
+  const legacyFinds = inputs.finds.filter(find => filters.legacyCost.indexOf(find.cost) !== -1);
+  const legacyKept = legacyFinds.filter(find => {
+    const row = plan.rows.find(item => item.title === find.title);
+    return row && row.cost === find.cost;
+  });
+  const legacyRejected = legacyFinds.filter(find =>
+    plan.skippedInvalid.some(item => item.title === find.title)
+  );
+  check("flagged finds keep their legacy cost and nothing else is rejected for cost",
+    legacyFinds.length > 0 && legacyRejected.length === 0 && legacyKept.length === legacyFinds.length &&
+    plan.skippedInvalid.length === 0 &&
+    inputs.finds.every(find =>
+      filters.cost.slice().indexOf(find.cost) !== -1 || filters.legacyCost.indexOf(find.cost) !== -1),
+    "flagged " + legacyFinds.length + " kept " + legacyKept.length + " rejected " + JSON.stringify(legacyRejected));
   check("no find duplicates a curated title or another find",
     plan.skippedDuplicate.length === 0, JSON.stringify(plan.skippedDuplicate.slice(0, 5)));
   check("every kept row is pending, from AI, and has a source page",
@@ -240,16 +258,16 @@ section("the 133 Utah County finds", () => {
     balloon.coords_locked === true);
 
   const skate = plan.rows.find(row => row.title === "16+ Late Skate at Classic Fun Center");
-  check("late skate $11.99 is stored as $1-$10", skate && skate.cost === "$1-$10");
+  check("late skate $11.99 is stored as $1-$20", skate && skate.cost === "$1-$20");
   const ravioli = plan.rows.find(row => row.title === "Christmas Ravioli Night Cooking Class");
-  check("ravioli keeps its last day and the $20-$30 band",
-    ravioli && ravioli.expires_at === "2026-12-02" && ravioli.cost === "$20-$30" &&
+  check("ravioli keeps its last day and maps onto $21-$40",
+    ravioli && ravioli.expires_at === "2026-12-02" && ravioli.cost === "$21-$40" &&
     ravioli.occurrences && ravioli.occurrences.kind === "dates" &&
     ravioli.occurrences.dates[0].date === "2026-12-02");
   const concert = plan.rows.find(row => row.title === "BYU Celebration of Christmas Concert");
-  check("the Christmas concert maps onto $20-$30", concert && concert.cost === "$20-$30");
+  check("the Christmas concert maps onto $21-$40", concert && concert.cost === "$21-$40");
   const pottery = plan.rows.find(row => row.title === "Paint Pottery at Color Me Mine Provo");
-  check("pottery at $16 stays $20-$30", pottery && pottery.cost === "$20-$30");
+  check("pottery at $16 is $1-$20", pottery && pottery.cost === "$1-$20");
 
   const football = plan.rows.find(row => row.title === "BYU Football at LaVell Edwards Stadium");
   check("a dated find keeps expires_at", football && football.expires_at === "2026-11-28");

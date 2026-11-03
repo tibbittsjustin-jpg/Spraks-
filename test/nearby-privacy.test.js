@@ -120,7 +120,7 @@ async function main() {
         prompt = req.messages[0].content;
         return { content: [{ text: JSON.stringify([{
           placeIndex: 1, title: "Coffee Date", description: "A cup.", icon: "☕",
-          cost: "$1-$10", setting: "Indoor", vibe: ["Chill"], food: true,
+          cost: "$1-$20", setting: "Indoor", vibe: ["Chill"], food: true,
           durationGuess: "Short (1-2 hrs)"
         }]) }] };
       });
@@ -142,6 +142,13 @@ async function main() {
           prompt.indexOf(String(PRECISE_LAT)) === -1 && prompt.indexOf(String(PRECISE_LNG)) === -1, prompt.slice(0, 120));
         check("Claude prompt omits rounded coordinates too",
           prompt.indexOf(String(ROUNDED_LAT)) === -1 && prompt.indexOf(String(ROUNDED_LNG)) === -1);
+        check("Claude prompt lists the $20 bands per person",
+          prompt.indexOf("Free, $1-$20, $21-$40, $41-$60, $61-$80, $81-$100, Over $100") !== -1 &&
+          prompt.indexOf("Cost is the price per person.") !== -1 &&
+          prompt.indexOf("which is per car.") !== -1 &&
+          prompt.indexOf("$1-$10") === -1 &&
+          prompt.indexOf("$20-$30") === -1,
+          prompt.slice(0, 400));
         check("logs omit precise coordinates",
           spy.text().indexOf(String(PRECISE_LAT)) === -1 && spy.text().indexOf(String(PRECISE_LNG)) === -1,
           spy.text().slice(0, 160));

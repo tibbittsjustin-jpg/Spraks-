@@ -217,6 +217,11 @@ section("the browser does not load the full catalog", () => {
   check("the starter is a small subset of the catalog",
     starter.length >= 8 && starter.length <= 32 && catalog.length > 1500 &&
     starter.every(idea => catalog.some(row => row.id === idea.id)));
+  check("each starter idea matches the catalog row",
+    starter.every(idea => {
+      const row = catalog.find(item => item.id === idea.id);
+      return row && JSON.stringify(row) === JSON.stringify(idea);
+    }));
   check("removed ideas are in neither file", !starterIds.has(340) && !catalog.some(idea => idea.id === 340));
   const html = fs.readFileSync(path.join(root, "public", "index.html"), "utf8");
   check("the page loads the starter script", html.indexOf('src="data.js"') !== -1 && html.indexOf("ideas-catalog") === -1);
@@ -224,7 +229,7 @@ section("the browser does not load the full catalog", () => {
   const appSrc = fs.readFileSync(path.join(root, "public", "app.js"), "utf8");
   check("the client asks for a cursor page",
     remoteSrc.indexOf("cursor=") !== -1 && remoteSrc.indexOf("offset=") === -1 && appSrc.indexOf("ideas-catalog") === -1);
-  check("activity cache version moved to 5", remoteSrc.indexOf('API_VERSION = "5"') !== -1);
+  check("activity cache version moved to 6", remoteSrc.indexOf('API_VERSION = "6"') !== -1);
 });
 
 module.exports = { pass: pass, fail: fail };

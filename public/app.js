@@ -40,7 +40,7 @@
 
   var FILTER_DEFS = [
     { key:"duration", label:"Date Length", options:["Quick (under 1 hr)","Short (1-2 hrs)","Half-day (2-5 hrs)","Full day","Overnight"] },
-    { key:"cost",     label:"Budget",      options:["Free","$1-$10","$20-$30","$100 and under","Over $100"] },
+    { key:"cost",     label:"Budget",      options:["Free","$1-$20","$21-$40","$41-$60","$61-$80","$81-$100","Over $100"] },
     { key:"time",     label:"Time of Day", options:["Morning","Afternoon","Evening","Night"] },
     { key:"setting",  label:"Indoor / Outdoor", options:["Indoor","Outdoor"] },
     { key:"vibe",     label:"Vibe",        options:["Chill","Romantic","Active","Adventurous","Creative","Silly","Cozy","Spontaneous"] },
@@ -600,7 +600,7 @@
       setting: raw.setting === "Outdoor" ? "Outdoor" : "Indoor",
       season: (filters.season && filters.season.length) ? filters.season.slice() : ALL_SEASONS,
       food: !!raw.food,
-      cost: raw.cost || "$20-$30",
+      cost: raw.cost || "$1-$20",
       duration: (filters.duration && filters.duration.length) ? filters.duration[0] : (raw.durationGuess || "Half-day (2-5 hrs)"),
       time: (filters.time && filters.time.length) ? filters.time.slice() : ALL_TIMES,
       vibe: (raw.vibe && raw.vibe.length) ? raw.vibe : ["Chill"],
@@ -1165,7 +1165,9 @@
   }
 
   function displayCost(idea){
-    return (idea && idea.cost) ? idea.cost : "";
+    if(!idea || !idea.cost) return "";
+    if(idea.costUnit === "per car" && idea.cost !== "Free") return idea.cost + " per car";
+    return idea.cost;
   }
 
   /* ---------- UI router state (not persisted) ---------- */
@@ -1902,7 +1904,7 @@
   /* ---------- Filtering ---------- */
   function matchesFilters(idea, f){
     if(f.duration.length && f.duration.indexOf(idea.duration) === -1) return false;
-    if(f.cost.length && f.cost.indexOf(idea.cost) === -1) return false;
+    if(f.cost.length && !SparkCostBands.costMatches(idea.cost, f.cost)) return false;
     if(f.time.length && !idea.time.some(function(t){ return f.time.indexOf(t) !== -1; })) return false;
     if(f.setting.length){
       var ok = idea.setting === "Both" || f.setting.indexOf(idea.setting) !== -1;

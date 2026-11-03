@@ -28,7 +28,7 @@ const ideas = loadIdeas(path.join(ROOT, "data", "ideas-catalog.js"));
 
 // Snapshot of every field except title, description, and materials, taken
 // before the rewrite. Applying a new rewrites file does not change it.
-const FIELDS_HASH = "190f414afc0c764708e0bb1b556a54afd0a312e0e8dfd9743b9fe5cbca30d754";
+const FIELDS_HASH = "ab7b5441b7c7e1315f28303cd5647a5247d84ffd45dfdcfa686a46a354473437";
 const TAIL_HASH = "a0640c4922256cb7a9a086ce8c8a3afad5755221571f91faa890490c2dfe64bd";
 
 function fieldsExceptCopy(idea) {

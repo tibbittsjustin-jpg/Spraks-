@@ -1,6 +1,7 @@
 /* The ideas file is the source of the count. Nothing here names a catalog size. */
 "use strict";
 
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { loadIdeas, validateIdeas } = require("../db/seed");
@@ -24,9 +25,15 @@ section("catalog", () => {
   const ids = ideas.map(idea => idea.id);
   check("ids are unique", new Set(ids).size === ideas.length, "unique " + new Set(ids).size);
   const bad = [];
+  const visibleBands = filters.cost.slice();
+  const legacyIds = [];
   ideas.forEach(idea => {
     if (filters.setting.indexOf(idea.setting) === -1) bad.push(idea.id + " setting");
-    if (filters.cost.indexOf(idea.cost) === -1) bad.push(idea.id + " cost");
+    const inNew = visibleBands.indexOf(idea.cost) !== -1;
+    const inLegacy = filters.legacyCost.indexOf(idea.cost) !== -1;
+    if (!inNew && !inLegacy) bad.push(idea.id + " cost");
+    if (inLegacy) legacyIds.push(idea.id);
+    if (idea.cost === "$1-$10") bad.push(idea.id + " old $1-$10");
     if (filters.duration.indexOf(idea.duration) === -1) bad.push(idea.id + " duration");
     if (filters.category.indexOf(idea.category) === -1) bad.push(idea.id + " category");
     if (typeof idea.food !== "boolean") bad.push(idea.id + " food");
@@ -37,6 +44,18 @@ section("catalog", () => {
     });
   });
   check("every value is in shared/filters.js", bad.length === 0, bad.slice(0, 8).join(", "));
+  legacyIds.sort((a, b) => a - b);
+  const legacyHash = crypto.createHash("sha256").update(legacyIds.join(",")).digest("hex");
+  check("a legacy cost is only a flagged $20-$30 or $100 and under",
+    legacyIds.length > 0 && legacyIds.every(id => {
+      const idea = ideas.find(row => row.id === id);
+      return idea && filters.legacyCost.indexOf(idea.cost) !== -1;
+    }) && filters.legacyCost.join("|") === "$20-$30|$100 and under",
+    String(legacyIds.length));
+  check("flagged catalog rows are the only ones on a legacy cost",
+    legacyIds.length === 452 &&
+    legacyHash === "7fdd2c30b18c39a09ea620d571c66b0b0e8f2b412b32cc776274625cc54bb960",
+    legacyIds.length + " " + legacyHash);
   let seedOk = true;
   let seedErr = "";
   try { validateIdeas(ideas); }

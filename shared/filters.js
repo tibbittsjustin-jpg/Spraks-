@@ -1,13 +1,42 @@
-/* Filter vocabulary taken from public/data.js.
+/* Filter vocabulary taken from the ideas catalog.
    The seed refuses an idea outside this set. The activities API rejects a
    query value outside it. The browser still has its own copy in app.js;
-   this module is the server-side list. */
+   this module is the server-side list.
+
+   cost.indexOf also recognizes legacyCost. db/seed.js is unchanged and
+   still calls cost.indexOf, so a flagged row stored as "$20-$30" or
+   "$100 and under" can load. Filter chips and new submissions use the
+   seven bands only (cost.slice(), whose indexOf is the ordinary one).
+   legacyCost is not a filter and is not shown in the UI. */
 "use strict";
+
+const costBands = require("../public/cost-bands");
+
+const cost = costBands.COST_BANDS.slice();
+const legacyCost = ["$20-$30", "$100 and under"];
+
+function costIndexOf(value, fromIndex) {
+  const found = Array.prototype.indexOf.call(this, value, fromIndex);
+  if (found !== -1) return found;
+  const legacy = legacyCost.indexOf(value);
+  if (legacy === -1) return -1;
+  return this.length + legacy;
+}
+Object.defineProperty(cost, "indexOf", {
+  value: costIndexOf,
+  writable: true,
+  configurable: true
+});
 
 module.exports = {
   setting: ["Indoor", "Outdoor", "Both"],
   season: ["Spring", "Summer", "Fall", "Winter"],
-  cost: ["Free", "$1-$10", "$20-$30", "$100 and under", "Over $100"],
+  cost: cost,
+  // Hidden. Not a swipe chip and not accepted on a new submission.
+  legacyCost: legacyCost,
+  storedCostsForBands: costBands.storedCostsForBands,
+  costMatches: costBands.costMatches,
+  bandsForStoredCost: costBands.bandsForStoredCost,
   duration: ["Quick (under 1 hr)", "Short (1-2 hrs)", "Half-day (2-5 hrs)", "Full day", "Overnight"],
   time: ["Morning", "Afternoon", "Evening", "Night"],
   vibe: ["Chill", "Romantic", "Active", "Adventurous", "Creative", "Silly", "Cozy", "Spontaneous"],

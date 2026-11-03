@@ -14,16 +14,26 @@
   var PARKS_DATASET = "https://opendata.gis.utah.gov/datasets/818536733987486b8082e4c5dec0a1dd_0";
   var UGRC_POLICY = "https://gis.utah.gov/documentation/policy/license/";
 
-  var TRAILHEAD_CREDIT = "Trailhead data: Utah Trailheads, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: coordinates converted to latitude/longitude; fields selected and reformatted.";
-  var PARK_CREDIT = "Park data: Utah Parks Local, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted.";
+  var TRAILHEAD_CREDIT = "Utah Trailheads, via UGRC SGID \u00b7 CC BY 4.0 \u00b7 data modified";
+  var PARK_CREDIT = "Utah Parks Local, via UGRC SGID \u00b7 CC BY 4.0 \u00b7 data modified";
+  var TRAILHEAD_PHRASES = [
+    { text: "UGRC SGID", href: TRAILHEAD_DATASET },
+    { text: "CC BY 4.0", href: CC_BY }
+  ];
+  var PARK_PHRASES = [
+    { text: "UGRC SGID", href: PARKS_DATASET },
+    { text: "CC BY 4.0", href: CC_BY }
+  ];
 
+  // The parks change note stops at "reformatted." Nothing in the app uses
+  // park polygons to say which park a place is in.
   var UGRC_HEADING = "Utah Trailheads and Utah Parks Local (UGRC)";
   var UGRC_LINES = [
     "Utah Trailheads and Utah Parks Local",
     "Data Sources: UGRC SGID (data modified).",
     "Source: Utah Geospatial Resource Center (UGRC, formerly AGRC), State Geographic Information Database (SGID). Datasets: Utah Trailheads (https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0) and Utah Parks Local (https://opendata.gis.utah.gov/datasets/818536733987486b8082e4c5dec0a1dd_0).",
     "License: Creative Commons Attribution 4.0 International (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/. UGRC license policy: https://gis.utah.gov/documentation/policy/license/.",
-    "Changes we made: Utah Trailheads: coordinates converted to latitude/longitude; fields selected and reformatted. Utah Parks Local: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted. We don't add any other information to these datasets.",
+    "Changes we made: Utah Trailheads: coordinates converted to latitude/longitude; fields selected and reformatted. Utah Parks Local: park areas reduced to approximate center points; parks marked 'Future' (not yet open) removed; fields selected, acreage rounded and reformatted. We don't add any other information to these datasets.",
     "UGRC and the State of Utah don't endorse Jaderoo and aren't responsible for how we use or show this data.",
     "Disclaimer from UGRC (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\""
   ];
@@ -54,11 +64,9 @@
   // source_url to datasetUrl. usfs: set source_url to the row's recareaurl.
   // blm: set source_url to the row's BLMRecURL. source_url must be https.
   // Do not store Sources-page paragraphs on the row. No new columns.
-  // Utah Trailheads stays ugrc_trailheads with the Section 9 sentence.
-  // Layers whose item license could not be verified are not listed.
-  // ugrc_schools is mapped because that layer is CC BY and the credit was
-  // supplied for use. Legal recommended leaving school rows out of this
-  // 18+ app. This file does not import any rows.
+  // Utah Trailheads stays ugrc_trailheads. Utah Schools PreK to 12 has
+  // no source_key. Layers whose item license could not be verified are
+  // not listed. This file does not import any rows.
 
   var UGRC_SGID_INTRO_TEMPLATE = "Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID). Data Sources: UGRC SGID (data modified). Layers used: {list each layer title, linked to its dataset page}. Licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Changes made by Jaderoo: records filtered to activity types, polygons and lines reduced to points, trail segments combined by trail name, fields renamed and reformatted, and our own short summaries added. Neither UGRC nor the State of Utah endorses Jaderoo.";
   var UGRC_SGID_DISCLAIMER = "UGRC disclaimer (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\"";
@@ -155,14 +163,6 @@
       cardNote: false
     }),
     ugrcLayer({
-      key: "ugrc_schools",
-      title: "Utah Schools PreK to 12",
-      itemId: "333206ff129346e3b8660e8f6f48540e",
-      credit: "Utah Schools PreK to 12 (WFRC, Utah State Board of Education), via UGRC SGID · CC BY 4.0 · data modified",
-      note: "",
-      cardNote: false
-    }),
-    ugrcLayer({
       key: "ugrc_historic_trails",
       title: "Utah Historic Trails",
       itemId: "20742e3d34354509b8a9f567f1003509",
@@ -238,7 +238,9 @@
   // Older ingest text. Showing it would describe changes we do not make.
   var PREVIOUS_CREDITS = {};
   PREVIOUS_CREDITS["Trailhead data: Utah Trailheads, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: locations geocoded and reformatted."] = "ugrc_trailheads";
+  PREVIOUS_CREDITS["Trailhead data: Utah Trailheads, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: coordinates converted to latitude/longitude; fields selected and reformatted."] = "ugrc_trailheads";
   PREVIOUS_CREDITS["Park data: Utah Parks Local, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: polygons reduced to center points and reformatted."] = "ugrc_parks";
+  PREVIOUS_CREDITS["Park data: Utah Parks Local, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted."] = "ugrc_parks";
 
   function entry(fields) {
     return fields;
@@ -250,6 +252,7 @@
       group: "places",
       credit: TRAILHEAD_CREDIT,
       datasetUrl: TRAILHEAD_DATASET,
+      phrases: TRAILHEAD_PHRASES,
       note: CHECK_CONDITIONS
     }),
     entry({
@@ -257,6 +260,7 @@
       group: "places",
       credit: PARK_CREDIT,
       datasetUrl: PARKS_DATASET,
+      phrases: PARK_PHRASES,
       note: APPROXIMATE + " " + CHECK_CONDITIONS
     }),
     entry({
@@ -594,8 +598,8 @@
     html.push(paragraph(CHECK_CONDITIONS));
     html.push('<p id="report"><a href="' + escapeHtml(REPORT_HREF) + '">' + escapeHtml(REPORT_LABEL) + "</a></p>");
     html.push('<h2 id="ugrc">' + escapeHtml(UGRC_HEADING) + "</h2>");
-    html.push(paragraph(TRAILHEAD_CREDIT));
-    html.push(paragraph(PARK_CREDIT));
+    html.push(paragraphPhrases(TRAILHEAD_CREDIT, TRAILHEAD_PHRASES));
+    html.push(paragraphPhrases(PARK_CREDIT, PARK_PHRASES));
     html.push('<div class="block">');
     UGRC_LINES.forEach(function (line) { html.push(paragraph(line)); });
     html.push("</div>");

@@ -57,7 +57,7 @@ const DATASETS = [
     title: "Utah Parks Local",
     sourceUrl: "https://opendata.gis.utah.gov/datasets/818536733987486b8082e4c5dec0a1dd_0",
     creditUrl: "https://opendata.gis.utah.gov/datasets/818536733987486b8082e4c5dec0a1dd_0",
-    creditLine: "Park data: Utah Parks Local, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: park areas reduced to approximate center points; proposed, planned and closed parks removed; fields selected, acreage rounded and reformatted.",
+    creditLine: "Utah Parks Local, via UGRC SGID · CC BY 4.0 · data modified",
     legalRef: "Section 9 Q2",
     loadEnabled: true,
     priority: 30,
@@ -69,12 +69,13 @@ const DATASETS = [
     title: "Utah Trailheads",
     sourceUrl: "https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0",
     creditUrl: "https://opendata.gis.utah.gov/datasets/9c21cc1f95ba40468deb36bb6fd94943_0",
-    creditLine: "Trailhead data: Utah Trailheads, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: coordinates converted to latitude/longitude; fields selected and reformatted.",
-    legalRef: "Section 9 Q1",
+    creditLine: "Utah Trailheads, via UGRC SGID · CC BY 4.0 · data modified",
+    legalRef: "Section 9 Q1 / R8.4",
     loadEnabled: true,
     priority: 40,
     dedupeRadiusM: 500,
     centroidExempt: true,
+    fieldAllowlist: ["Comments", "primary_use"],
     featureType: "trailhead",
     fileTest: function (name) { return /trailhead/i.test(name); }
   }),
@@ -115,6 +116,7 @@ const DATASETS = [
     creditLine: "Name and location: Utah GNIS Place Names (USGS GNIS), via UGRC SGID · CC BY 4.0 · data modified",
     sourcesPageText: UGRC_SOURCES + " " + GNIS_NOTICE,
     userCaution: "Check access and conditions before you go.",
+    excludeSprings: true,
     featureType: "gnis_place"
   }),
   {
@@ -224,8 +226,8 @@ const DATASETS = [
     sourcesPageText: "USDA Forest Service. Recreation site information from the U.S. Forest Service Recreation Opportunities dataset (Enterprise Data Warehouse), https://www.fs.usda.gov/. U.S. Government work. No claim to original U.S. Government works. Data may be incomplete or out of date; check with the managing forest before you go. Use of this data does not imply endorsement by the USDA Forest Service.",
     disclaimer: "No claim to original U.S. Government works.",
     userCaution: "check with the managing forest before you go.",
-    sourceUrl: "https://www.fs.usda.gov/",
-    legalRef: "Round 8 B",
+    sourceUrl: "https://data.fs.usda.gov/geodata/edw/edw_resources/shp/Rec_RecOpportunities.zip",
+    legalRef: "Round 8 B / R8.4 B1",
     clearedOn: "2026-11-02",
     approvalStatus: "pending",
     autoPublish: false,
@@ -293,10 +295,10 @@ const DATASETS = [
     autoPublish: false,
     refreshCadence: "monthly",
     licenseCheckedOn: "2026-11-02",
-    licenseInfoSeen: "Wikidata structured data is CC0 1.0. Wikipedia text is not included.",
+    licenseInfoSeen: "Wikidata structured data is CC0 1.0. query.wikidata.org robots.txt disallows /sparql.",
     loadEnabled: false,
     excluded: false,
-    exclusionReason: null,
+    exclusionReason: "query.wikidata.org robots.txt disallows /sparql. Stays disabled until Justin decides.",
     odbl: false,
     odblApproved: false,
     priority: 70,
@@ -336,7 +338,43 @@ const DATASETS = [
     fieldAllowlist: [],
     npsPagesOnly: false,
     featureType: "osm_place"
-  }
+  },
+  ugrc({
+    datasetKey: "ugrc_dup_museums",
+    title: "DUP Satellite Museums",
+    sourceUrl: "https://opendata.gis.utah.gov/datasets/33cbcb479cd04edeb0ca5fca40bcb50a_0",
+    creditLine: "DUP Satellite Museums, via UGRC SGID · CC BY 4.0 · data modified",
+    licenseInfoSeen: null,
+    licenseCheckedOn: null,
+    loadEnabled: false,
+    excluded: true,
+    exclusionReason: "Needs permission from the Utah Division of State History. Held.",
+    featureType: "museum"
+  }),
+  ugrc({
+    datasetKey: "stateparks_info",
+    title: "StateParksInfo",
+    sourceUrl: null,
+    creditLine: "StateParksInfo, via UGRC SGID · CC BY 4.0 · data modified",
+    licenseInfoSeen: null,
+    licenseCheckedOn: null,
+    loadEnabled: false,
+    excluded: true,
+    exclusionReason: "Avoid. No geometry and no license. State park pages already cover it.",
+    featureType: "park"
+  }),
+  ugrc({
+    datasetKey: "dpr_landmarks",
+    title: "DPR_Landmark_Features",
+    sourceUrl: null,
+    creditLine: "DPR_Landmark_Features, via UGRC SGID · CC BY 4.0 · data modified",
+    licenseInfoSeen: null,
+    licenseCheckedOn: null,
+    loadEnabled: false,
+    excluded: true,
+    exclusionReason: "Avoid. No confirmed license or item.",
+    featureType: "landmark"
+  })
 ];
 
 /* Parks, trailheads, museums and campgrounds already have a non-OSM source,

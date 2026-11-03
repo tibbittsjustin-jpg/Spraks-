@@ -57,7 +57,7 @@ function isCountyName(value) {
 function parsePlace(location) {
   const text = typeof location === "string" ? location.trim() : "";
   if (!text || /^ut$/i.test(text) || /^utah$/i.test(text)) {
-    return { city: null, address: null, countyAsCity: false, outsideUtah: false };
+    return { city: null, address: null, countyAsCity: false, cityBlank: true, outsideUtah: false };
   }
   const parts = text.split(",").map(part => part.trim()).filter(Boolean);
   let city = null;
@@ -69,12 +69,13 @@ function parsePlace(location) {
   } else if (parts.length >= 3 && /^(UT|Utah)$/i.test(parts[parts.length - 1])) {
     city = parts[0];
   } else if (parts.length === 2 && /^(UT|Utah)$/i.test(parts[1])) {
+    if (isCountyName(parts[0])) return { city: null, address: null, countyAsCity: false, cityBlank: true, outsideUtah: false };
     city = parts[0];
   }
   const countyAsCity = isCountyName(city);
   if (countyAsCity) city = null;
   const outsideUtah = OUT_OF_STATE.test(text) || (/,\s*[A-Z]{2}$/.test(text) && !/,\s*UT$/i.test(text) && !/utah/i.test(text));
-  return { city: city, address: address, countyAsCity: countyAsCity, outsideUtah: outsideUtah };
+  return { city: city, address: address, countyAsCity: countyAsCity, cityBlank: false, outsideUtah: outsideUtah };
 }
 
 function explicitCity(record) {
@@ -193,6 +194,16 @@ function countUrls(records) {
   return unique;
 }
 
+function textField(record, keys) {
+  if (!record) return null;
+  for (let i = 0; i < keys.length; i++) {
+    if (record[keys[i]] == null) continue;
+    const text = String(record[keys[i]]).trim();
+    if (text) return text;
+  }
+  return null;
+}
+
 function featureFor(dataset, record) {
   if (dataset.datasetKey === "ugrc_parks" && record && /campground/i.test(String(record.type || ""))) return "campground";
   return dataset.featureType;
@@ -208,6 +219,7 @@ function normalizeRecord(dataset, record, rules, seen) {
     countyAsCity = true;
   }
   const trailhead = dataset.datasetKey === "ugrc_trailheads";
+  const localPark = dataset.datasetKey === "ugrc_parks";
   if (trailhead) city = null;
   const derived = {
     city: city,
@@ -218,17 +230,23 @@ function normalizeRecord(dataset, record, rules, seen) {
   const actions = tagged.actions.slice();
   const status = rulesLib.statusValue(record);
   const flags = {
-    statusMissing: dataset.datasetKey === "ugrc_parks" && rulesLib.statusIsMissing(record),
-    statusBlank: dataset.datasetKey === "ugrc_parks" && !rulesLib.statusIsMissing(record) && String(status || "").trim() === "",
+    statusMissing: localPark && rulesLib.statusIsMissing(record),
+    statusBlank: localPark && !rulesLib.statusIsMissing(record) && String(status || "").trim() === "",
     statusFuture: false,
     countyAsCity: countyAsCity,
-    needsCity: trailhead,
+    cityBlank: localPark && parsed.cityBlank === true && !explicit,
+    needsCity: trailhead || (localPark && !city),
     cityLookup: actions.indexOf("city_polygon_lookup") === -1 ? null : "not_cleared"
   };
-  if (status != null && /^future$/i.test(String(status).trim()) && actions.indexOf("exclude") === -1) {
+  if (status != null && /^future$/i.test(String(status).trim())) {
     flags.statusFuture = true;
-    if (actions.indexOf("hold") === -1) actions.push("hold");
-    tagged.review = true;
+    tagged.excluded = true;
+    tagged.review = false;
+  }
+  if (dataset.excludeSprings && /spring/i.test(String((record && (record.feature_class || record.type || record.kind)) || ""))) {
+    tagged.excluded = true;
+    tagged.review = false;
+    flags.gnisSpring = true;
   }
   let title = record && record.name ? String(record.name).trim() : "";
   const sourceName = title;
@@ -291,7 +309,21 @@ function normalizeRecord(dataset, record, rules, seen) {
     linkFlag: link.linkFlag,
     status: tagged.excluded ? "excluded" : "pending",
     flags: flags,
-    age21Gate: tagged.age21Gate
+    age21Gate: tagged.age21Gate,
+    hours: textField(record, ["hours"]),
+    entranceFee: textField(record, ["entrance_fee"]),
+    feeDisplay: textField(record, ["fee_display"]),
+    feeUrl: textField(record, ["fee_url"]),
+    feeAsOf: textField(record, ["fee_as_of"]),
+    notice: textField(record, ["notice"]),
+    vehicleFee: textField(record, ["vehicle_fee"]),
+    moreInfoUrl: textField(record, ["more_info_url"]),
+    sourceActivity: textField(record, ["activity"]),
+    sourceSeason: textField(record, ["season"]),
+    openStatus: textField(record, ["open_status"]),
+    feeFact: textField(record, ["fee_fact"]),
+    sourceActivities: textField(record, ["activities"]),
+    reservable: textField(record, ["reservable"])
   };
 }
 

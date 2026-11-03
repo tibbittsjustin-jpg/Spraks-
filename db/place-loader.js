@@ -255,18 +255,22 @@ async function insertRows(client, rows, batchIds) {
     "vibe, stage, date_type, age21, address, city, source_url, source_credit, occurrences, " +
     "occurrences_flag, mapped_filters, tag_confidence, confidence_by_field, tag_review, actions, " +
     "name_key, dedupe_radius_m, generic_name, same_name_keep_both, geom, needs_hand_pin, needs_city, " +
-    "county_as_city, out_of_utah, link, link_flag, status, flags, approval_batch_id" +
+    "county_as_city, out_of_utah, link, link_flag, status, flags, approval_batch_id, " +
+    "hours, entrance_fee, fee_display, fee_url, fee_as_of, notice, vehicle_fee, more_info_url, " +
+    "source_activity, source_season, open_status, fee_fact, source_activities, reservable" +
     ") values (" +
     "$1,$2,$3,$4,$5::jsonb,$6,$7,$8,$9,$10,$11::text[],$12,$13,$14,$15,$16,$17::text[]," +
     "$18::text[],$19::text[],$20::text[],$21,$22,$23,$24,$25,$26::jsonb,$27,$28::jsonb,$29,$30::jsonb," +
     "$31,$32::text[],$33,$34,$35,$36," +
     "case when $37::float8 is null then null else ST_SetSRID(ST_MakePoint($38,$37),4326)::geography end," +
-    "$39,$40,$41,$42,$43,$44,$45,$46::jsonb,$47" +
+    "$39,$40,$41,$42,$43,$44,$45,$46::jsonb,$47," +
+    "$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61" +
     ") on conflict (dataset_key, source_record_id) do update set " +
     "title = excluded.title, source_credit = excluded.source_credit, tag_review = excluded.tag_review, " +
     "status = excluded.status, flags = excluded.flags, city = excluded.city, " +
     "needs_city = excluded.needs_city, county_as_city = excluded.county_as_city, " +
-    "cost = excluded.cost, cost_unit = excluded.cost_unit, geom = excluded.geom";
+    "cost = excluded.cost, cost_unit = excluded.cost_unit, geom = excluded.geom, " +
+    "hours = excluded.hours, entrance_fee = excluded.entrance_fee, vehicle_fee = excluded.vehicle_fee";
   for (const row of rows) {
     await client.query(sql, [
       row.datasetKey, row.sourceRecordId, row.featureType, row.odbl, JSON.stringify(row.raw),
@@ -278,7 +282,10 @@ async function insertRows(client, rows, batchIds) {
       row.dedupeRadiusM, row.genericName, row.sameNameKeepBoth, row.lat, row.lng,
       row.needsHandPin, !!(row.flags && row.flags.needsCity),
       !!(row.flags && row.flags.countyAsCity), row.outOfUtah, row.link, row.linkFlag,
-      row.status, JSON.stringify(row.flags), batchIds[row.datasetKey]
+      row.status, JSON.stringify(row.flags), batchIds[row.datasetKey],
+      row.hours, row.entranceFee, row.feeDisplay, row.feeUrl, row.feeAsOf, row.notice,
+      row.vehicleFee, row.moreInfoUrl, row.sourceActivity, row.sourceSeason,
+      row.openStatus, row.feeFact, row.sourceActivities, row.reservable
     ]);
   }
 }

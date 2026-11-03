@@ -75,12 +75,12 @@ check("a children's museum is not held", () => {
   return row.excluded === false && row.actions.indexOf("hold") === -1 && row.category === "Culture, Community & Local Attractions";
 });
 
-check("Future parks are held and not excluded", () => {
+check("Future parks are excluded", () => {
   const row = one(parks, {
     name: "Tomorrow Park", type: "Park", acres: 5, STATUS: "Future",
     location: "Provo, Utah County, UT", lat: 40.23, lng: -111.66
   });
-  return row.flags.statusFuture === true && row.excluded === false && row.tagReview === true && row.status === "pending";
+  return row.flags.statusFuture === true && row.excluded === true && row.status === "excluded" && row.tagReview === false;
 });
 check("a blank status is counted and is not a Future hold", () => {
   const row = one(parks, {
@@ -104,7 +104,75 @@ check("a county in the city slot is not stored as a city", () => {
     name: "County Seat Park", type: "Park", acres: 4,
     location: "Utah County, UT", lat: 40.1, lng: -111.6
   });
-  return row.city == null && row.flags.countyAsCity === true;
+  return row.city == null && row.flags.cityBlank === true && row.flags.needsCity === true;
+});
+check("a repeated county name is not a city", () => {
+  const row = one(parks, {
+    name: "Cache Park", type: "Park", acres: 4,
+    location: "Cache County, Cache County, UT", lat: 41.7, lng: -111.8
+  });
+  return row.city == null && row.flags.countyAsCity === true && row.flags.needsCity === true;
+});
+check("the attached parks file flags 143 rows needs_city", () => {
+  const file = "/home/ubuntu/.cursor/projects/workspace/uploads/ugrc_parks_8e5b.json";
+  if (!fs.existsSync(file)) return true;
+  const rows = norm.normalizeDataset(parks, JSON.parse(fs.readFileSync(file, "utf8")), rules);
+  const needs = rows.filter(row => row.flags.needsCity);
+  return needs.length === 143 &&
+    needs.filter(row => row.flags.cityBlank).length === 53 &&
+    needs.filter(row => row.flags.countyAsCity).length === 90 &&
+    needs.every(row => row.city == null);
+});
+check("a categories list matches when any element matches", () => {
+  const rule = rulesLib.prepareRule({
+    dataset: "museums", match_field: "categories", match_value: "^Art$", match_type: "regex",
+    filter_values: ["vibe:Creative"], confidence_score: 0.8, confidence_level: "high",
+    always_review: false, notes: "rule categories-001 priority 40"
+  });
+  const hit = rulesLib.applyRules(rules.concat([rule]), {
+    name: "Hall", location: "Provo, Utah", categories: ["History", "Art"]
+  }, "museums", { city: "Provo", fieldAllowlist: [] });
+  const miss = rulesLib.applyRules(rules.concat([rule]), {
+    name: "Hall", location: "Provo, Utah", categories: ["History"]
+  }, "museums", { city: "Provo", fieldAllowlist: [] });
+  return hit.mapped.vibe.indexOf("Creative") !== -1 && miss.mapped.vibe.indexOf("Creative") === -1;
+});
+check("primary_use accepts only MTB, HIKE, and MULTI", () => {
+  trails.fieldAllowlist = ["primary_use", "Comments"];
+  const rule = rulesLib.prepareRule({
+    dataset: "ugrc_trailheads", match_field: "primary_use", match_value: "^MTB$", match_type: "regex",
+    filter_values: ["vibe:Active"], confidence_score: 0.8, confidence_level: "high",
+    always_review: false, notes: "rule use-001 priority 40"
+  });
+  const hit = rulesLib.applyRules([rule], { name: "Mill", location: "UT", Comments: "mtb" }, "ugrc_trailheads", { fieldAllowlist: trails.fieldAllowlist });
+  const junk = rulesLib.applyRules([rule], { name: "Mill", location: "UT", Comments: "closed for mud" }, "ugrc_trailheads", { fieldAllowlist: trails.fieldAllowlist });
+  return hit.matched.length === 1 && junk.matched.length === 0;
+});
+check("a blank fee is unknown, not free", () => {
+  const row = one(seeds.datasetByKey("stateparks"), {
+    name: "Yuba State Park", location: "Utah", lat: 39.37, lng: -112.02,
+    entrance_fee: "", source_url: "https://stateparks.utah.gov/parks/yuba/"
+  });
+  return row.cost == null && row.costRequested == null && row.costUnit == null && row.tagReview === true;
+});
+check("a vehicle fee is per car and a museum fee is per person", () => {
+  const npsRow = one(nps, {
+    name: "Arches National Park", vehicle_fee: "$20", location: "Moab, UT",
+    lat: 38.7, lng: -109.5, source_url: "https://www.nps.gov/arch/index.htm"
+  });
+  const museum = one(museums, {
+    name: "Town Museum", location: "Provo, Utah 84601", per_person_fee: "12",
+    lat: 40.23, lng: -111.66, source_url: "https://artsandmuseums.utah.gov/utah-museums-directory/listing/town/"
+  });
+  return npsRow.costUnit === "per car" && npsRow.costRequested === "$1-$20" && museum.costUnit === "per person";
+});
+check("staging keeps the optional source fields", () => {
+  const sql = fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "017_place_staging.sql"), "utf8");
+  return ["hours", "entrance_fee", "fee_display", "fee_url", "fee_as_of", "notice", "vehicle_fee", "more_info_url", "source_activity", "source_season", "open_status", "fee_fact", "source_activities", "reservable"].every(name => sql.indexOf(name) !== -1);
+});
+check("a GNIS spring is excluded", () => {
+  const row = one(seeds.datasetByKey("ugrc_gnis"), { name: "Cold Spring", type: "Spring", lat: 40.1, lng: -111.5 });
+  return row.excluded === true && row.flags.gnisSpring === true;
 });
 check("Logan stays a city when the county is only the second part",
   one(parks, { name: "Lundstrom Park", type: "Neighborhood Park", acres: 19, location: "Logan, Cache County, UT", lat: 41.75, lng: -111.79 }).city === "Logan");

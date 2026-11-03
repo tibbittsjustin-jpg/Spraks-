@@ -17,7 +17,9 @@ PLACE_DATABASE_URL=postgres://place_loader@127.0.0.1/place_staging_test node db/
 
 Priority is parsed from the notes. The highest priority match wins for each filter, then the higher score. Regexes run in Node, so `\b` and `(?i)` keep their JavaScript meaning.
 
-`Comments` and `museum_type` are gated. A rule on those fields does nothing until the dataset's `field_allowlist` includes the field. That list is empty until Legal confirms it.
+`match_field` is not a closed list. `primary_use` reads a trailhead use code, and only `MTB`, `HIKE`, and `MULTI` are kept. `categories` matches when any element matches. `entrance_fee` and `vehicle_fee` are fee text with `$` and commas removed. A blank fee is unknown, not free. Park and NPS vehicle fees use `cost_unit` `per car`. Every other priced row uses `per person`.
+
+Parks Local rows whose `STATUS` is `Future` are excluded. The attached file has no status column, so this dry run drops none. A county in the city slot, or a location that is only a county, is not a city: all 143 of those parks are `needs_city` (53 county-only, 90 county-in-the-city-field).
 
 ## Dates
 

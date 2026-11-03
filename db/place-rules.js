@@ -60,7 +60,9 @@ const LEGACY_COST_BANDS = {
 };
 const PER_CAR_FEE_FIELDS = [
   "private_vehicle_fee",
+  "vehicle_fee",
   "day_use_fee",
+  "entrance_fee",
   "day_use_fee (park 'Park Fees' page)"
 ];
 const PER_PERSON_FEE_FIELDS = [
@@ -358,12 +360,22 @@ function feeMatchText(value) {
 
 const FEE_MATCH_FIELDS = new Set([
   "private_vehicle_fee",
+  "vehicle_fee",
   "day_use_fee",
+  "entrance_fee",
   "day_use_fee (park 'Park Fees' page)",
   "per_person_fee",
   "admission_per_person",
-  "fee_per_person"
+  "fee_per_person",
+  "fee_fact"
 ]);
+
+function blankFeeField(record) {
+  if (!record) return false;
+  return PER_CAR_FEE_FIELDS.concat(["per_person_fee", "fee_fact", "admission_per_person"]).some(field =>
+    Object.prototype.hasOwnProperty.call(record, field) && feeMatchText(record[field]) === ""
+  );
+}
 
 function sourceField(record, field, derived) {
   if (field === "*") return derived && derived.star != null ? derived.star : "*";
@@ -384,15 +396,32 @@ function sourceField(record, field, derived) {
     if (!record || record.lat == null || record.lat === "") return "";
     return String(record.lat);
   }
-  if (field === "Comments" || field === "comments") {
+  if (field === "primary_use" || field === "Comments" || field === "comments") {
     if (!record) return "";
-    if (record.Comments != null) return String(record.Comments);
-    if (record.comments != null) return String(record.comments);
+    const raw = record.primary_use != null ? record.primary_use : (record.Comments != null ? record.Comments : record.comments);
+    if (raw == null) return "";
+    const text = String(raw).trim();
+    if (/^(MTB|HIKE|MULTI)$/i.test(text)) return text.toUpperCase();
+    if (field === "primary_use" && record.primary_use != null) return text;
     return "";
+  }
+  if (field === "categories") {
+    return categoriesOf(record);
+  }
+  if (field === "category" && record && record.category != null && !Array.isArray(record.category)) {
+    return String(record.category);
   }
   if (field === "location" || field === "source_url") {
     if (!record || record[field] == null) return "";
     return String(record[field]);
+  }
+  if (field === "private_vehicle_fee" || field === "vehicle_fee") {
+    const raw = record && record.vehicle_fee != null ? record.vehicle_fee : (record && record.private_vehicle_fee);
+    return feeMatchText(raw);
+  }
+  if (field === "day_use_fee" || field === "entrance_fee" || field === "day_use_fee (park 'Park Fees' page)") {
+    const raw = record && record.entrance_fee != null ? record.entrance_fee : (record && record.day_use_fee);
+    return feeMatchText(raw);
   }
   if (!record || !Object.prototype.hasOwnProperty.call(record, field) || record[field] == null) {
     return "";
@@ -427,10 +456,23 @@ function fieldAllowed(field, allowlist) {
   return Array.isArray(allowlist) && allowlist.indexOf(field) !== -1;
 }
 
+function categoriesOf(record) {
+  if (!record || record.categories == null) return [];
+  if (Array.isArray(record.categories)) {
+    return record.categories.map(item => String(item).trim()).filter(Boolean);
+  }
+  return String(record.categories).split(/[|;]/).map(item => item.trim()).filter(Boolean);
+}
+
 function ruleMatches(rule, record, datasetKey, derived) {
   if (rule.dataset != null && rule.dataset !== datasetKey) return false;
   const allowlist = derived && derived.fieldAllowlist;
   if (!fieldAllowed(rule.matchField, allowlist)) return false;
+  if (rule.matchField === "categories") {
+    const list = categoriesOf(record);
+    if (!list.length) return false;
+    return list.some(item => rule.test(item));
+  }
   const value = sourceField(record, rule.matchField, derived);
   if (value == null) return false;
   return rule.test(value);
@@ -527,9 +569,24 @@ function applyRules(rules, record, datasetKey, derived) {
   /* No unknown-cost value. A row with no band at all is review. A $20-step
      band that filters.js cannot store yet still counts as a price; migration
      018 has to accept it before anything is written to activities. */
-  const noPrice = mapped.cost == null && costRequested == null;
   const fee = readFee(record);
-  if (fee && fee.amount > 0 && !costUnit) costUnit = fee.unit;
+  if (blankFeeField(record)) {
+    mapped.cost = null;
+    costRequested = null;
+    costUnit = null;
+    costUnwired = false;
+  } else if (fee && fee.amount > 0 && !costUnit) {
+    costUnit = fee.unit;
+  }
+  if (!costUnit) {
+    const price = mapped.cost || costRequested;
+    if (price && price !== "Free") {
+      costUnit = datasetKey === "ugrc_parks" || datasetKey === "stateparks" || datasetKey === "nps"
+        ? "per car"
+        : "per person";
+    }
+  }
+  const noPrice = (mapped.cost == null && costRequested == null) || blankFeeField(record);
   const review = !excluded && (alwaysReview || lowCritical || reviewAction || noPrice);
 
   return {
@@ -572,5 +629,7 @@ module.exports = {
   statusIsMissing: statusIsMissing,
   GATED_MATCH_FIELDS: GATED_MATCH_FIELDS,
   fieldAllowed: fieldAllowed,
+  categoriesOf: categoriesOf,
+  blankFeeField: blankFeeField,
   applyRules: applyRules
 };

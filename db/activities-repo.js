@@ -1,9 +1,20 @@
-/* Parameterized activities queries. User input only ever lands in `values`. */
+/* Parameterized activities queries. User input only ever lands in `values`.
+
+   Nearby pages are two index-friendly statements, not one ORDER BY that
+   wraps the distance in CASE and ORs in rows with no location. Pinned rows
+   use the GiST KNN operator (`location <-> point`) plus ST_DWithin. General
+   ideas (location IS NULL) follow, ordered by id. Pages use a keyset cursor,
+   never OFFSET. */
 "use strict";
 
 const filters = require("../shared/filters");
 
 const METERS_PER_MILE = 1609.344;
+const MAX_RADIUS_MILES = 100;
+const MAX_PAGE = 200;
+const MAX_CURSOR_CHARS = 256;
+const MAX_ID = 2147483647;
+const DISTANCE_RE = /^[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$/;
 
 const EQ_FIELDS = { duration: "duration", cost: "cost", category: "category" };
 const OVERLAP_FIELDS = {
@@ -82,8 +93,83 @@ function asNumber(value) {
   return n;
 }
 
-function buildListQuery(params) {
-  params = params || {};
+function distanceText(value) {
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  if (!text || text.length > 40 || !DISTANCE_RE.test(text)) return null;
+  const n = Number(text);
+  const maxMeters = MAX_RADIUS_MILES * METERS_PER_MILE + 1;
+  if (!Number.isFinite(n) || n < 0 || n > maxMeters) return null;
+  return text;
+}
+
+// Opaque page token. The client sends it back unchanged. Fields are
+// validated and bound as parameters; nothing in the token is concatenated
+// into SQL. The token holds a row id and, for a pin, the distance text
+// Postgres already returned. It does not hold the user's coordinates.
+function encodeCursor(cursor) {
+  if (!cursor || (cursor.p !== "n" && cursor.p !== "g" && cursor.p !== "i")) throw invalidFilter("cursor");
+  const id = cursor.id;
+  if (!Number.isInteger(id) || id < 1 || id > MAX_ID) throw invalidFilter("cursor");
+  const body = { v: 1, p: cursor.p, id: id };
+  if (cursor.p === "n") {
+    const d = distanceText(cursor.d);
+    if (!d) throw invalidFilter("cursor");
+    body.d = d;
+  } else if (cursor.d != null) {
+    throw invalidFilter("cursor");
+  }
+  return Buffer.from(JSON.stringify(body), "utf8").toString("base64url");
+}
+
+function decodeCursor(token) {
+  if (token == null || token === "") return null;
+  if (typeof token !== "string" || token.length > MAX_CURSOR_CHARS || !/^[A-Za-z0-9_-]+$/.test(token)) {
+    throw invalidFilter("cursor");
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(Buffer.from(token, "base64url").toString("utf8"));
+  } catch (err) {
+    throw invalidFilter("cursor");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw invalidFilter("cursor");
+  if (parsed.v !== 1 || (parsed.p !== "n" && parsed.p !== "g" && parsed.p !== "i")) throw invalidFilter("cursor");
+  if (!Number.isInteger(parsed.id) || parsed.id < 1 || parsed.id > MAX_ID) throw invalidFilter("cursor");
+  if (parsed.p === "n") {
+    const d = distanceText(parsed.d);
+    if (!d) throw invalidFilter("cursor");
+    return { p: "n", id: parsed.id, d: d };
+  }
+  if (parsed.d != null) throw invalidFilter("cursor");
+  return { p: parsed.p, id: parsed.id, d: null };
+}
+
+// Same order the SQL uses: pinned rows by distance then id, then general
+// rows (dist == null) by id. Keyset checks use the same comparison so a
+// walk cannot skip or repeat a row.
+function compareActivityRows(a, b) {
+  const aPinned = a.dist != null;
+  const bPinned = b.dist != null;
+  if (aPinned !== bPinned) return aPinned ? -1 : 1;
+  if (aPinned && a.dist !== b.dist) return a.dist < b.dist ? -1 : 1;
+  return a.id - b.id;
+}
+
+function rowPassesKeyset(row, cursor) {
+  if (!cursor) return true;
+  if (cursor.p === "i") return row.id > cursor.id;
+  if (cursor.p === "g") return row.dist == null && row.id > cursor.id;
+  if (cursor.p === "n") {
+    if (row.dist == null) return false;
+    const dist = Number(cursor.d);
+    if (row.dist > dist) return true;
+    return row.dist === dist && row.id > cursor.id;
+  }
+  return false;
+}
+
+function sharedFilters(params) {
   const values = [];
   const where = ["status = 'approved'", STILL_SHOWING_SQL];
   // Only an actual boolean opts into paid rows. The query string cannot.
@@ -132,90 +218,192 @@ function buildListQuery(params) {
     where.push("lower(city) = ANY($" + values.length + "::text[])");
   }
 
-  const latMissing = params.lat == null || params.lat === "";
-  const lngMissing = params.lng == null || params.lng === "";
-  if (latMissing !== lngMissing) throw invalidFilter(latMissing ? "lat" : "lng");
+  return { where: where, values: values };
+}
 
-  const localOnly = localOnlyFlag(params.localOnly);
-
-  let located = false;
-  let lngIdx = null;
-  let latIdx = null;
-  let pointSql = "";
-  if (!latMissing) {
-    let lat = asNumber(params.lat);
-    let lng = asNumber(params.lng);
-    if (!Number.isFinite(lat) || lat < -90 || lat > 90) throw invalidFilter("lat");
-    if (!Number.isFinite(lng) || lng < -180 || lng > 180) throw invalidFilter("lng");
-    // Rounded before they are bound. Never interpolated into the SQL text.
-    lat = round2(lat);
-    lng = round2(lng);
-    let radiusMiles;
-    if (params.radiusMiles == null || params.radiusMiles === "") radiusMiles = 25;
-    else {
-      radiusMiles = asNumber(params.radiusMiles);
-      if (!Number.isFinite(radiusMiles)) throw invalidFilter("radiusMiles");
-    }
-    radiusMiles = clamp(radiusMiles, 1, 100);
-    values.push(lng);
-    lngIdx = values.length;
-    values.push(lat);
-    latIdx = values.length;
-    values.push(radiusMiles * METERS_PER_MILE);
-    const metersIdx = values.length;
-    pointSql = "ST_MakePoint($" + lngIdx + ", $" + latIdx + ")::geography";
-    if (localOnly) {
-      where.push("location IS NOT NULL");
-      where.push("ST_DWithin(location, " + pointSql + ", $" + metersIdx + ")");
-    } else {
-      where.push("(location IS NULL OR ST_DWithin(location, " + pointSql + ", $" + metersIdx + "))");
-    }
-    located = true;
-  }
-
+function pageLimit(params) {
   let limit;
   if (params.limit == null || params.limit === "") limit = 50;
   else {
     limit = asNumber(params.limit);
     if (!Number.isFinite(limit)) throw invalidFilter("limit");
   }
-  limit = clamp(Math.trunc(limit), 1, 200);
+  return clamp(Math.trunc(limit), 1, MAX_PAGE);
+}
 
-  const offsetSource = (params.offset != null && params.offset !== "") ? params.offset : params.cursor;
-  let offset;
-  if (offsetSource == null || offsetSource === "") offset = 0;
-  else {
-    offset = asNumber(offsetSource);
-    if (!Number.isFinite(offset)) throw invalidFilter("offset");
-  }
-  offset = clamp(Math.trunc(offset), 0, 10000);
+function copyFilters(shared) {
+  return { where: shared.where.slice(), values: shared.values.slice() };
+}
 
-  let order = "ORDER BY id";
-  let distanceSql = "";
-  if (located) {
-    // One LIMIT/OFFSET follows this order, so a page can start on pins and
-    // continue into general ideas. <-> stays a bare sort key (GiST KNN);
-    // NULLS LAST keeps a null distance from sorting ahead of a real one.
-    if (localOnly) {
-      order = "ORDER BY location <-> " + pointSql + ", id";
-    } else {
-      order = "ORDER BY CASE WHEN location IS NULL THEN 1 ELSE 0 END, location <-> " + pointSql + " NULLS LAST, id";
-    }
-    distanceSql = ", CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance(location, " + pointSql +
-      ") / 1609.344)::numeric, 1) END AS distance_miles";
-  }
-
+function finishQuery(where, values, order, limit) {
   values.push(limit);
   const limitIdx = values.length;
-  values.push(offset);
-  const offsetIdx = values.length;
+  const text = "SELECT " + SELECT_COLUMNS + where.distanceSql +
+    " FROM activities WHERE " + where.clauses.join(" AND ") +
+    " " + order + " LIMIT $" + limitIdx;
+  return { text: text, values: values, limit: limit };
+}
 
-  const text = "SELECT " + SELECT_COLUMNS + distanceSql +
-    " FROM activities WHERE " + where.join(" AND ") +
-    " " + order +
-    " LIMIT $" + limitIdx + " OFFSET $" + offsetIdx;
+function buildListQuery(params) {
+  params = params || {};
+  if (params.offset != null && params.offset !== "") throw invalidFilter("offset");
 
-  return { text: text, values: values, limit: limit, offset: offset, located: located, localOnly: localOnly };
+  const limit = pageLimit(params);
+  const cursor = decodeCursor(params.cursor);
+  const shared = sharedFilters(params);
+  const localOnly = localOnlyFlag(params.localOnly);
+
+  const latMissing = params.lat == null || params.lat === "";
+  const lngMissing = params.lng == null || params.lng === "";
+  if (latMissing !== lngMissing) throw invalidFilter(latMissing ? "lat" : "lng");
+
+  if (latMissing) {
+    if (cursor && cursor.p !== "i") throw invalidFilter("cursor");
+    const part = copyFilters(shared);
+    if (cursor) {
+      part.values.push(cursor.id);
+      part.where.push("id > $" + part.values.length + "::integer");
+    }
+    const query = finishQuery(
+      { clauses: part.where, distanceSql: "" },
+      part.values,
+      "ORDER BY id",
+      limit
+    );
+    return {
+      mode: "id",
+      text: query.text,
+      values: query.values,
+      queries: [query],
+      limit: limit,
+      located: false,
+      localOnly: localOnly,
+      cursor: cursor,
+      radiusMiles: null
+    };
+  }
+
+  let lat = asNumber(params.lat);
+  let lng = asNumber(params.lng);
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90) throw invalidFilter("lat");
+  if (!Number.isFinite(lng) || lng < -180 || lng > 180) throw invalidFilter("lng");
+  // Rounded before they are bound. Never interpolated into the SQL text.
+  lat = round2(lat);
+  lng = round2(lng);
+  let radiusMiles;
+  if (params.radiusMiles == null || params.radiusMiles === "") radiusMiles = 25;
+  else {
+    radiusMiles = asNumber(params.radiusMiles);
+    if (!Number.isFinite(radiusMiles)) throw invalidFilter("radiusMiles");
+  }
+  radiusMiles = clamp(radiusMiles, 1, MAX_RADIUS_MILES);
+
+  function bindPoint(part) {
+    part.values.push(lng);
+    const lngIdx = part.values.length;
+    part.values.push(lat);
+    const latIdx = part.values.length;
+    part.values.push(radiusMiles * METERS_PER_MILE);
+    const metersIdx = part.values.length;
+    const pointSql = "ST_MakePoint($" + lngIdx + ", $" + latIdx + ")::geography";
+    return { pointSql: pointSql, metersIdx: metersIdx };
+  }
+
+  // Pinned rows only. ST_DWithin limits the GiST scan to the radius, and
+  // `location <-> point` is the leading ORDER BY so the KNN index can
+  // order that scan. A secondary id makes ties stable for the keyset.
+  function pinnedQuery(partCursor) {
+    const part = copyFilters(shared);
+    const point = bindPoint(part);
+    part.where.push("location IS NOT NULL");
+    part.where.push("ST_DWithin(location, " + point.pointSql + ", $" + point.metersIdx + ")");
+    if (partCursor && partCursor.p === "n") {
+      part.values.push(partCursor.d);
+      const distIdx = part.values.length;
+      part.values.push(partCursor.id);
+      const idIdx = part.values.length;
+      part.where.push(
+        "((location <-> " + point.pointSql + ") > $" + distIdx + "::double precision OR " +
+        "((location <-> " + point.pointSql + ") = $" + distIdx + "::double precision AND id > $" + idIdx + "::integer))"
+      );
+    }
+    const distanceSql = ", CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance(location, " + point.pointSql +
+      ") / 1609.344)::numeric, 1) END AS distance_miles, (location <-> " + point.pointSql + ")::text AS distance_meters";
+    return finishQuery(
+      { clauses: part.where, distanceSql: distanceSql },
+      part.values,
+      "ORDER BY location <-> " + point.pointSql + ", id",
+      limit
+    );
+  }
+
+  function generalQuery(partCursor) {
+    const part = copyFilters(shared);
+    part.where.push("location IS NULL");
+    if (partCursor && partCursor.p === "g") {
+      part.values.push(partCursor.id);
+      part.where.push("id > $" + part.values.length + "::integer");
+    }
+    return finishQuery(
+      { clauses: part.where, distanceSql: ", NULL::numeric AS distance_miles, NULL::text AS distance_meters" },
+      part.values,
+      "ORDER BY id",
+      limit
+    );
+  }
+
+  if (localOnly) {
+    if (cursor && cursor.p !== "n") throw invalidFilter("cursor");
+    const near = pinnedQuery(cursor);
+    return {
+      mode: "near",
+      text: near.text,
+      values: near.values,
+      queries: [near],
+      near: near,
+      limit: limit,
+      located: true,
+      localOnly: true,
+      cursor: cursor,
+      radiusMiles: radiusMiles
+    };
+  }
+
+  if (cursor && cursor.p !== "n" && cursor.p !== "g") throw invalidFilter("cursor");
+  const near = pinnedQuery(cursor && cursor.p === "n" ? cursor : null);
+  const general = generalQuery(cursor && cursor.p === "g" ? cursor : null);
+  return {
+    mode: "split",
+    text: near.text + "\n" + general.text,
+    values: near.values,
+    queries: [near, general],
+    near: near,
+    general: general,
+    limit: limit,
+    located: true,
+    localOnly: false,
+    cursor: cursor,
+    radiusMiles: radiusMiles
+  };
+}
+
+function replaceLimit(query, limit) {
+  const values = query.values.slice();
+  values[values.length - 1] = limit;
+  return { text: query.text, values: values };
+}
+
+function cursorFromRow(row, located) {
+  const id = Number(row.id);
+  if (!Number.isInteger(id) || id < 1) return null;
+  if (!located) return { p: "i", id: id };
+  const meters = row.distance_meters;
+  if (meters != null && String(meters).trim() !== "") {
+    const d = distanceText(String(meters).trim());
+    if (d) return { p: "n", id: id, d: d };
+  }
+  if (row.lat != null && row.lng != null) return { p: "n", id: id, d: "0" };
+  return { p: "g", id: id };
 }
 
 // expires_at is a date, not a timestamp. A string keeps the calendar day.
@@ -286,14 +474,73 @@ function mapRow(row, located) {
 async function listActivities(params, db) {
   const built = buildListQuery(params);
   const runner = db || require("./index").getPool();
-  const result = await runner.query(built.text, built.values);
-  const items = result.rows.map(row => mapRow(row, built.located));
+  let rows = [];
+  if (built.mode === "split") {
+    if (!built.cursor || built.cursor.p === "n") {
+      const near = await runner.query(built.near.text, built.near.values);
+      rows = near.rows;
+    }
+    if (rows.length < built.limit) {
+      const general = replaceLimit(built.general, built.limit - rows.length);
+      const gen = await runner.query(general.text, general.values);
+      rows = rows.concat(gen.rows);
+    }
+  } else if (built.mode === "near") {
+    const near = await runner.query(built.near.text, built.near.values);
+    rows = near.rows;
+  } else {
+    const result = await runner.query(built.text, built.values);
+    rows = result.rows;
+  }
+  const items = rows.map(row => mapRow(row, built.located));
+  let nextCursor = null;
+  if (rows.length === built.limit) {
+    const cursor = cursorFromRow(rows[rows.length - 1], built.located);
+    if (cursor) nextCursor = encodeCursor(cursor);
+  }
   return {
     items: items,
     limit: built.limit,
-    offset: built.offset,
-    nextOffset: items.length === built.limit ? built.offset + built.limit : null
+    nextCursor: nextCursor
   };
+}
+
+const MAX_ID_BATCH = 200;
+
+function parseIdList(value) {
+  const parts = splitList(value);
+  if (!parts.length) throw invalidFilter("ids");
+  const ids = [];
+  const seen = new Set();
+  parts.forEach(part => {
+    if (!/^\d{1,9}$/.test(part)) throw invalidFilter("ids");
+    const id = Number(part);
+    if (!Number.isInteger(id) || id < 1) throw invalidFilter("ids");
+    if (seen.has(id)) return;
+    seen.add(id);
+    ids.push(id);
+  });
+  if (ids.length > MAX_ID_BATCH) throw invalidFilter("ids");
+  return ids;
+}
+
+// Approved free rows that are still showing, by id. No location, no paging.
+// Ids the caller asked for that are pending, paid, or finished are omitted.
+function activitiesByIdsQuery(ids) {
+  const list = parseIdList(ids);
+  return {
+    text: "SELECT " + SELECT_COLUMNS + " FROM activities WHERE id = ANY($1::int[]) AND status = 'approved' AND tier = 'free' AND " +
+      STILL_SHOWING_SQL + " ORDER BY id",
+    values: [list],
+    ids: list
+  };
+}
+
+async function listActivitiesByIds(ids, db) {
+  const built = activitiesByIdsQuery(ids);
+  const runner = db || require("./index").getPool();
+  const result = await runner.query(built.text, built.values);
+  return { items: result.rows.map(row => mapRow(row, false)) };
 }
 
 async function getActivity(id, db) {
@@ -313,7 +560,15 @@ module.exports = {
   STILL_SHOWING_SQL,
   buildListQuery,
   listActivities,
+  listActivitiesByIds,
+  activitiesByIdsQuery,
+  parseIdList,
+  MAX_ID_BATCH,
   getActivity,
   mapRow,
-  calendarDate
+  calendarDate,
+  encodeCursor,
+  decodeCursor,
+  compareActivityRows,
+  rowPassesKeyset
 };

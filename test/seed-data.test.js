@@ -17,7 +17,7 @@ function section(title, fn) {
   catch (e) { check("section ran without throwing", false, String(e.message).slice(0, 200)); }
 }
 
-const ideas = loadIdeas(path.join(__dirname, "..", "public", "data.js"));
+const ideas = loadIdeas(path.join(__dirname, "..", "data", "ideas-catalog.js"));
 
 section("catalog", () => {
   check("count comes from IDEAS_DATA.length", ideas.length > 0 && ideas.length === ideas.length);

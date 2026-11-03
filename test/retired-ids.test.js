@@ -21,7 +21,7 @@ function section(title, fn) {
 }
 
 const KEY = "spark_state_v1";
-const ideas = loadIdeas(require("path").join(__dirname, "..", "public", "data.js"));
+const ideas = loadIdeas(require("path").join(__dirname, "..", "data", "ideas-catalog.js"));
 const ids = ideas.map(idea => idea.id);
 const idSet = new Set(ids);
 const absent = idSet.has(340) ? Math.max.apply(null, ids) + 1 : 340;

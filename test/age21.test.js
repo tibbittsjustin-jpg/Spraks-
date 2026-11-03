@@ -21,7 +21,7 @@ const AGE21 = [505, 606, 653, 908, 940, 1021, 1145, 1390, 1556, 1576, 1604, 1811
 const KEY = "spark_state_v1";
 
 section("age21 flags and the Hide 21+ toggle", () => {
-  const ideas = loadIdeas(path.join(__dirname, "..", "public", "data.js"));
+  const ideas = loadIdeas(path.join(__dirname, "..", "data", "ideas-catalog.js"));
   const expected = new Set(AGE21);
   const flagged = ideas.filter(idea => idea.age21 === true).map(idea => idea.id);
   const missing = AGE21.filter(id => flagged.indexOf(id) === -1);

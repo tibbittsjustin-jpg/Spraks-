@@ -455,8 +455,14 @@
   var REMOTE_IDEAS = [];         // approved activities from /api/activities
   var remoteFreshBucket = null;
   var remotePendingBucket = null;
+  var remoteLoadedBucket = null;
+  var remoteNextCursor = null;
+  var remoteFillInFlight = false;
+  var remoteAutoFills = 0;
   var remoteFetchGen = 0;
   var remoteAbort = null;
+  var REMOTE_FILL_AHEAD = 8;
+  var REMOTE_AUTO_CAP = 6;
   var realIdeasLoading = false;
   var realKeyToId = {};          // stableKey -> numeric id
   var realIdToKey = {};          // numeric id -> stableKey
@@ -571,6 +577,7 @@
     state.location = null;
     saveState();
     renderContent();
+    refreshRemoteActivities();
   }
 
   // Turns one raw generated card (from /api/nearby-ideas) into a full idea
@@ -691,6 +698,169 @@
     });
   }
 
+  var catalogHydrated = [];
+  var catalogGone = Object.create(null);
+  var catalogFlight = null;
+  var catalogRetryTimer = null;
+
+  function isBuiltinCatalogId(id){
+    if(typeof id === "string" && id.indexOf("db:") === 0) return false;
+    var n = typeof id === "number" ? id : Number(id);
+    if(!isFinite(n) || Math.floor(n) !== n || n < 1 || n >= 9000000) return false;
+    return true;
+  }
+
+  function catalogNumericId(id){
+    if(!isBuiltinCatalogId(id)) return null;
+    return typeof id === "number" ? id : Number(id);
+  }
+
+  function placeholderCatalogIdea(id){
+    var n = catalogNumericId(id);
+    var gone = !!(n != null && catalogGone[n]);
+    return {
+      id: n == null ? id : n,
+      title: gone ? "No longer available" : "Saved idea",
+      description: gone ? "This idea is no longer in the catalog." : "This idea will load when you're back online.",
+      category: "Culture, Community & Local Attractions",
+      icon: "",
+      setting: "Indoor",
+      season: [],
+      food: false,
+      age21: false,
+      cost: "",
+      duration: "",
+      time: [],
+      vibe: [],
+      stage: [],
+      dateType: [],
+      materials: [],
+      unavailable: gone,
+      pendingLoad: !gone
+    };
+  }
+
+  function attachCatalogMedia(idea){
+    if(!idea || idea.id == null) return idea;
+    if(typeof IDEA_PHOTOS !== "undefined" && IDEA_PHOTOS){
+      var entry = IDEA_PHOTOS[idea.id] || IDEA_PHOTOS[String(idea.id)];
+      if(entry && typeof entry === "object"){
+        var url = typeof entry.url === "string" ? entry.url.trim() : "";
+        if(url) idea.photo = { url: url, credit: typeof entry.credit === "string" ? entry.credit : "" };
+      }
+    }
+    if(typeof IDEA_PINS !== "undefined" && IDEA_PINS && !SparkRadius.ideaPoint(idea)){
+      var pin = IDEA_PINS[idea.id] != null ? IDEA_PINS[idea.id] : IDEA_PINS[String(idea.id)];
+      var point = SparkRadius.ideaPoint(pin);
+      if(point){
+        idea.lat = point.lat;
+        idea.lng = point.lng;
+      }
+    }
+    return idea;
+  }
+
+  function referencedCatalogIds(){
+    var ids = keptIdeaIds();
+    (state.datePlans || []).forEach(function(plan){
+      if(!plan || !plan.likes) return;
+      Object.keys(plan.likes).forEach(function(key){ ids.push(key); });
+    });
+    if(ui.detailIdeaId != null) ids.push(ui.detailIdeaId);
+    return ids;
+  }
+
+  function missingCatalogIds(){
+    var out = [];
+    var seen = Object.create(null);
+    referencedCatalogIds().forEach(function(id){
+      var n = catalogNumericId(id);
+      if(n == null || seen[n] || catalogGone[n]) return;
+      if(IDEAS_BY_ID[n] || IDEAS_BY_ID[String(n)]) return;
+      seen[n] = true;
+      out.push(n);
+    });
+    return out;
+  }
+
+  function applyCatalogIdeas(ideas){
+    var rows = Array.isArray(ideas) ? ideas : [];
+    var known = Object.create(null);
+    catalogHydrated.forEach(function(idea){ if(idea && idea.id != null) known[idea.id] = true; });
+    rows.forEach(function(raw){
+      if(!raw || raw.id == null) return;
+      var idea = attachCatalogMedia(raw);
+      idea.pendingLoad = false;
+      idea.id = catalogNumericId(idea.id) || idea.id;
+      IDEAS_BY_ID[idea.id] = idea;
+      delete catalogGone[idea.id];
+      if(!known[idea.id]){
+        known[idea.id] = true;
+        catalogHydrated.push(idea);
+      }
+    });
+  }
+
+  function loadCatalogCache(){
+    if(typeof SparkRemoteActivities === "undefined" || !SparkRemoteActivities.readCatalogCache) return;
+    try {
+      var cached = SparkRemoteActivities.readCatalogCache(localStorage, Date.now());
+      if(cached && cached.ideas && cached.ideas.length) applyCatalogIdeas(cached.ideas);
+    } catch (err) {}
+  }
+
+  function refreshOpenLists(){
+    var view = $("#view-app");
+    if(!view || (view.classList && view.classList.contains && view.classList.contains("hidden"))) return;
+    if(ui.screen === "detail" || ui.tab === "saved" || ui.tab === "done"){
+      try { renderContent(); } catch (err) {}
+    }
+  }
+
+  function scheduleCatalogRetry(){
+    if(catalogRetryTimer) return;
+    catalogRetryTimer = setTimeout(function(){
+      catalogRetryTimer = null;
+      hydrateMissingCatalogIdeas();
+    }, 20000);
+  }
+
+  function hydrateMissingCatalogIdeas(){
+    if(typeof SparkRemoteActivities === "undefined" || !SparkRemoteActivities.fetchActivitiesByIds){
+      return Promise.resolve({ ok: false, ideas: [] });
+    }
+    var ids = missingCatalogIds();
+    if(!ids.length) return Promise.resolve({ ok: true, ideas: [] });
+    if(catalogFlight) return catalogFlight;
+    catalogFlight = SparkRemoteActivities.fetchActivitiesByIds({
+      ids: ids,
+      fetch: function(url, options){ return fetch(url, options); }
+    }).then(function(result){
+      catalogFlight = null;
+      if(!result || !result.ok){
+        scheduleCatalogRetry();
+        refreshOpenLists();
+        return result || { ok: false, ideas: [] };
+      }
+      if(catalogRetryTimer){
+        clearTimeout(catalogRetryTimer);
+        catalogRetryTimer = null;
+      }
+      applyCatalogIdeas(result.ideas || []);
+      (result.missing || []).forEach(function(id){ catalogGone[id] = true; });
+      try {
+        SparkRemoteActivities.writeCatalogCache(localStorage, catalogHydrated, Date.now());
+      } catch (err) {}
+      refreshOpenLists();
+      return result;
+    }).catch(function(){
+      catalogFlight = null;
+      scheduleCatalogRetry();
+      return { ok: false, ideas: [] };
+    });
+    return catalogFlight;
+  }
+
   function ideaForSaved(id){
     if(id == null) return null;
     if(IDEAS_BY_ID[id]) return IDEAS_BY_ID[id];
@@ -701,6 +871,7 @@
       IDEAS_BY_ID[id] = real;
       return real;
     }
+    if(isBuiltinCatalogId(id)) return placeholderCatalogIdea(id);
     return null;
   }
 
@@ -793,22 +964,72 @@
     return added;
   }
 
+  function remoteFilterParams(){
+    var f = state.filters || {};
+    var out = {};
+    ["duration", "cost", "time", "setting", "vibe", "season", "stage", "dateType"].forEach(function(key){
+      if(f[key] && f[key].length) out[key] = f[key].join(",");
+    });
+    if(f.food === true) out.food = "true";
+    else if(f.food === false) out.food = "false";
+    if(f.hide21 === true) out.hide21 = "true";
+    if(f.localOnly === true) out.localOnly = "1";
+    return out;
+  }
+
+  function remoteRadiusMiles(){
+    if(state.filters && state.filters.localOnly === true) return SparkRadius.clampRadiusMiles(state.filters.radiusMiles);
+    return SparkRemoteActivities.NEARBY_RADIUS_MILES;
+  }
+
+  // Location is already rounded inside the activities module. This key uses
+  // that same bucket plus the filters, so a cache entry cannot mix radii.
+  function remoteScopeKey(){
+    var f = state.filters || {};
+    return JSON.stringify({
+      duration: f.duration || [],
+      cost: f.cost || [],
+      time: f.time || [],
+      setting: f.setting || [],
+      vibe: f.vibe || [],
+      season: f.season || [],
+      stage: f.stage || [],
+      dateType: f.dateType || [],
+      food: f.food === true ? true : (f.food === false ? false : null),
+      hide21: f.hide21 === true,
+      localOnly: f.localOnly === true,
+      radius: state.filters && state.filters.localOnly === true ? SparkRadius.clampRadiusMiles(f.radiusMiles) : SparkRemoteActivities.NEARBY_RADIUS_MILES
+    });
+  }
+
+  function remoteBucketKey(){
+    var loc = state.location;
+    return SparkRemoteActivities.locationBucket(loc && loc.lat, loc && loc.lng) + "|" + remoteScopeKey();
+  }
+
   function hydrateRemoteCache(){
     if(typeof SparkRemoteActivities === "undefined") return;
     try {
       var loc = state.location;
       var bucket = SparkRemoteActivities.locationBucket(loc && loc.lat, loc && loc.lng);
-      var cached = SparkRemoteActivities.readCache(localStorage, bucket, Date.now());
-      if(cached && cached.hit && cached.ideas && cached.ideas.length) applyRemoteIdeas(cached.ideas);
+      var scope = remoteScopeKey();
+      var cached = SparkRemoteActivities.readCache(localStorage, bucket, Date.now(), scope);
+      if(cached && cached.hit && cached.ideas && cached.ideas.length){
+        applyRemoteIdeas(cached.ideas);
+        remoteNextCursor = cached.nextCursor || null;
+        remoteLoadedBucket = remoteBucketKey();
+      }
     } catch (err) {}
   }
 
-  // At most once per location bucket: on open, when the saved copy is older
-  // than about six hours, or when the rough location changes. Never on swipe.
+  // At most once per location-and-filter bucket: on open, when the saved
+  // copy is older than about six hours, or when the rough location or the
+  // filters change. A swipe asks for the next cursor instead of refetching.
   function refreshRemoteActivities(){
     if(typeof SparkRemoteActivities === "undefined") return;
     var loc = state.location;
-    var bucket = SparkRemoteActivities.locationBucket(loc && loc.lat, loc && loc.lng);
+    var scope = remoteScopeKey();
+    var bucket = remoteBucketKey();
     if(remoteFreshBucket === bucket || remotePendingBucket === bucket) return;
     if(remoteAbort){
       try { remoteAbort.abort(); } catch (err) {}
@@ -825,7 +1046,12 @@
       storage: localStorage,
       lat: loc && loc.lat,
       lng: loc && loc.lng,
-      builtins: IDEAS_DATA,
+      scope: scope,
+      filters: remoteFilterParams(),
+      radiusMiles: remoteRadiusMiles(),
+      builtins: IDEAS_DATA.concat(catalogHydrated),
+      limit: SparkRemoteActivities.PAGE_LIMIT,
+      maxItems: SparkRemoteActivities.PAGE_LIMIT,
       fetch: function(url, options){ return fetch(url, options); },
       signal: controller ? controller.signal : undefined,
       timeoutMs: SparkRemoteActivities.FETCH_TIMEOUT_MS
@@ -833,12 +1059,73 @@
       if(generation !== remoteFetchGen) return;
       if(remoteAbort === controller) remoteAbort = null;
       remotePendingBucket = null;
+      if(!result || !result.fromCache){
+        REMOTE_IDEAS = [];
+        deckOrderCache = null;
+        remoteAutoFills = 0;
+      }
+      remoteLoadedBucket = bucket;
+      remoteNextCursor = result && result.nextCursor || null;
       if(result && result.ideas && result.ideas.length) applyRemoteIdeas(result.ideas);
-      if(result && result.ok) remoteFreshBucket = bucket;
+      else {
+        var deckEl = $("#deck");
+        if(deckEl){ renderDeckCards(deckEl); updateResultCount(); }
+      }
+      if(result && result.ok){
+        remoteFreshBucket = bucket;
+        hydrateMissingCatalogIdeas();
+      }
+      maybeFillDeck();
     }).catch(function(){
       if(generation !== remoteFetchGen) return;
       if(remoteAbort === controller) remoteAbort = null;
       remotePendingBucket = null;
+    });
+  }
+
+  // One more server page when the deck is running out. Offline and a short
+  // page leave the starter set on screen.
+  function maybeFillDeck(){
+    if(!remoteNextCursor || remoteFillInFlight) return;
+    if(typeof SparkRemoteActivities === "undefined") return;
+    if(remoteAutoFills >= REMOTE_AUTO_CAP) return;
+    var deck;
+    try { deck = computeDeck(); } catch (err) { return; }
+    if(!deck || deck.remaining.length >= REMOTE_FILL_AHEAD) return;
+    remoteAutoFills += 1;
+    loadMoreRemote();
+  }
+
+  function loadMoreRemote(){
+    if(!remoteNextCursor || remoteFillInFlight) return;
+    if(typeof SparkRemoteActivities === "undefined") return;
+    var loc = state.location;
+    var bucket = remoteBucketKey();
+    var cursor = remoteNextCursor;
+    var generation = remoteFetchGen;
+    remoteFillInFlight = true;
+    SparkRemoteActivities.fetchApprovedActivities({
+      lat: loc && loc.lat,
+      lng: loc && loc.lng,
+      filters: remoteFilterParams(),
+      radiusMiles: remoteRadiusMiles(),
+      cursor: cursor,
+      limit: SparkRemoteActivities.PAGE_LIMIT,
+      maxItems: SparkRemoteActivities.PAGE_LIMIT,
+      fetch: function(url, options){ return fetch(url, options); },
+      timeoutMs: SparkRemoteActivities.FETCH_TIMEOUT_MS
+    }).then(function(result){
+      remoteFillInFlight = false;
+      if(generation !== remoteFetchGen || remoteLoadedBucket !== bucket) return;
+      if(!result || !result.ok){
+        remoteNextCursor = null;
+        return;
+      }
+      remoteNextCursor = result.nextCursor || null;
+      if(result.ideas && result.ideas.length) applyRemoteIdeas(result.ideas);
+      maybeFillDeck();
+    }).catch(function(){
+      remoteFillInFlight = false;
     });
   }
 
@@ -1878,6 +2165,18 @@
     if(!deckEl) return;
     renderDeckCards(deckEl);
     updateResultCount();
+    // Local on is the only time the slider changes which rows the server
+    // returns. Dragging the slider refetches once the finger pauses.
+    if(state.filters && state.filters.localOnly === true) scheduleRemoteRefresh();
+  }
+
+  var remoteRefreshTimer = null;
+  function scheduleRemoteRefresh(){
+    if(remoteRefreshTimer) clearTimeout(remoteRefreshTimer);
+    remoteRefreshTimer = setTimeout(function(){
+      remoteRefreshTimer = null;
+      refreshRemoteActivities();
+    }, 350);
   }
 
   function updateFilterBadge(){
@@ -2544,6 +2843,8 @@
       // Stay on Discover and keep swiping instead of jumping to another screen.
       var deckEl = $("#deck");
       if(deckEl) { renderDeckCards(deckEl); updateResultCount(); }
+      remoteAutoFills = 0;
+      maybeFillDeck();
     }, 260);
   }
 
@@ -2663,12 +2964,14 @@
     saveState();
     closeOverlay("#filter-overlay");
     if(ui.tab === "discover") renderContent();
+    refreshRemoteActivities();
   });
   $("#filter-apply").addEventListener("click", function(){
     state.filters = ui.filterDraft;
     saveState();
     closeOverlay("#filter-overlay");
     if(ui.tab === "discover") renderContent();
+    refreshRemoteActivities();
   });
 
   /* ---------- Plan a Date overlay ---------- */
@@ -2750,8 +3053,8 @@
 
   /* ---------- Detail screen ---------- */
   function buildDetailScreen(ideaId){
-    ideaForSaved(ideaId);
-    var idea = IDEAS_BY_ID[ideaId];
+    var idea = ideaForSaved(ideaId);
+    if(idea && idea.pendingLoad) hydrateMissingCatalogIdeas();
     var wrap = el("div", "screen detail-screen");
     if(!idea){
       wrap.innerHTML = '<p>Idea not found.</p>';
@@ -3902,6 +4205,7 @@
       var id = row.id;
       var idea = ideaForSaved(id);
       if(!idea) return;
+      if(idea.pendingLoad) hydrateMissingCatalogIdeas();
       var picks = plan ? (plan.friendPicks || []).filter(function(p){ return p.ideaId === id; }) : [];
       var like = null;
       if(plan){
@@ -3937,6 +4241,7 @@
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = ideaForSaved(entry.id);
       if(!idea) return;
+      if(idea.pendingLoad) hydrateMissingCatalogIdeas();
       wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date), doneEntry: entry }));
     });
     return wrap;
@@ -4656,6 +4961,7 @@
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = ideaForSaved(entry.id);
       if(!idea) return;
+      if(idea.pendingLoad) hydrateMissingCatalogIdeas();
       wrap.appendChild(buildSavedCard(idea, { doneDate: fmtDate(entry.date), doneEntry: entry }));
     });
     return wrap;
@@ -5105,6 +5411,7 @@
     SparkUtil.sortedDoneEntries(state.doneIds).forEach(function(entry){
       var idea = ideaForSaved(entry.id);
       if(!idea) return;
+      if(idea.pendingLoad) hydrateMissingCatalogIdeas();
       wrap.appendChild(buildSavedCard(idea, {
         doneDate: fmtDate(entry.date),
         doneEntry: entry,
@@ -6479,6 +6786,8 @@
 
   rehydrateRemoteIdeas();
   hydrateRemoteCache();
+  loadCatalogCache();
+  hydrateMissingCatalogIdeas();
 
   boot();
 })();

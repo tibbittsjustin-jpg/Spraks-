@@ -20,7 +20,8 @@ const MUST_404 = [
   "/README.md",
   "/.claude/launch.json",
   "/db/migrations/001_init.sql",
-  "/data/coords/utah.json"
+  "/data/coords/utah.json",
+  "/data/ideas-catalog.js"
 ];
 const MUST_200 = ["/", "/app.js", "/data.js", "/style.css", "/motifs.js", "/qrcode.lib.js", "/util.js", "/radius.js", "/pins.js", "/photos.js", "/photos.json", "/CREDITS.md", "/credits.html", "/submit.js", "/remote-activities.js", "/api/status"];
 

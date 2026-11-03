@@ -28,7 +28,7 @@ section("defaults", () => {
   const q = buildListQuery({});
   check("approved and free are required",
     q.text.indexOf("status = 'approved'") !== -1 && q.text.indexOf("tier = 'free'") !== -1);
-  check("default limit and offset", q.limit === 50 && q.offset === 0);
+  check("default limit and no offset", q.limit === 50 && q.text.indexOf("OFFSET") === -1);
   check("unordered by distance", q.text.indexOf("ORDER BY id") !== -1 && q.located === false);
   check("omitting hide21 leaves 21+ rows included", q.text.indexOf("age21 = false") === -1);
   check("materials is selected", q.text.indexOf("materials") !== -1);
@@ -42,8 +42,8 @@ section("defaults", () => {
     q.text.indexOf(STILL_SHOWING_SQL) !== -1 &&
     q.text.indexOf("(expires_at IS NULL OR expires_at >= (now() AT TIME ZONE 'America/Denver')::date)") !== -1 &&
     q.text.indexOf("occurrences->>'kind' IS DISTINCT FROM 'dates'") !== -1);
-  check("limit and offset are parameters",
-    q.values[q.values.length - 2] === 50 && q.values[q.values.length - 1] === 0);
+  check("limit is a parameter and offset is not",
+    q.values[q.values.length - 1] === 50 && q.text.indexOf("OFFSET") === -1);
 });
 
 section("filters become parameters", () => {
@@ -106,48 +106,51 @@ section("location, radius, page clamps", () => {
     lat: "40.76049",
     lng: "-111.891",
     radiusMiles: "500",
-    limit: "9999",
-    offset: "-4"
+    limit: "9999"
   });
   check("lat/lng rounded to 2 decimals", q.values.indexOf(40.76) !== -1 && q.values.indexOf(-111.89) !== -1);
   check("rounded values are not written into the SQL",
     q.text.indexOf("40.76") === -1 && q.text.indexOf("-111.89") === -1);
-  check("radius clamped to 100 miles", q.values.indexOf(100 * METERS_PER_MILE) !== -1);
+  check("radius clamped to 100 miles", q.values.indexOf(100 * METERS_PER_MILE) !== -1 && q.radiusMiles === 100);
   check("within distance of the point",
-    q.text.indexOf("ST_DWithin") !== -1 && q.located === true);
-  check("free near-me keeps general ideas and sorts pins first",
-    q.text.indexOf("(location IS NULL OR ST_DWithin") !== -1 &&
-    q.text.indexOf("ORDER BY CASE WHEN location IS NULL THEN 1 ELSE 0 END, location <->") !== -1 &&
-    q.text.indexOf("NULLS LAST, id") !== -1 &&
-    q.text.indexOf("location IS NOT NULL") === -1 &&
-    q.localOnly === false);
+    q.near.text.indexOf("ST_DWithin") !== -1 && q.located === true);
+  check("free near-me splits pins and general ideas",
+    q.mode === "split" && q.localOnly === false &&
+    q.near.text.indexOf("location IS NOT NULL") !== -1 &&
+    q.near.text.indexOf("ST_DWithin") !== -1 &&
+    q.near.text.indexOf("ORDER BY location <->") !== -1 &&
+    q.near.text.indexOf("ORDER BY CASE WHEN") === -1 &&
+    q.general.text.indexOf("AND location IS NULL") !== -1 &&
+    q.general.text.indexOf("ORDER BY id") !== -1 &&
+    q.general.text.indexOf("ST_DWithin") === -1 &&
+    q.near.text.indexOf("(location IS NULL OR ST_DWithin") === -1);
   check("near-me still drops finished rows and keeps approved",
     q.text.indexOf(STILL_SHOWING_SQL) !== -1 && q.text.indexOf("status = 'approved'") !== -1);
   check("distance_miles is null for general ideas",
-    q.text.indexOf("CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance") !== -1);
-  check("one limit and offset page both groups",
-    q.text.split(" LIMIT ").length === 2 && q.text.split(" OFFSET ").length === 2 &&
-    q.limit === 200 && q.offset === 0);
+    q.near.text.indexOf("CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance") !== -1 &&
+    q.general.text.indexOf("NULL::numeric AS distance_miles") !== -1);
+  check("each group has its own limit and neither uses offset",
+    q.near.text.split(" LIMIT ").length === 2 && q.general.text.split(" LIMIT ").length === 2 &&
+    q.text.indexOf("OFFSET") === -1 && q.limit === 200);
   check("limit clamped to 200", q.limit === 200);
-  check("offset clamped to 0", q.offset === 0);
-  const page = buildListQuery({ limit: "0", offset: "999999", cursor: "3" });
-  check("offset wins over cursor and clamps to 10000", page.offset === 10000);
+  check("offset is rejected", throwsFilter({ offset: "-4" }, "offset"));
+  check("offset is rejected even with a cursor", throwsFilter({ offset: "999999", cursor: "3" }, "offset"));
+  const page = buildListQuery({ limit: "0" });
   check("limit below 1 clamps to 1", page.limit === 1);
-  const cursor = buildListQuery({ cursor: "25" });
-  check("cursor is the offset when offset is absent", cursor.offset === 25);
+  check("a numeric cursor is not an offset", throwsFilter({ cursor: "25" }, "cursor"));
   const defRadius = buildListQuery({ lat: 40.76, lng: -111.89 });
   check("radius defaults to 25 miles", defRadius.values.indexOf(25 * METERS_PER_MILE) !== -1);
-  const paged = buildListQuery({ lat: 40.76, lng: -111.89, limit: "10", offset: "15" });
-  check("located limit and offset stay the last parameters",
-    paged.values[paged.values.length - 2] === 10 && paged.values[paged.values.length - 1] === 15 &&
-    paged.text.indexOf("LIMIT $" + (paged.values.length - 1)) !== -1 &&
-    paged.text.indexOf("OFFSET $" + paged.values.length) !== -1);
+  const paged = buildListQuery({ lat: 40.76, lng: -111.89, limit: "10" });
+  check("located limit stays the last parameter",
+    paged.values[paged.values.length - 1] === 10 &&
+    paged.near.text.indexOf("LIMIT $" + paged.near.values.length) !== -1 &&
+    paged.near.text.indexOf("OFFSET") === -1);
 });
 
 section("localOnly restores pinned-only", () => {
   const free = buildListQuery({ lat: 40.76, lng: -111.89 });
   check("omitted localOnly includes general ideas",
-    free.localOnly === false && free.text.indexOf("(location IS NULL OR ST_DWithin") !== -1);
+    free.localOnly === false && free.mode === "split" && free.general.text.indexOf("AND location IS NULL") !== -1);
   const off = buildListQuery({ lat: 40.76, lng: -111.89, localOnly: "0" });
   check("localOnly=0 matches the free near-me query",
     off.localOnly === false && off.text === free.text);

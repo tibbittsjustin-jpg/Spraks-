@@ -30,7 +30,7 @@ const { loadIdeas } = require("./seed");
 const { poolConfig } = require("./index");
 
 const RESEARCH_DIR = path.join(__dirname, "..", "data", "research");
-const IDEAS_FILE = path.join(__dirname, "..", "public", "data.js");
+const IDEAS_FILE = path.join(__dirname, "..", "data", "ideas-catalog.js");
 const PINS_FILE = path.join(__dirname, "..", "public", "pins.js");
 
 const PROXIMITY_MILES = 0.5;

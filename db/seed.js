@@ -1,4 +1,5 @@
-/* Load public/data.js into activities. Idempotent.
+/* Load data/ideas-catalog.js into activities. Idempotent.
+   The browser ships only the small starter in public/data.js.
 
    Content upsert never touches address, location, coords_locked, or geo_*.
    Coordinates come only from data/coords/*.json (optional). A curated id that
@@ -14,7 +15,7 @@ const filters = require("../shared/filters");
 const { poolConfig } = require("./index");
 const coords = require("./coords");
 
-const DEFAULT_IDEAS = path.join(__dirname, "..", "public", "data.js");
+const DEFAULT_IDEAS = path.join(__dirname, "..", "data", "ideas-catalog.js");
 const DEFAULT_COORDS = path.join(__dirname, "..", "data", "coords");
 const BATCH = 500;
 

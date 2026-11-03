@@ -95,15 +95,23 @@ async function expectFail(promise) {
 
 async function fetchAll(port, query) {
   const items = [];
-  let offset = 0;
-  for (let guard = 0; guard < 40; guard++) {
+  const seen = new Set();
+  let cursor = null;
+  for (let guard = 0; guard < 80; guard++) {
     const joiner = query ? "&" : "";
-    const res = await request(port, "/api/activities?" + query + joiner + "limit=200&offset=" + offset);
+    let urlPath = "/api/activities?" + query + joiner + "limit=200";
+    if (cursor) urlPath += "&cursor=" + encodeURIComponent(cursor);
+    const res = await request(port, urlPath);
     if (res.status !== 200) throw new Error("list failed " + res.status + " " + res.body.slice(0, 180));
     const body = JSON.parse(res.body);
-    items.push.apply(items, body.items);
-    if (body.nextOffset == null) return items;
-    offset = body.nextOffset;
+    body.items.forEach(item => {
+      if (seen.has(item.id)) throw new Error("duplicate id " + item.id);
+      seen.add(item.id);
+      items.push(item);
+    });
+    if (body.nextCursor == null) return items;
+    if (body.nextCursor === cursor) throw new Error("cursor did not advance");
+    cursor = body.nextCursor;
   }
   throw new Error("pagination did not end");
 }
@@ -553,7 +561,7 @@ async function main() {
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
   const connectionString = process.env.TEST_DATABASE_URL;
   const pool = new Pool(Object.assign({}, poolConfig(connectionString), { connectionTimeoutMillis: 8000 }));
-  const ideas = loadIdeas(path.join(__dirname, "..", "public", "data.js"));
+  const ideas = loadIdeas(path.join(__dirname, "..", "data", "ideas-catalog.js"));
   const byId = {};
   ideas.forEach(idea => { byId[idea.id] = idea; });
   const emptyDir = fs.mkdtempSync(path.join(os.tmpdir(), "spark-no-coords-"));
@@ -597,7 +605,8 @@ async function main() {
     check("003 and 006 on a seeded database leave rows untouched", upgradedSame, String(afterUpgrade.rows.length));
     check("018 applies on upgrade and leaves stored costs and cost_unit untouched",
       upgrade.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
-      upgrade.applied.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0) &&
+      upgrade.applied.indexOf("016_nearby_keyset.sql") !== -1 &&
+      upgrade.applied.every(file => file.indexOf("017_") !== 0) &&
       beforeUpgrade.rows.length === afterUpgrade.rows.length &&
       beforeUpgrade.rows.every((row, i) => {
         const next = afterUpgrade.rows[i];
@@ -620,10 +629,11 @@ async function main() {
     check("migration 004 applied", first.applied.indexOf("004_materials.sql") !== -1, first.applied.join(","));
     check("migration 006 applied", first.applied.indexOf("006_security_hardening.sql") !== -1, first.applied.join(","));
     check("migration 010 applied", first.applied.indexOf("010_lists_friends.sql") !== -1, first.applied.join(","));
-    check("migration 018 applied without 016 or 017",
+    check("migrations 016 and 018 apply and 017 does not",
       first.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
-      first.applied.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0) &&
-      first.skipped.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0),
+      first.applied.indexOf("016_nearby_keyset.sql") !== -1 &&
+      first.applied.every(file => file.indexOf("017_") !== 0) &&
+      first.skipped.every(file => file.indexOf("017_") !== 0),
       first.applied.join(","));
     check("005 is not required for 006 to apply",
       first.applied.indexOf("005_subscriptions.sql") === -1 &&

@@ -53,7 +53,7 @@ function walkFiles(dir, acc) {
 }
 
 section("every idea id exists and every photo file resolves", () => {
-  const ideas = loadIdeas(path.join(PUBLIC, "data.js"));
+  const ideas = loadIdeas(path.join(ROOT, "data", "ideas-catalog.js"));
   const ideaIds = new Set(ideas.map(idea => idea.id));
   const json = JSON.parse(fs.readFileSync(path.join(PUBLIC, "photos.json"), "utf8"));
   const fromJs = loadPhotoMap();

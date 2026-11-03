@@ -35,6 +35,17 @@ function createActivitiesRouter(opts) {
     }
   });
 
+  router.get("/by-ids", async (req, res) => {
+    if (!configured()) return res.status(503).json({ error: "db_not_configured" });
+    try {
+      const body = await repo.listActivitiesByIds(req.query.ids, database());
+      res.set("Cache-Control", "public, max-age=300");
+      res.json(body);
+    } catch (err) {
+      sendError(res, err);
+    }
+  });
+
   router.get("/:id", async (req, res) => {
     if (!configured()) return res.status(503).json({ error: "db_not_configured" });
     if (!/^\d{1,9}$/.test(req.params.id)) return res.status(400).json({ error: "invalid_id" });

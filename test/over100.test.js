@@ -29,7 +29,7 @@ const OVER_100 = [
 ];
 
 section("Over $100 cost filter", () => {
-  const ideas = loadIdeas(path.join(__dirname, "..", "public", "data.js"));
+  const ideas = loadIdeas(path.join(__dirname, "..", "data", "ideas-catalog.js"));
   const byId = {};
   ideas.forEach(idea => { byId[idea.id] = idea; });
   const expected = new Set(OVER_100);

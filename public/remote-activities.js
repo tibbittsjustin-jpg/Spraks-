@@ -16,7 +16,9 @@
 })(this, function () {
   "use strict";
 
-  var API_VERSION = "1";
+  // 3: activities now carry source_key and source_credit. A phone that
+  // cached version 1 would keep showing rows with no credit line.
+  var API_VERSION = "3";
   var CACHE_TTL_MS = 6 * 60 * 60 * 1000;
   var STORAGE_KEY = "spark_remote_activities_v1";
   var PAGE_LIMIT = 100;
@@ -124,6 +126,21 @@
     return n;
   }
 
+  function cleanSourceKey(value) {
+    if (typeof value !== "string") return null;
+    var key = value.trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(key)) return null;
+    return key;
+  }
+
+  function cleanSourceCredit(value) {
+    if (typeof value !== "string") return null;
+    var text = value.replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim();
+    if (!text) return null;
+    if (text.length > 500) text = text.slice(0, 500).trim();
+    return text || null;
+  }
+
   function mapActivityToIdea(row) {
     if (!row || typeof row !== "object") return null;
     var id = ideaId(row.id);
@@ -163,6 +180,10 @@
       motif: typeof row.motif === "string" ? row.motif : null,
       source_url: website || null,
       sourceUrl: website || null,
+      source_key: cleanSourceKey(row.source_key != null ? row.source_key : row.sourceKey),
+      sourceKey: cleanSourceKey(row.source_key != null ? row.source_key : row.sourceKey),
+      source_credit: cleanSourceCredit(row.source_credit != null ? row.source_credit : row.sourceCredit),
+      sourceCredit: cleanSourceCredit(row.source_credit != null ? row.source_credit : row.sourceCredit),
       expires_at: expires,
       expiresAt: expires,
       occurrences: occurrences,

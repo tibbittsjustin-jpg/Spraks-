@@ -2255,11 +2255,71 @@
     return '<span class="badge-21">21+</span>';
   }
 
+  function sourceCreditCardHtml(idea){
+    if(typeof JaderooSources === "undefined" || !JaderooSources.cardCreditHtml) return "";
+    return JaderooSources.cardCreditHtml(idea);
+  }
+
+  function appendSourceCredit(parent, idea){
+    if(!parent || typeof JaderooSources === "undefined" || !JaderooSources.creditView) return;
+    var view = JaderooSources.creditView(idea);
+    if(!view) return;
+    var block = document.createElement("div");
+    block.className = "detail-source";
+    var line = document.createElement("p");
+    line.className = "source-credit";
+    view.parts.forEach(function(part){
+      if(part.href){
+        var link = document.createElement("a");
+        link.className = "source-credit-link";
+        link.textContent = part.text;
+        link.setAttribute("href", part.href);
+        if(part.external){
+          link.setAttribute("target", "_blank");
+          link.setAttribute("rel", "noopener noreferrer");
+        }
+        line.appendChild(link);
+      } else {
+        var span = document.createElement("span");
+        span.textContent = part.text;
+        line.appendChild(span);
+      }
+    });
+    block.appendChild(line);
+    if(view.note){
+      var note = document.createElement("p");
+      note.className = "source-credit-note";
+      note.textContent = view.note;
+      block.appendChild(note);
+    }
+    block.addEventListener("click", function(ev){
+      if(ev && ev.stopPropagation) ev.stopPropagation();
+    });
+    var links = document.createElement("p");
+    links.className = "source-credit-links";
+    function addLink(text, href, external){
+      var a = document.createElement("a");
+      a.textContent = text;
+      a.setAttribute("href", href);
+      if(external){
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener noreferrer");
+      }
+      links.appendChild(a);
+    }
+    addLink("Sources", view.sourcesHref, false);
+    if(view.datasetHref) addLink("Dataset page", view.datasetHref, true);
+    addLink("Report a problem", "/sources#report", false);
+    block.appendChild(links);
+    parent.appendChild(block);
+  }
+
   function photoOverlayHtml(idea){
     return '<h3 class="card-title">' + escapeHtml(idea.title) + ageBadgeHtml(idea) + '</h3>' +
       photoStatTilesHtml(idea) +
       photoTagChipsHtml(idea) +
-      photoConditionsHtml(idea);
+      photoConditionsHtml(idea) +
+      sourceCreditCardHtml(idea);
   }
 
   function statusBadgeHtml(idea){
@@ -2306,6 +2366,7 @@
           '<span class="meta-pill">' + escapeHtml(displayCost(idea)) + '</span>' +
           '<span class="meta-pill">' + escapeHtml(idea.setting) + '</span>' +
         '</div>' +
+        sourceCreditCardHtml(idea) +
         '<div class="card-hint">Tap for details · swipe right to save · left to pass</div>' +
       '</div>';
   }
@@ -2335,6 +2396,17 @@
     var samples = [];
     var yesStamp = $(".stamp.yes", card), noStamp = $(".stamp.no", card);
 
+    function tappedSourceCredit(e){
+      var node = e && e.target;
+      var guard = 0;
+      while(node && node !== card && guard < 8){
+        var cls = node.className ? String(node.className) : "";
+        if(cls.indexOf("source-credit") !== -1 || cls.indexOf("source-dataset") !== -1) return true;
+        node = node.parentNode;
+        guard++;
+      }
+      return false;
+    }
     function pointOf(e){
       if(!e) return null;
       if(e.touches && e.touches.length) return e.touches[0];
@@ -2430,6 +2502,7 @@
       }
       if(decision.action === "tap"){
         resetVisual();
+        if(tappedSourceCredit(e)) return;
         goToDetail(ideaId);
         return;
       }
@@ -2718,6 +2791,7 @@
 
     wrap.appendChild(el("h2", "detail-title", escapeHtml(idea.title) + ageBadgeHtml(idea)));
     wrap.appendChild(el("p", "detail-desc", escapeHtml(idea.description)));
+    appendSourceCredit(wrap, idea);
 
     // Missing (events, older saved spots) stays hidden. [] is "Nothing needed".
     if(Array.isArray(idea.materials)){
@@ -3930,6 +4004,7 @@
     else thumb.innerHTML = icon("bookmark");
     var body = el("div", "saved-card-body");
     body.appendChild(el("div", "saved-card-title", escapeHtml(idea.title)));
+    appendSourceCredit(body, idea);
     var meta = savedMetaParts(idea, opts.doneDate);
     if(meta.length) body.appendChild(el("div", "saved-card-meta", escapeHtml(meta.join(" · "))));
     if(past){
@@ -4949,6 +5024,7 @@
     edit:"Edit Profile",
     addFriends:"Add Friends",
     credits:"Photo credits",
+    sources:"Sources",
     blocked:"Blocked people",
     safetyMenu:"Safety",
     safetyBlock:"Block",
@@ -4965,11 +5041,12 @@
     else if(action === "edit") body.appendChild(buildEditProfileSubpanel());
     else if(action === "addFriends") body.appendChild(buildAddFriendsSubpanel());
     else if(action === "credits") body.appendChild(buildCreditsSubpanel());
+    else if(action === "sources") body.appendChild(buildSourcesSubpanel());
     else if(action === "blocked") body.appendChild(buildBlockedPeoplePanel());
     else if(action === "safetyMenu") body.appendChild(buildSafetyMenuPanel());
     else if(action === "safetyBlock") body.appendChild(buildBlockPanel());
     else if(action === "safetyReport") body.appendChild(buildReportPanel());
-    body.classList.toggle("subpage-body-frame", action === "credits");
+    body.classList.toggle("subpage-body-frame", action === "credits" || action === "sources");
     body.scrollTop = 0;
     $("#subpage-overlay").classList.remove("hidden");
   }
@@ -4984,6 +5061,12 @@
     var frame = el("iframe", "credits-frame");
     frame.title = "Photo credits";
     frame.src = "credits.html";
+    return frame;
+  }
+  function buildSourcesSubpanel(){
+    var frame = el("iframe", "credits-frame");
+    frame.title = "Sources";
+    frame.src = "/sources";
     return frame;
   }
   $("#subpage-close").addEventListener("click", closeSubpage);

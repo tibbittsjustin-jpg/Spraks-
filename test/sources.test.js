@@ -573,9 +573,10 @@ function main() {
       /revoke all on table public\.activities from authenticated/i.test(sql));
     check("the migration creates no policy and grants nothing",
       /create policy/i.test(sql) === false && /\bgrant\b/i.test(sql) === false);
-    check("016 and 017 stay unused and 018 is the cost-band migration",
+    check("016 is the nearby index migration, 017 stays unused, and 018 is the cost-band migration",
+      files.indexOf("016_nearby_keyset.sql") !== -1 &&
       files.indexOf("018_cost_bands_20.sql") !== -1 &&
-      files.every(name => name.indexOf("016_") !== 0 && name.indexOf("017_") !== 0));
+      files.every(name => name.indexOf("017_") !== 0));
   }));
 }
 

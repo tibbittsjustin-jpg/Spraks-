@@ -605,7 +605,8 @@ async function main() {
     check("003 and 006 on a seeded database leave rows untouched", upgradedSame, String(afterUpgrade.rows.length));
     check("018 applies on upgrade and leaves stored costs and cost_unit untouched",
       upgrade.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
-      upgrade.applied.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0) &&
+      upgrade.applied.indexOf("016_nearby_keyset.sql") !== -1 &&
+      upgrade.applied.every(file => file.indexOf("017_") !== 0) &&
       beforeUpgrade.rows.length === afterUpgrade.rows.length &&
       beforeUpgrade.rows.every((row, i) => {
         const next = afterUpgrade.rows[i];
@@ -628,10 +629,11 @@ async function main() {
     check("migration 004 applied", first.applied.indexOf("004_materials.sql") !== -1, first.applied.join(","));
     check("migration 006 applied", first.applied.indexOf("006_security_hardening.sql") !== -1, first.applied.join(","));
     check("migration 010 applied", first.applied.indexOf("010_lists_friends.sql") !== -1, first.applied.join(","));
-    check("migration 018 applied without 016 or 017",
+    check("migrations 016 and 018 apply and 017 does not",
       first.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
-      first.applied.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0) &&
-      first.skipped.every(file => file.indexOf("016_") !== 0 && file.indexOf("017_") !== 0),
+      first.applied.indexOf("016_nearby_keyset.sql") !== -1 &&
+      first.applied.every(file => file.indexOf("017_") !== 0) &&
+      first.skipped.every(file => file.indexOf("017_") !== 0),
       first.applied.join(","));
     check("005 is not required for 006 to apply",
       first.applied.indexOf("005_subscriptions.sql") === -1 &&

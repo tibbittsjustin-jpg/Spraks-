@@ -637,7 +637,7 @@
  {
   "dataset": "ugrc_parks",
   "match_field": "STATUS",
-  "match_value": "^(Proposed|Planned|Closed)$",
+  "match_value": "^(Future|Proposed|Planned|Closed)$",
   "match_type": "regex",
   "filter_values": [
    "action:exclude"
@@ -645,20 +645,20 @@
   "confidence_score": 0.95,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule ugrc_parks-049 priority 40 | field_status verified_in_source_not_output | Drop Proposed, Planned and Closed parks. pull_anytime.py already skips them (line 101), so the output and the sample contain none; the loader must still apply this rule because STATUS is not carried into the output."
+  "notes": "cleared: Legal R8.4 item 5 (OK; Future excluded at source) | rule ugrc_parks-049 priority 40 | field_status verified_in_puller_code (read at line 124, not in ALLOWED output) | No-op guard. pull_anytime.py (R8.4) drops STATUS = Future at the source (line 125, Legal R8.4 item 5) and does not output STATUS, so this rule cannot fire on its output. Proposed, Planned and Closed are kept by the puller with an ALARM log line (line 126); Research reports none today. Keep the rule so a later puller that outputs STATUS cannot let these through."
  },
  {
   "dataset": "ugrc_parks",
-  "match_field": "CITY",
-  "match_value": "^\\s*$",
+  "match_field": "location",
+  "match_value": "(?i)^(?:[^,]*\\bcounty\\s*,.*|\\s*UT\\s*)$",
   "match_type": "regex",
   "filter_values": [
-   "action:hold"
+   "action:needs_city"
   ],
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "field missing or empty | rule ugrc_parks-050 priority 40 | field_status verified_in_output | No city: city must come from the SGID polygon lookup (Research 2.2 step 3)."
+  "notes": "rule ugrc_parks-050 priority 40 | field_status verified_in_output (location format from pull_anytime.py line 129) | No real city, so the loader marks needs_city. pull_anytime.py builds location as '<CITY>, <COUNTY> County, UT' (line 129) and outputs no CITY field, so the match is on location: the first part is a county (53 blank CITY: '<X> County, UT'; 90 CITY holding the county name: '<X> County, <X> County, UT'), or location is only 'UT'. 143 of 2,104 today. Title disambiguation waits on the loader's city fill."
  },
  {
   "dataset": "ugrc_trailheads",
@@ -915,7 +915,7 @@
   "confidence_score": 0.5,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "rule ugrc_trailheads-021 priority 30 | field_status verified_in_source_not_output | Real Hub field; values not seen yet. If it says closed in winter, drop Winter; parse rules TBD once Research keeps the field."
+  "notes": "rule ugrc_trailheads-020 priority 30 | field_status verified_in_source_not_output | Real Hub field; values not seen yet. If it says closed in winter, drop Winter; parse rules TBD once Research keeps the field."
  },
  {
   "dataset": "ugrc_trailheads",
@@ -928,7 +928,7 @@
   "confidence_score": 0.5,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "rule ugrc_trailheads-022 priority 30 | field_status verified_in_source_not_output | Real Hub field; values not seen (e.g. restrooms/parking?). Placeholder until Research keeps it."
+  "notes": "rule ugrc_trailheads-021 priority 30 | field_status verified_in_source_not_output | Real Hub field; values not seen (e.g. restrooms/parking?). Placeholder until Research keeps it."
  },
  {
   "dataset": "ugrc_trailheads",
@@ -941,7 +941,115 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule ugrc_trailheads-023 priority 30 | field_status verified_in_source_not_output | Land manager page beats the Hub item page (Research 2.2 step 7). Not a filter."
+  "notes": "rule ugrc_trailheads-022 priority 30 | field_status verified_in_source_not_output | Land manager page beats the Hub item page (Research 2.2 step 7). Not a filter."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "primary_use",
+  "match_value": "Hiking",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 4 (OK with conditions) | rule ugrc_trailheads-023 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4, not run yet); per-value counts from Research, unverified | Primary use hiking (156 rows per Research)."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "primary_use",
+  "match_value": "Hiking",
+  "match_type": "exact",
+  "filter_values": [
+   "vibe:Active",
+   "vibe:Adventurous"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 4 (OK with conditions) | rule ugrc_trailheads-024 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4, not run yet); per-value counts from Research, unverified | Hiking."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "primary_use",
+  "match_value": "Mountain biking",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Outdoor Adventure & Extreme Sports"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 4 (OK with conditions) | rule ugrc_trailheads-025 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4, not run yet); per-value counts from Research, unverified | Primary use mountain biking (368 rows per Research). Needs bikes; hikers can often use the same trail, so this is a lean, not a lock."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "primary_use",
+  "match_value": "Mountain biking",
+  "match_type": "exact",
+  "filter_values": [
+   "vibe:Active",
+   "vibe:Adventurous"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 4 (OK with conditions) | rule ugrc_trailheads-026 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4, not run yet); per-value counts from Research, unverified | Mountain biking."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "primary_use",
+  "match_value": "Mountain biking",
+  "match_type": "exact",
+  "filter_values": [
+   "duration:Half-day (2-5 hrs)"
+  ],
+  "confidence_score": 0.65,
+  "confidence_level": "low",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 4 (OK with conditions) | rule ugrc_trailheads-027 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4, not run yet); per-value counts from Research, unverified | Ride plus shuttle or loop; length unknown."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "primary_use",
+  "match_value": "Multi-use",
+  "match_type": "exact",
+  "filter_values": [
+   "category:Hiking & Nature"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 4 (OK with conditions) | rule ugrc_trailheads-028 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4, not run yet); per-value counts from Research, unverified | Multi-use trailhead (44 rows per Research): walk, run or ride."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "primary_use",
+  "match_value": "Multi-use",
+  "match_type": "exact",
+  "filter_values": [
+   "vibe:Active",
+   "vibe:Adventurous",
+   "vibe:Chill"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 4 (OK with conditions) | rule ugrc_trailheads-029 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4, not run yet); per-value counts from Research, unverified | Mixed use includes easy walks."
+ },
+ {
+  "dataset": "ugrc_trailheads",
+  "match_field": "primary_use",
+  "match_value": "^(?!.*^(Hiking|Mountain biking|Multi-use)$)",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold"
+  ],
+  "confidence_score": 0.5,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "cleared: Legal R8.4 item 4 (OK with conditions) | negated match: field has a value and does NOT match ^(Hiking|Mountain biking|Multi-use)$; skip when the field is empty | rule ugrc_trailheads-030 priority 40 | field_status verified_in_puller_code (pull_anytime.py R8.4, not run yet); per-value counts from Research, unverified | Guard: the puller maps only MTB, HIKE and MULTI (Legal R8.4 item 4) and sets primary_use to null for anything else, so any other non-empty value means the puller changed. Null keeps the dataset defaults."
  },
  {
   "dataset": "museums",
@@ -1096,22 +1204,22 @@
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "History",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:History)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "vibe:Chill"
   ],
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-012 priority 20 | field_status verified_in_source_not_output | History museum (185 listings)."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-012 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | History museum (185 listings)."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "Art",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Art)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "vibe:Chill",
    "vibe:Creative"
@@ -1119,12 +1227,12 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-013 priority 20 | field_status verified_in_source_not_output | Art museum (22)."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-013 priority 21 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Art museum (22). Priority 21 so Art beats History on the 32 multi-type listings (Chill|Creative includes Chill)."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "^(Paleontology|Natural\\ History|Geology|Science|Archaeology|Anthropology|Mining|Railroad|Aviation|Military|Cultural)$",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Paleontology|Natural\\ History|Geology|Science|Archaeology|Anthropology|Mining|Railroad|Aviation|Military|Cultural)(?:\\||$)",
   "match_type": "regex",
   "filter_values": [
    "vibe:Chill"
@@ -1132,13 +1240,13 @@
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-014 priority 20 | field_status verified_in_source_not_output | Subject museums."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-014 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Subject museums."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "Planetarium",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Planetarium)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "vibe:Chill",
    "vibe:Cozy"
@@ -1146,13 +1254,13 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-015 priority 20 | field_status verified_in_source_not_output | Planetarium shows; often ticketed."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-015 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Planetarium shows; often ticketed."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "Planetarium",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Planetarium)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "time:Afternoon",
    "time:Evening"
@@ -1160,39 +1268,39 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule museums-016 priority 20 | field_status verified_in_source_not_output | Shows often run later; unverified per venue."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-016 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Shows often run later; unverified per venue."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "Garden",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Garden)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "setting:Outdoor"
   ],
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-017 priority 20 | field_status verified_in_source_not_output | Gardens (6)."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-017 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Gardens (6)."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "Garden",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Garden)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "category:Hiking & Nature"
   ],
-  "confidence_score": 0.6,
-  "confidence_level": "low",
+  "confidence_score": 0.7,
+  "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-018 priority 20 | field_status verified_in_source_not_output | Garden walk could also stay in Culture."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-018 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Garden walk; Hiking & Nature fits a botanical garden better than Culture (6 listings)."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "Garden",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Garden)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "season:Spring",
    "season:Summer",
@@ -1201,12 +1309,12 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-019 priority 20 | field_status verified_in_source_not_output | Gardens peak outside winter."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-019 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Gardens peak outside winter."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "^(Zoological|Aquarium)$",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Zoological|Aquarium)(?:\\||$)",
   "match_type": "regex",
   "filter_values": [
    "setting:Both"
@@ -1214,12 +1322,12 @@
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-020 priority 20 | field_status verified_in_source_not_output | Zoos are outdoor, aquariums indoor; Both is the safe value."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-020 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Zoos are outdoor, aquariums indoor; Both is the safe value."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "^(Zoological|Aquarium)$",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Zoological|Aquarium)(?:\\||$)",
   "match_type": "regex",
   "filter_values": [
    "vibe:Chill",
@@ -1228,12 +1336,12 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-021 priority 20 | field_status verified_in_source_not_output | Animals; light fun."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-021 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Animals; light fun."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "^(Zoological|Aquarium)$",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Zoological|Aquarium)(?:\\||$)",
   "match_type": "regex",
   "filter_values": [
    "duration:Half-day (2-5 hrs)"
@@ -1241,26 +1349,26 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule museums-022 priority 20 | field_status verified_in_source_not_output | Zoo visits run longer."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-022 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Zoo visits run longer."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "Living History",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Living\\ History)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "setting:Both"
   ],
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-023 priority 20 | field_status verified_in_source_not_output | Indoor exhibits plus outdoor grounds."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-023 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Indoor exhibits plus outdoor grounds."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
-  "match_value": "Children's",
-  "match_type": "exact",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Children's)(?:\\||$)",
+  "match_type": "regex",
   "filter_values": [
    "vibe:Silly",
    "vibe:Creative"
@@ -1268,11 +1376,77 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule museums-024 priority 30 | field_status verified_in_source_not_output | Children's museums are in (Justin, Nov 2). Hands-on exhibits; Silly or Creative fits an adult visit."
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-024 priority 30 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Children's museums are in (Justin, Nov 2). Hands-on exhibits; Silly or Creative fits an adult visit."
  },
  {
   "dataset": "museums",
-  "match_field": "museum_type",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:History|Art|Paleontology|Natural\\ History|Geology|Science|Archaeology|Anthropology|Mining|Railroad|Aviation|Military|Cultural|Living\\ History|Planetarium|Children's)(?:\\||$)",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-025 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Every indoor museum type confirms the museum category (raises the 0.85 default)."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Zoological|Aquarium)(?:\\||$)",
+  "match_type": "regex",
+  "filter_values": [
+   "category:Culture, Community & Local Attractions"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-026 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Zoos and aquariums (5 and 1). No better category in filters.js."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Railroad|Aviation)(?:\\||$)",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Both"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-027 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Rail and air museums often show engines and aircraft outdoors; unverified per site."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Archaeology)(?:\\||$)",
+  "match_type": "regex",
+  "filter_values": [
+   "setting:Both"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-028 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Some archaeology listings are open-air sites or have outdoor ruins; unverified per site."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "categories",
+  "match_value": "(?:^|\\|)(?:Paleontology|Natural\\ History|Geology|Science)(?:\\||$)",
+  "match_type": "regex",
+  "filter_values": [
+   "vibe:Chill",
+   "vibe:Adventurous"
+  ],
+  "confidence_score": 0.7,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 1 (OK with conditions) | rule museums-029 priority 21 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | Fossils, rocks and science exhibits: a bit more discovery than a history room."
+ },
+ {
+  "dataset": "museums",
+  "match_field": "categories",
   "match_value": "^\\s*$",
   "match_type": "regex",
   "filter_values": [
@@ -1281,7 +1455,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "field missing or empty | rule museums-025 priority 10 | field_status verified_in_source_not_output | No type captured."
+  "notes": "field missing or empty | rule museums-030 priority 10 | field_status verified_in_puller_code (pull_anytime.py R8.4 categories list, not run yet; labels match the 19 in MUSEUM_CATS and the directory page read today) | No directory category on the listing (categories is null)."
  },
  {
   "dataset": "museums",
@@ -1294,7 +1468,7 @@
   "confidence_score": 0.5,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "rule museums-026 priority 30 | field_status verified_in_output | DUP relic halls and cabins are often free/donation with limited hours; unverified, and some cabins are viewable outside only."
+  "notes": "rule museums-031 priority 30 | field_status verified_in_output | DUP relic halls and cabins are often free/donation with limited hours; unverified, and some cabins are viewable outside only."
  },
  {
   "dataset": "museums",
@@ -1307,7 +1481,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "rule museums-027 priority 40 | field_status verified_in_output | Expand or drop the DUP tag in the title (82 names contain 'DUP')."
+  "notes": "rule museums-032 priority 40 | field_status verified_in_output | Expand or drop the DUP tag in the title (82 names contain 'DUP')."
  },
  {
   "dataset": "museums",
@@ -1320,7 +1494,7 @@
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-028 priority 30 | field_status verified_in_output | Outdoor exhibits (sample: Ogden George S. Eccles Dinosaur Park)."
+  "notes": "rule museums-033 priority 30 | field_status verified_in_output | Outdoor exhibits (sample: Ogden George S. Eccles Dinosaur Park)."
  },
  {
   "dataset": "museums",
@@ -1333,7 +1507,7 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-029 priority 40 | field_status verified_in_output | Strip ', Inc', double dashes and odd slashes from titles."
+  "notes": "rule museums-034 priority 40 | field_status verified_in_output | Strip ', Inc', double dashes and odd slashes from titles."
  },
  {
   "dataset": "museums",
@@ -1346,7 +1520,7 @@
   "confidence_score": 0.85,
   "confidence_level": "high",
   "always_review": true,
-  "notes": "rule museums-030 priority 40 | field_status verified_in_output | Museum listings that are part of a state park or NPS unit (sample: Frontier Homestead, Camp Floyd/Stage Coach Inn, Capitol Reef Visitor Center Museum) merge into the State Parks/NPS row per Research's priority."
+  "notes": "rule museums-035 priority 40 | field_status verified_in_output | Museum listings that are part of a state park or NPS unit (sample: Frontier Homestead, Camp Floyd/Stage Coach Inn, Capitol Reef Visitor Center Museum) merge into the State Parks/NPS row per Research's priority."
  },
  {
   "dataset": "museums",
@@ -1359,7 +1533,7 @@
   "confidence_score": 0.5,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "rule museums-031 priority 40 | field_status verified_in_output | May not be open to drop-in visitors (sample: Wildlife Rehabilitation Center of Northern Utah)."
+  "notes": "rule museums-036 priority 40 | field_status verified_in_output | May not be open to drop-in visitors (sample: Wildlife Rehabilitation Center of Northern Utah)."
  },
  {
   "dataset": "museums",
@@ -1372,7 +1546,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "rule museums-032 priority 30 | field_status verified_in_output | Visitor centers are trip stops; may duplicate an NPS/State Parks row."
+  "notes": "rule museums-037 priority 30 | field_status verified_in_output | Visitor centers are trip stops; may duplicate an NPS/State Parks row."
  },
  {
   "dataset": "museums",
@@ -1386,7 +1560,7 @@
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-033 priority 30 | field_status verified_in_output | Art gallery."
+  "notes": "rule museums-038 priority 30 | field_status verified_in_output | Art gallery."
  },
  {
   "dataset": "museums",
@@ -1400,7 +1574,7 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-034 priority 30 | field_status verified_in_output | Planetarium (also if type missing)."
+  "notes": "rule museums-039 priority 30 | field_status verified_in_output | Planetarium (also if type missing)."
  },
  {
   "dataset": "museums",
@@ -1415,7 +1589,7 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-035 priority 30 | field_status verified_in_output | Campus museums: usually free; cost unverified."
+  "notes": "rule museums-040 priority 30 | field_status verified_in_output | Campus museums: usually free; cost unverified."
  },
  {
   "dataset": "museums",
@@ -1428,7 +1602,7 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule museums-036 priority 30 | field_status verified_in_output | Children's museums are in (Justin, Nov 2). Same category as other museums. Plain 'discovery' is not matched (sample: St George Dinosaur Discovery Site is a fossil site)."
+  "notes": "rule museums-041 priority 30 | field_status verified_in_output | Children's museums are in (Justin, Nov 2). Same category as other museums. Plain 'discovery' is not matched (sample: St George Dinosaur Discovery Site is a fossil site)."
  },
  {
   "dataset": "museums",
@@ -1441,7 +1615,7 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": true,
-  "notes": "rule museums-037 priority 40 | field_status verified_in_output | Alcohol venue in a museum listing: age21 plus age_21_gate hold."
+  "notes": "rule museums-042 priority 40 | field_status verified_in_output | Alcohol venue in a museum listing: age21 plus age_21_gate hold."
  },
  {
   "dataset": "museums",
@@ -1454,7 +1628,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "negated match: field does NOT match (?i)\\b(utah|UT)\\b | rule museums-038 priority 40 | field_status verified_in_output | Address not in Utah or missing."
+  "notes": "negated match: field has a value and does NOT match (?i)\\b(utah|UT)\\b; skip when the field is empty | rule museums-043 priority 40 | field_status verified_in_output | Address not in Utah or missing."
  },
  {
   "dataset": "stateparks",
@@ -1504,25 +1678,12 @@
   "match_value": ".*",
   "match_type": "regex",
   "filter_values": [
-   "cost:$1-$20"
-  ],
-  "confidence_score": 0.4,
-  "confidence_level": "low",
-  "always_review": true,
-  "notes": "dataset default | rule stateparks-004 priority 10 | field_status verified_in_output | fallback: route to review | Day-use fees are per vehicle and vary by park; not captured (Antelope Island $15 per car was seen in an earlier task; others unread). Needs a per-park fee value from the park page."
- },
- {
-  "dataset": "stateparks",
-  "match_field": "*",
-  "match_value": ".*",
-  "match_type": "regex",
-  "filter_values": [
    "duration:Half-day (2-5 hrs)"
   ],
   "confidence_score": 0.65,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "dataset default | rule stateparks-005 priority 10 | field_status verified_in_output | Usually a drive plus a few hours."
+  "notes": "dataset default | rule stateparks-004 priority 10 | field_status verified_in_output | Usually a drive plus a few hours."
  },
  {
   "dataset": "stateparks",
@@ -1536,7 +1697,7 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "dataset default | rule stateparks-006 priority 10 | field_status verified_in_output | Day use; some parks stay open to 10 p.m. (e.g. Antelope Island 6 a.m.–10 p.m.), not captured."
+  "notes": "dataset default | rule stateparks-005 priority 10 | field_status verified_in_output | Day use; some parks stay open to 10 p.m. (e.g. Antelope Island 6 a.m.–10 p.m.), not captured."
  },
  {
   "dataset": "stateparks",
@@ -1550,7 +1711,7 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "dataset default | rule stateparks-007 priority 10 | field_status verified_in_output | Scenic outing."
+  "notes": "dataset default | rule stateparks-006 priority 10 | field_status verified_in_output | Scenic outing."
  },
  {
   "dataset": "stateparks",
@@ -1565,7 +1726,7 @@
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "dataset default | rule stateparks-008 priority 10 | field_status verified_in_output | Any stage; longer drives suit later stages but not enough to restrict."
+  "notes": "dataset default | rule stateparks-007 priority 10 | field_status verified_in_output | Any stage; longer drives suit later stages but not enough to restrict."
  },
  {
   "dataset": "stateparks",
@@ -1580,7 +1741,7 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "dataset default | rule stateparks-009 priority 10 | field_status verified_in_output | Any group size."
+  "notes": "dataset default | rule stateparks-008 priority 10 | field_status verified_in_output | Any group size."
  },
  {
   "dataset": "stateparks",
@@ -1593,7 +1754,7 @@
   "confidence_score": 0.85,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "dataset default | rule stateparks-010 priority 10 | field_status verified_in_output | No food in data."
+  "notes": "dataset default | rule stateparks-009 priority 10 | field_status verified_in_output | No food in data."
  },
  {
   "dataset": "stateparks",
@@ -1606,7 +1767,7 @@
   "confidence_score": 0.95,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "dataset default | rule stateparks-011 priority 10 | field_status verified_in_output | Not alcohol-centered."
+  "notes": "dataset default | rule stateparks-010 priority 10 | field_status verified_in_output | Not alcohol-centered."
  },
  {
   "dataset": "stateparks",
@@ -1619,7 +1780,7 @@
   "confidence_score": 0.85,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule stateparks-012 priority 30 | field_status verified_in_output | Park museum (Anasazi, Camp Floyd, Edge of the Cedars, Territorial Statehouse, Field House, Fremont Indian, Frontier Homestead)."
+  "notes": "rule stateparks-011 priority 30 | field_status verified_in_output | Park museum (Anasazi, Camp Floyd, Edge of the Cedars, Territorial Statehouse, Field House, Fremont Indian, Frontier Homestead)."
  },
  {
   "dataset": "stateparks",
@@ -1632,7 +1793,7 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule stateparks-013 priority 30 | field_status verified_in_output | Museum plus grounds; Indoor if no grounds (review)."
+  "notes": "rule stateparks-012 priority 30 | field_status verified_in_output | Museum plus grounds; Indoor if no grounds (review)."
  },
  {
   "dataset": "stateparks",
@@ -1645,7 +1806,7 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule stateparks-014 priority 30 | field_status verified_in_output | Museum visit."
+  "notes": "rule stateparks-013 priority 30 | field_status verified_in_output | Museum visit."
  },
  {
   "dataset": "stateparks",
@@ -1658,113 +1819,213 @@
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule stateparks-015 priority 30 | field_status verified_in_output | Museum visit."
+  "notes": "rule stateparks-014 priority 30 | field_status verified_in_output | Museum visit."
  },
  {
   "dataset": "stateparks",
-  "match_field": "hours (park page 'Hours :' line)",
-  "match_value": "(?i)10 p\\.m\\.",
+  "match_field": "entrance_fee",
+  "match_value": "^(0\\.\\d*[1-9]\\d*|(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)(\\.\\d+)?|20(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$1-$20"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | numeric range >0 and <=20; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-015 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Standard day-use entrance fee per vehicle from the park's /park-fees/ page (Legal R8.4 item 2). Band by the exact fee; cents round up to the next dollar."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "entrance_fee",
+  "match_value": "^(20\\.\\d*[1-9]\\d*|(21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39)(\\.\\d+)?|40(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$21-$40"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | numeric range >20 and <=40; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-016 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Standard day-use entrance fee per vehicle from the park's /park-fees/ page (Legal R8.4 item 2). Band by the exact fee; cents round up to the next dollar."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "entrance_fee",
+  "match_value": "^(40\\.\\d*[1-9]\\d*|(41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)(\\.\\d+)?|60(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$41-$60"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | numeric range >40 and <=60; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-017 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Standard day-use entrance fee per vehicle from the park's /park-fees/ page (Legal R8.4 item 2). Band by the exact fee; cents round up to the next dollar."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "entrance_fee",
+  "match_value": "^(60\\.\\d*[1-9]\\d*|(61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79)(\\.\\d+)?|80(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$61-$80"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | numeric range >60 and <=80; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-018 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Standard day-use entrance fee per vehicle from the park's /park-fees/ page (Legal R8.4 item 2). Band by the exact fee; cents round up to the next dollar."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "entrance_fee",
+  "match_value": "^(80\\.\\d*[1-9]\\d*|(81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99)(\\.\\d+)?|100(\\.0+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:$81-$100"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | numeric range >80 and <=100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-019 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Standard day-use entrance fee per vehicle from the park's /park-fees/ page (Legal R8.4 item 2). Band by the exact fee; cents round up to the next dollar."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "entrance_fee",
+  "match_value": "^(100\\.\\d*[1-9]\\d*|(10[1-9]|1[1-9]\\d|[2-9]\\d\\d|[1-9]\\d{3,})(\\.\\d+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Over $100"
+  ],
+  "confidence_score": 0.9,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | numeric range >100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-020 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Standard day-use entrance fee per vehicle from the park's /park-fees/ page (Legal R8.4 item 2). Band by the exact fee; cents round up to the next dollar."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "entrance_fee",
+  "match_value": "^(0\\.\\d*[1-9]\\d*|[1-9]\\d*(\\.\\d+)?)$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost_unit:per car"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | cost_unit is a proposed NEW non-filter field (display label only), not in filters.js | numeric range >0; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-021 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | State park entrance fees are per vehicle; show the per car label."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "entrance_fee",
+  "match_value": "^0(\\.0+)?$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | rule stateparks-022 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | A listed $0 standard fee. Not expected; a missing fee is never Free."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "entrance_fee",
+  "match_value": "^\\s*$",
+  "match_type": "regex",
+  "filter_values": [
+   "action:hold_no_fee_listed"
+  ],
+  "confidence_score": 0.4,
+  "confidence_level": "low",
+  "always_review": true,
+  "notes": "field missing or empty | rule stateparks-023 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | fallback: route to review | Blank means unknown, never Free. The puller drops the fee when /park-fees/ fails or has no Standard Entrance Fee row, so the row goes to review."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "fee_display",
+  "match_value": "\\S",
+  "match_type": "regex",
+  "filter_values": [
+   "action:show_fee_display"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 items 2 and 3 (OK with conditions) | rule stateparks-024 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Show fee_display as is, linked to fee_url, with fee_as_of as the 'as listed on' date (Legal R8.4 item 2 display line). Not a filter."
+ },
+ {
+  "dataset": "stateparks",
+  "match_field": "hours",
+  "match_value": "(?i)\\b(?:9|10|11|12)(?::\\d\\d)?\\s*p\\.?\\s*m\\b|midnight",
   "match_type": "regex",
   "filter_values": [
    "time:Morning",
    "time:Afternoon",
    "time:Evening"
   ],
-  "confidence_score": 0.75,
-  "confidence_level": "high",
+  "confidence_score": 0.6,
+  "confidence_level": "low",
   "always_review": false,
-  "notes": "rule stateparks-016 priority 20 | field_status verified_in_source_not_output | Park pages carry an 'Hours :' line (Goblin Valley and Antelope Island: 6 a.m. – 10 p.m.). Not in stateparks.json today."
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | rule stateparks-025 priority 21 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Closes 9 p.m. or later (e.g. Antelope Island, Goblin Valley: 6 a.m. - 10 p.m.). Priority 21 so a later closing time beats an early one when the line lists two seasons."
  },
  {
   "dataset": "stateparks",
-  "match_field": "day_use_fee (park 'Park Fees' page)",
-  "match_value": "^(0\\.\\d*[1-9]\\d*|(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)(\\.\\d+)?|20(\\.0+)?)$",
+  "match_field": "hours",
+  "match_value": "(?i)\\b(?:4|5|6)(?::\\d\\d)?\\s*p\\.?\\s*m\\b",
   "match_type": "regex",
   "filter_values": [
-   "cost:$1-$20"
+   "time:Morning",
+   "time:Afternoon"
   ],
-  "confidence_score": 0.85,
-  "confidence_level": "high",
+  "confidence_score": 0.6,
+  "confidence_level": "low",
   "always_review": false,
-  "notes": "numeric range >0 and <=20; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-017 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | rule stateparks-026 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Closes by 6 p.m. (museum parks and visitor centers)."
  },
  {
   "dataset": "stateparks",
-  "match_field": "day_use_fee (park 'Park Fees' page)",
-  "match_value": "^(20\\.\\d*[1-9]\\d*|(21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39)(\\.\\d+)?|40(\\.0+)?)$",
+  "match_field": "hours",
+  "match_value": "(?i)24 hours|open 24",
   "match_type": "regex",
   "filter_values": [
-   "cost:$21-$40"
+   "time:Morning",
+   "time:Afternoon",
+   "time:Evening",
+   "time:Night"
   ],
-  "confidence_score": 0.85,
-  "confidence_level": "high",
+  "confidence_score": 0.55,
+  "confidence_level": "low",
   "always_review": false,
-  "notes": "numeric range >20 and <=40; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-018 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | rule stateparks-027 priority 22 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Open around the clock; Night only if the park allows it after dark (check dark-sky rules)."
  },
  {
   "dataset": "stateparks",
-  "match_field": "day_use_fee (park 'Park Fees' page)",
-  "match_value": "^(40\\.\\d*[1-9]\\d*|(41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)(\\.\\d+)?|60(\\.0+)?)$",
+  "match_field": "hours",
+  "match_value": "(?i)year[- ]round",
   "match_type": "regex",
   "filter_values": [
-   "cost:$41-$60"
+   "season:Spring",
+   "season:Summer",
+   "season:Fall",
+   "season:Winter"
   ],
-  "confidence_score": 0.85,
-  "confidence_level": "high",
+  "confidence_score": 0.65,
+  "confidence_level": "low",
   "always_review": false,
-  "notes": "numeric range >40 and <=60; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-019 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | rule stateparks-028 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Hours line says open year-round."
  },
  {
   "dataset": "stateparks",
-  "match_field": "day_use_fee (park 'Park Fees' page)",
-  "match_value": "^(60\\.\\d*[1-9]\\d*|(61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79)(\\.\\d+)?|80(\\.0+)?)$",
+  "match_field": "hours",
+  "match_value": "(?i)\\b(seasonal|closed (?:in |for )?(?:the )?winter|memorial day|labor day|may\\s*(?:-|to|through)\\s*(?:sept|oct))",
   "match_type": "regex",
   "filter_values": [
-   "cost:$61-$80"
+   "season:Spring",
+   "season:Summer",
+   "season:Fall"
   ],
-  "confidence_score": 0.85,
-  "confidence_level": "high",
+  "confidence_score": 0.55,
+  "confidence_level": "low",
   "always_review": false,
-  "notes": "numeric range >60 and <=80; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-020 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
- },
- {
-  "dataset": "stateparks",
-  "match_field": "day_use_fee (park 'Park Fees' page)",
-  "match_value": "^(80\\.\\d*[1-9]\\d*|(81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99)(\\.\\d+)?|100(\\.0+)?)$",
-  "match_type": "regex",
-  "filter_values": [
-   "cost:$81-$100"
-  ],
-  "confidence_score": 0.85,
-  "confidence_level": "high",
-  "always_review": false,
-  "notes": "numeric range >80 and <=100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-021 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
- },
- {
-  "dataset": "stateparks",
-  "match_field": "day_use_fee (park 'Park Fees' page)",
-  "match_value": "^(100\\.\\d*[1-9]\\d*|(10[1-9]|1[1-9]\\d|[2-9]\\d\\d|[1-9]\\d{3,})(\\.\\d+)?)$",
-  "match_type": "regex",
-  "filter_values": [
-   "cost:Over $100"
-  ],
-  "confidence_score": 0.85,
-  "confidence_level": "high",
-  "always_review": false,
-  "notes": "numeric range >100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-022 priority 20 | field_status unverified (fee page not read) | Per-car day-use fee; cents round up to the next dollar (band = ceiling of the fee)."
- },
- {
-  "dataset": "stateparks",
-  "match_field": "day_use_fee (park 'Park Fees' page)",
-  "match_value": "^(0\\.\\d*[1-9]\\d*|[1-9]\\d*(\\.\\d+)?)$",
-  "match_type": "regex",
-  "filter_values": [
-   "cost_unit:per car"
-  ],
-  "confidence_score": 0.9,
-  "confidence_level": "high",
-  "always_review": false,
-  "notes": "cost_unit is a proposed NEW non-filter field (display label only), not in filters.js | numeric range >0; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule stateparks-023 priority 20 | field_status unverified (fee page not read) | State park day-use fees are per vehicle; show the per car label (Justin, Nov 2)."
+  "notes": "cleared: Legal R8.4 item 2 (OK with conditions) | rule stateparks-029 priority 21 | field_status verified_in_puller_code (pull_anytime.py R8.4 stateparks_extras, not run yet) | Hours line names a season or a winter closure."
  },
  {
   "dataset": "stateparks",
@@ -1777,7 +2038,7 @@
   "confidence_score": 0.65,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule stateparks-024 priority 30 | field_status verified_in_output | Historic site; Bridal Veil Falls is a 'State Monument' but is a waterfall (conflict: see the Bridal Veil rule)."
+  "notes": "rule stateparks-030 priority 30 | field_status verified_in_output | Historic site; Bridal Veil Falls is a 'State Monument' but is a waterfall (conflict: see the Bridal Veil rule)."
  },
  {
   "dataset": "stateparks",
@@ -1790,7 +2051,7 @@
   "confidence_score": 0.85,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule stateparks-025 priority 35 | field_status verified_in_output | Waterfall, despite 'State Monument' in the name."
+  "notes": "rule stateparks-031 priority 35 | field_status verified_in_output | Waterfall, despite 'State Monument' in the name."
  },
  {
   "dataset": "stateparks",
@@ -1803,7 +2064,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule stateparks-026 priority 30 | field_status verified_in_output | Reservoir or lake park (name list from the 50 rows; water use unverified per park)."
+  "notes": "rule stateparks-032 priority 30 | field_status verified_in_output | Reservoir or lake park (name list from the 50 rows; water use unverified per park)."
  },
  {
   "dataset": "stateparks",
@@ -1818,7 +2079,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule stateparks-027 priority 30 | field_status verified_in_output | Water parks peak in warm months; still open in winter."
+  "notes": "rule stateparks-033 priority 30 | field_status verified_in_output | Water parks peak in warm months; still open in winter."
  },
  {
   "dataset": "stateparks",
@@ -1831,7 +2092,7 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": true,
-  "notes": "rule stateparks-028 priority 30 | field_status verified_in_output | OHV riding needs a vehicle; dunes allow OHV and hiking."
+  "notes": "rule stateparks-034 priority 30 | field_status verified_in_output | OHV riding needs a vehicle; dunes allow OHV and hiking."
  },
  {
   "dataset": "stateparks",
@@ -1844,7 +2105,7 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": true,
-  "notes": "rule stateparks-029 priority 30 | field_status verified_in_output | Paragliding/hang gliding site; watching is free, flying needs a pilot."
+  "notes": "rule stateparks-035 priority 30 | field_status verified_in_output | Paragliding/hang gliding site; watching is free, flying needs a pilot."
  },
  {
   "dataset": "stateparks",
@@ -1857,7 +2118,7 @@
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule stateparks-030 priority 30 | field_status verified_in_output | Rail trail: walk or bike."
+  "notes": "rule stateparks-036 priority 30 | field_status verified_in_output | Rail trail: walk or bike."
  },
  {
   "dataset": "stateparks",
@@ -1870,7 +2131,7 @@
   "confidence_score": 0.5,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "rule stateparks-031 priority 30 | field_status verified_in_output | Trail access is likely free, unlike per-vehicle parks; unverified until the fee page is read."
+  "notes": "rule stateparks-037 priority 15 | field_status verified_in_output | Trail access is likely free, unlike per-vehicle parks. Priority 15, so a listed entrance_fee (20) or the no-fee hold (20) wins; this is only a reviewer hint."
  },
  {
   "dataset": "stateparks",
@@ -1883,7 +2144,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule stateparks-032 priority 30 | field_status verified_in_output | Overlook park; a short stop unless you stay for stars."
+  "notes": "rule stateparks-038 priority 30 | field_status verified_in_output | Overlook park; a short stop unless you stay for stars."
  },
  {
   "dataset": "stateparks",
@@ -1896,7 +2157,7 @@
   "confidence_score": 0.85,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule stateparks-033 priority 30 | field_status verified_in_output | Scenic/landmark parks."
+  "notes": "rule stateparks-039 priority 30 | field_status verified_in_output | Scenic/landmark parks."
  },
  {
   "dataset": "stateparks",
@@ -1912,7 +2173,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "rule stateparks-034 priority 30 | field_status verified_in_output | Dark-sky parks: star viewing is a real use. Antelope Island and Goblin Valley certification and hours must be checked per park (only Antelope Island verified today)."
+  "notes": "rule stateparks-040 priority 30 | field_status verified_in_output | Dark-sky parks: star viewing is a real use. Antelope Island and Goblin Valley certification and hours must be checked per park (only Antelope Island verified today)."
  },
  {
   "dataset": "stateparks",
@@ -1925,7 +2186,7 @@
   "confidence_score": 0.5,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "field missing or empty | rule stateparks-035 priority 40 | field_status verified_in_output | No pin parsed from the page; Utah to hand-pin."
+  "notes": "field missing or empty | rule stateparks-041 priority 40 | field_status verified_in_output | No pin parsed from the page; Utah to hand-pin."
  },
  {
   "dataset": "nps",
@@ -2067,20 +2328,7 @@
  },
  {
   "dataset": "nps",
-  "match_field": "private_vehicle_fee",
-  "match_value": "^(0(\\.0+)?|does not charge an entrance fee)$",
-  "match_type": "regex",
-  "filter_values": [
-   "cost:Free"
-  ],
-  "confidence_score": 0.8,
-  "confidence_level": "high",
-  "always_review": false,
-  "notes": "rule nps-011 priority 20 | field_status verified_in_source_not_output | From /<code>/planyourvisit/fees.htm. Timpanogos Cave has no entrance fee but cave tours are ticketed, so it needs review."
- },
- {
-  "dataset": "nps",
-  "match_field": "private_vehicle_fee",
+  "match_field": "vehicle_fee",
   "match_value": "^(0\\.\\d*[1-9]\\d*|(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)(\\.\\d+)?|20(\\.0+)?)$",
   "match_type": "regex",
   "filter_values": [
@@ -2089,11 +2337,11 @@
   "confidence_score": 0.9,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "numeric range >0 and <=20; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-012 priority 20 | field_status verified_in_source_not_output | Per-car fee in band. Today: Capitol Reef, Golden Spike, Hovenweep, Natural Bridges ($20 per car). Cents round up to the next dollar."
+  "notes": "cleared: Legal R8.4 item 3 (OK with conditions) | numeric range >0 and <=20; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-011 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | NPS Private Vehicle fee from fees.htm (Legal R8.4 item 3). Today: Capitol Reef, Golden Spike, Hovenweep, Natural Bridges ($20). Cents round up to the next dollar."
  },
  {
   "dataset": "nps",
-  "match_field": "private_vehicle_fee",
+  "match_field": "vehicle_fee",
   "match_value": "^(20\\.\\d*[1-9]\\d*|(21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39)(\\.\\d+)?|40(\\.0+)?)$",
   "match_type": "regex",
   "filter_values": [
@@ -2102,11 +2350,11 @@
   "confidence_score": 0.9,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "numeric range >20 and <=40; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-013 priority 20 | field_status verified_in_source_not_output | Per-car fee in band. Today: Arches, Bryce, Canyonlands, Cedar Breaks, Dinosaur, Glen Canyon, Zion ($25 to $35 per car). Cents round up to the next dollar."
+  "notes": "cleared: Legal R8.4 item 3 (OK with conditions) | numeric range >20 and <=40; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-012 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | NPS Private Vehicle fee from fees.htm (Legal R8.4 item 3). Today: Arches, Bryce, Canyonlands, Cedar Breaks, Dinosaur, Glen Canyon, Zion ($25 to $35). Cents round up to the next dollar."
  },
  {
   "dataset": "nps",
-  "match_field": "private_vehicle_fee",
+  "match_field": "vehicle_fee",
   "match_value": "^(40\\.\\d*[1-9]\\d*|(41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59)(\\.\\d+)?|60(\\.0+)?)$",
   "match_type": "regex",
   "filter_values": [
@@ -2115,11 +2363,11 @@
   "confidence_score": 0.9,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "numeric range >40 and <=60; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-014 priority 20 | field_status verified_in_source_not_output | Per-car fee in band; none of the 17 units today. Cents round up to the next dollar."
+  "notes": "cleared: Legal R8.4 item 3 (OK with conditions) | numeric range >40 and <=60; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-013 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | NPS Private Vehicle fee from fees.htm (Legal R8.4 item 3). Today: none today. Cents round up to the next dollar."
  },
  {
   "dataset": "nps",
-  "match_field": "private_vehicle_fee",
+  "match_field": "vehicle_fee",
   "match_value": "^(60\\.\\d*[1-9]\\d*|(61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79)(\\.\\d+)?|80(\\.0+)?)$",
   "match_type": "regex",
   "filter_values": [
@@ -2128,11 +2376,11 @@
   "confidence_score": 0.9,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "numeric range >60 and <=80; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-015 priority 20 | field_status verified_in_source_not_output | Per-car fee in band; none of the 17 units today. Cents round up to the next dollar."
+  "notes": "cleared: Legal R8.4 item 3 (OK with conditions) | numeric range >60 and <=80; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-014 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | NPS Private Vehicle fee from fees.htm (Legal R8.4 item 3). Today: none today. Cents round up to the next dollar."
  },
  {
   "dataset": "nps",
-  "match_field": "private_vehicle_fee",
+  "match_field": "vehicle_fee",
   "match_value": "^(80\\.\\d*[1-9]\\d*|(81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99)(\\.\\d+)?|100(\\.0+)?)$",
   "match_type": "regex",
   "filter_values": [
@@ -2141,11 +2389,11 @@
   "confidence_score": 0.9,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "numeric range >80 and <=100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-016 priority 20 | field_status verified_in_source_not_output | Per-car fee in band; none of the 17 units today. Cents round up to the next dollar."
+  "notes": "cleared: Legal R8.4 item 3 (OK with conditions) | numeric range >80 and <=100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-015 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | NPS Private Vehicle fee from fees.htm (Legal R8.4 item 3). Today: none today. Cents round up to the next dollar."
  },
  {
   "dataset": "nps",
-  "match_field": "private_vehicle_fee",
+  "match_field": "vehicle_fee",
   "match_value": "^(100\\.\\d*[1-9]\\d*|(10[1-9]|1[1-9]\\d|[2-9]\\d\\d|[1-9]\\d{3,})(\\.\\d+)?)$",
   "match_type": "regex",
   "filter_values": [
@@ -2154,11 +2402,11 @@
   "confidence_score": 0.9,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "numeric range >100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-017 priority 20 | field_status verified_in_source_not_output | Per-car fee in band; none of the 17 units today. Cents round up to the next dollar."
+  "notes": "cleared: Legal R8.4 item 3 (OK with conditions) | numeric range >100; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-016 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | NPS Private Vehicle fee from fees.htm (Legal R8.4 item 3). Today: none today. Cents round up to the next dollar."
  },
  {
   "dataset": "nps",
-  "match_field": "private_vehicle_fee",
+  "match_field": "vehicle_fee",
   "match_value": "^(0\\.\\d*[1-9]\\d*|[1-9]\\d*(\\.\\d+)?)$",
   "match_type": "regex",
   "filter_values": [
@@ -2167,20 +2415,59 @@
   "confidence_score": 0.95,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "cost_unit is a proposed NEW non-filter field (display label only), not in filters.js | numeric range >0; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-018 priority 20 | field_status verified_in_source_not_output | NPS Private Vehicle fees are per car; show the per car label (Justin, Nov 2). Free units get no label."
+  "notes": "cleared: Legal R8.4 item 3 (OK with conditions) | cost_unit is a proposed NEW non-filter field (display label only), not in filters.js | numeric range >0; match on the bare number text (strip $ and commas first); cents round UP to the next dollar, so 20.01 is in the next band | rule nps-017 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | NPS Private Vehicle fees are per car. Free units get no label."
  },
  {
   "dataset": "nps",
-  "match_field": "private_vehicle_fee",
+  "match_field": "vehicle_fee",
+  "match_value": "^0(\\.0+)?$",
+  "match_type": "regex",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.8,
+  "confidence_level": "high",
+  "always_review": true,
+  "notes": "cleared: Legal R8.4 item 3 (OK with conditions) | rule nps-018 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | A listed $0 Private Vehicle fee. Not expected (the puller emits the no-fee text instead); a missing fee is never Free."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "fee_display",
+  "match_value": "No entrance fee listed",
+  "match_type": "exact",
+  "filter_values": [
+   "cost:Free"
+  ],
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 items 2 and 3 (OK with conditions) | rule nps-019 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | The puller sets this text only when the fees page says there is no entrance fee (and then no vehicle_fee). Today: Timpanogos Cave (cave tours are ticketed separately)."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "fee_display",
   "match_value": "^\\s*$",
   "match_type": "regex",
   "filter_values": [
-   "action:hold"
+   "action:hold_no_fee_listed"
   ],
   "confidence_score": 0.4,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "field missing or empty | rule nps-019 priority 20 | field_status verified_in_source_not_output | fallback: route to review | No Private Vehicle line on the fees page (historic trails, Rainbow Bridge, Mormon Pioneer)."
+  "notes": "field missing or empty | rule nps-020 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | fallback: route to review | No Private Vehicle line and no 'no entrance fee' text, or the fees page failed. Blank means unknown, never Free (today: California, Mormon Pioneer, Old Spanish and Pony Express trails, Rainbow Bridge)."
+ },
+ {
+  "dataset": "nps",
+  "match_field": "fee_display",
+  "match_value": "\\S",
+  "match_type": "regex",
+  "filter_values": [
+   "action:show_fee_display"
+  ],
+  "confidence_score": 0.95,
+  "confidence_level": "high",
+  "always_review": false,
+  "notes": "cleared: Legal R8.4 items 2 and 3 (OK with conditions) | rule nps-021 priority 20 | field_status verified_in_puller_code (pull_anytime.py R8.4 nps_fee, not run yet; values from the 17 fees.htm pages read today) | Show fee_display as is, linked to fee_url, with fee_as_of as the 'as listed on nps.gov' date. Not a filter."
  },
  {
   "dataset": "nps",
@@ -2193,7 +2480,7 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule nps-020 priority 30 | field_status verified_in_output | Arches, Bryce, Canyonlands, Capitol Reef, Zion."
+  "notes": "rule nps-022 priority 30 | field_status verified_in_output | Arches, Bryce, Canyonlands, Capitol Reef, Zion."
  },
  {
   "dataset": "nps",
@@ -2206,7 +2493,7 @@
   "confidence_score": 0.8,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule nps-021 priority 30 | field_status verified_in_output | Monuments."
+  "notes": "rule nps-023 priority 30 | field_status verified_in_output | Monuments."
  },
  {
   "dataset": "nps",
@@ -2219,7 +2506,7 @@
   "confidence_score": 0.55,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule nps-022 priority 30 | field_status verified_in_output | Smaller units; drive time varies."
+  "notes": "rule nps-024 priority 30 | field_status verified_in_output | Smaller units; drive time varies."
  },
  {
   "dataset": "nps",
@@ -2232,7 +2519,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": false,
-  "notes": "rule nps-023 priority 30 | field_status verified_in_output | Glen Canyon NRA is Lake Powell; boating, but also overlooks."
+  "notes": "rule nps-025 priority 30 | field_status verified_in_output | Glen Canyon NRA is Lake Powell; boating, but also overlooks."
  },
  {
   "dataset": "nps",
@@ -2245,7 +2532,7 @@
   "confidence_score": 0.75,
   "confidence_level": "high",
   "always_review": false,
-  "notes": "rule nps-024 priority 30 | field_status verified_in_output | Golden Spike: history site."
+  "notes": "rule nps-026 priority 30 | field_status verified_in_output | Golden Spike: history site."
  },
  {
   "dataset": "nps",
@@ -2258,7 +2545,7 @@
   "confidence_score": 0.85,
   "confidence_level": "high",
   "always_review": true,
-  "notes": "rule nps-025 priority 40 | field_status verified_in_output | Historic trails span several states, have no single place or pin (location 'Santa Fe, NM'). Not a place listing; possible later as specific Utah trail sites."
+  "notes": "rule nps-027 priority 40 | field_status verified_in_output | Historic trails span several states, have no single place or pin (location 'Santa Fe, NM'). Not a place listing; possible later as specific Utah trail sites."
  },
  {
   "dataset": "nps",
@@ -2271,7 +2558,7 @@
   "confidence_score": 0.7,
   "confidence_level": "high",
   "always_review": true,
-  "notes": "rule nps-026 priority 35 | field_status verified_in_output | Cave tour plus a steep hike; seasonal and ticketed (fees page: no entrance fee)."
+  "notes": "rule nps-028 priority 35 | field_status verified_in_output | Cave tour plus a steep hike; seasonal and ticketed (fees page: no entrance fee)."
  },
  {
   "dataset": "nps",
@@ -2284,7 +2571,7 @@
   "confidence_score": 0.6,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "negated match: field does NOT match , UT$ | rule nps-027 priority 40 | field_status verified_in_output | Office address is outside Utah (Dinosaur CO, Glen Canyon/Rainbow Bridge Page AZ, Hovenweep Cortez CO). Pin must be the Utah part of the unit."
+  "notes": "negated match: field has a value and does NOT match , UT$; skip when the field is empty | rule nps-029 priority 40 | field_status verified_in_output | Office address is outside Utah (Dinosaur CO, Glen Canyon/Rainbow Bridge Page AZ, Hovenweep Cortez CO). Pin must be the Utah part of the unit."
  },
  {
   "dataset": "nps",
@@ -2297,7 +2584,7 @@
   "confidence_score": 0.95,
   "confidence_level": "high",
   "always_review": true,
-  "notes": "negated match: field does NOT match ^https://www\\.nps\\.gov/ | rule nps-028 priority 40 | field_status verified_in_output | NPS rows may only link to nps.gov pages (Legal: facts plus link). Any other host goes to review. All 17 current rows are https://www.nps.gov/<code>/index.htm."
+  "notes": "negated match: field has a value and does NOT match ^https://www\\.nps\\.gov/; skip when the field is empty | rule nps-030 priority 40 | field_status verified_in_output | NPS rows may only link to nps.gov pages (Legal: facts plus link). Any other host goes to review. All 17 current rows are https://www.nps.gov/<code>/index.htm."
  },
  {
   "dataset": "nps",
@@ -2310,7 +2597,7 @@
   "confidence_score": 0.5,
   "confidence_level": "low",
   "always_review": true,
-  "notes": "field missing or empty | rule nps-029 priority 40 | field_status verified_in_output | nps.json has no coordinates for any unit; Utah must pin each (17 rows)."
+  "notes": "field missing or empty | rule nps-031 priority 40 | field_status verified_in_output | nps.json has no coordinates for any unit; Utah must pin each (17 rows)."
  },
  {
   "dataset": "osm",

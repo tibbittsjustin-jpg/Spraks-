@@ -5,6 +5,7 @@
 const { validateSourceUrl } = require("../lib/validate-url");
 const rulesLib = require("./place-rules");
 const seeds = require("./place-seeds");
+const coordsLib = require("./place-coordinates");
 
 const GENERIC_TIGHT_M = 50;
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
@@ -209,7 +210,16 @@ function featureFor(dataset, record) {
   return dataset.featureType;
 }
 
-function normalizeRecord(dataset, record, rules, seen) {
+function renameSourceCategory(record) {
+  if (!record || record.category == null || Array.isArray(record.category)) return record || {};
+  const copy = Object.assign({}, record);
+  copy.source_primary_category = copy.category;
+  delete copy.category;
+  return copy;
+}
+
+function normalizeRecord(dataset, input, rules, seen) {
+  const record = renameSourceCategory(input);
   const explicit = explicitCity(record);
   const parsed = parsePlace(record && record.location);
   let city = explicit || parsed.city;
@@ -238,11 +248,14 @@ function normalizeRecord(dataset, record, rules, seen) {
     needsCity: trailhead || (localPark && !city),
     cityLookup: actions.indexOf("city_polygon_lookup") === -1 ? null : "not_cleared"
   };
-  if (status != null && /^future$/i.test(String(status).trim())) {
-    flags.statusFuture = true;
+  if (status != null && /^(future|proposed|planned|closed)$/i.test(String(status).trim())) {
+    const label = String(status).trim();
+    flags.statusDrop = label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+    flags.statusFuture = /^future$/i.test(label);
     tagged.excluded = true;
     tagged.review = false;
   }
+  if (actions.indexOf("needs_city") !== -1) flags.needsCity = true;
   if (dataset.excludeSprings && /spring/i.test(String((record && (record.feature_class || record.type || record.kind)) || ""))) {
     tagged.excluded = true;
     tagged.review = false;
@@ -257,8 +270,26 @@ function normalizeRecord(dataset, record, rules, seen) {
   const link = resolveLink(record, dataset, actions);
   const outside = parsed.outsideUtah;
   if (outside) tagged.review = true;
-  const lat = record && typeof record.lat === "number" ? record.lat : null;
-  const lng = record && typeof record.lng === "number" ? record.lng : null;
+  let lat = record && typeof record.lat === "number" ? record.lat : null;
+  let lng = record && typeof record.lng === "number" ? record.lng : null;
+  const coordSource = coordsLib.coordinateProvenance(dataset, record);
+  if (coordsLib.bannedCoordinateSource(coordSource)) {
+    try {
+      coordsLib.acceptCoordinates(lat, lng, coordSource);
+    } catch (err) {
+      lat = null;
+      lng = null;
+      flags.coordinateRejected = err.source || coordsLib.bannedCoordinateSource(coordSource);
+    }
+  }
+  const suggestion = record && (record.suggested_source || record.suggested_why || record.suggested_pin_source);
+  if (suggestion && coordsLib.bannedCoordinateSource(String(suggestion))) {
+    flags.suspiciousPin = true;
+    delete record.suggested_lat;
+    delete record.suggested_lng;
+    delete record.osm_id;
+    delete record.osmId;
+  }
   const coordsOk = lat != null && lng != null && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
   return {
     datasetKey: dataset.datasetKey,
@@ -274,9 +305,10 @@ function normalizeRecord(dataset, record, rules, seen) {
     setting: tagged.mapped.setting,
     season: tagged.mapped.season,
     food: tagged.mapped.food === true,
-    cost: tagged.mapped.cost,
+    cost: tagged.costRequested || tagged.mapped.cost,
     costUnit: tagged.costUnit,
     costRequested: tagged.costRequested,
+    costBandNew: tagged.costRequested || tagged.mapped.cost,
     duration: tagged.mapped.duration,
     time: tagged.mapped.time,
     vibe: tagged.mapped.vibe,
@@ -309,7 +341,7 @@ function normalizeRecord(dataset, record, rules, seen) {
     linkFlag: link.linkFlag,
     status: tagged.excluded ? "excluded" : "pending",
     flags: flags,
-    age21Gate: tagged.age21Gate,
+    sourcePrimaryCategory: record.source_primary_category || null,
     hours: textField(record, ["hours"]),
     entranceFee: textField(record, ["entrance_fee"]),
     feeDisplay: textField(record, ["fee_display"]),

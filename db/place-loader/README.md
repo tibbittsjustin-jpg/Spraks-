@@ -9,7 +9,7 @@ PLACE_DATABASE_URL=postgres://place_loader@127.0.0.1/place_staging_test node db/
 
 `--apply` commits the staging rows on that local database. `--promote --dataset <key>` is refused unless that dataset's `approval_status` is `approved` (or the batch is approved). Promoted rows land in `activities` as `pending`. Review rows, excluded rows, rows that need a hand pin, and rows outside Utah stay in staging.
 
-`015` and `016` are not used.
+`016_nearby_keyset.sql` is main's nearby index migration and is left as main wrote it. `015_source_credit.sql` and `018_cost_bands_20.sql` are already on main. `db/migrate.js` applies `017_place_staging.sql` after `018`, even though the filename sorts earlier. `017` does not add `activities.cost_unit` and does not change the activities cost check.
 
 ## Rule table
 
@@ -17,9 +17,11 @@ PLACE_DATABASE_URL=postgres://place_loader@127.0.0.1/place_staging_test node db/
 
 Priority is parsed from the notes. The highest priority match wins for each filter, then the higher score. Regexes run in Node, so `\b` and `(?i)` keep their JavaScript meaning.
 
-`match_field` is not a closed list. `primary_use` reads a trailhead use code, and only `MTB`, `HIKE`, and `MULTI` are kept. `categories` matches when any element matches. `entrance_fee` and `vehicle_fee` are fee text with `$` and commas removed. A blank fee is unknown, not free. Park and NPS vehicle fees use `cost_unit` `per car`. Every other priced row uses `per person`.
+`match_field` is not a closed list. Trailhead `primary_use` is `Hiking`, `Mountain biking`, or `Multi-use`, the strings the puller writes. `categories` matches when any label matches. An incoming museum `category` string is renamed to `source_primary_category` and is not a match field. `entrance_fee` (state parks, the Day-Use Standard Entrance Fee) and `vehicle_fee` (NPS) are fee text with `$` and commas removed. A blank or missing fee is unknown, not free, and the row stays in review. The loader does not guess a band. NPS is `Free` only when `fee_display` is exactly `No entrance fee listed`. Park and NPS vehicle fees use `cost_unit` `per car`. Every other priced row uses `per person`.
 
-Parks Local rows whose `STATUS` is `Future` are excluded. The attached file has no status column, so this dry run drops none. A county in the city slot, or a location that is only a county, is not a city: all 143 of those parks are `needs_city` (53 county-only, 90 county-in-the-city-field).
+Parks Local rows whose `STATUS` is `Future`, `Proposed`, `Planned`, or `Closed` are excluded, and those four counts are logged. The attached file has no status column, so this dry run drops none for status. A county in the city slot, or a location that is only a county, is not a city: `needs_city` matches on `location`. All 143 of those parks are `needs_city` (53 county-only, 90 county-in-the-city-field).
+
+Coordinates from OpenStreetMap, Nominatim, Google, Apple, or Bing are refused. There is no allowance and no tally. OSM may only set `suspiciousPin`. UGRC Address Points is the geocoder, and this loader does not call it.
 
 ## Dates
 
@@ -27,11 +29,28 @@ Parks Local rows whose `STATUS` is `Future` are excluded. The attached file has 
 
 ## Cost
 
-Justin's bands are `Free`, `$1-$20`, `$21-$40`, `$41-$60`, `$61-$80`, `$81-$100`, `Over $100`. A per-car or per-person fee is banded with `bandFee()` in `db/place-rules.js`.
+Justin's bands are `Free`, `$1-$20`, `$21-$40`, `$41-$60`, `$61-$80`, `$81-$100`, `Over $100`. A per-car or per-person fee is banded with `bandFee()` in `db/place-rules.js`. Staging stores that new band on `place_staging.cost` and `place_staging.cost_band_new`.
 
-`COST_BAND_MAP` is the wiring list. `filters.js` does not have the $20-step bands yet (a separate PR adds them). Until then only `Free` and `Over $100` can be stored. Any other band stays null and the row stays in review. Do not edit `filters.js` here. There is no unknown-cost value.
+`shared/filters.js` and the price hint in `server.js` still list the old bands (`Free`, `$1-$10`, `$20-$30`, `$100 and under`, `Over $100`). Do not edit them here. `COST_BANDS_LIVE` chooses what promote writes to `activities.cost`:
 
-`cost_unit` (`per car` or `per person`) is display-only. It is copied onto `activities` at promote time. Free places have a null unit. Trailhead fees inherited from a park boundary stay off: that layer is not cleared.
+- `legacy` (default): the old-band equivalent. A new band with no clean mapping is not promoted. The report lists those rows, and they stay `pending`. The new band stays on `cost_band_new`.
+- `new`: write the $20 band. Migration 018 already accepts those strings. There is still no new activities column; 018 did not add one.
+
+Clean legacy mapping, using the dollar ranges in `db/import-provo-finds.js` (`$1-$10` is 1–10, `$20-$30` is 20–30, `$100 and under` is 31–100):
+
+| New band | `activities.cost` when `COST_BANDS_LIVE=legacy` |
+| --- | --- |
+| Free | Free |
+| $1-$20 | refused (crosses `$1-$10`, the $11–$19 gap, and $20) |
+| $21-$40 | refused (crosses `$20-$30` and `$100 and under`) |
+| $41-$60 | $100 and under |
+| $61-$80 | $100 and under |
+| $81-$100 | $100 and under |
+| Over $100 | Over $100 |
+
+Set the flag with `COST_BANDS_LIVE=legacy` or `COST_BANDS_LIVE=new`. The loader copies it into `place_loader_config.cost_bands_live` before promote. Anything else is refused. An unknown price is still review, and the loader does not invent a band.
+
+`cost_unit` (`per car` or `per person`) is display-only and stays on the staging row. Promote copies `per car` onto `activities`. Migration 018 allows only null or `per car` there, so a per-person price is stored as a null unit on `activities` until that check is widened. Free places have a null unit. Trailhead fees inherited from a park boundary stay off: that layer is not cleared.
 
 ## Credits
 

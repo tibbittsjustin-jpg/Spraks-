@@ -47,6 +47,20 @@ const COST_BAND_MAP = {
   "$81-$100": null,
   "Over $100": "Over $100"
 };
+/* Live activities still use the old bands in shared/filters.js. A new band
+   maps only when every dollar in it sits inside one old band, using the
+   ranges in db/import-provo-finds.js ($1-$10, $20-$30, $31-$100, Over $100).
+   $1-$20 crosses $1-$10, the $11-$19 gap, and $20. $21-$40 crosses $20-$30
+   and $100 and under. Those two have no clean legacy band. */
+const NEW_TO_LEGACY = {
+  "Free": "Free",
+  "$1-$20": null,
+  "$21-$40": null,
+  "$41-$60": "$100 and under",
+  "$61-$80": "$100 and under",
+  "$81-$100": "$100 and under",
+  "Over $100": "Over $100"
+};
 /* Current rules still say the old labels. A label that sits inside one new
    band folds into it. A label that crosses a $20 step needs the fee number. */
 const LEGACY_COST_BANDS = {
@@ -80,6 +94,9 @@ const ACTIONS = new Set([
   "dedupe_prefer_stateparks_nps",
   "city_polygon_lookup",
   "hold_link_not_nps_gov",
+  "needs_city",
+  "hold_no_fee_listed",
+  "show_fee_display",
   "season_from_text",
   "use_infourl_as_link"
 ]);
@@ -93,6 +110,9 @@ const REVIEW_ACTIONS = new Set([
   "expand_title_abbreviation",
   "dedupe_prefer_stateparks_nps",
   "hold_link_not_nps_gov",
+  "needs_city",
+  "hold_no_fee_listed",
+  "show_fee_display",
   "season_from_text",
   "use_infourl_as_link"
 ]);
@@ -156,6 +176,37 @@ function compileKeyword(pattern) {
 function storedCost(band) {
   if (!band || filters.cost.indexOf(band) === -1) return null;
   return band;
+}
+
+/* COST_BANDS_LIVE is legacy or new. Unset means legacy. */
+function liveCostMode(value) {
+  const raw = value != null && String(value).trim() !== ""
+    ? value
+    : (process.env.COST_BANDS_LIVE != null && String(process.env.COST_BANDS_LIVE).trim() !== ""
+      ? process.env.COST_BANDS_LIVE
+      : "legacy");
+  const mode = String(raw).trim().toLowerCase();
+  if (mode !== "legacy" && mode !== "new") {
+    const err = new Error("COST_BANDS_LIVE must be legacy or new");
+    err.code = "bad_cost_bands_live";
+    throw err;
+  }
+  return mode;
+}
+
+function legacyActivityCost(band) {
+  if (!Object.prototype.hasOwnProperty.call(NEW_TO_LEGACY, band)) return null;
+  return NEW_TO_LEGACY[band];
+}
+
+/* What promote writes to activities.cost. A null cost means the row is refused. */
+function activityCostForPromote(band, mode) {
+  const live = liveCostMode(mode);
+  if (live === "new") {
+    if (COST_BANDS.indexOf(band) === -1) return null;
+    return band;
+  }
+  return legacyActivityCost(band);
 }
 
 /* Whole dollars. $0 is Free, $1 through $20 is the first paid band, then
@@ -398,12 +449,12 @@ function sourceField(record, field, derived) {
   }
   if (field === "primary_use" || field === "Comments" || field === "comments") {
     if (!record) return "";
-    const raw = record.primary_use != null ? record.primary_use : (record.Comments != null ? record.Comments : record.comments);
+    let raw = record.primary_use;
+    if (raw == null && fieldAllowed("Comments", derived && derived.fieldAllowlist)) {
+      raw = record.Comments != null ? record.Comments : record.comments;
+    }
     if (raw == null) return "";
-    const text = String(raw).trim();
-    if (/^(MTB|HIKE|MULTI)$/i.test(text)) return text.toUpperCase();
-    if (field === "primary_use" && record.primary_use != null) return text;
-    return "";
+    return primaryUseLabel(raw);
   }
   if (field === "categories") {
     return categoriesOf(record);
@@ -456,6 +507,19 @@ function fieldAllowed(field, allowlist) {
   return Array.isArray(allowlist) && allowlist.indexOf(field) !== -1;
 }
 
+/* The puller writes Hiking, Mountain biking, or Multi-use. Older codes map
+   onto those three. Anything else is left as written so the hold rule can see it. */
+function primaryUseLabel(raw) {
+  if (raw == null) return "";
+  const text = String(raw).trim();
+  if (!text) return "";
+  const key = text.toLowerCase();
+  if (key === "hike" || key === "hiking") return "Hiking";
+  if (key === "mtb" || key === "mountain biking" || key === "mountain bike") return "Mountain biking";
+  if (key === "multi" || key === "multi-use" || key === "multi use") return "Multi-use";
+  return text;
+}
+
 function categoriesOf(record) {
   if (!record || record.categories == null) return [];
   if (Array.isArray(record.categories)) {
@@ -468,10 +532,14 @@ function ruleMatches(rule, record, datasetKey, derived) {
   if (rule.dataset != null && rule.dataset !== datasetKey) return false;
   const allowlist = derived && derived.fieldAllowlist;
   if (!fieldAllowed(rule.matchField, allowlist)) return false;
+  /* Incoming museum `category` is renamed to source_primary_category before
+     matching. Neither name is a rule field. Museum type rules use `categories`. */
+  if (rule.matchField === "category" || rule.matchField === "source_primary_category") return false;
   if (rule.matchField === "categories") {
     const list = categoriesOf(record);
-    if (!list.length) return false;
-    return list.some(item => rule.test(item));
+    if (!list.length) return rule.test("");
+    if (list.some(item => rule.test(item))) return true;
+    return rule.test(list.join("|"));
   }
   const value = sourceField(record, rule.matchField, derived);
   if (value == null) return false;
@@ -578,6 +646,26 @@ function applyRules(rules, record, datasetKey, derived) {
   } else if (fee && fee.amount > 0 && !costUnit) {
     costUnit = fee.unit;
   }
+  /* NPS is Free only when fee_display is exactly this sentence. A $0 vehicle
+     fee, a blank fee, or a missing fee does not become Free. No other band
+     is filled in here: bands come from a matching rule, or the row is review. */
+  if (datasetKey === "nps") {
+    const display = record && record.fee_display != null ? String(record.fee_display).trim() : "";
+    const listedFree = display === "No entrance fee listed";
+    const paid = costRequested && costRequested !== "Free";
+    if (listedFree && !paid) {
+      const resolved = resolveRuleCost("Free");
+      mapped.cost = resolved.stored;
+      costRequested = "Free";
+      costUnwired = false;
+      costUnit = null;
+    } else if (!listedFree && (mapped.cost === "Free" || costRequested === "Free")) {
+      mapped.cost = null;
+      costRequested = null;
+      costUnwired = false;
+      costUnit = null;
+    }
+  }
   if (!costUnit) {
     const price = mapped.cost || costRequested;
     if (price && price !== "Free") {
@@ -614,8 +702,12 @@ module.exports = {
   REVIEW_BELOW: REVIEW_BELOW,
   COST_BANDS: COST_BANDS,
   COST_BAND_MAP: COST_BAND_MAP,
+  NEW_TO_LEGACY: NEW_TO_LEGACY,
   LEGACY_COST_BANDS: LEGACY_COST_BANDS,
   storedCost: storedCost,
+  liveCostMode: liveCostMode,
+  legacyActivityCost: legacyActivityCost,
+  activityCostForPromote: activityCostForPromote,
   bandFee: bandFee,
   readFee: readFee,
   resolveRuleCost: resolveRuleCost,

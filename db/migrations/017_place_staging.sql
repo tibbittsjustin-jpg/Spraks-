@@ -118,6 +118,7 @@ create table if not exists place_staging (
   cost text,
   cost_unit text,
   cost_requested text,
+  cost_band_new text,
   duration text,
   time_of_day text[] not null default '{}',
   vibe text[] not null default '{}',
@@ -217,8 +218,14 @@ insert into place_loader_config (key, value, note) values
   ('centroid_exclusion_m', '200', 'Polygon pins this close to a city centroid need a hand pin.'),
   ('duplicate_coord_min', '4', 'Flag a coordinate shared by this many rows.'),
   ('tag_review_below', '0.70', 'category, setting, cost, or age21 under this is review.'),
-  ('inherit_trailhead_fees', 'false', 'Off until a cleared park-boundary layer exists.')
+  ('inherit_trailhead_fees', 'false', 'Off until a cleared park-boundary layer exists.'),
+  ('cost_bands_live', '"legacy"', 'COST_BANDS_LIVE. legacy writes the old activities band. new writes the $20 band. Default legacy.')
 on conflict (key) do nothing;
+
+comment on column place_staging.cost is
+  'The $20-step band from the rules. Staging does not store the old filters.js band.';
+comment on column place_staging.cost_band_new is
+  'Same $20-step band as cost. Promote reads this. 018 did not add an activities side column, so the new band stays here.';
 
 create table if not exists place_boundaries (
   name text primary key,
@@ -414,75 +421,6 @@ begin
   select coalesce((value #>> '{}')::integer, dup_min) into dup_min
     from place_loader_config where key = 'duplicate_coord_min';
 
-  with boundary as (
-    select geom from place_boundaries where name = 'Utah'
-  ),
-  shared as (
-    select id, count(*) over (
-      partition by ST_SnapToGrid(geom::geometry, 0.00001)
-    ) as n
-    from place_staging
-    where geom is not null and approval_batch_id = p_batch
-  ),
-  checked as (
-    select s.id,
-      (s.geom is null) as coords_missing,
-      (s.geom is not null and not exists (
-         select 1 from boundary b where ST_Covers(b.geom, s.geom)
-       )) as outside_utah,
-      case
-        when s.needs_city or s.city is null then false
-        when c.geom is null then false
-        else ST_Distance(s.geom, c.geom) > near_m
-      end as far_from_city,
-      case
-        when s.centroid_exempt or s.needs_city or s.city is null or s.geom is null then false
-        else exists (
-          select 1 from place_city_centroids any_city
-          where ST_DWithin(s.geom, any_city.geom, centroid_m)
-        )
-      end as city_centroid,
-      coalesce(sh.n, 0) >= dup_min as shared_coord
-    from place_staging s
-    left join place_city_centroids c on lower(c.name) = lower(s.city)
-    left join place_datasets d on d.dataset_key = s.dataset_key
-    left join shared sh on sh.id = s.id
-    left join lateral (
-      select d.centroid_exempt
-    ) exempt on true
-    where s.approval_batch_id = p_batch
-  )
-  update place_staging s
-  set needs_hand_pin = c.coords_missing or c.outside_utah or c.far_from_city or c.city_centroid or c.shared_coord,
-      out_of_utah = s.out_of_utah or c.outside_utah,
-      pin_check = jsonb_build_object(
-        'coords_missing', c.coords_missing,
-        'outside_utah', c.outside_utah,
-        'far_from_city', c.far_from_city,
-        'city_centroid', c.city_centroid,
-        'shared_coord', c.shared_coord,
-        'city_check', case when s.needs_city or s.city is null then 'skipped' else 'ran' end
-      )
-  from checked c
-  where s.id = c.id;
-end $$;
-
--- The pin check above references s.centroid_exempt, which is not a staging
--- column. Replace it with the dataset flag. Done in the function body below.
-create or replace function place_staging_pin_check(p_batch uuid) returns void
-language plpgsql as $$
-declare
-  near_m numeric := 25000;
-  centroid_m numeric := 200;
-  dup_min integer := 4;
-begin
-  select coalesce((value #>> '{}')::numeric, near_m) into near_m
-    from place_loader_config where key = 'city_near_m';
-  select coalesce((value #>> '{}')::numeric, centroid_m) into centroid_m
-    from place_loader_config where key = 'centroid_exclusion_m';
-  select coalesce((value #>> '{}')::integer, dup_min) into dup_min
-    from place_loader_config where key = 'duplicate_coord_min';
-
   with shared as (
     select id, count(*) over (
       partition by ST_SnapToGrid(geom::geometry, 0.00001)
@@ -560,13 +498,29 @@ begin
   end if;
 end $$;
 
+-- Old live bands, from the ranges in db/import-provo-finds.js.
+-- $1-$20 and $21-$40 cross two live bands, so they return null.
+create or replace function place_legacy_cost(band text) returns text
+language sql immutable as $$
+  select case band
+    when 'Free' then 'Free'
+    when '$41-$60' then '$100 and under'
+    when '$61-$80' then '$100 and under'
+    when '$81-$100' then '$100 and under'
+    when 'Over $100' then 'Over $100'
+    else null
+  end
+$$;
+
 create or replace function place_staging_promote(p_dataset text, p_batch uuid)
-returns integer
+returns jsonb
 language plpgsql as $$
 declare
   ds_status text;
   batch_status text;
+  live_mode text;
   inserted integer := 0;
+  refused jsonb := '[]'::jsonb;
 begin
   perform place_assert_activity_cost_ready();
   if p_dataset is null and p_batch is null then
@@ -585,26 +539,55 @@ begin
     end if;
   end if;
 
-  with eligible as (
-    select s.*
-    from place_staging s
-    where s.status = 'pending'
-      and s.dedupe_result = 'new'
-      and s.tag_review = false
-      and s.needs_hand_pin = false
-      and s.out_of_utah = false
-      and s.cost is not null
-      and s.category is not null
-      and s.setting is not null
-      and s.duration is not null
-      and (p_dataset is null or s.dataset_key = p_dataset)
-      and (p_batch is null or s.approval_batch_id = p_batch)
-      and not exists (
-        select 1 from activities a
-        where a.dataset_key = s.dataset_key and a.source_record_id = s.source_record_id
-      )
-  ),
-  inserted_rows as (
+  select coalesce(value #>> '{}', 'legacy') into live_mode
+    from place_loader_config where key = 'cost_bands_live';
+  if live_mode is null or btrim(live_mode) = '' then
+    live_mode := 'legacy';
+  end if;
+  if live_mode not in ('legacy', 'new') then
+    raise exception 'COST_BANDS_LIVE must be legacy or new' using errcode = 'P0001';
+  end if;
+
+  drop table if exists place_promote_candidates;
+  create temp table place_promote_candidates on commit drop as
+  select s.*,
+    coalesce(s.cost_band_new, s.cost) as new_band,
+    case
+      when live_mode = 'new' and coalesce(s.cost_band_new, s.cost) in (
+        'Free', '$1-$20', '$21-$40', '$41-$60', '$61-$80', '$81-$100', 'Over $100'
+      ) then coalesce(s.cost_band_new, s.cost)
+      when live_mode = 'legacy' then place_legacy_cost(coalesce(s.cost_band_new, s.cost))
+      else null
+    end as live_cost
+  from place_staging s
+  where s.status = 'pending'
+    and s.dedupe_result = 'new'
+    and s.tag_review = false
+    and s.needs_hand_pin = false
+    and s.out_of_utah = false
+    and coalesce(s.cost_band_new, s.cost) is not null
+    and s.category is not null
+    and s.setting is not null
+    and s.duration is not null
+    and (p_dataset is null or s.dataset_key = p_dataset)
+    and (p_batch is null or s.approval_batch_id = p_batch)
+    and not exists (
+      select 1 from activities a
+      where a.dataset_key = s.dataset_key and a.source_record_id = s.source_record_id
+    );
+
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'id', c.id,
+    'dataset_key', c.dataset_key,
+    'source_record_id', c.source_record_id,
+    'title', c.title,
+    'cost_band_new', c.new_band
+  ) order by c.id), '[]'::jsonb)
+  into refused
+  from place_promote_candidates c
+  where c.live_cost is null;
+
+  with inserted_rows as (
     insert into activities (
       title, description, category, icon, setting, season, food, cost, duration,
       time, vibe, stage, date_type, materials, age21, status, source, tier,
@@ -613,35 +596,43 @@ begin
       dataset_key, source_record_id, odbl, cost_unit
     )
     select
-      e.title, e.description, e.category, e.icon, e.setting, e.season, e.food, e.cost, e.duration,
-      e.time_of_day, e.vibe, e.stage, e.date_type, e.materials, e.age21, 'pending', 'dataset', 'free',
-      e.address, e.city, e.source_url, null, null, e.geom,
-      false, 'dataset', 'high', e.dataset_key,
-      e.dataset_key, e.source_record_id, e.odbl, e.cost_unit
-    from eligible e
+      c.title, c.description, c.category, c.icon, c.setting, c.season, c.food, c.live_cost, c.duration,
+      c.time_of_day, c.vibe, c.stage, c.date_type, c.materials, c.age21, 'pending', 'dataset', 'free',
+      c.address, c.city, c.source_url, null, null, c.geom,
+      false, 'dataset', 'high', c.dataset_key,
+      c.dataset_key, c.source_record_id, c.odbl,
+      case when c.cost_unit = 'per car' then 'per car' else null end
+    from place_promote_candidates c
+    where c.live_cost is not null
     returning id, dataset_key, source_record_id
+  ),
+  credited as (
+    insert into place_source_credits (
+      activity_id, dataset_key, source_record_id, source_credit, link, link_flag, role, odbl
+    )
+    select i.id, i.dataset_key, i.source_record_id, s.source_credit, s.link, s.link_flag, 'primary', s.odbl
+    from inserted_rows i
+    join place_staging s
+      on s.dataset_key = i.dataset_key and s.source_record_id = i.source_record_id
+    returning activity_id
   )
-  insert into place_source_credits (
-    activity_id, dataset_key, source_record_id, source_credit, link, link_flag, role, odbl
-  )
-  select i.id, i.dataset_key, i.source_record_id, s.source_credit, s.link, s.link_flag, 'primary', s.odbl
-  from inserted_rows i
-  join place_staging s
-    on s.dataset_key = i.dataset_key and s.source_record_id = i.source_record_id;
-
-  get diagnostics inserted = row_count;
+  select count(*)::integer into inserted from inserted_rows;
 
   update place_staging s
   set status = 'promoted'
-  where s.status = 'pending'
-    and exists (
-      select 1 from activities a
-      where a.dataset_key = s.dataset_key and a.source_record_id = s.source_record_id
-    )
-    and (p_dataset is null or s.dataset_key = p_dataset)
-    and (p_batch is null or s.approval_batch_id = p_batch);
+  where s.id in (
+    select c.id from place_promote_candidates c where c.live_cost is not null
+  )
+  and exists (
+    select 1 from activities a
+    where a.dataset_key = s.dataset_key and a.source_record_id = s.source_record_id
+  );
 
-  return inserted;
+  return jsonb_build_object(
+    'inserted', inserted,
+    'cost_bands_live', live_mode,
+    'refused', refused
+  );
 end $$;
 
 drop trigger if exists place_datasets_updated_at on place_datasets;

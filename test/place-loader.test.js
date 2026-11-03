@@ -20,6 +20,8 @@ function check(name, cond, extra) {
   else { console.log("  \x1b[31mFAIL\x1b[0m " + name + (extra ? "  (" + extra + ")" : "")); fail++; }
 }
 
+const coords = require("../db/place-coordinates");
+const migrateLib = require("../db/migrate");
 const rules = loader.loadRules();
 const parks = seeds.datasetByKey("ugrc_parks");
 const trails = seeds.datasetByKey("ugrc_trailheads");
@@ -30,7 +32,7 @@ function one(dataset, record) {
   return norm.normalizeRecord(dataset, record, rules, { ids: {}, uniqueUrls: {} });
 }
 
-check("192 rules compile", rules.length === 192);
+check("213 rules compile", rules.length === 213);
 check("filters.js cost list is unchanged",
   filters.cost.join("|") === "Free|$1-$10|$20-$30|$100 and under|Over $100");
 check("Justin bands are the mapping keys",
@@ -38,20 +40,64 @@ check("Justin bands are the mapping keys",
 check("$20 is the top of the first paid band", rulesLib.bandFee(20) === "$1-$20" && rulesLib.bandFee(21) === "$21-$40");
 check("$100 is $81-$100 and $101 is Over $100",
   rulesLib.bandFee(100) === "$81-$100" && rulesLib.bandFee(101) === "Over $100");
-check("a $15 per-car fee asks for $1-$20 and is not stored yet", () => {
+check("a $15 fee stays on the new band in staging", () => {
   const row = one(nps, {
     name: "Sample Monument", private_vehicle_fee: "15", location: "Moab, UT",
     lat: 38.7, lng: -109.5, source_url: "https://www.nps.gov/arch/index.htm"
   });
-  return row.cost == null && row.costRequested === "$1-$20" && row.costUnit === "per car" && row.tagReview === true;
+  return row.cost === "$1-$20" && row.costBandNew === "$1-$20" && row.costRequested === "$1-$20" &&
+    row.costUnit === "per car" && row.tagReview === true &&
+    rulesLib.activityCostForPromote(row.costBandNew, "legacy") == null;
 });
-check("a free fee stores Free and no cost unit", () => {
-  const row = one(nps, {
+check("legacy promote maps only bands that sit inside one old band", () => {
+  const previous = process.env.COST_BANDS_LIVE;
+  delete process.env.COST_BANDS_LIVE;
+  const mode = rulesLib.liveCostMode();
+  if (previous == null) delete process.env.COST_BANDS_LIVE;
+  else process.env.COST_BANDS_LIVE = previous;
+  const map = {
+    "Free": "Free",
+    "$1-$20": null,
+    "$21-$40": null,
+    "$41-$60": "$100 and under",
+    "$61-$80": "$100 and under",
+    "$81-$100": "$100 and under",
+    "Over $100": "Over $100"
+  };
+  const pairs = Object.keys(map).every(band => rulesLib.activityCostForPromote(band, "legacy") === map[band]);
+  const asNew = rulesLib.activityCostForPromote("$1-$20", "new") === "$1-$20" &&
+    rulesLib.activityCostForPromote("$21-$40", "new") === "$21-$40";
+  let bad = "";
+  try { rulesLib.liveCostMode("both"); }
+  catch (err) { bad = err.code; }
+  const sql = fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "017_place_staging.sql"), "utf8");
+  return mode === "legacy" && pairs && asNew && bad === "bad_cost_bands_live" &&
+    sql.indexOf("cost_band_new") !== -1 &&
+    sql.indexOf("add column if not exists cost_band") === -1 &&
+    sql.indexOf("alter table public.activities add column") === -1 &&
+    sql.indexOf("'$41-$60' then '$100 and under'") !== -1 &&
+    sql.indexOf("'refused', refused") !== -1;
+});
+check("NPS is Free only when fee_display says No entrance fee listed", () => {
+  const listed = one(nps, {
+    name: "Timpanogos Cave National Monument", fee_display: "No entrance fee listed",
+    vehicle_fee: "0", location: "American Fork, UT", lat: 40.44, lng: -111.71,
+    source_url: "https://www.nps.gov/tica/index.htm"
+  });
+  const zeroOnly = one(nps, {
     name: "Sample National Historical Park", private_vehicle_fee: "0",
     location: "Brigham City, UT", lat: 41.6, lng: -112.5,
     source_url: "https://www.nps.gov/gosp/index.htm"
   });
-  return row.cost === "Free" && row.costUnit == null;
+  const otherDisplay = one(nps, {
+    name: "Sample National Historical Park", vehicle_fee: "0",
+    fee_display: "Entrance fee $0", location: "Brigham City, UT", lat: 41.6, lng: -112.5,
+    source_url: "https://www.nps.gov/gosp/index.htm"
+  });
+  return listed.cost === "Free" && listed.costUnit == null &&
+    zeroOnly.cost == null && zeroOnly.costRequested == null &&
+    otherDisplay.cost == null && otherDisplay.costRequested == null &&
+    zeroOnly.tagReview === true;
 });
 check("a per-person fee is labeled per person", () => {
   const tagged = rulesLib.applyRules(rules, { name: "Hall", location: "Provo, Utah", per_person_fee: "50" }, "museums", { city: "Provo", fieldAllowlist: [] });
@@ -96,8 +142,16 @@ check("a missing status field is counted separately", () => {
   });
   return row.flags.statusMissing === true && row.flags.statusBlank === false && row.excluded === false;
 });
-check("Proposed still excludes when the field is present",
-  one(parks, { name: "Someday Park", type: "Park", acres: 2, STATUS: "Proposed", location: "Provo, Utah County, UT", lat: 40.2, lng: -111.6 }).excluded === true);
+check("Proposed, Planned, and Closed parks are excluded", () => {
+  const rows = ["Proposed", "Planned", "Closed"].map(status => one(parks, {
+    name: status + " Park", type: "Park", acres: 2, STATUS: status,
+    location: "Provo, Utah County, UT", lat: 40.2, lng: -111.6
+  }));
+  return rows.every(row => row.excluded === true && row.status === "excluded") &&
+    rows[0].flags.statusDrop === "Proposed" &&
+    rows[1].flags.statusDrop === "Planned" &&
+    rows[2].flags.statusDrop === "Closed";
+});
 
 check("a county in the city slot is not stored as a city", () => {
   const row = one(parks, {
@@ -137,16 +191,18 @@ check("a categories list matches when any element matches", () => {
   }, "museums", { city: "Provo", fieldAllowlist: [] });
   return hit.mapped.vibe.indexOf("Creative") !== -1 && miss.mapped.vibe.indexOf("Creative") === -1;
 });
-check("primary_use accepts only MTB, HIKE, and MULTI", () => {
+check("primary_use matches Hiking, Mountain biking, and Multi-use", () => {
   trails.fieldAllowlist = ["primary_use", "Comments"];
-  const rule = rulesLib.prepareRule({
-    dataset: "ugrc_trailheads", match_field: "primary_use", match_value: "^MTB$", match_type: "regex",
-    filter_values: ["vibe:Active"], confidence_score: 0.8, confidence_level: "high",
-    always_review: false, notes: "rule use-001 priority 40"
-  });
-  const hit = rulesLib.applyRules([rule], { name: "Mill", location: "UT", Comments: "mtb" }, "ugrc_trailheads", { fieldAllowlist: trails.fieldAllowlist });
-  const junk = rulesLib.applyRules([rule], { name: "Mill", location: "UT", Comments: "closed for mud" }, "ugrc_trailheads", { fieldAllowlist: trails.fieldAllowlist });
-  return hit.matched.length === 1 && junk.matched.length === 0;
+  const hike = one(trails, { name: "Mill", location: "UT", lat: 40.4, lng: -111.5, primary_use: "Hiking" });
+  const bike = one(trails, { name: "Mill", location: "UT", lat: 40.4, lng: -111.5, primary_use: "Mountain biking" });
+  const multi = one(trails, { name: "Mill", location: "UT", lat: 40.4, lng: -111.5, primary_use: "Multi-use" });
+  const coded = one(trails, { name: "Mill", location: "UT", lat: 40.4, lng: -111.5, primary_use: "MTB" });
+  const junk = one(trails, { name: "Mill", location: "UT", lat: 40.4, lng: -111.5, primary_use: "closed for mud" });
+  return hike.category === "Hiking & Nature" &&
+    bike.category === "Outdoor Adventure & Extreme Sports" &&
+    multi.category === "Hiking & Nature" &&
+    coded.category === "Outdoor Adventure & Extreme Sports" &&
+    junk.actions.indexOf("hold") !== -1;
 });
 check("a blank fee is unknown, not free", () => {
   const row = one(seeds.datasetByKey("stateparks"), {
@@ -185,17 +241,12 @@ check("trailheads with location UT need a city and skip a city claim", () => {
   return row.flags.needsCity === true && row.city == null && row.needsHandPin === false && row.flags.cityLookup === "not_cleared";
 });
 check("Comments are ignored until the allowlist says so", () => {
-  const off = one(trails, { name: "Mill Canyon", location: "UT", lat: 37.4, lng: -113.4, Comments: "MTB" });
-  const onRules = rules.concat([rulesLib.prepareRule({
-    dataset: "ugrc_trailheads", match_field: "Comments", match_value: "^MTB$", match_type: "regex",
-    filter_values: ["category:Outdoor Adventure & Extreme Sports"],
-    confidence_score: 0.8, confidence_level: "high", always_review: false,
-    notes: "rule comments-001 priority 40"
-  })]);
-  trails.fieldAllowlist = ["Comments"];
-  const on = norm.normalizeRecord(trails, { name: "Mill Canyon", location: "UT", lat: 37.4, lng: -113.4, Comments: "MTB" }, onRules, { ids: {}, uniqueUrls: {} });
+  const off = one(trails, { name: "Mill Canyon", location: "UT", lat: 37.4, lng: -113.4, Comments: "Mountain biking" });
+  const saved = trails.fieldAllowlist.slice();
   trails.fieldAllowlist = [];
-  return off.category === "Hiking & Nature" && on.category === "Outdoor Adventure & Extreme Sports";
+  const gatedOff = norm.normalizeRecord(trails, { name: "Mill Canyon", location: "UT", lat: 37.4, lng: -113.4, Comments: "Mountain biking" }, rules, { ids: {}, uniqueUrls: {} });
+  trails.fieldAllowlist = saved;
+  return off.category === "Outdoor Adventure & Extreme Sports" && gatedOff.category === "Hiking & Nature";
 });
 check("museum type is gated the same way", () => {
   const off = one(museums, { name: "Art Hall", location: "Provo, Utah 84601", museum_type: "Art", source_url: "https://artsandmuseums.utah.gov/utah-museums-directory/listing/art-hall/" });
@@ -256,8 +307,8 @@ check("migration 017 has the rule columns and priority",
 check("migration refuses an ODbL cross match", migration.indexOf("ODbL isolation") !== -1 && migration.indexOf("coalesce(a.odbl, false) = s.odbl") !== -1);
 check("promote refuses an unapproved dataset", migration.indexOf("refusing to promote unapproved dataset") !== -1);
 check("cost_unit is on activities and staging", migration.indexOf("cost_unit") !== -1);
-check("015 and 016 are not migration files",
-  fs.readdirSync(path.join(__dirname, "..", "db", "migrations")).every(name => name.indexOf("015_") !== 0 && name.indexOf("016_") !== 0));
+check("016 is main's nearby index migration",
+  fs.existsSync(path.join(__dirname, "..", "db", "migrations", "016_nearby_keyset.sql")));
 check("the loader refuses a remote database", () => {
   let code = "";
   try { loader.assertLocalDatabase("postgres://user:pw@db.supabase.co:5432/postgres"); }
@@ -284,7 +335,7 @@ check("$20 and $25-$35 land on the new bands after stripping $ and commas", () =
     thirty.costRequested === "$21-$40" && thirty.costUnit === "per car" &&
     thousand.costRequested === "Over $100";
 });
-check("museum, pool and state park defaults are low-confidence $1-$20 and review", () => {
+check("museum and pool prices stay in review, and a state park fee is per car", () => {
   const museum = one(museums, {
     name: "Town Museum", location: "Provo, Utah 84601", lat: 40.23, lng: -111.66,
     source_url: "https://artsandmuseums.utah.gov/utah-museums-directory/listing/town/"
@@ -293,13 +344,69 @@ check("museum, pool and state park defaults are low-confidence $1-$20 and review
     name: "City Aquatic Center", type: "Park", acres: 4,
     location: "Ogden, Weber County, UT", lat: 41.22, lng: -111.97
   });
-  const statePark = one(seeds.datasetByKey("stateparks"), {
+  const missingFee = one(seeds.datasetByKey("stateparks"), {
     name: "Yuba State Park", location: "Utah", lat: 39.37, lng: -112.02,
     source_url: "https://stateparks.utah.gov/parks/yuba/"
   });
-  return museum.costRequested === "$1-$20" && museum.tagReview === true &&
+  const dayUse = one(seeds.datasetByKey("stateparks"), {
+    name: "Yuba State Park", location: "Utah", lat: 39.37, lng: -112.02,
+    entrance_fee: "$15", source_url: "https://stateparks.utah.gov/parks/yuba/"
+  });
+  return museum.costRequested === "$1-$20" && museum.costUnit === "per person" && museum.tagReview === true &&
     pool.costRequested === "$1-$20" && pool.tagReview === true &&
-    statePark.costRequested === "$1-$20" && statePark.tagReview === true;
+    missingFee.costRequested == null && missingFee.tagReview === true &&
+    dayUse.costRequested === "$1-$20" && dayUse.costUnit === "per car";
+});
+check("an OSM or Nominatim coordinate is refused", () => {
+  let osm = "";
+  let nomi = "";
+  let google = "";
+  try { coords.acceptCoordinates(40.2, -111.6, "OpenStreetMap"); }
+  catch (err) { osm = err.code; }
+  try { coords.acceptCoordinates(40.2, -111.6, "Nominatim cache"); }
+  catch (err) { nomi = err.code; }
+  try { coords.acceptCoordinates(40.2, -111.6, "Google"); }
+  catch (err) { google = err.code; }
+  const rejected = one(museums, {
+    name: "Hall", location: "Provo, Utah 84601", lat: 40.23, lng: -111.66,
+    geo_source: "nominatim", suggested_lat: 40.3, suggested_lng: -111.7,
+    suggested_why: "OpenStreetMap",
+    source_url: "https://artsandmuseums.utah.gov/utah-museums-directory/listing/hall/"
+  });
+  const kept = one(parks, {
+    name: "Liberty Park", type: "Park", acres: 80, lat: 40.74, lng: -111.87,
+    location: "Salt Lake City, Salt Lake County, UT",
+    suggested_lat: 40.1, suggested_lng: -111.1, suggested_why: "osm name disagree"
+  });
+  const ugrc = coords.acceptCoordinates(40.7, -111.8, "ugrc_address_point");
+  return osm === "rejected_coordinate_source" && nomi === "rejected_coordinate_source" &&
+    google === "rejected_coordinate_source" &&
+    rejected.lat == null && rejected.lng == null && rejected.flags.coordinateRejected === "nominatim" &&
+    rejected.flags.suspiciousPin === true && rejected.raw.suggested_lat == null &&
+    kept.lat === 40.74 && kept.lng === -111.87 && kept.flags.suspiciousPin === true &&
+    ugrc.lat === 40.7 && ugrc.suspiciousPin === false &&
+    fs.readFileSync(path.join(__dirname, "..", "db", "place-coordinates.js"), "utf8").indexOf("cap") === -1;
+});
+check("a museum category string is renamed and is not a match field", () => {
+  const row = one(museums, {
+    name: "Art Hall", location: "Provo, Utah 84601", category: "History",
+    categories: ["Art"], lat: 40.23, lng: -111.66,
+    source_url: "https://artsandmuseums.utah.gov/utah-museums-directory/listing/art-hall/"
+  });
+  const tagged = rulesLib.applyRules(rules, {
+    name: "Art Hall", location: "Provo, Utah", source_primary_category: "History", categories: ["Art"]
+  }, "museums", { city: "Provo", fieldAllowlist: [] });
+  const blocked = rules.filter(rule => rule.matchField === "source_primary_category" || rule.matchField === "category");
+  return row.sourcePrimaryCategory === "History" && row.raw.category == null &&
+    row.vibe.indexOf("Creative") !== -1 &&
+    tagged.matched.every(rule => rule.matchField !== "source_primary_category") &&
+    blocked.length === 0;
+});
+check("migration 017 is applied after 018", () => {
+  const files = migrateLib.migrationFiles(path.join(__dirname, "..", "db", "migrations"));
+  return files.indexOf("016_nearby_keyset.sql") !== -1 &&
+    files.indexOf("016_nearby_keyset.sql") < files.indexOf("018_cost_bands_20.sql") &&
+    files.indexOf("018_cost_bands_20.sql") < files.indexOf("017_place_staging.sql");
 });
 const pinQa = require("../db/place-pin-qa");
 const dedupeConfig = require("../db/place-dedupe-config");

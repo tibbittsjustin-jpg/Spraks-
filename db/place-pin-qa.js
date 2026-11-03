@@ -158,14 +158,15 @@ function decide(checks, type, authoritative) {
   if (has("SHARED_PIN") && type !== "area") {
     return { status: "needs_hand_pin", action: "hold_hand_pin", reason: "shared pin" };
   }
-  if (has("CITY_CENTROID") && checks.some(item => item.streetAddress) && !has("GEOCODE_AGREE") && !has("OSM_NAME_AGREE")) {
+  if (has("CITY_CENTROID") && checks.some(item => item.streetAddress) && !has("GEOCODE_AGREE")) {
     return { status: "needs_hand_pin", action: "hold_hand_pin", reason: "city centroid with a street number" };
   }
   if (type === "route") return { status: "route_unpinned", action: "publish_area", reason: "route" };
   if (type === "area" || has("PRECISION_OVERCLAIM") || has("CITY_CENTROID") || has("CITY_MAILING")) {
     return { status: "area_based", action: "publish_area", reason: "area or centroid warning" };
   }
-  if (authoritative || has("GEOCODE_AGREE") || has("OSM_NAME_AGREE")) {
+  /* OSM name agreement is a flag only. It never makes a pin confident. */
+  if (authoritative || has("GEOCODE_AGREE")) {
     return { status: "confident", action: "publish", reason: "authoritative coordinates" };
   }
   if (checks.some(item => item.severity === "warn")) {

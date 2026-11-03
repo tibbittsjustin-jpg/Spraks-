@@ -29,6 +29,26 @@ function migrationStem(filename) {
   return filename.replace(/\.sql$/i, "");
 }
 
+/* Filename order would run 017_place_staging.sql before 018_cost_bands_20.sql.
+   Staging is applied after 018 so a fresh database already has the widened
+   activities cost check and activities.cost_unit. 017 does not add either. */
+function migrationSortKey(filename) {
+  if (/^017_/.test(filename)) return "018z_" + filename;
+  return filename;
+}
+
+function compareMigrations(a, b) {
+  const left = migrationSortKey(a);
+  const right = migrationSortKey(b);
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
+function migrationFiles(dir) {
+  return fs.readdirSync(dir).filter(name => name.endsWith(".sql")).sort(compareMigrations);
+}
+
 function supabaseHas(names, filename) {
   if (!names) return false;
   return names.has(filename) || names.has(migrationStem(filename));
@@ -64,7 +84,7 @@ async function migrate(opts) {
       "filename text primary key, applied_at timestamptz not null default now())"
     );
     const supabaseNames = await loadSupabaseNames(client);
-    const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith(".sql")).sort();
+    const files = migrationFiles(migrationsDir);
     for (const file of files) {
       const seen = await client.query(
         "select 1 from schema_migrations where filename = $1",
@@ -104,4 +124,11 @@ if (require.main === module) {
   });
 }
 
-module.exports = { migrate, migrationStem, supabaseHas };
+module.exports = {
+  migrate: migrate,
+  migrationStem: migrationStem,
+  supabaseHas: supabaseHas,
+  migrationSortKey: migrationSortKey,
+  compareMigrations: compareMigrations,
+  migrationFiles: migrationFiles
+};

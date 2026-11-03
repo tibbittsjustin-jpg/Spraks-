@@ -112,6 +112,7 @@ function tally(rows) {
         dedupe: { new: 0, merge: 0, review: 0 },
         linkFlags: {}, pinFailures: {}, needsHandPin: 0, needsCity: 0,
         countyAsCity: 0, statusMissing: 0, statusBlank: 0, statusFuture: 0,
+        statusDrop: { Future: 0, Proposed: 0, Planned: 0, Closed: 0 },
         genericNames: 0, tagConfidence: {}, costRequested: {}, outOfUtah: 0
       };
     }
@@ -131,6 +132,9 @@ function tally(rows) {
     if (row.flags && row.flags.statusMissing) slot.statusMissing++;
     if (row.flags && row.flags.statusBlank) slot.statusBlank++;
     if (row.flags && row.flags.statusFuture) slot.statusFuture++;
+    if (row.flags && row.flags.statusDrop && Object.prototype.hasOwnProperty.call(slot.statusDrop, row.flags.statusDrop)) {
+      slot.statusDrop[row.flags.statusDrop]++;
+    }
     if (row.genericName) slot.genericNames++;
     if (row.outOfUtah) slot.outOfUtah++;
     const conf = row.tagConfidence == null ? "none" : String(row.tagConfidence);
@@ -157,6 +161,16 @@ function summarize(planned) {
       "priority", "notes"
     ]
   };
+}
+
+async function syncCostBandsLive(client, mode) {
+  const live = rulesLib.liveCostMode(mode);
+  await client.query(
+    "insert into place_loader_config (key, value, note) values ('cost_bands_live', to_jsonb($1::text), $2) " +
+    "on conflict (key) do update set value = excluded.value",
+    [live, "COST_BANDS_LIVE. legacy writes the old activities band. new writes the $20 band."]
+  );
+  return live;
 }
 
 async function assertActivityCostReady(client) {
@@ -257,19 +271,20 @@ async function insertRows(client, rows, batchIds) {
     "name_key, dedupe_radius_m, generic_name, same_name_keep_both, geom, needs_hand_pin, needs_city, " +
     "county_as_city, out_of_utah, link, link_flag, status, flags, approval_batch_id, " +
     "hours, entrance_fee, fee_display, fee_url, fee_as_of, notice, vehicle_fee, more_info_url, " +
-    "source_activity, source_season, open_status, fee_fact, source_activities, reservable" +
+    "source_activity, source_season, open_status, fee_fact, source_activities, reservable, " +
+    "cost_band_new" +
     ") values (" +
     "$1,$2,$3,$4,$5::jsonb,$6,$7,$8,$9,$10,$11::text[],$12,$13,$14,$15,$16,$17::text[]," +
     "$18::text[],$19::text[],$20::text[],$21,$22,$23,$24,$25,$26::jsonb,$27,$28::jsonb,$29,$30::jsonb," +
     "$31,$32::text[],$33,$34,$35,$36," +
     "case when $37::float8 is null then null else ST_SetSRID(ST_MakePoint($38,$37),4326)::geography end," +
     "$39,$40,$41,$42,$43,$44,$45,$46::jsonb,$47," +
-    "$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61" +
+    "$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62" +
     ") on conflict (dataset_key, source_record_id) do update set " +
     "title = excluded.title, source_credit = excluded.source_credit, tag_review = excluded.tag_review, " +
     "status = excluded.status, flags = excluded.flags, city = excluded.city, " +
     "needs_city = excluded.needs_city, county_as_city = excluded.county_as_city, " +
-    "cost = excluded.cost, cost_unit = excluded.cost_unit, geom = excluded.geom, " +
+    "cost = excluded.cost, cost_unit = excluded.cost_unit, cost_band_new = excluded.cost_band_new, geom = excluded.geom, " +
     "hours = excluded.hours, entrance_fee = excluded.entrance_fee, vehicle_fee = excluded.vehicle_fee";
   for (const row of rows) {
     await client.query(sql, [
@@ -285,7 +300,7 @@ async function insertRows(client, rows, batchIds) {
       row.status, JSON.stringify(row.flags), batchIds[row.datasetKey],
       row.hours, row.entranceFee, row.feeDisplay, row.feeUrl, row.feeAsOf, row.notice,
       row.vehicleFee, row.moreInfoUrl, row.sourceActivity, row.sourceSeason,
-      row.openStatus, row.feeFact, row.sourceActivities, row.reservable
+      row.openStatus, row.feeFact, row.sourceActivities, row.reservable, row.costBandNew
     ]);
   }
 }
@@ -341,6 +356,7 @@ async function run(options) {
       await migrate({ client: client, connectionString: connectionString });
       if (options.apply || options.promote) await assertActivityCostReady(client);
       await client.query("BEGIN");
+      await syncCostBandsLive(client);
       await applySql(client, planned.rows, rules);
       sql = true;
       if (options.apply) await client.query("COMMIT");
@@ -396,5 +412,6 @@ module.exports = {
   summarize: summarize,
   run: run,
   assertActivityCostReady: assertActivityCostReady,
+  syncCostBandsLive: syncCostBandsLive,
   GENERIC_TIGHT_M: GENERIC_TIGHT_M
 };

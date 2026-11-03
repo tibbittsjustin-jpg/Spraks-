@@ -46,6 +46,195 @@
   var REPORT_LABEL = "Report or remove a listing";
   var REPORT_HREF = "mailto:support@jaderoo.com?subject=Report%20or%20remove%20a%20listing";
 
+
+  // Round 8 attribution. Credit lines and Sources-page sentences are copied
+  // from Legal's quick reference. The bulk loader sets activities.source_key
+  // to `key` (see ROUND8_SOURCES). A known key selects the credit line, so
+  // source_credit may be empty or the same sentence. UGRC rows: set
+  // source_url to datasetUrl. usfs: set source_url to the row's recareaurl.
+  // blm: set source_url to the row's BLMRecURL. source_url must be https.
+  // Do not store Sources-page paragraphs on the row. No new columns.
+  // Utah Trailheads stays ugrc_trailheads with the Section 9 sentence.
+  // Layers whose item license could not be verified are not listed.
+  // ugrc_schools is mapped because that layer is CC BY and the credit was
+  // supplied for use. Legal recommended leaving school rows out of this
+  // 18+ app. This file does not import any rows.
+
+  var UGRC_SGID_INTRO_TEMPLATE = "Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID). Data Sources: UGRC SGID (data modified). Layers used: {list each layer title, linked to its dataset page}. Licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Changes made by Jaderoo: records filtered to activity types, polygons and lines reduced to points, trail segments combined by trail name, fields renamed and reformatted, and our own short summaries added. Neither UGRC nor the State of Utah endorses Jaderoo.";
+  var UGRC_SGID_DISCLAIMER = "UGRC disclaimer (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\"";
+  var UGRC_SGID_GNIS = "GNIS place names originate from the U.S. Geological Survey Geographic Names Information System. Credit: U.S. Geological Survey.";
+  var GNIS_USGS_CREDIT = "Credit: U.S. Geological Survey.";
+  var GNIS_ACCESS = "Check access and conditions before you go.";
+  var GNIS_NOTE = GNIS_USGS_CREDIT + " " + GNIS_ACCESS;
+  var USFS_CREDIT = "via USDA Forest Service";
+  var USFS_PAGE = "USDA Forest Service. Recreation site information from the U.S. Forest Service Recreation Opportunities dataset (Enterprise Data Warehouse), https://www.fs.usda.gov/. U.S. Government work. No claim to original U.S. Government works. Data may be incomplete or out of date; check with the managing forest before you go. Use of this data does not imply endorsement by the USDA Forest Service.";
+  var USFS_HOME = "https://www.fs.usda.gov/";
+  var BLM_CREDIT = "via Bureau of Land Management";
+  var BLM_PAGE = "Bureau of Land Management (BLM). Recreation site information from the BLM National Recreation Sites and Facilities map service (compiled by BLM from Recreation.gov's Recreation Information Database), https://www.blm.gov/programs/recreation. U.S. Government work. No claim to original U.S. Government works. Use of this data does not imply endorsement by the BLM or the U.S. Department of the Interior.";
+  var BLM_RECREATION = "https://www.blm.gov/programs/recreation";
+  var BULK_LOADER_NOTES = "Set activities.source_key to key. The key selects the credit line; source_credit may be omitted or set to that same sentence (1 to 500 characters, no control characters). UGRC layers: set source_url to datasetUrl. usfs: set source_url to the record recareaurl. blm: set source_url to the record BLMRecURL. source_url must be https. Do not store Sources page paragraphs in source_credit.";
+
+  function ugrcDatasetUrl(itemId) {
+    return "https://opendata.gis.utah.gov/datasets/" + itemId + "_0";
+  }
+
+  function ugrcLayer(spec) {
+    var url = ugrcDatasetUrl(spec.itemId);
+    return {
+      key: spec.key,
+      title: spec.title,
+      itemId: spec.itemId,
+      datasetUrl: url,
+      credit: spec.credit,
+      phrases: [
+        { text: "UGRC SGID", href: url },
+        { text: "CC BY 4.0", href: CC_BY }
+      ],
+      linkItem: false,
+      note: spec.note || "",
+      cardNote: !!spec.cardNote,
+      sourceUrlField: "datasetUrl"
+    };
+  }
+
+  var UGRC_ROUND8 = [
+    ugrcLayer({
+      key: "ugrc_monuments",
+      title: "Utah Monuments and Markers",
+      itemId: "63de4118823e4e3eba943ca43caefc72",
+      credit: "Utah Monuments and Markers (Utah Division of State History), via UGRC SGID · CC BY 4.0 · data modified",
+      note: CHECK_CONDITIONS,
+      cardNote: true
+    }),
+    ugrcLayer({
+      key: "ugrc_boat_ramps",
+      title: "Utah Boat Ramps",
+      itemId: "0d12b74c39eb453088e992bf089d9890",
+      credit: "Utah Boat Ramps, via UGRC SGID · CC BY 4.0 · data modified",
+      note: CHECK_CONDITIONS,
+      cardNote: true
+    }),
+    ugrcLayer({
+      key: "ugrc_golf",
+      title: "Utah Golf Courses",
+      itemId: "d1f957478ea24659a7badb754a22b91c",
+      credit: "Utah Golf Courses, via UGRC SGID · CC BY 4.0 · data modified",
+      note: CHECK_CONDITIONS,
+      cardNote: true
+    }),
+    ugrcLayer({
+      key: "ugrc_libraries",
+      title: "Utah Public Libraries",
+      itemId: "f6cf0c8ef65344b6a6e5ebeaa108f549",
+      credit: "Utah Public Libraries (Utah State Library Division), via UGRC SGID · CC BY 4.0 · data modified",
+      note: "",
+      cardNote: false
+    }),
+    ugrcLayer({
+      key: "ugrc_peaks",
+      title: "Utah Highest Peaks",
+      itemId: "27faf1a5aef2429fb2d660139b6583d6",
+      credit: "Utah Highest Peaks, via UGRC SGID · CC BY 4.0 · data modified",
+      note: CHECK_CONDITIONS,
+      cardNote: true
+    }),
+    ugrcLayer({
+      key: "ugrc_ski_resorts",
+      title: "Utah Ski Area Resort Locations",
+      itemId: "24029712a33f47feacc7b3f2ef75f179",
+      credit: "Utah Ski Area Resort Locations, via UGRC SGID · CC BY 4.0 · data modified",
+      note: CHECK_CONDITIONS,
+      cardNote: true
+    }),
+    ugrcLayer({
+      key: "ugrc_cemeteries",
+      title: "Utah Cemeteries",
+      itemId: "f54d1c00020940ec95a729b39518e020",
+      credit: "Utah Cemeteries, via UGRC SGID · CC BY 4.0 · data modified",
+      note: "",
+      cardNote: false
+    }),
+    ugrcLayer({
+      key: "ugrc_schools",
+      title: "Utah Schools PreK to 12",
+      itemId: "333206ff129346e3b8660e8f6f48540e",
+      credit: "Utah Schools PreK to 12 (WFRC, Utah State Board of Education), via UGRC SGID · CC BY 4.0 · data modified",
+      note: "",
+      cardNote: false
+    }),
+    ugrcLayer({
+      key: "ugrc_historic_trails",
+      title: "Utah Historic Trails",
+      itemId: "20742e3d34354509b8a9f567f1003509",
+      credit: "Utah Historic Trails, via UGRC SGID · CC BY 4.0 · data modified",
+      note: CHECK_CONDITIONS,
+      cardNote: true
+    }),
+    ugrcLayer({
+      key: "ugrc_trails",
+      title: "Utah Trails and Pathways",
+      itemId: "3080c0a2859a4d23a279e17e17c703c8",
+      credit: "Utah Trails and Pathways (UGRC, WFRC), via UGRC SGID · CC BY 4.0 · data modified",
+      note: CHECK_CONDITIONS,
+      cardNote: true
+    }),
+    ugrcLayer({
+      key: "ugrc_ski_trails",
+      title: "Utah Ski Trails XC",
+      itemId: "c94307ff26e641159510005e076f5bfd",
+      credit: "Utah Ski Trails XC, via UGRC SGID · CC BY 4.0 · data modified",
+      note: CHECK_CONDITIONS,
+      cardNote: true
+    }),
+    ugrcLayer({
+      key: "ugrc_gnis",
+      title: "Utah GNIS Place Names",
+      itemId: "153301fffc8a4128884833e2f7ee1d6e",
+      credit: "Name and location: Utah GNIS Place Names (USGS GNIS), via UGRC SGID · CC BY 4.0 · data modified",
+      note: GNIS_NOTE,
+      cardNote: true
+    })
+  ];
+
+  var USFS_SOURCE = {
+    key: "usfs",
+    title: "USDA Forest Service",
+    itemId: "",
+    datasetUrl: "",
+    credit: USFS_CREDIT,
+    phrases: null,
+    linkItem: true,
+    note: CHECK_CONDITIONS,
+    cardNote: true,
+    sourceUrlField: "recareaurl",
+    pagePhrases: [{ text: USFS_HOME, href: USFS_HOME }]
+  };
+
+  var BLM_SOURCE = {
+    key: "blm",
+    title: "Bureau of Land Management (BLM)",
+    itemId: "",
+    datasetUrl: "",
+    credit: BLM_CREDIT,
+    phrases: null,
+    linkItem: true,
+    note: CHECK_CONDITIONS,
+    cardNote: true,
+    sourceUrlField: "BLMRecURL",
+    pagePhrases: [{ text: BLM_RECREATION, href: BLM_RECREATION }]
+  };
+
+  var ROUND8_SOURCES = UGRC_ROUND8.concat([USFS_SOURCE, BLM_SOURCE]);
+  var UGRC_LAYER_LIST = UGRC_ROUND8.map(function (row) { return row.title; }).join(", ");
+  var UGRC_SGID_INTRO = UGRC_SGID_INTRO_TEMPLATE.replace(
+    "{list each layer title, linked to its dataset page}",
+    UGRC_LAYER_LIST
+  );
+  var UGRC_LAYER_LINKS = UGRC_ROUND8.map(function (row) {
+    return { text: row.title, href: row.datasetUrl };
+  });
+
+
   // Older ingest text. Showing it would describe changes we do not make.
   var PREVIOUS_CREDITS = {};
   PREVIOUS_CREDITS["Trailhead data: Utah Trailheads, via UGRC, State Geographic Information Database (SGID), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data modified: locations geocoded and reformatted."] = "ugrc_trailheads";
@@ -163,7 +352,20 @@
     });
   }
 
-  var ENTRIES = PLACE_ENTRIES.concat(listed(EVENT_CREDITS, "events"), listed(DISCOVERY, "discovery"), listed(MANUAL, "manual"));
+  var ROUND8_ENTRIES = ROUND8_SOURCES.map(function (row) {
+    return entry({
+      key: row.key,
+      group: "places",
+      credit: row.credit,
+      datasetUrl: row.datasetUrl,
+      phrases: row.phrases,
+      linkItem: !!row.linkItem,
+      note: row.note,
+      cardNote: !!row.cardNote
+    });
+  });
+
+  var ENTRIES = PLACE_ENTRIES.concat(ROUND8_ENTRIES, listed(EVENT_CREDITS, "events"), listed(DISCOVERY, "discovery"), listed(MANUAL, "manual"));
   var BY_KEY = Object.create(null);
   var BY_CREDIT = Object.create(null);
   ENTRIES.forEach(function (item) {
@@ -255,6 +457,34 @@
     return null;
   }
 
+  function linkPhrases(text, phrases) {
+    var source = String(text || "");
+    var found = [];
+    (phrases || []).forEach(function (phrase) {
+      if (!phrase || !phrase.text) return;
+      var at = source.indexOf(phrase.text);
+      if (at < 0) return;
+      found.push({ at: at, text: phrase.text, href: phrase.href || "" });
+    });
+    found.sort(function (a, b) {
+      if (a.at !== b.at) return a.at - b.at;
+      return b.text.length - a.text.length;
+    });
+    var parts = [];
+    var cursor = 0;
+    found.forEach(function (phrase) {
+      if (phrase.at < cursor) return;
+      if (phrase.at > cursor) parts.push({ text: source.slice(cursor, phrase.at) });
+      var href = httpsPageUrl(phrase.href);
+      if (href) parts.push({ text: phrase.text, href: href, external: true });
+      else parts.push({ text: phrase.text });
+      cursor = phrase.at + phrase.text.length;
+    });
+    if (cursor < source.length) parts.push({ text: source.slice(cursor) });
+    if (!parts.length) parts.push({ text: source });
+    return parts;
+  }
+
   function creditView(idea) {
     var known = lookup(idea);
     var stored = cleanCredit(field(idea, "source_credit", "sourceCredit"));
@@ -264,7 +494,11 @@
     var href = "";
     if (known && known.linkItem) href = page;
     else if (!known) href = page;
-    var parts = linkParts(credit, href);
+    // Phrase links (UGRC SGID, CC BY 4.0) stay on the credit line.
+    // linkItem sources (a forest page, a BLM page) link the whole line.
+    var parts = (known && known.phrases && known.phrases.length && !known.linkItem)
+      ? linkPhrases(credit, known.phrases)
+      : linkParts(credit, href);
     var datasetHref = "";
     if (known && known.datasetUrl) datasetHref = page || known.datasetUrl;
     var sourcesHref = "/sources" + (known ? "#" + known.key : "");
@@ -274,7 +508,8 @@
       parts: parts,
       sourcesHref: sourcesHref,
       datasetHref: datasetHref,
-      note: known && known.note ? known.note : ""
+      note: known && known.note ? known.note : "",
+      cardNote: !!(known && known.cardNote)
     };
   }
 
@@ -295,11 +530,35 @@
     }
     html += ' <a class="source-credit-sources" href="' + escapeHtml(view.sourcesHref) + '">Sources</a>';
     html += "</p>";
+    if (view.cardNote && view.note) {
+      html += '<p class="source-credit-note">' + escapeHtml(view.note) + "</p>";
+    }
     return html;
   }
 
   function paragraph(text) {
     return "<p>" + htmlForParts(linkParts(text, "")) + "</p>";
+  }
+
+  function paragraphPhrases(text, phrases) {
+    var pieces = linkPhrases(text, phrases);
+    var html = pieces.map(function (part) {
+      if (part.href) return htmlForParts([part]);
+      return htmlForParts(linkParts(part.text, ""));
+    }).join("");
+    return "<p>" + html + "</p>";
+  }
+
+  function creditList(items) {
+    var html = "<ul>";
+    items.forEach(function (item) {
+      var parts = (item.phrases && item.phrases.length && !item.linkItem)
+        ? linkPhrases(item.credit, item.phrases)
+        : linkParts(item.credit, "");
+      html += '<li id="' + escapeHtml(item.key) + '">' + htmlForParts(parts) + "</li>";
+    });
+    html += "</ul>";
+    return html;
   }
 
   function groupList(group) {
@@ -349,6 +608,20 @@
     html.push('<h2 id="museums">Utah Museums Directory</h2>');
     html.push(paragraph(MUSEUMS_CREDIT));
     html.push(paragraph(MUSEUMS_PAGE));
+    html.push('<h2 id="ugrc-sgid">Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID)</h2>');
+    html.push(creditList(UGRC_ROUND8));
+    html.push('<div class="block">');
+    html.push(paragraphPhrases(UGRC_SGID_INTRO, UGRC_LAYER_LINKS));
+    html.push(paragraph(UGRC_SGID_DISCLAIMER));
+    html.push(paragraph(UGRC_SGID_GNIS));
+    html.push(paragraph(GNIS_ACCESS));
+    html.push("</div>");
+    html.push("<h2>USDA Forest Service</h2>");
+    html.push(creditList([USFS_SOURCE]));
+    html.push(paragraphPhrases(USFS_PAGE, USFS_SOURCE.pagePhrases));
+    html.push("<h2>Bureau of Land Management (BLM)</h2>");
+    html.push(creditList([BLM_SOURCE]));
+    html.push(paragraphPhrases(BLM_PAGE, BLM_SOURCE.pagePhrases));
     html.push("<h2>Event listings</h2>");
     html.push('<p class="muted">Each event listing links to the organizer and shows the credit below.</p>');
     html.push(groupList("events"));
@@ -379,6 +652,22 @@
     NPS_NOTICE: NPS_NOTICE,
     MUSEUMS_CREDIT: MUSEUMS_CREDIT,
     MUSEUMS_PAGE: MUSEUMS_PAGE,
+    UGRC_SGID_INTRO_TEMPLATE: UGRC_SGID_INTRO_TEMPLATE,
+    UGRC_SGID_INTRO: UGRC_SGID_INTRO,
+    UGRC_SGID_DISCLAIMER: UGRC_SGID_DISCLAIMER,
+    UGRC_SGID_GNIS: UGRC_SGID_GNIS,
+    GNIS_USGS_CREDIT: GNIS_USGS_CREDIT,
+    GNIS_ACCESS: GNIS_ACCESS,
+    GNIS_NOTE: GNIS_NOTE,
+    USFS_CREDIT: USFS_CREDIT,
+    USFS_PAGE: USFS_PAGE,
+    USFS_HOME: USFS_HOME,
+    BLM_CREDIT: BLM_CREDIT,
+    BLM_PAGE: BLM_PAGE,
+    BLM_RECREATION: BLM_RECREATION,
+    UGRC_ROUND8: UGRC_ROUND8,
+    ROUND8_SOURCES: ROUND8_SOURCES,
+    BULK_LOADER_NOTES: BULK_LOADER_NOTES,
     NOT_AFFILIATED: NOT_AFFILIATED,
     CHECK_CONDITIONS: CHECK_CONDITIONS,
     ORGANIZER: ORGANIZER,

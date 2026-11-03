@@ -514,6 +514,20 @@ function main() {
     check("the CC BY license is a link", page.indexOf('href="' + CC_BY + '"') !== -1);
     check("the UGRC policy is a link", page.indexOf('href="https://gis.utah.gov/documentation/policy/license/"') !== -1);
     check("the report link is a mailto", page.indexOf('href="mailto:support@jaderoo.com?subject=Report%20or%20remove%20a%20listing"') !== -1);
+    const OSM_LINE = "Some locations © OpenStreetMap contributors, available under the Open Database License (ODbL)";
+    const OSM_HREF = "https://www.openstreetmap.org/copyright";
+    function anchorAttrsFor(html, exact) {
+      const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/g;
+      let match;
+      while ((match = re.exec(html))) {
+        if (visibleText(match[2]) === exact) return match[1];
+      }
+      return "";
+    }
+    const osmAttrs = anchorAttrsFor(page, OSM_LINE);
+    check("the Sources page shows the exact OpenStreetMap line",
+      text.indexOf(OSM_LINE) !== -1 && osmAttrs.indexOf('href="' + OSM_HREF + '"') !== -1,
+      osmAttrs);
     ["via The City Library", "Salt Lake City Public Library", "via Pleasant Grove", "locations geocoded", "polygons reduced to center points", "Data: Utah UGRC"].forEach(banned => {
       check("page does not list " + banned, text.indexOf(banned) === -1);
     });
@@ -537,6 +551,10 @@ function main() {
       check("the route serves the BLM block", bodyText.indexOf(BLM_PAGE) !== -1);
       check("the route serves the GNIS access caution", bodyText.indexOf(GNIS_ACCESS) !== -1);
       check("the route serves the CC BY link", res.body.indexOf('href="' + CC_BY + '"') !== -1);
+      const routeOsmAttrs = anchorAttrsFor(res.body, OSM_LINE);
+      check("the route serves the exact OpenStreetMap line",
+        bodyText.indexOf(OSM_LINE) !== -1 && routeOsmAttrs.indexOf('href="' + OSM_HREF + '"') !== -1,
+        routeOsmAttrs);
       const home = await request(server.address().port, "/");
       check("home loads the sources script and links Sources",
         home.status === 200 &&

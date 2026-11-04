@@ -275,7 +275,8 @@
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
-      location:null,     // {lat, lng, grantedAt} once the user enables "Near You" real-place matching
+      location:null,     // device-only fix: {lat, lng, accuracy, mode, grantedAt, updatedAt, stale}
+      locationMode:"approximate", // "exact" only after Use my exact location; stays on this device
       realIdeas:{},      // id -> full idea snapshot, for real (external) ideas the user has kept
       remoteIdeas:{},    // id -> approved activity the user saved or planned
       pinnedPlanIds:[],  // planning-list ids, first = top of the Saved index
@@ -305,6 +306,11 @@
       parsed.filters.radiusMiles = SparkRadius.clampRadiusMiles(parsed.filters.radiusMiles);
       // Older saves have no Local events switch. Only an explicit true turns it on.
       parsed.filters.localOnly = parsed.filters.localOnly === true;
+      // A saved fix from an older build is {lat, lng, grantedAt} with no mode.
+      // Keep it only as a stale stand-in. Exact mode is remembered only when
+      // this device already stored that choice. Bad data becomes no fix.
+      parsed.locationMode = readStoredLocationMode(parsed);
+      parsed.location = migrateStoredLocation(parsed.location, parsed.locationMode);
       // Same backfill treatment for settings (e.g. older saved states from
       // before the night-mode toggle existed won't have this key yet).
       parsed.settings = parsed.settings || {};
@@ -548,33 +554,210 @@
     saveState();
   }
 
-  function requestLocation(opts){
+  // Session-only. A denied or timed-out request must not stick in localStorage
+  // and skip the next open. Coordinates never go in these strings.
+  var locationGeneration = 0;
+  var locationPhase = "idle";
+  var locationRequestExact = false;
+  var exactPromptOpen = false;
+  // A recent coarse fix is fine. A days-old cached position is not.
+  var APPROXIMATE_MAX_AGE_MS = 300000;
+  var APPROXIMATE_TIMEOUT_MS = 10000;
+  // Exact asks the device for a fresh GPS fix, so it waits longer.
+  var EXACT_TIMEOUT_MS = 20000;
+  var EXACT_EXPLANATION = "Exact location uses this device's GPS. Jaderoo keeps that fix on this device and only sends a rough area, about a kilometer, to find nearby ideas. We don't store your exact location on our servers.";
+
+  function readStoredLocationMode(parsed){
+    if(parsed && parsed.locationMode === "exact") return "exact";
+    var loc = parsed && parsed.location;
+    if(loc && typeof loc === "object" && !Array.isArray(loc) && loc.mode === "exact") return "exact";
+    return "approximate";
+  }
+
+  function migrateStoredLocation(raw, mode){
+    if(raw == null) return null;
+    if(typeof raw !== "object" || Array.isArray(raw)) return null;
+    var lat = typeof raw.lat === "number" && isFinite(raw.lat) ? raw.lat : null;
+    var lng = typeof raw.lng === "number" && isFinite(raw.lng) ? raw.lng : null;
+    if(lat == null || lng == null || lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+    var accuracy = null;
+    if(typeof raw.accuracy === "number" && isFinite(raw.accuracy) && raw.accuracy >= 0) accuracy = raw.accuracy;
+    var loc = {
+      lat: lat,
+      lng: lng,
+      accuracy: accuracy,
+      mode: mode === "exact" ? "exact" : "approximate",
+      grantedAt: typeof raw.grantedAt === "string" ? raw.grantedAt : "",
+      updatedAt: typeof raw.updatedAt === "number" && isFinite(raw.updatedAt) ? raw.updatedAt : null,
+      stale: true
+    };
+    if(typeof raw.city === "string" && raw.city.trim()) loc.city = raw.city;
+    if(typeof raw.label === "string" && raw.label.trim()) loc.label = raw.label;
+    return loc;
+  }
+
+  function geoOptions(exact){
+    if(exact) return { enableHighAccuracy: true, maximumAge: 0, timeout: EXACT_TIMEOUT_MS };
+    return { enableHighAccuracy: false, maximumAge: APPROXIMATE_MAX_AGE_MS, timeout: APPROXIMATE_TIMEOUT_MS };
+  }
+
+  // Plain words for coords.accuracy (meters). Empty when the fix has no number.
+  function accuracyPhrase(meters){
+    if(typeof meters !== "number" || !isFinite(meters) || meters < 0) return "";
+    if(meters < 1000){
+      var roundedM = Math.round(meters / 10) * 10;
+      if(roundedM < 10) roundedM = 10;
+      if(roundedM < 1000) return "within about " + roundedM + " m";
+    }
+    var km = meters / 1000;
+    var roundedKm = km < 10 ? Math.round(km * 10) / 10 : Math.round(km);
+    if(roundedKm < 1) roundedKm = 1;
+    var text = Math.abs(roundedKm - Math.round(roundedKm)) < 1e-9 ? String(Math.round(roundedKm)) : String(roundedKm);
+    return "within about " + text + " km";
+  }
+
+  function locationErrorKind(err){
+    var code = err && err.code;
+    if(code === 1) return "denied";
+    if(code === 2) return "unavailable";
+    if(code === 3) return "timeout";
+    var msg = String(err && err.message || "").toLowerCase();
+    if(msg.indexOf("timeout") !== -1) return "timeout";
+    if(msg.indexOf("denied") !== -1 || msg.indexOf("permission") !== -1) return "denied";
+    return "unavailable";
+  }
+
+  function locationStatusText(){
+    var phrase = state.location ? accuracyPhrase(state.location.accuracy) : "";
+    if(state.location && state.location.stale && locationPhase === "pending"){
+      return phrase ? ("Last location, " + phrase + " — updating…") : "Last location — updating…";
+    }
+    if(locationPhase === "pending"){
+      return locationRequestExact ? "Finding your exact location…" : "Finding your approximate location…";
+    }
+    if(locationPhase === "denied") return "Location is blocked in this browser. Allow it in the site settings, then try again.";
+    if(locationPhase === "timeout") return "The location request timed out.";
+    if(locationPhase === "unavailable") return "Location isn't available on this device right now.";
+    if(locationPhase === "unsupported") return "Location isn't supported in this browser.";
+    if(state.location && state.location.stale){
+      return phrase ? ("Last location, " + phrase + ".") : "Last location.";
+    }
+    if(state.location){
+      var kind = state.location.mode === "exact" ? "Exact location" : "Approximate location";
+      return (phrase ? (kind + ", " + phrase) : kind) + ". Saved on this device.";
+    }
+    return "Location is off. Approximate is the default until you choose exact.";
+  }
+
+  function usableOrigin(){
+    var loc = state.location;
+    if(!SparkRadius.ideaPoint(loc)) return null;
+    return loc;
+  }
+
+  function failLocation(generation, kind, opts){
+    if(generation !== locationGeneration) return;
     opts = opts || {};
-    if(!("geolocation" in navigator)){
-      if(!opts.silent) showToast("Location isn't supported in this browser");
+    state.location = null;
+    locationPhase = kind || "unavailable";
+    saveState();
+    if(!opts.silent) showToast(locationStatusText());
+    updateLocationBar();
+    updateRadiusPlace();
+    refreshDeckAfterRadius();
+    refreshRemoteActivities();
+  }
+
+  function acceptLocationFix(pos, exact, opts, generation){
+    if(generation !== locationGeneration) return;
+    var coords = pos && pos.coords;
+    var lat = coords && coords.latitude;
+    var lng = coords && coords.longitude;
+    if(typeof lat !== "number" || typeof lng !== "number" || !isFinite(lat) || !isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180){
+      failLocation(generation, "unavailable", opts);
       return;
     }
-    if(!opts.silent) showToast("Requesting location…");
-    navigator.geolocation.getCurrentPosition(function(pos){
-      state.location = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        grantedAt: todayISO()
-      };
+    var accuracy = null;
+    if(coords && typeof coords.accuracy === "number" && isFinite(coords.accuracy) && coords.accuracy >= 0) accuracy = coords.accuracy;
+    state.locationMode = exact ? "exact" : "approximate";
+    state.location = {
+      lat: lat,
+      lng: lng,
+      accuracy: accuracy,
+      mode: state.locationMode,
+      grantedAt: todayISO(),
+      updatedAt: Date.now(),
+      stale: false
+    };
+    locationPhase = "ready";
+    saveState();
+    if(!opts.silent) showToast(exact ? "Exact location on" : "Approximate location on");
+    updateLocationBar();
+    updateRadiusPlace();
+    refreshDeckAfterRadius();
+    fetchNearbyIdeas();
+    refreshRemoteActivities();
+  }
+
+  // Default is approximate. opts.exact true is the confirmed exact request.
+  // With no opts.exact, a remembered exact choice is requested again.
+  function requestLocation(opts){
+    opts = opts || {};
+    var exact = opts.exact === true || (opts.exact !== false && state.locationMode === "exact");
+    locationRequestExact = exact;
+    exactPromptOpen = false;
+    var generation = ++locationGeneration;
+    var geo = navigator && navigator.geolocation;
+    if(!geo || typeof geo.getCurrentPosition !== "function"){
+      locationPhase = "unsupported";
+      state.location = null;
       saveState();
-      if(!opts.silent) showToast("Location enabled!");
+      if(!opts.silent) showToast(locationStatusText());
       updateLocationBar();
       updateRadiusPlace();
       refreshDeckAfterRadius();
-      fetchNearbyIdeas();
       refreshRemoteActivities();
-    }, function(err){
-      if(!opts.silent) showToast("Couldn't get your location: " + (err && err.message ? err.message : "permission denied"));
-    }, { timeout: 8000 });
+      return;
+    }
+    if(state.location && SparkRadius.ideaPoint(state.location)) state.location.stale = true;
+    locationPhase = "pending";
+    updateLocationBar();
+    try{
+      geo.getCurrentPosition(function(pos){
+        acceptLocationFix(pos, exact, opts, generation);
+      }, function(err){
+        if(generation !== locationGeneration) return;
+        failLocation(generation, locationErrorKind(err), opts);
+      }, geoOptions(exact));
+    }catch(err){
+      failLocation(generation, "unavailable", opts);
+    }
+  }
+
+  // The button shows the explanation first. The browser prompt comes after
+  // "Use exact location", which is what remembers the choice.
+  function askExactLocation(){
+    exactPromptOpen = true;
+    updateLocationBar();
+  }
+  function dismissExactLocation(){
+    exactPromptOpen = false;
+    updateLocationBar();
+  }
+  function confirmExactLocation(){
+    exactPromptOpen = false;
+    state.locationMode = "exact";
+    saveState();
+    requestLocation({ exact:true });
   }
 
   function clearLocation(){
+    locationGeneration++;
+    exactPromptOpen = false;
+    locationRequestExact = false;
+    locationPhase = "idle";
     state.location = null;
+    state.locationMode = "approximate";
     saveState();
     renderContent();
     refreshRemoteActivities();
@@ -973,12 +1156,16 @@
     if(f.food === true) out.food = "true";
     else if(f.food === false) out.food = "false";
     if(f.hide21 === true) out.hide21 = "true";
-    if(f.localOnly === true) out.localOnly = "1";
+    // A fix means the deck is the radius. Ask for pinned rows only so
+    // ideas with no location are not paged in from the server.
+    if(f.localOnly === true || usableOrigin()) out.localOnly = "1";
     return out;
   }
 
   function remoteRadiusMiles(){
-    if(state.filters && state.filters.localOnly === true) return SparkRadius.clampRadiusMiles(state.filters.radiusMiles);
+    if(usableOrigin() || (state.filters && state.filters.localOnly === true)){
+      return SparkRadius.clampRadiusMiles(state.filters && state.filters.radiusMiles);
+    }
     return SparkRemoteActivities.NEARBY_RADIUS_MILES;
   }
 
@@ -997,8 +1184,8 @@
       dateType: f.dateType || [],
       food: f.food === true ? true : (f.food === false ? false : null),
       hide21: f.hide21 === true,
-      localOnly: f.localOnly === true,
-      radius: state.filters && state.filters.localOnly === true ? SparkRadius.clampRadiusMiles(f.radiusMiles) : SparkRemoteActivities.NEARBY_RADIUS_MILES
+      localOnly: f.localOnly === true || !!usableOrigin(),
+      radius: remoteRadiusMiles()
     });
   }
 
@@ -1743,14 +1930,13 @@
     $("#view-onboarding").classList.add("hidden");
     $("#view-tutorial").classList.add("hidden");
     $("#view-app").classList.remove("hidden");
-    switchTab("discover");
-    // Ask for location automatically (no button) — the browser's own
-    // one-time permission prompt is the only thing the user sees. If they
-    // deny or dismiss it, the app just carries on with built-in ideas only.
-    // Approved activities load alongside that. Built-ins are already on screen.
+    // Every open asks again. Approximate unless this device remembered
+    // exact mode. A saved fix is only a labeled stand-in until the new
+    // one arrives. The fresh fix, not the saved one, is what nearby
+    // ideas use (that request still happens from requestLocation).
     refreshRemoteActivities();
-    if(state.location) fetchNearbyIdeas();
-    else requestLocation({ silent:true });
+    requestLocation({ silent:true });
+    switchTab("discover");
   }
 
   /* ---------- How-to tutorial (shown once, right after signup) ---------- */
@@ -1914,10 +2100,16 @@
     if(f.dateType.length && !idea.dateType.some(function(d){ return f.dateType.indexOf(d) !== -1; })) return false;
     if(f.food !== null && idea.food !== f.food) return false;
     if(f.hide21 && idea.age21 === true) return false;
-    // Local off: the radius does not filter. Local on: a known place inside
-    // radiusMiles stays; a place with no pin and no distanceMiles drops.
-    // withinRadius still keeps a pin when the user position is missing.
-    if(f.localOnly === true){
+    // The 1–50 radius always filters once a fix is in use, including a
+    // stale stand-in and including when Local is off. An idea with no
+    // place is not inside that radius, so it stays out of this deck.
+    // With no fix, Local on still keeps known places only. Local off
+    // shows the whole catalog, because there is nothing to measure.
+    var origin = usableOrigin();
+    if(origin){
+      if(!ideaHasKnownPlace(idea)) return false;
+      if(!SparkRadius.withinRadius(idea, origin, f.radiusMiles)) return false;
+    } else if(f.localOnly === true){
       if(!ideaHasKnownPlace(idea)) return false;
       if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
     }
@@ -1977,7 +2169,7 @@
     if(next !== current){
       state.filters.radiusMiles = next;
       saveState();
-      if(state.filters.localOnly === true) scheduleRemoteRefresh();
+      if(state.filters.localOnly === true || usableOrigin()) scheduleRemoteRefresh();
     }
     renderContent();
     return state.filters.radiusMiles;
@@ -2047,11 +2239,14 @@
     ["duration","cost","time","setting","vibe","season","stage","dateType"].forEach(function(k){ n += f[k].length; });
     if(f.food !== null) n += 1;
     if(f.hide21) n += 1;
-    // The radius only filters while Local is on, so it only counts then.
-    // Local itself counts even at the default 10 miles.
+    // Local counts on its own. A non-default radius counts whenever it
+    // is actually filtering: Local on, or any fix (even with Local off).
+    var customRadius = SparkRadius.clampRadiusMiles(f.radiusMiles) !== SparkRadius.RADIUS_DEFAULT;
     if(f.localOnly === true){
       n += 1;
-      if(SparkRadius.clampRadiusMiles(f.radiusMiles) !== SparkRadius.RADIUS_DEFAULT) n += 1;
+      if(customRadius) n += 1;
+    } else if(usableOrigin() && customRadius){
+      n += 1;
     }
     return n;
   }
@@ -2153,7 +2348,8 @@
   }
 
   function distanceBadgeHtml(idea){
-    if(!state.filters || state.filters.localOnly !== true) return "";
+    var showDistance = state.filters && (state.filters.localOnly === true || !!usableOrigin());
+    if(!showDistance) return "";
     var label = distanceAwayLabel(ideaDistanceMiles(idea));
     if(!label) return "";
     return '<span class="distance-badge">' + icon("map-pin") + escapeHtml(label) + "</span>";
@@ -2164,7 +2360,8 @@
   }
 
   function deckCountLabel(deck){
-    var noun = state.filters.localOnly === true ? "nearby ideas" : "ideas";
+    var nearby = (state.filters && state.filters.localOnly === true) || !!usableOrigin();
+    var noun = nearby ? "nearby ideas" : "ideas";
     return deck.remaining.length + " of " + deck.total + " " + noun;
   }
 
@@ -2241,9 +2438,10 @@
     if(deckEl) renderDeckCards(deckEl);
     renderTonightAlso(tonightAlsoEl());
     updateResultCount();
-    // Local on is the only time the slider changes which rows the server
-    // returns. Dragging the slider refetches once the finger pauses.
-    if(state.filters && state.filters.localOnly === true) scheduleRemoteRefresh();
+    // The slider is the radius the server is asked for whenever a fix
+    // is in use, and whenever Local is on. Dragging refetches once the
+    // finger pauses.
+    if((state.filters && state.filters.localOnly === true) || usableOrigin()) scheduleRemoteRefresh();
   }
 
   var remoteRefreshTimer = null;
@@ -2357,7 +2555,7 @@
     var wrap = el("div", "screen discover-screen");
     mountDiscoverHeader(wrap);
 
-    if(state.filters.localOnly === true) wrap.appendChild(buildRadiusRow());
+    if(state.filters.localOnly === true || usableOrigin()) wrap.appendChild(buildRadiusRow());
 
     var bar = el("div", "filter-bar");
     var fbtn = el("button", "filter-chip-btn");
@@ -2425,29 +2623,57 @@
     return wrap;
   }
 
-  // Location is requested automatically (no button) — this bar just shows a
-  // quiet status chip once it's on, with a way to turn it back off. When
-  // location isn't on (denied, pending, or unsupported), it renders empty.
+  // Status, accuracy, the exact-location choice, and Clear location.
+  // Precise coordinates are not written into this bar.
   function buildLocationBar(){
     var bar = el("div", "location-bar");
     bar.id = "location-bar";
-    if(state.location){
-      var statusText = realIdeasLoading
-        ? "Finding real nearby spots…"
-        : (REAL_IDEAS_RUNTIME.length
-          ? "Location on — " + REAL_IDEAS_RUNTIME.length + " real spots mixed into your deck"
-          : "Location on");
-      var chip = el("div", "location-chip");
-      chip.innerHTML =
-        '<span class="location-chip-icon">' + icon("map-pin") + '</span>' +
-        '<span class="location-chip-text">' + escapeHtml(statusText) + '</span>';
-      var endBtn = el("button", "location-chip-end", "✕");
+    var chip = el("div", "location-chip");
+    var text = el("span", "location-chip-text");
+    text.textContent = locationStatusText();
+    chip.appendChild(el("span", "location-chip-icon", icon("map-pin")));
+    chip.appendChild(text);
+    if(state.location || state.locationMode === "exact"){
+      var endBtn = el("button", "location-chip-end", "\u2715");
       endBtn.type = "button";
-      endBtn.title = "Turn off location";
+      endBtn.title = "Clear location";
+      endBtn.setAttribute("aria-label", "Clear location");
       endBtn.addEventListener("click", clearLocation);
       chip.appendChild(endBtn);
-      bar.appendChild(chip);
     }
+    bar.appendChild(chip);
+
+    if(exactPromptOpen){
+      var note = el("div", "exact-location-note");
+      note.textContent = EXACT_EXPLANATION;
+      var actions = el("div", "location-actions");
+      var confirmBtn = el("button", "btn-outline exact-location-confirm", "Use exact location");
+      confirmBtn.type = "button";
+      confirmBtn.addEventListener("click", confirmExactLocation);
+      var cancelBtn = el("button", "btn-text exact-location-cancel", "Not now");
+      cancelBtn.type = "button";
+      cancelBtn.addEventListener("click", dismissExactLocation);
+      actions.appendChild(confirmBtn);
+      actions.appendChild(cancelBtn);
+      note.appendChild(actions);
+      bar.appendChild(note);
+      return bar;
+    }
+
+    var row = el("div", "location-actions");
+    if(locationPhase === "denied" || locationPhase === "timeout" || locationPhase === "unavailable"){
+      var retry = el("button", "btn-outline location-retry", "Try again");
+      retry.type = "button";
+      retry.addEventListener("click", function(){ requestLocation({}); });
+      row.appendChild(retry);
+    }
+    if(locationPhase !== "unsupported"){
+      var exactBtn = el("button", "btn-outline exact-location-btn", "Use my exact location");
+      exactBtn.type = "button";
+      exactBtn.addEventListener("click", askExactLocation);
+      row.appendChild(exactBtn);
+    }
+    if(row.children.length) bar.appendChild(row);
     return bar;
   }
 
@@ -2962,7 +3188,8 @@
     var row = el("div", "local-events" + (on ? " is-on" : ""));
     var copy = el("div", "local-events-copy");
     copy.appendChild(el("div", "local-events-title", "Local events"));
-    copy.appendChild(el("div", "local-events-sub", on ? "Only ideas near you" : "Off · showing everything"));
+    var sub = on ? "Only ideas near you" : (usableOrigin() ? "Off · distance still applies" : "Off · showing everything");
+    copy.appendChild(el("div", "local-events-sub", sub));
     var toggle = el("label", "toggle-switch");
     var input = document.createElement("input");
     input.type = "checkbox";
@@ -2982,7 +3209,7 @@
   }
 
   function buildLocalNote(){
-    return el("div", "local-note", icon("info") + "<span>All activities show. Turn on to pick a distance.</span>");
+    return el("div", "local-note", icon("info") + "<span>All activities show until a location is on. Distance applies once we know where you are.</span>");
   }
 
   function buildWhereGroup(){
@@ -2991,7 +3218,9 @@
     var group = el("div", "filter-group where-group");
     group.appendChild(el("div", "filter-group-title", "Where"));
     group.appendChild(buildLocalEventsRow());
-    group.appendChild(on ? buildHowFarGroup() : buildLocalNote());
+    // The slider is the control that filters. Show it whenever a fix is
+    // already in use, not only when Local is on.
+    group.appendChild((on || usableOrigin()) ? buildHowFarGroup() : buildLocalNote());
     return group;
   }
 

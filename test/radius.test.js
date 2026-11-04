@@ -157,8 +157,10 @@ section("deck uses one persisted radius", () => {
   fresh.state.location = { lat: PROVO.lat, lng: PROVO.lng };
   fresh.state.filters.radiusMiles = 10;
   fresh.state.filters.localOnly = false;
-  check("local off keeps Sundance at 10 miles", fresh.matchesFilters(fresh.IDEAS_BY_ID[187], fresh.state.filters) === true);
-  check("local off keeps an idea without a pin", fresh.matchesFilters(fresh.IDEAS_BY_ID[2], fresh.state.filters) === true);
+  check("local off drops Sundance at 10 miles when a location is set", fresh.matchesFilters(fresh.IDEAS_BY_ID[187], fresh.state.filters) === false);
+  check("local off drops an idea without a pin when a location is set", fresh.matchesFilters(fresh.IDEAS_BY_ID[2], fresh.state.filters) === false);
+  check("a custom radius counts while a location is on and local is off",
+    fresh.activeFilterCount(Object.assign({}, fresh.state.filters, { radiusMiles: 5, localOnly: false })) === 1);
   fresh.state.filters.localOnly = true;
   check("10 miles keeps the Provo idea", fresh.matchesFilters(fresh.IDEAS_BY_ID[1854], fresh.state.filters) === true);
   check("10 miles drops Sundance", fresh.matchesFilters(fresh.IDEAS_BY_ID[187], fresh.state.filters) === false);

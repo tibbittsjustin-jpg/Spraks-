@@ -6,6 +6,7 @@ const { validateSourceUrl } = require("../lib/validate-url");
 const rulesLib = require("./place-rules");
 const seeds = require("./place-seeds");
 const coordsLib = require("./place-coordinates");
+const areaLib = require("./place-area-level");
 
 const GENERIC_TIGHT_M = 50;
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
@@ -273,13 +274,40 @@ function normalizeRecord(dataset, input, rules, seen) {
   let lat = record && typeof record.lat === "number" ? record.lat : null;
   let lng = record && typeof record.lng === "number" ? record.lng : null;
   const coordSource = coordsLib.coordinateProvenance(dataset, record);
-  if (coordsLib.bannedCoordinateSource(coordSource)) {
+  const provenanceBanned = coordsLib.bannedCoordinateSource(coordSource);
+  const banned = provenanceBanned || coordsLib.bannedRecordSource(record);
+  if (banned) {
     try {
       coordsLib.acceptCoordinates(lat, lng, coordSource);
     } catch (err) {
-      lat = null;
-      lng = null;
-      flags.coordinateRejected = err.source || coordsLib.bannedCoordinateSource(coordSource);
+      flags.coordinateRejected = err.source || banned;
+    }
+    lat = null;
+    lng = null;
+    if (!flags.coordinateRejected) flags.coordinateRejected = banned;
+  }
+  /* Area level is decided here, before geom is staged. place_staging_promote()
+     copies that geom and writes geo_status 'dataset'. Changing the SQL function
+     needs a new migration, so this guard drops the pin instead. A row with a
+     city is area_based. A refused coordinate source is not kept as geo_source.
+     A row without a city stays a hand pin. */
+  const area = areaLib.areaLevelDecision(record, coordSource);
+  const areaCity = city != null && String(city).trim() !== "";
+  if (area.areaLevel || banned) {
+    lat = null;
+    lng = null;
+    const reasons = area.areaLevel ? area.reasons.slice() : [];
+    if (banned) reasons.push("coordinate source refused: " + banned);
+    flags.areaLevel = reasons;
+    if (areaCity) {
+      flags.geoStatus = "area_based";
+      /* A refused label is not a source we can keep. A clean geo_source next
+         to a refused URL stays. Otherwise the dataset itself is the source. */
+      flags.geoSource = provenanceBanned || !area.geoSource
+        ? dataset.datasetKey
+        : area.geoSource;
+    } else {
+      flags.areaLevelNeedsCity = true;
     }
   }
   const suggestion = record && (record.suggested_source || record.suggested_why || record.suggested_pin_source);
@@ -335,7 +363,9 @@ function normalizeRecord(dataset, input, rules, seen) {
     sameNameKeepBoth: false,
     lat: coordsOk ? lat : null,
     lng: coordsOk ? lng : null,
-    needsHandPin: !coordsOk,
+    geoStatus: flags.geoStatus || null,
+    geoSource: flags.geoSource || null,
+    needsHandPin: flags.geoStatus === "area_based" ? false : !coordsOk,
     outOfUtah: outside,
     link: link.link,
     linkFlag: link.linkFlag,

@@ -484,5 +484,214 @@ check("Round 8 dedupe keeps OSM isolated and prefers a federal trailhead page",
   dedupeConfig.dedupeRuleFor("ugrc_trailheads").some(rule => rule.keep === "usfs or blm") &&
   dedupeConfig.ROUND8_DEDUPE.some(rule => rule.id === "peaks" && rule.match.indexOf("1000") !== -1));
 
+function refusal(source) {
+  try {
+    coords.acceptCoordinates(40.2, -111.6, source);
+    return { code: "", source: null };
+  } catch (err) {
+    return { code: err.code, source: err.source };
+  }
+}
+check("separator and camelCase coordinate labels are refused", () => {
+  const cases = [
+    ["osm_nominatim", ["osm", "nominatim"]],
+    ["nominatim_geocode", ["nominatim"]],
+    ["google_places", ["google"]],
+    ["google-maps", ["google"]],
+    ["maps.googleapis.com", ["google"]],
+    ["gmaps", ["google"]],
+    ["GooglePlaces", ["google"]],
+    ["apple_maps", ["apple"]],
+    ["apple-maps", ["apple"]],
+    ["MapKit", ["apple"]],
+    ["bing_maps", ["bing"]],
+    ["bing-maps", ["bing"]],
+    ["bing.com", ["bing"]],
+    ["virtualearth.net", ["bing"]],
+    ["BingMaps", ["bing"]],
+    ["openstreetmap.org", ["osm"]],
+    ["osm-derived", ["osm"]],
+    ["OSMNominatim", ["osm", "nominatim"]],
+    ["photon.komoot.io", ["osm"]],
+    ["photon", ["osm"]],
+    ["komoot", ["osm"]],
+    ["reserveamerica", ["reserveamerica"]],
+    ["reserveamerica.com", ["reserveamerica"]],
+    ["ReserveAmerica", ["reserveamerica"]],
+    ["utahstateparks.reserveamerica.com", ["reserveamerica"]],
+    ["https://utahstateparks.reserveamerica.com/camping/x", ["reserveamerica"]],
+    ["RESERVEAMERICA", ["reserveamerica"]],
+    ["reserve_america", ["reserveamerica"]],
+    ["reserve-america", ["reserveamerica"]],
+    ["Reserve America GPS Info", ["reserveamerica"]]
+  ];
+  for (let i = 0; i < cases.length; i++) {
+    const got = refusal(cases[i][0]);
+    if (got.code !== "rejected_coordinate_source" || cases[i][1].indexOf(got.source) === -1) {
+      throw new Error(cases[i][0] + " -> " + got.code + " " + got.source);
+    }
+  }
+  return true;
+});
+check("place names and allowed coordinate labels still pass", () => {
+  const labels = [
+    "Bingham Canyon", "Bingham_Canyon", "bingham-canyon-trailhead",
+    "Applegate", "Googleville", "Snapple Center",
+    "UGRC Address Points", "ugrc_address_point", "ugrc_address_points_local_export",
+    "Utah Parks Local", "nps_api",
+    "stateparks.utah.gov", "Utah State Parks park page", "UGRC State Park Points",
+    "USGS GNIS Domestic Names", "America First Event Center", "Reserve at Lake Point",
+    "reserve the pavilion"
+  ];
+  for (let i = 0; i < labels.length; i++) {
+    const row = coords.acceptCoordinates(40.2, -111.6, labels[i]);
+    if (coords.bannedCoordinateSource(labels[i]) != null || row.lat !== 40.2 || row.suspiciousPin !== false) {
+      throw new Error(labels[i] + " was refused");
+    }
+  }
+  return coords.sourceTokens("GooglePlaces").join(" ") === "google places" &&
+    coords.sourceTokens("OSMNominatim").join(" ") === "osm nominatim" &&
+    coords.bannedCoordinateSource("MapKit") === "apple";
+});
+check("an ODbL dataset's own geometry is still refused", () => {
+  const row = one(seeds.datasetByKey("osm_osp"), {
+    name: "OSM Viewpoint", location: "Moab, UT", lat: 38.57, lng: -109.55
+  });
+  const noCity = one(seeds.datasetByKey("osm_osp"), {
+    name: "OSM Viewpoint", location: "UT", lat: 38.57, lng: -109.55
+  });
+  return row.lat == null && row.lng == null && row.flags.coordinateRejected === "osm" &&
+    row.city === "Moab" && row.geoStatus === "area_based" && row.geoSource === "osm_osp" &&
+    row.needsHandPin === false && row.flags.geoSource !== "openstreetmap" &&
+    noCity.lat == null && noCity.needsHandPin === true && noCity.geoStatus == null &&
+    noCity.flags.areaLevelNeedsCity === true;
+});
+
+const areaLib = require("../db/place-area-level");
+function placed(extra) {
+  return one(parks, Object.assign({
+    name: "Liberty Park", type: "Park", acres: 80,
+    city: "Salt Lake City", location: "Salt Lake City, Salt Lake County, UT",
+    lat: 40.746321, lng: -111.873654
+  }, extra || {}));
+}
+function isArea(row, source) {
+  const flags = JSON.stringify(row.flags);
+  return row.lat == null && row.lng == null &&
+    row.geoStatus === "area_based" && row.flags.geoStatus === "area_based" &&
+    row.geoSource === source && row.flags.geoSource === source &&
+    row.city === "Salt Lake City" && row.needsHandPin === false &&
+    Array.isArray(row.flags.areaLevel) && row.flags.areaLevel.length > 0 &&
+    flags.indexOf("40.746321") === -1 && flags.indexOf("-111.873654") === -1;
+}
+check("a geocode within 100 m keeps the pin", () => {
+  const exact = placed({ uncertainty_m: 100, spread_m: 10, geo_source: "ugrc_address_point" });
+  const sixty = placed({ uncertainty_m: 60, geo_source: "ugrc_address_point" });
+  const house = placed({
+    match_method: "nearest_house_number", uncertainty_m: 48, geo_source: "ugrc_address_point"
+  });
+  const spread = placed({ spread_m: 100, geo_source: "ugrc_address_point" });
+  return exact.lat === 40.746321 && exact.lng === -111.873654 && exact.geoStatus == null &&
+    exact.needsHandPin === false && exact.flags.areaLevel == null &&
+    sixty.lat === 40.746321 && house.lat === 40.746321 && spread.lat === 40.746321 &&
+    areaLib.AREA_LEVEL_THRESHOLD_M === 100;
+});
+check("a match more than 100 m off is area level", () => {
+  const uncertainty = placed({ uncertainty_m: 150, geo_source: "ugrc_address_point" });
+  const spread = placed({ spread_m: 120, geo_source: "ugrc_address_point" });
+  const justOver = placed({ uncertainty_m: "100.4", geo_source: "ugrc_address_points_local_export" });
+  const both = placed({ uncertainty_m: 40, spread_m: 180, geo_source: "ugrc_address_point" });
+  return isArea(uncertainty, "ugrc_address_point") &&
+    uncertainty.flags.areaLevel.some(reason => reason.indexOf("uncertainty") !== -1) &&
+    isArea(spread, "ugrc_address_point") &&
+    spread.flags.areaLevel.some(reason => reason.indexOf("spread") !== -1) &&
+    isArea(justOver, "ugrc_address_points_local_export") &&
+    isArea(both, "ugrc_address_point");
+});
+check("a street-only or ZIP-only match is area level", () => {
+  const street = placed({ match_method: "street_only", geo_source: "ugrc_address_point" });
+  const streetBasis = placed({ match_basis: "street", geo_source: "ugrc_address_point" });
+  const dashed = placed({ match_method: "street-only", geo_source: "ugrc_address_point" });
+  const zip = placed({ match_basis: "ZIP", geo_source: "ugrc_address_point" });
+  const zipOnly = placed({ match_method: "zip_only", geo_source: "ugrc_address_point" });
+  return isArea(street, "ugrc_address_point") && isArea(streetBasis, "ugrc_address_point") &&
+    isArea(dashed, "ugrc_address_point") && isArea(zip, "ugrc_address_point") &&
+    isArea(zipOnly, "ugrc_address_point");
+});
+check("unknown uncertainty on a geocoded match is area level", () => {
+  const missing = placed({ match_method: "address_point", uncertainty_m: null, geo_source: "ugrc_address_point" });
+  const unknown = placed({ match_method: "interpolated", uncertainty_m: "unknown", geo_source: "ugrc_address_point" });
+  const rooftop = placed({ geocode_quality: "rooftop", geo_source: "ugrc_address_point" });
+  const blank = placed({ uncertainty_m: "", match_method: "parcel", geo_source: "ugrc_address_point" });
+  return isArea(missing, "ugrc_address_point") &&
+    missing.flags.areaLevel.indexOf("uncertainty unknown") !== -1 &&
+    isArea(unknown, "ugrc_address_point") && isArea(rooftop, "ugrc_address_point") &&
+    isArea(blank, "ugrc_address_point");
+});
+check("dataset geometry with no geocode metadata keeps its pin", () => {
+  const own = placed({});
+  const named = placed({ geo_source: "Utah Parks Local" });
+  const parksPage = placed({ geo_source: "stateparks.utah.gov" });
+  const gnis = placed({ geo_source: "USGS GNIS Domestic Names" });
+  const ugrc = placed({ geo_source: "UGRC State Park Points" });
+  return own.lat === 40.746321 && own.lng === -111.873654 && own.geoStatus == null &&
+    own.flags.areaLevel == null && own.needsHandPin === false &&
+    named.lat === 40.746321 && parksPage.lat === 40.746321 &&
+    gnis.lat === 40.746321 && ugrc.lat === 40.746321 &&
+    coords.bannedCoordinateSource("Utah Parks Local") == null;
+});
+check("an area-level row without a city is not promotable", () => {
+  const row = one(parks, {
+    name: "Edge Park", type: "Park", acres: 2, location: "UT",
+    lat: 40.21, lng: -111.61, uncertainty_m: 250, geo_source: "ugrc_address_point"
+  });
+  return row.lat == null && row.lng == null && row.city == null &&
+    row.needsHandPin === true && row.geoStatus == null &&
+    row.flags.areaLevelNeedsCity === true &&
+    Array.isArray(row.flags.areaLevel) && row.flags.geoStatus == null;
+});
+check("a neighbour snap or source-marked area drops the pin", () => {
+  const intersection = placed({
+    match_basis: "nearest_address_point_to_intersection", geo_source: "ugrc_address_point"
+  });
+  const neighbor = placed({ match_basis: "neighbor_address_point", uncertainty_m: 12, geo_source: "ugrc_address_point" });
+  const note = placed({
+    note: "Start area 22nd St & Washington Blvd; nearest UGRC address point.",
+    geo_source: "ugrc_address_point"
+  });
+  const marked = placed({ location_precision: "area", geo_source: "ugrc_address_point" });
+  return isArea(intersection, "ugrc_address_point") && isArea(neighbor, "ugrc_address_point") &&
+    isArea(note, "ugrc_address_point") && isArea(marked, "ugrc_address_point");
+});
+check("a ReserveAmerica coordinate is area level when the city is known", () => {
+  const labeled = placed({ geo_source: "utahstateparks.reserveamerica.com GPS Info" });
+  const url = placed({
+    geo_source: "ugrc_address_point",
+    coord_source_url: "https://utahstateparks.reserveamerica.com/camping/x"
+  });
+  const noCity = one(parks, {
+    name: "Edge Park", type: "Park", acres: 2, location: "UT",
+    lat: 40.21, lng: -111.61, geo_source: "ReserveAmerica"
+  });
+  const flags = JSON.stringify(labeled.flags) + JSON.stringify(url.flags);
+  return labeled.lat == null && labeled.lng == null &&
+    labeled.flags.coordinateRejected === "reserveamerica" &&
+    labeled.geoStatus === "area_based" && labeled.geoSource === "ugrc_parks" &&
+    labeled.needsHandPin === false && labeled.city === "Salt Lake City" &&
+    url.flags.coordinateRejected === "reserveamerica" &&
+    url.geoStatus === "area_based" && url.geoSource === "ugrc_address_point" &&
+    url.needsHandPin === false &&
+    noCity.lat == null && noCity.needsHandPin === true && noCity.geoStatus == null &&
+    noCity.flags.coordinateRejected === "reserveamerica" &&
+    noCity.flags.areaLevelNeedsCity === true &&
+    flags.indexOf("40.746321") === -1 && flags.indexOf("reserveamerica.com") === -1;
+});
+check("pin QA leaves an area-level city row unpinned and not a hand pin", () => {
+  const row = placed({ uncertainty_m: 150, geo_source: "ugrc_address_point" });
+  const batch = pinQa.qaBatch([row], { refs: { cities: [] } });
+  return row.lat == null && row.needsHandPin === false &&
+    row.pinQa.status === "area_based" && batch.handPinQueue.length === 0;
+});
+
 console.log("\n" + pass + " passed, " + fail + " failed");
 module.exports = { pass: pass, fail: fail };

@@ -94,6 +94,8 @@
   var CENSUS_LEAD = "U.S. Census Bureau.";
   var CENSUS_URL = "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html";
   var CENSUS_PAGE = "U.S. Census Bureau. Some general city or area locations are center points we calculated from the U.S. Census Bureau's 2023 Cartographic Boundary Files (places), " + CENSUS_URL + ". These show the general area, not the exact venue location. Credit: U.S. Census Bureau. The Census Bureau didn't produce or review these center points, and neither the Census Bureau nor the U.S. government endorses Jaderoo.";
+  // Legal nov4f §1b. The map corner uses a shorter line. This is the /sources text.
+  var USGS_NATIONAL_MAP_CREDIT = "Map services and data available from U.S. Geological Survey, National Geospatial Program. Credit: U.S. Geological Survey. Neither USGS nor the U.S. government endorses Jaderoo.";
   var BULK_LOADER_NOTES = "Set activities.source_key to key. The key selects the credit line; source_credit may be omitted or set to that same sentence (1 to 500 characters, no control characters). UGRC layers: set source_url to datasetUrl. usfs: set source_url to the record recareaurl. blm: set source_url to the record BLMRecURL. source_url must be https. Do not store Sources page paragraphs in source_credit.";
 
   function ugrcDatasetUrl(itemId) {
@@ -720,6 +722,8 @@
     html.push(paragraphBoldLead(CENSUS_PAGE, CENSUS_LEAD, [
       { text: CENSUS_URL, href: CENSUS_URL }
     ]));
+    html.push('<h2 id="national-map">U.S. Geological Survey, The National Map</h2>');
+    html.push(paragraph(USGS_NATIONAL_MAP_CREDIT));
     html.push("<p>" + htmlForParts([{
       text: OSM_LOCATIONS_LINE,
       href: httpsPageUrl(OSM_COPYRIGHT_HREF),
@@ -778,6 +782,7 @@
     CENSUS_LEAD: CENSUS_LEAD,
     CENSUS_URL: CENSUS_URL,
     CENSUS_PAGE: CENSUS_PAGE,
+    USGS_NATIONAL_MAP_CREDIT: USGS_NATIONAL_MAP_CREDIT,
     UGRC_ROUND8: UGRC_ROUND8,
     ROUND8_SOURCES: ROUND8_SOURCES,
     BULK_LOADER_NOTES: BULK_LOADER_NOTES,

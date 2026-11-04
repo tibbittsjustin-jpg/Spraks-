@@ -15,6 +15,7 @@
 
 require("dotenv").config();
 const express = require("express");
+const fs = require("fs");
 const path = require("path");
 const db = require("./db");
 const { checkAge, ageOkCookie, MINIMUM_AGE } = require("./public/util");
@@ -290,6 +291,22 @@ const dataSources = require("./public/data-sources");
 app.get(["/sources", "/sources/"], (req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.type("html").send(dataSources.renderPage());
+});
+
+// The licenses page has to be a real route. An extensionless /licenses
+// would otherwise fall through to the app shell. It serves the MapLibre
+// LICENSE.txt copied from the package, unchanged. Map tiles are not
+// proxied, seeded, or prefetched here.
+const licensesPage = require("./public/licenses-page");
+app.get(["/licenses", "/licenses/"], (req, res) => {
+  var licenseText = "";
+  try {
+    licenseText = fs.readFileSync(path.join(publicDir, "vendor/maplibre/LICENSE.txt"), "utf8");
+  } catch (err) {
+    return res.status(500).type("txt").send("License text unavailable");
+  }
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("html").send(licensesPage.renderPage(licenseText));
 });
 
 // Extensionless GETs are the single-page app. Anything else that static did

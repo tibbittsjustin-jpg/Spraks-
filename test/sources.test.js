@@ -76,6 +76,7 @@ const USGS_GNIS_PAGE = "USGS GNIS. Some place names and locations come from the 
 const CENSUS_LEAD = "U.S. Census Bureau.";
 const CENSUS_URL = "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html";
 const CENSUS_PAGE = "U.S. Census Bureau. Some general city or area locations are center points we calculated from the U.S. Census Bureau's 2023 Cartographic Boundary Files (places), " + CENSUS_URL + ". These show the general area, not the exact venue location. Credit: U.S. Census Bureau. The Census Bureau didn't produce or review these center points, and neither the Census Bureau nor the U.S. government endorses Jaderoo.";
+const USGS_NATIONAL_MAP_CREDIT = "Map services and data available from U.S. Geological Survey, National Geospatial Program. Credit: U.S. Geological Survey. Neither USGS nor the U.S. government endorses Jaderoo.";
 const ROUND8_LAYERS = [
   ["ugrc_monuments", "Utah Monuments and Markers", "63de4118823e4e3eba943ca43caefc72", "Utah Monuments and Markers (Utah Division of State History)" + UGRC_VIA],
   ["ugrc_boat_ramps", "Utah Boat Ramps", "0d12b74c39eb453088e992bf089d9890", "Utah Boat Ramps" + UGRC_VIA],
@@ -639,6 +640,20 @@ function main() {
         exactHref(censusBlock, CENSUS_URL) === CENSUS_URL);
       check("the Census block has no img",
         censusBlock.length > 0 && censusBlock.toLowerCase().indexOf("<img") === -1);
+      const nationalAt = res.body.indexOf('id="national-map"');
+      const nationalParaAt = res.body.indexOf(USGS_NATIONAL_MAP_CREDIT);
+      const nationalEnd = nationalParaAt === -1 ? -1 : res.body.indexOf("</p>", nationalParaAt);
+      const nationalBlock = nationalParaAt === -1 || nationalEnd === -1 ? "" : res.body.slice(res.body.lastIndexOf("<p", nationalParaAt), nationalEnd + 4);
+      check("the National Map credit is the Legal sentence, once, with no image",
+        sources.USGS_NATIONAL_MAP_CREDIT === USGS_NATIONAL_MAP_CREDIT &&
+        occurrences(bodyText, USGS_NATIONAL_MAP_CREDIT) === 1 &&
+        visibleText(nationalBlock) === USGS_NATIONAL_MAP_CREDIT &&
+        nationalAt !== -1 &&
+        nationalAt > res.body.indexOf("<strong>" + CENSUS_LEAD + "</strong>") &&
+        eventsAt > nationalAt &&
+        nationalBlock.toLowerCase().indexOf("<img") === -1 &&
+        nationalBlock.toLowerCase().indexOf("logo") === -1,
+        String(occurrences(bodyText, USGS_NATIONAL_MAP_CREDIT)));
       check("gazetteer is absent from /sources",
         res.body.toLowerCase().indexOf("gazetteer") === -1);
       check("USGS and Census credits sit with the place-data credits, before Event listings",

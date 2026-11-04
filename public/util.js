@@ -9,10 +9,10 @@
  * instead (there is no `module` in a classic script).
  * ============================================================ */
 (function (root, factory) {
-  var api = factory();
+  var api = factory(root);
   if (typeof module === "object" && module.exports) module.exports = api;
   else root.SparkUtil = api;
-})(this, function () {
+})(this, function (root) {
   "use strict";
 
   function escapeHtml(s){
@@ -213,10 +213,10 @@
     };
   }
 
-  // Authored time-of-day tags from the catalog. There is no clock time,
-  // weekday, hours schedule, or event date on an idea. Nearby places copy
-  // the active time filter (or all four tags) so they can pass the deck
+  // Authored time-of-day tags from the catalog. Nearby places copy the
+  // active time filter (or all four tags) so they can pass the deck
   // filters — that array is not a schedule, so real ideas are left out here.
+  // Event dates live on occurrences and are not read here.
   var TIME_TAGS = ["Morning", "Afternoon", "Evening", "Night"];
 
   function knownTimes(idea){
@@ -229,19 +229,42 @@
     return out;
   }
 
-  // Local 5:00pm through 11:59pm. openNow is a live "open at this moment"
-  // flag, so it only counts as tonight while the clock is already in that
-  // window. A place open at noon is not evidence it is open this evening.
-  function isEveningClock(now){
-    var dt = (now instanceof Date && !isNaN(now.getTime())) ? now : new Date();
-    var hr = dt.getHours();
-    return hr >= 17 && hr <= 23;
+  function occurrencesApi(){
+    var fromRoot = root && root.SparkOccurrences;
+    if(fromRoot && typeof fromRoot.denverClock === "function" && typeof fromRoot.occursTonight === "function") return fromRoot;
+    if(typeof require === "function"){
+      try { return require("./occurrences"); }
+      catch (err) { return null; }
+    }
+    return null;
   }
 
-  // Suits tonight when an authored tag is Evening or Night, or when the
-  // place is open now and the local clock is in the evening window.
+  // 5:00pm through 11:59pm in America/Denver. openNow is a live flag, so
+  // it only counts while the Denver clock is already in that window.
+  // A place open at noon is not evidence it is open this evening.
+  function isEveningClock(now){
+    var occ = occurrencesApi();
+    if(!occ || typeof occ.denverClock !== "function") return false;
+    var clock = occ.denverClock(now);
+    return !!clock && clock.hour >= 17 && clock.hour <= 23;
+  }
+
+  // Dated and weekly events pass only when the schedule is tonight in
+  // Denver. Anytime ideas (no occurrences) never count.
   function suitsTonight(idea, now){
     if(!idea || idea.unavailable === true) return false;
+    if(idea.occurrences == null) return false;
+    var occ = occurrencesApi();
+    if(!occ || typeof occ.occursTonight !== "function") return false;
+    return occ.occursTonight(idea, now) === true;
+  }
+
+  // Anytime ideas for the list under the Tonight events. Evening and Night
+  // tags count at any hour. openNow counts only on the Denver evening clock.
+  // A dated or weekly idea never lands here.
+  function alsoGoodTonight(idea, now){
+    if(!idea || idea.unavailable === true) return false;
+    if(idea.occurrences != null) return false;
     var times = knownTimes(idea);
     for(var i = 0; i < times.length; i++){
       if(times[i] === "Evening" || times[i] === "Night") return true;
@@ -706,6 +729,7 @@
     knownTimes: knownTimes,
     isEveningClock: isEveningClock,
     suitsTonight: suitsTonight,
+    alsoGoodTonight: alsoGoodTonight,
     timeBadgeLabel: timeBadgeLabel,
     ideaStatusBadge: ideaStatusBadge,
     SWIPE_SLOP_PX: SWIPE_SLOP_PX,

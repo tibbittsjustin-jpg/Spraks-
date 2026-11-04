@@ -377,6 +377,14 @@ cursor:pointer; padding:0; line-height:1;
 
 /* ---------- Card stack ---------- */
 .deck{ position:relative; height:520px; margin-top:4px; }
+.deck.deck-tonight-empty{ height:auto; min-height:0; }
+.tonight-also{ margin-top:6px; }
+.tonight-also-title{
+  font-size:15px; font-weight:800; color:var(--text);
+  margin:18px 0 10px; padding-top:14px;
+  border-top:1px solid var(--border);
+}
+.tonight-also.hidden{ display:none; }
 .swipe-card{
 position:absolute; inset:0; background:var(--surface); border-radius:26px; box-shadow: var(--shadow);
 display:flex; flex-direction:column; overflow:hidden; touch-action:pan-y; cursor:grab;

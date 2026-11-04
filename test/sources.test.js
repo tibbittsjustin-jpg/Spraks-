@@ -665,7 +665,28 @@ function main() {
         ["Event info from Stokes Nature Center (logannature.org).", "logannature.org", "https://logannature.org/"],
         ["Event info from Bear River Heritage Area (bearriverheritage.com).", "bearriverheritage.com", "https://bearriverheritage.com/"],
         ["Event info from Ogden Shakespeare Festival (ogdenshakesfest.org).", "ogdenshakesfest.org", "https://ogdenshakesfest.org/"],
-        ["Event info from Springville Museum of Art (smofa.org).", "smofa.org", "https://www.smofa.org/"]
+        ["Event info from Springville Museum of Art (smofa.org).", "smofa.org", "https://www.smofa.org/"],
+        ["Event info from CacheCalendar (cachecalendar.com).", "cachecalendar.com", "https://cachecalendar.com/"],
+        ["Event info from Visit Cedar City · Brian Head (visitcedarcity.com).", "visitcedarcity.com", "https://visitcedarcity.com/"],
+        ["Event info from Town of Springdale (springdale.utah.gov).", "springdale.utah.gov", "https://www.springdale.utah.gov/"],
+        ["Event info from South Valley Chamber (southvalleychamber.com).", "southvalleychamber.com", "https://www.southvalleychamber.com/"],
+        ["Event info from Historic Park City Alliance (historicparkcityutah.com).", "historicparkcityutah.com", "https://historicparkcityutah.com/"],
+        ["Event info from The State Room Presents (thestateroompresents.com).", "thestateroompresents.com", "https://thestateroompresents.com/"],
+        ["Event info from Egyptian Theatre (parkcityshows.com).", "parkcityshows.com", "https://parkcityshows.com/"],
+        ["Event info from South Salt Lake City (sslc.gov).", "sslc.gov", "https://sslc.gov/"],
+        ["Event info from Hyrum City (hyrumcity.gov).", "hyrumcity.gov", "https://www.hyrumcity.gov/"],
+        ["Event info from Kayenta Center for the Arts (kayentaarts.org).", "kayentaarts.org", "https://kayentaarts.org/"],
+        ["Event info from North Salt Lake City (nslcity.org).", "nslcity.org", "https://nslcity.org/"],
+        ["Event info from Syracuse City Recreation (syracuserecreation.com).", "syracuserecreation.com", "https://syracuserecreation.com/"],
+        ["Event info from South Jordan City (sjc.utah.gov).", "sjc.utah.gov", "https://sjc.utah.gov/"],
+        ["Event info from Park City Museum (parkcityhistory.org).", "parkcityhistory.org", "https://parkcityhistory.org/"],
+        ["Event info from Clearfield City (clearfield.city).", "clearfield.city", "https://clearfield.city/"],
+        ["Event info from Ballet West (balletwest.org).", "balletwest.org", "https://www.balletwest.org/"],
+        ["Event info from Draper Historic Theatre (draperhistorictheatre.org).", "draperhistorictheatre.org", "https://www.draperhistorictheatre.org/"],
+        ["Event info from Wasatch Mountain Institute (wasatchmountaininstitute.org).", "wasatchmountaininstitute.org", "https://www.wasatchmountaininstitute.org/"],
+        ["Event info from Midway City (midwaycityut.gov).", "midwaycityut.gov", "https://www.midwaycityut.gov/"],
+        ["Event info from Salt Lake Acting Company (saltlakeactingcompany.org).", "saltlakeactingcompany.org", "https://saltlakeactingcompany.org/"],
+        ["Event info from Plan-B Theatre (planbtheatre.org).", "planbtheatre.org", "https://planbtheatre.org/"],
       ];
       const discoveryAt = res.body.indexOf("<h2>Discovery only</h2>");
       const eventsHtml = eventsAt === -1 || discoveryAt === -1 ? "" : res.body.slice(eventsAt, discoveryAt);
@@ -718,6 +739,10 @@ function main() {
           lowerItem.indexOf("official") === -1 &&
           lowerItem.indexOf("<img") === -1);
       });
+      check("greaterzion is absent from /sources",
+        res.body.toLowerCase().indexOf("greaterzion") === -1);
+      check("SLCC is absent from /sources",
+        res.body.indexOf("SLCC") === -1);
       const springville = EVENT_INFO_LINES[11];
       check("Springville Museum of Art appears once with an https href on smofa.org",
         occurrences(bodyText, springville[0]) === 1 &&

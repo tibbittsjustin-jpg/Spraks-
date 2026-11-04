@@ -149,6 +149,9 @@ function decide(checks, type, authoritative) {
   if (fail("NO_COORDS") || fail("ZERO_COORDS") || fail("SWAPPED_COORDS") || fail("OUTSIDE_UTAH") || fail("STATE_CENTROID") || fail("ZIP_NOT_UTAH")) {
     return { status: "reject", action: "drop", reason: "hard failure" };
   }
+  if (has("AREA_LEVEL")) {
+    return { status: "area_based", action: "publish_area", reason: "coordinate match is area level" };
+  }
   if (fail("COUNTY_CENTROID") && type !== "area") {
     return { status: "needs_hand_pin", action: "hold_hand_pin", reason: "county centroid" };
   }
@@ -183,7 +186,12 @@ function checkRow(row, refs, thresholds) {
   const lat = row.lat;
   const lng = row.lng;
   if (lat == null || lng == null) {
-    checks.push({ code: "NO_COORDS", severity: "fail", msg: "no coordinates" });
+    const areaBased = row.geoStatus === "area_based" || (row.flags && row.flags.geoStatus === "area_based");
+    if (areaBased && row.city != null && String(row.city).trim()) {
+      checks.push({ code: "AREA_LEVEL", severity: "info", msg: "area level; located by city" });
+    } else {
+      checks.push({ code: "NO_COORDS", severity: "fail", msg: "no coordinates" });
+    }
   } else if (lat === 0 || lng === 0) {
     checks.push({ code: "ZERO_COORDS", severity: "fail", msg: "0,0 coordinates" });
   } else if (Math.abs(lat) > 90 || Math.abs(lng) > 180 || (lat < 0 && lng > 0 && Math.abs(lat) < 90)) {

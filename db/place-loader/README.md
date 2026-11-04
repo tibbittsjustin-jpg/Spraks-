@@ -21,7 +21,9 @@ Priority is parsed from the notes. The highest priority match wins for each filt
 
 Parks Local rows whose `STATUS` is `Future`, `Proposed`, `Planned`, or `Closed` are excluded, and those four counts are logged. The attached file has no status column, so this dry run drops none for status. A county in the city slot, or a location that is only a county, is not a city: `needs_city` matches on `location`. All 143 of those parks are `needs_city` (53 county-only, 90 county-in-the-city-field).
 
-Coordinates from OpenStreetMap, Nominatim, Google, Apple, or Bing are refused. There is no allowance and no tally. OSM may only set `suspiciousPin`. UGRC Address Points is the geocoder, and this loader does not call it.
+Coordinates from OpenStreetMap, Nominatim, Google, Apple, Bing, or ReserveAmerica are refused. Labels are matched as whole tokens after splitting on separators (`_`, `-`, `.`) and camelCase humps, so `osm_nominatim`, `google_places`, `MapKit`, and `ReserveAmerica` are refused and place names such as Bingham Canyon still pass. There is no allowance and no tally. OSM may only set `suspiciousPin`. UGRC Address Points is the geocoder, and this loader does not call it.
+
+A geocoded match that is more than 100 m off (uncertainty or spread), street-only, ZIP-only, or missing an estimable uncertainty is area level at normalize time: `lat`/`lng` are null, `flags.geoStatus` is `area_based`, and `flags.geoSource` keeps the real source when the row has a city. A refused coordinate source with a city is the same shape, and `flags.geoSource` is the dataset key rather than the refused label. A row with no city stays `needs_hand_pin`. Dataset geometry with no geocode-match metadata is unchanged. `place_staging_promote()` still copies `geom` and writes `geo_status` `dataset`. Teaching it to publish `area_based` would need a new migration, so this loader does not change that function. `place_staging_pin_check()` still marks a null geom as `needs_hand_pin`, which keeps the approximate row out of `activities` until that migration exists.
 
 ## Dates
 

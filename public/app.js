@@ -560,6 +560,8 @@
   var locationPhase = "idle";
   var locationRequestExact = false;
   var exactPromptOpen = false;
+  var pickMode = false;
+  var radiusMapHandle = null;
   // A recent coarse fix is fine. A days-old cached position is not.
   var APPROXIMATE_MAX_AGE_MS = 300000;
   var APPROXIMATE_TIMEOUT_MS = 10000;
@@ -582,14 +584,16 @@
     if(lat == null || lng == null || lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
     var accuracy = null;
     if(typeof raw.accuracy === "number" && isFinite(raw.accuracy) && raw.accuracy >= 0) accuracy = raw.accuracy;
+    var spotMode = mode === "exact" ? "exact" : "approximate";
+    if(raw.mode === "picked") spotMode = "picked";
     var loc = {
       lat: lat,
       lng: lng,
       accuracy: accuracy,
-      mode: mode === "exact" ? "exact" : "approximate",
+      mode: spotMode,
       grantedAt: typeof raw.grantedAt === "string" ? raw.grantedAt : "",
       updatedAt: typeof raw.updatedAt === "number" && isFinite(raw.updatedAt) ? raw.updatedAt : null,
-      stale: true
+      stale: spotMode !== "picked"
     };
     if(typeof raw.city === "string" && raw.city.trim()) loc.city = raw.city;
     if(typeof raw.label === "string" && raw.label.trim()) loc.label = raw.label;
@@ -627,7 +631,18 @@
     return "unavailable";
   }
 
+  function pickedSpotStatus(){
+    var loc = state.location;
+    if(!loc || loc.mode !== "picked") return "";
+    var label = "";
+    if(typeof loc.label === "string" && loc.label.trim()) label = loc.label.trim();
+    else if(typeof loc.city === "string" && loc.city.trim()) label = loc.city.trim();
+    if(label) return "Picked spot, " + label + ". Saved on this device.";
+    return "Picked spot. Saved on this device.";
+  }
+
   function locationStatusText(){
+    if(state.location && state.location.mode === "picked" && locationPhase !== "pending") return pickedSpotStatus();
     var phrase = state.location ? accuracyPhrase(state.location.accuracy) : "";
     if(state.location && state.location.stale && locationPhase === "pending"){
       return phrase ? ("Last location, " + phrase + " — updating…") : "Last location — updating…";
@@ -658,6 +673,16 @@
   function failLocation(generation, kind, opts){
     if(generation !== locationGeneration) return;
     opts = opts || {};
+    if(state.location && state.location.mode === "picked"){
+      state.location.stale = false;
+      locationPhase = "ready";
+      pickMode = true;
+      saveState();
+      if(!opts.silent) showToast("Location isn't available right now. Your picked spot is still on this device.");
+      updateLocationBar();
+      syncRadiusMap();
+      return;
+    }
     state.location = null;
     locationPhase = kind || "unavailable";
     saveState();
@@ -690,10 +715,13 @@
       stale: false
     };
     locationPhase = "ready";
+    pickMode = false;
     saveState();
     if(!opts.silent) showToast(exact ? "Exact location on" : "Approximate location on");
     updateLocationBar();
     updateRadiusPlace();
+    ensureRadiusRow();
+    syncRadiusMap();
     refreshDeckAfterRadius();
     fetchNearbyIdeas();
     refreshRemoteActivities();
@@ -710,7 +738,7 @@
     var geo = navigator && navigator.geolocation;
     if(!geo || typeof geo.getCurrentPosition !== "function"){
       locationPhase = "unsupported";
-      state.location = null;
+      if(!(state.location && state.location.mode === "picked")) state.location = null;
       saveState();
       if(!opts.silent) showToast(locationStatusText());
       updateLocationBar();
@@ -746,8 +774,10 @@
   }
   function confirmExactLocation(){
     exactPromptOpen = false;
+    pickMode = false;
     state.locationMode = "exact";
     saveState();
+    if(radiusMapHandle && radiusMapHandle.setPickMode) radiusMapHandle.setPickMode(false);
     requestLocation({ exact:true });
   }
 
@@ -755,12 +785,58 @@
     locationGeneration++;
     exactPromptOpen = false;
     locationRequestExact = false;
+    pickMode = false;
     locationPhase = "idle";
     state.location = null;
     state.locationMode = "approximate";
     saveState();
     renderContent();
     refreshRemoteActivities();
+  }
+
+  // A picked spot is the same saved center as a GPS fix. It stays on this
+  // device. Requests that leave the device go through the existing rounded
+  // activities path. The coordinate is the user's tap or a place they chose.
+  function applyPickedSpot(spot, label){
+    var point = SparkRadius.ideaPoint(spot);
+    if(!point) return;
+    locationGeneration++;
+    exactPromptOpen = false;
+    locationRequestExact = false;
+    pickMode = true;
+    state.locationMode = "approximate";
+    var name = typeof label === "string" ? label.trim() : "";
+    if(!name && spot && typeof spot.name === "string") name = spot.name.trim();
+    state.location = {
+      lat: point.lat,
+      lng: point.lng,
+      accuracy: null,
+      mode: "picked",
+      label: name,
+      grantedAt: todayISO(),
+      updatedAt: Date.now(),
+      stale: false
+    };
+    locationPhase = "ready";
+    saveState();
+    updateLocationBar();
+    updateRadiusPlace();
+    ensureRadiusRow();
+    syncRadiusMap();
+    refreshDeckAfterRadius();
+    fetchNearbyIdeas();
+    refreshRemoteActivities();
+  }
+
+  function openPickMode(){
+    pickMode = true;
+    exactPromptOpen = false;
+    if(radiusMapHandle && radiusMapHandle.setPickMode){
+      radiusMapHandle.setPickMode(true);
+      updateLocationBar();
+      return;
+    }
+    renderContent();
   }
 
   // Turns one raw generated card (from /api/nearby-ideas) into a full idea
@@ -1926,16 +2002,27 @@
     });
   });
 
+  function savedCenterIsPicked(){
+    var loc = state.location;
+    return !!(loc && loc.mode === "picked");
+  }
+
   function enterApp(){
     $("#view-onboarding").classList.add("hidden");
     $("#view-tutorial").classList.add("hidden");
     $("#view-app").classList.remove("hidden");
-    // Every open asks again. Approximate unless this device remembered
-    // exact mode. A saved fix is only a labeled stand-in until the new
-    // one arrives. The fresh fix, not the saved one, is what nearby
-    // ideas use (that request still happens from requestLocation).
+    // Every open asks again, unless the saved center is a spot the user
+    // picked. That spot stays until they clear it or ask for a GPS fix.
+    // Approximate unless this device remembered exact mode. A saved GPS
+    // fix is only a labeled stand-in until the new one arrives.
     refreshRemoteActivities();
-    requestLocation({ silent:true });
+    if(savedCenterIsPicked()){
+      pickMode = true;
+      locationPhase = "ready";
+      updateLocationBar();
+    } else {
+      requestLocation({ silent:true });
+    }
     switchTab("discover");
   }
 
@@ -2410,17 +2497,11 @@
     readout.id = "radius-readout";
     readout.textContent = SparkRadius.radiusLabel(miles);
     slider.addEventListener("input", function(){
-      var next = SparkRadius.sliderToMiles(slider.value);
-      state.filters.radiusMiles = next;
+      var next = setDiscoverRadius(SparkRadius.sliderToMiles(slider.value));
       readout.textContent = SparkRadius.radiusLabel(next);
       setSliderPct(slider, sliderFillPct(slider));
       slider.setAttribute("aria-valuenow", String(next));
       slider.setAttribute("aria-valuetext", next + " miles");
-      var pillLabel = document.querySelector(".local-pill-label");
-      if(pillLabel) pillLabel.textContent = localPillText();
-      saveState();
-      refreshDeckAfterRadius();
-      updateFilterBadge();
     });
     row.appendChild(place);
     row.appendChild(slider);
@@ -2431,6 +2512,39 @@
   function updateRadiusPlace(){
     var name = document.getElementById("radius-place-name");
     if(name) name.textContent = placeLabel();
+  }
+
+  function syncRadiusMap(){
+    if(!radiusMapHandle) return;
+    if(radiusMapHandle.setCenter) radiusMapHandle.setCenter(SparkRadius.ideaPoint(state.location));
+    if(radiusMapHandle.setRadiusMiles) radiusMapHandle.setRadiusMiles(state.filters && state.filters.radiusMiles);
+    if(radiusMapHandle.setPickMode) radiusMapHandle.setPickMode(pickMode);
+  }
+
+  function ensureRadiusRow(){
+    if(!(state.filters.localOnly === true || usableOrigin() || pickMode)) return;
+    var existing = document.getElementById("radius-readout");
+    if(existing) return;
+    var screen = document.querySelector(".discover-screen");
+    if(!screen || typeof screen.insertBefore !== "function") return;
+    var row = buildRadiusRow();
+    var bar = screen.querySelector ? screen.querySelector(".filter-bar") : null;
+    if(bar) screen.insertBefore(row, bar);
+    else if(screen.appendChild) screen.appendChild(row);
+  }
+
+  function setDiscoverRadius(miles){
+    var next = SparkRadius.clampRadiusMiles(miles);
+    state.filters.radiusMiles = next;
+    saveState();
+    var readout = document.getElementById("radius-readout");
+    if(readout) readout.textContent = SparkRadius.radiusLabel(next);
+    if(radiusMapHandle && radiusMapHandle.setRadiusMiles) radiusMapHandle.setRadiusMiles(next);
+    var pillLabel = document.querySelector(".local-pill-label");
+    if(pillLabel) pillLabel.textContent = localPillText();
+    refreshDeckAfterRadius();
+    updateFilterBadge();
+    return next;
   }
 
   function refreshDeckAfterRadius(){
@@ -2551,11 +2665,28 @@
     return pill;
   }
 
+  function buildRadiusMapPanel(){
+    var slot = el("div", "radius-map-slot");
+    slot.id = "radius-map-slot";
+    if(radiusMapHandle && radiusMapHandle.destroy) radiusMapHandle.destroy();
+    radiusMapHandle = null;
+    if(typeof SparkRadiusMap === "undefined" || !SparkRadiusMap.mount) return slot;
+    radiusMapHandle = SparkRadiusMap.mount(slot, {
+      center: SparkRadius.ideaPoint(state.location),
+      radiusMiles: state.filters && state.filters.radiusMiles,
+      pickMode: pickMode,
+      onPick: function(coord){ applyPickedSpot(coord, ""); },
+      onSearchSelect: function(place){ applyPickedSpot(place, place && place.name); }
+    });
+    return slot;
+  }
+
   function buildDiscoverScreen(){
     var wrap = el("div", "screen discover-screen");
     mountDiscoverHeader(wrap);
+    wrap.appendChild(buildRadiusMapPanel());
 
-    if(state.filters.localOnly === true || usableOrigin()) wrap.appendChild(buildRadiusRow());
+    if(state.filters.localOnly === true || usableOrigin() || pickMode) wrap.appendChild(buildRadiusRow());
 
     var bar = el("div", "filter-bar");
     var fbtn = el("button", "filter-chip-btn");
@@ -2670,9 +2801,15 @@
     if(locationPhase !== "unsupported"){
       var exactBtn = el("button", "btn-outline exact-location-btn", "Use my exact location");
       exactBtn.type = "button";
+      exactBtn.setAttribute("aria-pressed", state.locationMode === "exact" && !pickMode ? "true" : "false");
       exactBtn.addEventListener("click", askExactLocation);
       row.appendChild(exactBtn);
     }
+    var pickBtn = el("button", "btn-outline pick-spot-btn", "Pick a spot on the map");
+    pickBtn.type = "button";
+    pickBtn.setAttribute("aria-pressed", pickMode ? "true" : "false");
+    pickBtn.addEventListener("click", openPickMode);
+    row.appendChild(pickBtn);
     if(row.children.length) bar.appendChild(row);
     return bar;
   }
@@ -5662,6 +5799,7 @@
     addFriends:"Add Friends",
     credits:"Photo credits",
     sources:"Sources",
+    licenses:"Open-source licenses",
     blocked:"Blocked people",
     safetyMenu:"Safety",
     safetyBlock:"Block",
@@ -5679,11 +5817,12 @@
     else if(action === "addFriends") body.appendChild(buildAddFriendsSubpanel());
     else if(action === "credits") body.appendChild(buildCreditsSubpanel());
     else if(action === "sources") body.appendChild(buildSourcesSubpanel());
+    else if(action === "licenses") body.appendChild(buildLicensesSubpanel());
     else if(action === "blocked") body.appendChild(buildBlockedPeoplePanel());
     else if(action === "safetyMenu") body.appendChild(buildSafetyMenuPanel());
     else if(action === "safetyBlock") body.appendChild(buildBlockPanel());
     else if(action === "safetyReport") body.appendChild(buildReportPanel());
-    body.classList.toggle("subpage-body-frame", action === "credits" || action === "sources");
+    body.classList.toggle("subpage-body-frame", action === "credits" || action === "sources" || action === "licenses");
     body.scrollTop = 0;
     $("#subpage-overlay").classList.remove("hidden");
   }
@@ -5704,6 +5843,12 @@
     var frame = el("iframe", "credits-frame");
     frame.title = "Sources";
     frame.src = "/sources";
+    return frame;
+  }
+  function buildLicensesSubpanel(){
+    var frame = el("iframe", "credits-frame");
+    frame.title = "Open-source licenses";
+    frame.src = "/licenses";
     return frame;
   }
   $("#subpage-close").addEventListener("click", closeSubpage);

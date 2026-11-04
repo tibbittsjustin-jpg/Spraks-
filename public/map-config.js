@@ -14,8 +14,9 @@
   // are the only other layers Legal cleared. They are not selected here.
   var USGS_TILE_URL = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}";
 
-  // Legal nov4f §1b. The longer acknowledgement is on /sources.
-  var MAP_CORNER_CREDIT = "Basemap: U.S. Geological Survey, The National Map";
+  // Legal's 4:27 PM addendum. This is the map-corner sentence only.
+  // /sources keeps the longer credit, including the non-endorsement line.
+  var MAP_CORNER_CREDIT = "Map services and data available from U.S. Geological Survey, National Geospatial Program.";
   var SOURCES_PATH = "/sources";
 
   // Self-hosted Protomaps PMTiles is the planned fallback and is not built

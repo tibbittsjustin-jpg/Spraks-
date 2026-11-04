@@ -92,6 +92,25 @@
     return { lat: lat, lng: lng };
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // Passed to MapLibre's AttributionControl. compact is left unset so a map
+  // at most 640px wide uses the (i) toggle and a wider map shows the sentence.
+  function attributionOptions() {
+    var config = mapConfig() || {};
+    var text = config.MAP_CORNER_CREDIT || "";
+    var href = config.SOURCES_PATH || "/sources";
+    return {
+      customAttribution: '<a href="' + escapeHtml(href) + '">' + escapeHtml(text) + "</a>"
+    };
+  }
+
   function basemapStyle() {
     var config = mapConfig();
     if (!config) return null;
@@ -340,6 +359,12 @@
         return;
       }
       markTiles("on");
+      if (typeof lib.AttributionControl === "function" && map.addControl) {
+        try {
+          map.addControl(new lib.AttributionControl(attributionOptions()), "bottom-right");
+          credit.hidden = true;
+        } catch (err) {}
+      }
       if (map.on) {
         map.on("error", function () {
           if (!alive) return;
@@ -435,6 +460,7 @@
   return {
     FALLBACK_NOTE: FALLBACK_NOTE,
     MAP_CORNER_CREDIT: (mapConfig() && mapConfig().MAP_CORNER_CREDIT) || "",
+    attributionOptions: attributionOptions,
     clampMiles: clampMiles,
     circleRadiusMeters: circleRadiusMeters,
     fallbackRadiusPx: fallbackRadiusPx,

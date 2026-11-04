@@ -34,7 +34,7 @@ function section(title, fn) {
 const ROOT = path.join(__dirname, "..");
 const PRECISE_LAT = 40.233843;
 const PRECISE_LNG = -111.658531;
-const CORNER = "Basemap: U.S. Geological Survey, The National Map";
+const CORNER = "Map services and data available from U.S. Geological Survey, National Geospatial Program.";
 const CREDITS = "Map rendering: MapLibre GL JS (BSD-3-Clause), © MapLibre contributors; includes code © 2020 Mapbox (BSD-3-Clause).";
 const USGS_TILE = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}";
 const FALLBACK = "The map didn't load. Search and the radius still work.";
@@ -127,8 +127,91 @@ section("the circle follows the radius", () => {
     Number(attr(circle, "r")) > r10);
 });
 
+function attribEl(tag) {
+  const attrs = Object.create(null);
+  const classes = new Set();
+  const children = [];
+  const el = {
+    tagName: String(tag).toUpperCase(),
+    children,
+    style: {},
+    attributes: [],
+    classList: {
+      contains(name) { return classes.has(name); },
+      add() { for (let i = 0; i < arguments.length; i++) classes.add(arguments[i]); },
+      remove() { for (let i = 0; i < arguments.length; i++) classes.delete(arguments[i]); }
+    },
+    setAttribute(name, value) { attrs[name] = String(value); },
+    getAttribute(name) { return Object.prototype.hasOwnProperty.call(attrs, name) ? attrs[name] : null; },
+    removeAttribute(name) { delete attrs[name]; },
+    appendChild(child) { children.push(child); return child; },
+    addEventListener() {},
+    remove() {},
+    querySelectorAll() { return []; }
+  };
+  Object.defineProperty(el, "className", {
+    get() { return Array.from(classes).join(" "); },
+    set(value) {
+      classes.clear();
+      String(value || "").split(/\s+/).filter(Boolean).forEach(name => classes.add(name));
+    }
+  });
+  Object.defineProperty(el, "innerHTML", {
+    get() { return el._html || ""; },
+    set(value) { el._html = String(value); }
+  });
+  return el;
+}
+
+function installMapLibreDom() {
+  if (!installMapLibreDom.saved) {
+    installMapLibreDom.saved = {
+      window: global.window,
+      document: global.document,
+      Blob: global.Blob,
+      DOMParser: global.DOMParser
+    };
+  }
+  const doc = {
+    createElement: attribEl,
+    documentElement: attribEl("html"),
+    body: attribEl("body")
+  };
+  global.window = {
+    document: doc,
+    addEventListener() {},
+    removeEventListener() {},
+    URL: { createObjectURL() { return "blob:maplibre-test"; } }
+  };
+  global.document = doc;
+  global.Blob = global.Blob || function Blob() {};
+  global.DOMParser = function DOMParser() {};
+  global.DOMParser.prototype.parseFromString = function (html) {
+    const body = attribEl("body");
+    body.innerHTML = String(html || "");
+    return { body: body };
+  };
+}
+
+function attributionMap(width) {
+  return {
+    style: { stylesheet: {}, tileManagers: {} },
+    _getUIString() { return "Toggle attribution"; },
+    getCanvasContainer() { return { offsetWidth: width }; },
+    on() {},
+    off() {}
+  };
+}
+
 section("map corner credit and the no-tile state", () => {
-  check("the corner credit is Legal's shorter line", mapConfig.MAP_CORNER_CREDIT === CORNER && radiusMap.MAP_CORNER_CREDIT === CORNER);
+  check("the corner credit is the USGS acknowledgement sentence",
+    mapConfig.MAP_CORNER_CREDIT === CORNER && radiusMap.MAP_CORNER_CREDIT === CORNER);
+  const options = radiusMap.attributionOptions();
+  check("the attribution control is only that sentence, linked to Sources",
+    options.customAttribution === '<a href="/sources">' + CORNER + "</a>" &&
+    options.customAttribution.indexOf("endorses") === -1 &&
+    options.customAttribution.indexOf("Basemap:") === -1 &&
+    options.customAttribution.toLowerCase().indexOf("logo") === -1);
   const t = loadApp({});
   t.openPickMode();
   const screen = t.buildDiscoverScreen();
@@ -159,6 +242,44 @@ section("map corner credit and the no-tile state", () => {
   ["mapbox", "openstreetmap", "googleapis", "maptiler", "stadiamaps", "apple"].forEach(name => {
     check("the style does not name " + name, styleText.toLowerCase().indexOf(name) === -1);
   });
+});
+
+section("compact attribution toggle", () => {
+  installMapLibreDom();
+  const maplibre = require("maplibre-gl");
+  const narrow = new maplibre.AttributionControl(radiusMap.attributionOptions());
+  const collapsed = narrow.onAdd(attributionMap(320));
+  const inner = collapsed.children.filter(node => node.className === "maplibregl-ctrl-attrib-inner")[0];
+  const button = collapsed.children.filter(node => node.className === "maplibregl-ctrl-attrib-button")[0];
+  check("a narrow map uses the compact (i) control",
+    collapsed.className.indexOf("maplibregl-compact") !== -1 && !!button);
+  check("the compact control holds the full USGS sentence",
+    inner && inner.innerHTML === '<a href="/sources">' + CORNER + "</a>");
+  const shownBefore = collapsed.className.indexOf("maplibregl-compact-show") !== -1;
+  narrow._toggleAttribution();
+  const shownAfter = collapsed.className.indexOf("maplibregl-compact-show") !== -1;
+  check("the (i) toggle changes whether the sentence is expanded",
+    shownBefore !== shownAfter && inner.innerHTML.indexOf(CORNER) !== -1);
+  narrow._toggleAttribution();
+  check("toggling again restores the previous compact state",
+    (collapsed.className.indexOf("maplibregl-compact-show") !== -1) === shownBefore);
+
+  const wideCtrl = new maplibre.AttributionControl(radiusMap.attributionOptions());
+  const wide = wideCtrl.onAdd(attributionMap(800));
+  const wideInner = wide.children.filter(node => node.className === "maplibregl-ctrl-attrib-inner")[0];
+  check("a wide map shows the sentence without the compact toggle",
+    wide.className.indexOf("maplibregl-compact") === -1 &&
+    wide.getAttribute("open") === "" &&
+    wideInner.innerHTML === '<a href="/sources">' + CORNER + "</a>");
+  const saved = installMapLibreDom.saved;
+  if (saved.window === undefined) delete global.window;
+  else global.window = saved.window;
+  if (saved.document === undefined) delete global.document;
+  else global.document = saved.document;
+  if (saved.Blob === undefined) delete global.Blob;
+  else global.Blob = saved.Blob;
+  if (saved.DOMParser === undefined) delete global.DOMParser;
+  else global.DOMParser = saved.DOMParser;
 });
 
 section("place search is GNIS and Census only", () => {

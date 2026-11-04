@@ -21,7 +21,7 @@ function createFriendsRouter(opts) {
   opts = opts || {};
   const router = express.Router();
   const configured = opts.isConfigured || function () { return require("../db").isConfigured(); };
-  const limiters = opts.limiters || createSafetyLimiters();
+  const limiters = Object.assign({}, createSafetyLimiters(), opts.limiters || {});
   function database() {
     if (opts.db) return opts.db;
     return require("../db").getPool();
@@ -128,6 +128,15 @@ function createFriendsRouter(opts) {
   async function respond(req, res, action) {
     const user = await requireReady(req, res);
     if (!user) return;
+    const limited = limiters.friendActions(safetyLimitKey(user, clientAddress(req)));
+    if (limited.limited) {
+      res.set("Retry-After", String(limited.retryAfter));
+      return res.status(429).json({
+        ok: false,
+        error: "rate_limited",
+        message: LIMIT_MESSAGES.friendActions
+      });
+    }
     try {
       const result = await changeFriend(database(), user.id, req.params.username, action);
       return sendResult(res, result);

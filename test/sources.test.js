@@ -654,7 +654,7 @@ function main() {
         sources.CENSUS_URL === CENSUS_URL &&
         sources.CENSUS_LEAD === CENSUS_LEAD);
       const EVENT_INFO_LINES = [
-        ["Event info from Brigham City Public Library (library.bcutah.gov).", "library.bcutah.gov", "https://library.bcutah.gov/"],
+        ["Event info from Brigham City Public Library (library.bcutah.gov). See the library's page for details.", "library.bcutah.gov", "https://library.bcutah.gov/"],
         ["Event info from Utah Humanities (utahhumanities.org).", "utahhumanities.org", "https://utahhumanities.org/"],
         ["Event info from Spanish Fork Public Library (spanishfork.libcal.com).", "spanishfork.libcal.com", "https://spanishfork.libcal.com/"],
         ["Event info from Lehi City Library (lehicity.libcal.com).", "lehicity.libcal.com", "https://lehicity.libcal.com/"],

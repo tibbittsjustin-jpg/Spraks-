@@ -603,7 +603,7 @@
   // card credits. The parenthetical domain is the link text; hrefs are the
   // final https homepage after redirects.
   var EVENT_INFO_LINES = [
-    { line: "Event info from Brigham City Public Library (library.bcutah.gov).", domain: "library.bcutah.gov", href: "https://library.bcutah.gov/" },
+    { line: "Event info from Brigham City Public Library (library.bcutah.gov). See the library's page for details.", domain: "library.bcutah.gov", href: "https://library.bcutah.gov/" },
     { line: "Event info from Utah Humanities (utahhumanities.org).", domain: "utahhumanities.org", href: "https://utahhumanities.org/" },
     { line: "Event info from Spanish Fork Public Library (spanishfork.libcal.com).", domain: "spanishfork.libcal.com", href: "https://spanishfork.libcal.com/" },
     { line: "Event info from Lehi City Library (lehicity.libcal.com).", domain: "lehicity.libcal.com", href: "https://lehicity.libcal.com/" },

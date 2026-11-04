@@ -599,6 +599,41 @@
     return html;
   }
 
+  // Sources page only. These lines are not source keys and do not change
+  // card credits. The parenthetical domain is the link text; hrefs are the
+  // final https homepage after redirects.
+  var EVENT_INFO_LINES = [
+    { line: "Event info from Brigham City Public Library (library.bcutah.gov).", domain: "library.bcutah.gov", href: "https://library.bcutah.gov/" },
+    { line: "Event info from Utah Humanities (utahhumanities.org).", domain: "utahhumanities.org", href: "https://utahhumanities.org/" },
+    { line: "Event info from Spanish Fork Public Library (spanishfork.libcal.com).", domain: "spanishfork.libcal.com", href: "https://spanishfork.libcal.com/" },
+    { line: "Event info from Lehi City Library (lehicity.libcal.com).", domain: "lehicity.libcal.com", href: "https://lehicity.libcal.com/" },
+    { line: "Event info from the Gallivan Center (thegallivancenter.com).", domain: "thegallivancenter.com", href: "https://thegallivancenter.com/" },
+    { line: "Event info from Utah Film Center (utahfilmcenter.org).", domain: "utahfilmcenter.org", href: "https://utahfilmcenter.org/" },
+    { line: "Event info from Peery's Egyptian Theater (ogdenpet.com).", domain: "ogdenpet.com", href: "https://ogdenpet.com/" },
+    { line: "Event info from Brigham City Museum of Art & History (museum.bcutah.gov).", domain: "museum.bcutah.gov", href: "https://museum.bcutah.gov/" },
+    { line: "Event info from Stokes Nature Center (logannature.org).", domain: "logannature.org", href: "https://logannature.org/" },
+    { line: "Event info from Bear River Heritage Area (bearriverheritage.com).", domain: "bearriverheritage.com", href: "https://bearriverheritage.com/" },
+    { line: "Event info from Ogden Shakespeare Festival (ogdenshakesfest.org).", domain: "ogdenshakesfest.org", href: "https://ogdenshakesfest.org/" },
+    { line: "Event info from Springville Museum of Art (smofa.org).", domain: "smofa.org", href: "https://www.smofa.org/" }
+  ];
+
+  function eventInfoList(lines) {
+    var html = "<ul>";
+    lines.forEach(function (item) {
+      var mark = "(" + item.domain + ")";
+      var at = item.line.indexOf(mark);
+      var before = item.line.slice(0, at + 1);
+      var after = item.line.slice(at + 1 + item.domain.length);
+      html += "<li>" + htmlForParts([
+        { text: before },
+        { text: item.domain, href: item.href, external: true },
+        { text: after }
+      ]) + "</li>";
+    });
+    html += "</ul>";
+    return html;
+  }
+
   var OSM_LOCATIONS_LINE = "Some locations © OpenStreetMap contributors, available under the Open Database License (ODbL)";
   var OSM_COPYRIGHT_HREF = "https://www.openstreetmap.org/copyright";
 
@@ -669,6 +704,7 @@
     html.push("<h2>Event listings</h2>");
     html.push('<p class="muted">Each event listing links to the organizer and shows the credit below.</p>');
     html.push(groupList("events"));
+    html.push(eventInfoList(EVENT_INFO_LINES));
     html.push("<h2>Discovery only</h2>");
     html.push(paragraph("Visit Salt Lake and Explore Utah Valley are used only to find events. Jaderoo does not copy their listings. When an event is shown, the credit names the organizer."));
     html.push(groupList("discovery"));

@@ -653,6 +653,76 @@ function main() {
         sources.CENSUS_PAGE === CENSUS_PAGE &&
         sources.CENSUS_URL === CENSUS_URL &&
         sources.CENSUS_LEAD === CENSUS_LEAD);
+      const EVENT_INFO_LINES = [
+        ["Event info from Brigham City Public Library (library.bcutah.gov).", "library.bcutah.gov", "https://library.bcutah.gov/"],
+        ["Event info from Utah Humanities (utahhumanities.org).", "utahhumanities.org", "https://utahhumanities.org/"],
+        ["Event info from Spanish Fork Public Library (spanishfork.libcal.com).", "spanishfork.libcal.com", "https://spanishfork.libcal.com/"],
+        ["Event info from Lehi City Library (lehicity.libcal.com).", "lehicity.libcal.com", "https://lehicity.libcal.com/"],
+        ["Event info from the Gallivan Center (thegallivancenter.com).", "thegallivancenter.com", "https://thegallivancenter.com/"],
+        ["Event info from Utah Film Center (utahfilmcenter.org).", "utahfilmcenter.org", "https://utahfilmcenter.org/"],
+        ["Event info from Peery's Egyptian Theater (ogdenpet.com).", "ogdenpet.com", "https://ogdenpet.com/"],
+        ["Event info from Brigham City Museum of Art & History (museum.bcutah.gov).", "museum.bcutah.gov", "https://museum.bcutah.gov/"],
+        ["Event info from Stokes Nature Center (logannature.org).", "logannature.org", "https://logannature.org/"],
+        ["Event info from Bear River Heritage Area (bearriverheritage.com).", "bearriverheritage.com", "https://bearriverheritage.com/"],
+        ["Event info from Ogden Shakespeare Festival (ogdenshakesfest.org).", "ogdenshakesfest.org", "https://ogdenshakesfest.org/"],
+        ["Event info from Springville Museum of Art (smofa.org).", "smofa.org", "https://www.smofa.org/"]
+      ];
+      const discoveryAt = res.body.indexOf("<h2>Discovery only</h2>");
+      const eventsHtml = eventsAt === -1 || discoveryAt === -1 ? "" : res.body.slice(eventsAt, discoveryAt);
+      const eventsText = visibleText(eventsHtml);
+      const eventsTextAt = bodyText.indexOf("Event listings");
+      const discoveryTextAt = bodyText.indexOf("Discovery only");
+      check("the Event listings section has no img",
+        eventsHtml.length > 0 && eventsHtml.toLowerCase().indexOf("<img") === -1);
+      check("event info lines are not per-card credits",
+        sources.ENTRIES.every(entry => String(entry.credit || "").indexOf("Event info from") === -1));
+      let previousLineAt = eventsTextAt;
+      EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        let host = "";
+        try { host = new URL(foundHref).hostname; } catch (err) { host = ""; }
+        const onDomain = foundHref.indexOf("https://") === 0 &&
+          (host === domain || host.endsWith("." + domain));
+        const lineAt = bodyText.indexOf(line);
+        const lowerItem = itemHtml.toLowerCase();
+        check(line + " appears once in /sources",
+          occurrences(bodyText, line) === 1, String(occurrences(bodyText, line)));
+        check(line + " sits in Event listings",
+          eventsTextAt !== -1 && discoveryTextAt > eventsTextAt &&
+          lineAt > eventsTextAt && lineAt < discoveryTextAt);
+        check(line + " keeps its order in Event listings",
+          lineAt > previousLineAt);
+        previousLineAt = lineAt;
+        check(domain + " links over https on that domain",
+          onDomain && foundHref === href, foundHref);
+        check(line + " has no endorsement wording",
+          line.toLowerCase().indexOf("endorse") === -1 &&
+          line.toLowerCase().indexOf("partner") === -1 &&
+          line.toLowerCase().indexOf("official") === -1 &&
+          lowerItem.indexOf("endorse") === -1 &&
+          lowerItem.indexOf("partner") === -1 &&
+          lowerItem.indexOf("official") === -1 &&
+          lowerItem.indexOf("<img") === -1);
+      });
+      const springville = EVENT_INFO_LINES[11];
+      check("Springville Museum of Art appears once with an https href on smofa.org",
+        occurrences(bodyText, springville[0]) === 1 &&
+        eventsText.indexOf(springville[0]) > eventsText.indexOf("Event info from Ogden Shakespeare Festival (ogdenshakesfest.org).") &&
+        /href="https:\/\/(?:www\.)?smofa\.org\/"/.test(eventsHtml));
       const home = await request(server.address().port, "/");
       check("home loads the sources script and links Sources",
         home.status === 200 &&

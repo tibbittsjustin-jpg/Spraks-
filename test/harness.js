@@ -87,6 +87,7 @@ function loadApp(storage) {
     timeBadgeLabel: function(idea){ return SparkUtil.timeBadgeLabel(idea); },
     ideaStatusBadge: function(idea){ return SparkUtil.ideaStatusBadge(idea); },
     tonightMatchCount: tonightMatchCount, toggleTonightFilter: toggleTonightFilter,
+    widenTonightRadius: widenTonightRadius,
     buildDiscoverScreen: buildDiscoverScreen,
     buildSwipeCard: buildSwipeCard, buildIdeaRow: buildIdeaRow,
     buildFriendIdeaRow: buildFriendIdeaRow,

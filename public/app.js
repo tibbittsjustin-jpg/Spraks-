@@ -1922,7 +1922,8 @@
       if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
     }
     // Quick filter from the Discover chip. Not part of the Filters sheet,
-    // and not counted on that button. See SparkUtil.suitsTonight.
+    // and not counted on that button. Dated and weekly events only.
+    // Anytime ideas stay off this count. See SparkUtil.suitsTonight.
     if(f.tonight === true && !SparkUtil.suitsTonight(idea)) return false;
     var plan = getActivePlan();
     var planDate = plan && typeof plan.date === "string" ? plan.date : "";
@@ -1931,8 +1932,9 @@
     return true;
   }
 
-  // How many ideas the tonight chip would show, honoring the other filters.
-  // Seen cards stay in the count: N is the size of the matching set.
+  // How many scheduled tonight events the chip would show, honoring the
+  // other filters. Anytime ideas are not included. Seen cards stay in
+  // the count: N is the size of the matching set.
   function tonightMatchCount(){
     var f = {};
     for(var k in state.filters) f[k] = state.filters[k];
@@ -1956,6 +1958,80 @@
     state.filters.tonight = state.filters.tonight !== true;
     saveState();
     return state.filters.tonight;
+  }
+
+  function nextRadiusStop(miles){
+    var stops = SparkRadius.RADIUS_STOPS;
+    var current = SparkRadius.clampRadiusMiles(miles);
+    for(var i = 0; i < stops.length; i++){
+      if(stops[i] > current) return stops[i];
+    }
+    return current;
+  }
+
+  // The empty Tonight state uses the same radius stops as the slider.
+  // Already at the widest stop leaves the value where it is.
+  function widenTonightRadius(){
+    var current = SparkRadius.clampRadiusMiles(state.filters.radiusMiles);
+    var next = nextRadiusStop(current);
+    if(next !== current){
+      state.filters.radiusMiles = next;
+      saveState();
+      if(state.filters.localOnly === true) scheduleRemoteRefresh();
+    }
+    renderContent();
+    return state.filters.radiusMiles;
+  }
+
+  function alsoGoodSubtext(idea){
+    if(idea && idea.openNow === true) return "Open now";
+    var label = SparkUtil.timeBadgeLabel(idea);
+    if(label) return label;
+    return idea && idea.category ? idea.category : "";
+  }
+
+  // Anytime ideas that are good this evening, in the same filter set as
+  // the deck, minus the tonight chip itself. Never a scheduled event.
+  function alsoGoodTonightIdeas(){
+    var now = new Date();
+    var f = {};
+    for(var k in state.filters) f[k] = state.filters[k];
+    f.tonight = false;
+    var out = [];
+    function consider(idea){
+      if(!SparkUtil.alsoGoodTonight(idea, now)) return;
+      if(SparkUtil.suitsTonight(idea, now)) return;
+      if(!matchesFilters(idea, f)) return;
+      out.push(idea);
+    }
+    for(var i = 0; i < IDEAS_DATA.length; i++) consider(IDEAS_DATA[i]);
+    if(state.location){
+      for(var r = 0; r < REAL_IDEAS_RUNTIME.length; r++) consider(REAL_IDEAS_RUNTIME[r]);
+    }
+    for(var a = 0; a < REMOTE_IDEAS.length; a++) consider(REMOTE_IDEAS[a]);
+    return out;
+  }
+
+  function tonightAlsoEl(){
+    var node = document.getElementById("tonight-also");
+    if(node && node.id === "tonight-also") return node;
+    return null;
+  }
+
+  function renderTonightAlso(host){
+    if(!host) host = tonightAlsoEl();
+    if(!host) return;
+    host.innerHTML = "";
+    if(state.filters.tonight !== true){
+      host.className = "tonight-also hidden";
+      return;
+    }
+    host.className = "tonight-also";
+    host.appendChild(el("h2", "tonight-also-title", "Also good tonight"));
+    var ideas = alsoGoodTonightIdeas();
+    for(var i = 0; i < ideas.length; i++){
+      host.appendChild(buildIdeaRow(ideas[i], alsoGoodSubtext(ideas[i])));
+    }
   }
 
   // A pin (lat/lng, location, or coordinates) or a measured distanceMiles.
@@ -2162,8 +2238,8 @@
 
   function refreshDeckAfterRadius(){
     var deckEl = $("#deck");
-    if(!deckEl) return;
-    renderDeckCards(deckEl);
+    if(deckEl) renderDeckCards(deckEl);
+    renderTonightAlso(tonightAlsoEl());
     updateResultCount();
     // Local on is the only time the slider changes which rows the server
     // returns. Dragging the slider refetches once the finger pauses.
@@ -2339,7 +2415,12 @@
     deckEl.id = "deck";
     wrap.appendChild(deckEl);
 
+    var alsoEl = el("div", "tonight-also hidden");
+    alsoEl.id = "tonight-also";
+    wrap.appendChild(alsoEl);
+
     renderDeckCards(deckEl);
+    renderTonightAlso(alsoEl);
 
     return wrap;
   }
@@ -2378,6 +2459,24 @@
     var ids = deck.remaining.slice(0, 3);
 
     if(ids.length === 0){
+      var tonightEmpty = state.filters.tonight === true && deck.total === 0;
+      if(tonightEmpty){
+        deckEl.className = "deck deck-tonight-empty";
+        var tonightNote = el("div", "empty-state tonight-empty");
+        tonightNote.appendChild(el("span", "es-icon", icon("moon")));
+        tonightNote.appendChild(el("h3", null, "Nothing scheduled near you tonight"));
+        var widen = el("button", "btn-secondary", "Widen radius");
+        widen.type = "button";
+        widen.id = "tonight-widen-radius";
+        widen.setAttribute("id", "tonight-widen-radius");
+        widen.setAttribute("aria-label", "Widen radius");
+        if(SparkRadius.clampRadiusMiles(state.filters.radiusMiles) >= SparkRadius.RADIUS_MAX) widen.disabled = true;
+        widen.addEventListener("click", function(){ widenTonightRadius(); });
+        tonightNote.appendChild(widen);
+        deckEl.appendChild(tonightNote);
+        return;
+      }
+      deckEl.className = "deck";
       var empty = el("div", "empty-state");
       var hasAny = deck.total > 0;
       empty.innerHTML =
@@ -2406,6 +2505,8 @@
       });
       return;
     }
+
+    deckEl.className = "deck";
 
     // render back-to-front so first id ends up on top of DOM stacking
     for(var k = ids.length - 1; k >= 0; k--){
@@ -2439,7 +2540,8 @@
        conditions     → the line under the chips
        openNow        → true shows the Open now badge.
      Time pills (Tonight / Evening / Night) come from authored time tags
-     and can show on a card with or without a photo. See suitsTonight. */
+     and can show on a card with or without a photo. The Tonight chip
+     uses the Denver schedule instead. See suitsTonight. */
   function ideaPhoto(idea){
     var photo = idea && idea.photo;
     if(!photo || typeof photo !== "object") return null;

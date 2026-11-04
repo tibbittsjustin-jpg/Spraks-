@@ -356,7 +356,8 @@ async function main() {
     check("reports are 20 a day and friend requests stay 30 a day with 100 pending",
       SAFETY_LIMITS.reportsPerDay === 20 &&
       SAFETY_LIMITS.friendRequestsPerDay === 30 &&
-      SAFETY_LIMITS.friendRequestsPending === 100);
+      SAFETY_LIMITS.friendRequestsPending === 100 &&
+      SAFETY_LIMITS.friendActionsPerMinute === 60);
     check("invites, items, stars, and push match §6.4",
       SAFETY_LIMITS.listInvitesPerDay === 30 &&
       SAFETY_LIMITS.itemsAddedPerDay === 500 &&
@@ -371,6 +372,13 @@ async function main() {
     for (let i = 0; i < 30; i++) if (limiters.friendRequests("user:a").limited) friendOk = false;
     const friendStop = limiters.friendRequests("user:a");
     check("friend request limiter allows 30 then stops", friendOk && friendStop.limited === true && friendStop.retryAfter > 0);
+    let actionOk = true;
+    for (let i = 0; i < SAFETY_LIMITS.friendActionsPerMinute; i++) {
+      if (limiters.friendActions("user:a").limited) actionOk = false;
+    }
+    const actionStop = limiters.friendActions("user:a");
+    check("friend action limiter allows 60 a minute then stops",
+      actionOk && actionStop.limited === true && actionStop.retryAfter > 0);
     let inviteOk = true;
     for (let i = 0; i < 30; i++) if (limiters.listInvites("user:a").limited) inviteOk = false;
     check("list invite limiter allows 30 then stops", inviteOk && limiters.listInvites("user:a").limited === true);
@@ -381,6 +389,7 @@ async function main() {
       LIMIT_MESSAGES.blocks.indexOf("tomorrow") !== -1 &&
       LIMIT_MESSAGES.reports.indexOf("tomorrow") !== -1 &&
       LIMIT_MESSAGES.friendRequests.indexOf("tomorrow") !== -1 &&
+      LIMIT_MESSAGES.friendActions.indexOf("minute") !== -1 &&
       LIMIT_MESSAGES.listInvites.indexOf("tomorrow") !== -1);
   });
 

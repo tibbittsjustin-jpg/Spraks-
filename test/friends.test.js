@@ -10,7 +10,7 @@ const { loadApp } = require("./harness");
 const { createFriendsRouter } = require("../routes/friends");
 const { SQL, NOT_FOUND_MESSAGE, deleteAccountFriends } = require("../lib/friends");
 const { SQL: SAFETY_SQL } = require("../lib/safety");
-const { LIMIT_MESSAGES, SAFETY_LIMITS } = require("../lib/safety-limits");
+const { LIMIT_MESSAGES, SAFETY_LIMITS, createSafetyLimiters } = require("../lib/safety-limits");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -257,7 +257,10 @@ function mount(options) {
     db: db,
     isConfigured: () => true,
     auth: auth,
-    limiters: options.limiters || { friendRequests: options.limitRequests || allowAll }
+    limiters: options.limiters || {
+      friendRequests: options.limitRequests || allowAll,
+      friendActions: options.limitActions || allowAll
+    }
   }));
   return { app: app, db: db };
 }
@@ -454,6 +457,95 @@ async function main() {
         ctx.db.state.friendships.every(item => item.requester_id !== USER_A && item.addressee_id !== USER_A) &&
         ctx.db.state.friendships.some(item => item.requester_id === USER_B && item.addressee_id === USER_C));
     });
+
+    await section("missing, unrelated, and blocked friend actions share one reply", async () => {
+      const sample = await request(port, "POST", "/api/friends/requests", { username: "nobody_zz" }, bearer("good-a"));
+      const actions = [
+        {
+          label: "accept",
+          method: "POST",
+          path: name => "/api/friends/requests/" + name + "/accept",
+          unmatched: { requester_id: USER_A, addressee_id: USER_D, status: "pending" },
+          matched: { requester_id: USER_C, addressee_id: USER_A, status: "pending" }
+        },
+        {
+          label: "decline",
+          method: "POST",
+          path: name => "/api/friends/requests/" + name + "/decline",
+          unmatched: { requester_id: USER_A, addressee_id: USER_D, status: "pending" },
+          matched: { requester_id: USER_C, addressee_id: USER_A, status: "pending" }
+        },
+        {
+          label: "cancel",
+          method: "POST",
+          path: name => "/api/friends/requests/" + name + "/cancel",
+          unmatched: { requester_id: USER_D, addressee_id: USER_A, status: "pending" },
+          matched: { requester_id: USER_A, addressee_id: USER_C, status: "pending" }
+        },
+        {
+          label: "unfriend",
+          method: "DELETE",
+          path: name => "/api/friends/" + name,
+          unmatched: { requester_id: USER_A, addressee_id: USER_D, status: "pending" },
+          matched: { requester_id: USER_A, addressee_id: USER_C, status: "accepted" }
+        }
+      ];
+      const writes = [SQL.acceptIncoming, SQL.declineIncoming, SQL.cancelOutgoing, SQL.unfriend];
+      for (const action of actions) {
+        const bodies = [];
+        const logs = [];
+        let rowsHeld = true;
+        async function hit(name) {
+          ctx.db.state.queryLog = [];
+          const res = await request(
+            port,
+            action.method,
+            action.path(name),
+            action.method === "POST" ? {} : null,
+            bearer("good-a")
+          );
+          bodies.push(res);
+          logs.push(ctx.db.state.queryLog.slice());
+          return res;
+        }
+        ctx.db.state.blocks = [];
+        ctx.db.state.friendships = [];
+        await hit("nobody_zz");
+        await hit("river_day");
+        ctx.db.state.friendships = [Object.assign({}, action.unmatched)];
+        const beforeUnmatched = JSON.stringify(ctx.db.state.friendships);
+        await hit("solo_name");
+        if (JSON.stringify(ctx.db.state.friendships) !== beforeUnmatched) rowsHeld = false;
+        for (const dir of ["out", "in"]) {
+          ctx.db.state.blocks = dir === "out"
+            ? [{ blocker_id: USER_A, blocked_id: USER_C }]
+            : [{ blocker_id: USER_C, blocked_id: USER_A }];
+          ctx.db.state.friendships = [Object.assign({}, action.matched)];
+          const beforeMatched = JSON.stringify(ctx.db.state.friendships);
+          await hit("casey");
+          if (JSON.stringify(ctx.db.state.friendships) !== beforeMatched) rowsHeld = false;
+        }
+        const text = bodies[0].text;
+        const sameBody = bodies.every(res => res.status === sample.status && res.text === text && res.text === sample.text);
+        const sameLogs = logs.every(log => log.join("\n") === logs[0].join("\n"));
+        const lookedUp = logs[0].indexOf(SQL.selectUserByName) !== -1 &&
+          logs[0].indexOf(SAFETY_SQL.selectEither) !== -1 &&
+          logs[0].indexOf(SQL.selectFriendship) !== -1;
+        const noWrite = logs.every(log => writes.every(sql => log.indexOf(sql) === -1));
+        check(action.label + " is the same 404 for a missing name, a stranger, a non-match, and a block",
+          sample.status === 404 &&
+          sample.json && sample.json.error === "not_found" &&
+          sample.json.message === NOT_FOUND_MESSAGE &&
+          sameBody && sameLogs && lookedUp && noWrite && rowsHeld,
+          bodies.map(res => res.status + " " + res.text).join(" || ").slice(0, 400));
+      }
+      ctx.db.state.blocks = [];
+      ctx.db.state.friendships = [];
+      const self = await request(port, "POST", "/api/friends/requests/ada/accept", {}, bearer("good-a"));
+      check("your own username stays a self error",
+        self.status === 400 && self.json && self.json.error === "self" && self.text !== sample.text,
+        self.status + " " + self.text);
+    });
   } finally {
     await close(server);
   }
@@ -464,7 +556,7 @@ async function main() {
     const window = createWindowLimiter({ limit: 1, windowMs: 60 * 1000 });
     const limited = mount({
       db: limitedDb,
-      limiters: { friendRequests: window.check }
+      limiters: { friendRequests: window.check, friendActions: allowAll }
     });
     const limitedServer = await listen(limited.app);
     const limitedPort = limitedServer.address().port;
@@ -503,6 +595,80 @@ async function main() {
         stopped.status + " " + stopped.text + " rows " + pendingDb.state.friendships.length);
     } finally {
       await close(cappedServer);
+    }
+  });
+
+  await section("accept, decline, cancel, and unfriend share a per-user limit", async () => {
+    const cap = SAFETY_LIMITS.friendActionsPerMinute;
+    check("friend actions are capped at 60 a minute", cap === 60);
+    if (cap !== 60) return;
+    const limitedDb = memoryDb();
+    limitedDb.state.friendships.push({
+      requester_id: USER_A,
+      addressee_id: USER_B,
+      status: "pending"
+    });
+    const limited = mount({
+      db: limitedDb,
+      limiters: createSafetyLimiters()
+    });
+    const limitedServer = await listen(limited.app);
+    const limitedPort = limitedServer.address().port;
+    try {
+      const probes = [
+        ["POST", "/api/friends/requests/nobody_zz/accept"],
+        ["POST", "/api/friends/requests/nobody_zz/decline"],
+        ["POST", "/api/friends/requests/nobody_zz/cancel"],
+        ["DELETE", "/api/friends/nobody_zz"]
+      ];
+      let under = true;
+      let seen = "";
+      for (let i = 0; i < cap - 1; i++) {
+        const spec = probes[i % probes.length];
+        const res = await request(limitedPort, spec[0], spec[1], spec[0] === "POST" ? {} : null, bearer("good-b"));
+        if (!seen) seen = res.text;
+        if (res.status !== 404 || res.text !== seen) under = false;
+      }
+      check("probes under the shared cap stay the not-found reply",
+        under && seen.indexOf(NOT_FOUND_MESSAGE) !== -1,
+        seen.slice(0, 180));
+      const accepted = await request(limitedPort, "POST", "/api/friends/requests/ada/accept", {}, bearer("good-b"));
+      check("the last call under the cap can still accept",
+        accepted.status === 200 && accepted.json && accepted.json.status === "accepted" &&
+        limitedDb.state.friendships[0].status === "accepted",
+        accepted.status + " " + accepted.text);
+      const again = [
+        ["POST", "/api/friends/requests/ada/accept"],
+        ["POST", "/api/friends/requests/ada/decline"],
+        ["POST", "/api/friends/requests/ada/cancel"],
+        ["DELETE", "/api/friends/ada"]
+      ];
+      const stopped = [];
+      for (const spec of again) {
+        stopped.push(await request(limitedPort, spec[0], spec[1], spec[0] === "POST" ? {} : null, bearer("good-b")));
+      }
+      const limitedBody = JSON.stringify({
+        ok: false,
+        error: "rate_limited",
+        message: LIMIT_MESSAGES.friendActions
+      });
+      check("the next call on any of the four is 429 and the friendship stays",
+        stopped.every(res => res.status === 429 && res.text === limitedBody && res.text === stopped[0].text) &&
+        stopped.every(res => Number(res.headers["retry-after"]) > 0) &&
+        limitedDb.state.friendships[0].status === "accepted",
+        stopped.map(res => res.status + " " + res.text).join(" || ").slice(0, 400));
+      const sent = await request(limitedPort, "POST", "/api/friends/requests", { username: "solo_name" }, bearer("good-b"));
+      const still = await request(limitedPort, "POST", "/api/friends/requests/ada/decline", {}, bearer("good-b"));
+      check("sending a request does not spend or refill this bucket",
+        sent.status === 200 && sent.json && sent.json.status === "pending" && still.status === 429,
+        sent.status + " " + sent.text + " / " + still.status);
+      const other = await request(limitedPort, "DELETE", "/api/friends/river_day", null, bearer("good-a"));
+      check("another user's accept, decline, cancel, and unfriend budget is separate",
+        other.status === 200 && other.json && other.json.status === "removed" &&
+        limitedDb.state.friendships.every(item => pairKey(item.requester_id, item.addressee_id) !== pairKey(USER_A, USER_B)),
+        other.status + " " + other.text);
+    } finally {
+      await close(limitedServer);
     }
   });
 

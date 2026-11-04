@@ -1,7 +1,8 @@
-/* Free near-me deck rule on top of the radius slider.
-   The radius applies only while filters.localOnly is on. Then pins farther
-   than filters.radiusMiles drop, and ideas with no place drop too.
-   Local off skips the radius. The slider stores that radius (default 10). */
+/* Near-me deck rule on top of the radius slider.
+   Once a location is set, the 1–50 radius filters even when Local is off.
+   Pins farther than filters.radiusMiles drop, and ideas with no place
+   drop too, so they do not flood the nearby deck. With no fix, Local off
+   still shows the whole catalog. The slider stores that radius (default 10). */
 "use strict";
 
 const radius = require("../public/radius.js");
@@ -42,10 +43,12 @@ section("computeDeck reads the radius already in state", () => {
     t.IDEAS_BY_ID[187].lat === 40.386169 && t.IDEAS_BY_ID[187].lng === -111.604634);
   check("the slider default is the radius in state", t.state.filters.radiusMiles === radius.RADIUS_DEFAULT);
   check("local events start off", t.state.filters.localOnly === false);
+  t.state.filters.localOnly = false;
   t.state.location = { lat: PROVO.lat, lng: PROVO.lng };
   let deck = t.computeDeck();
-  check("local off keeps an idea with no coordinates", deck.remaining.indexOf(2) !== -1);
-  check("local off keeps the far pin", deck.remaining.indexOf(187) !== -1);
+  check("local off drops an idea with no coordinates when a location is set", deck.remaining.indexOf(2) === -1);
+  check("local off drops the far pin when a location is set", deck.remaining.indexOf(187) === -1);
+  check("local off keeps the near pin", deck.remaining.indexOf(1854) !== -1);
   t.state.filters.localOnly = true;
   deck = t.computeDeck();
   check("local on drops an idea with no coordinates", deck.remaining.indexOf(2) === -1);
@@ -55,9 +58,14 @@ section("computeDeck reads the radius already in state", () => {
   check("filters.radiusMiles keeps that pin and still drops the unpinned idea",
     deck.remaining.indexOf(187) !== -1 && deck.remaining.indexOf(2) === -1);
   t.state.location = null;
+  t.state.filters.localOnly = false;
   t.state.filters.radiusMiles = 1;
   deck = t.computeDeck();
-  check("unknown location shows the far pin and still hides the unpinned idea",
+  check("no fix and local off shows the far pin and the unpinned idea",
+    deck.remaining.indexOf(187) !== -1 && deck.remaining.indexOf(2) !== -1);
+  t.state.filters.localOnly = true;
+  deck = t.computeDeck();
+  check("local on with no fix still hides the unpinned idea and shows the far pin",
     deck.remaining.indexOf(187) !== -1 && deck.remaining.indexOf(2) === -1);
 });
 

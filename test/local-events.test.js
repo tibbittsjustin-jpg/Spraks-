@@ -1,6 +1,7 @@
-/* Local events switch. Off (the default) shows every activity and hides
-   the radius. On keeps ideas with a known place inside radiusMiles and
-   drops the rest. The choice is filters.localOnly. */
+/* Local events switch. Off is the default. On keeps ideas with a known
+   place inside radiusMiles. The 1–50 radius also filters when a location
+   is set, even if Local is off. Ideas with no place stay in the deck
+   only when there is no fix and Local is off. */
 "use strict";
 
 const fs = require("fs");
@@ -85,13 +86,17 @@ section("saved filter state migrates localOnly", () => {
     again.state.filters.localOnly === true && again.state.filters.radiusMiles === 12);
 });
 
-section("local on is the only time the radius filters", () => {
+section("the radius filters whenever a location is in use", () => {
   const t = loadApp({});
   t.state.location = { lat: PROVO.lat, lng: PROVO.lng };
   const off = Object.assign({}, t.state.filters, { localOnly: false, radiusMiles: 1 });
-  check("local off keeps a far pin", t.matchesFilters(t.IDEAS_BY_ID[187], off) === true);
-  check("local off keeps an idea with no place", t.matchesFilters(t.IDEAS_BY_ID[2], off) === true);
+  check("local off drops a far pin once a location is set", t.matchesFilters(t.IDEAS_BY_ID[187], off) === false);
+  check("local off drops an idea with no place once a location is set", t.matchesFilters(t.IDEAS_BY_ID[2], off) === false);
   check("local off keeps a near pin", t.matchesFilters(t.IDEAS_BY_ID[1854], off) === true);
+  t.state.location = null;
+  check("with no fix, local off keeps a far pin", t.matchesFilters(t.IDEAS_BY_ID[187], off) === true);
+  check("with no fix, local off keeps an idea with no place", t.matchesFilters(t.IDEAS_BY_ID[2], off) === true);
+  t.state.location = { lat: PROVO.lat, lng: PROVO.lng };
 
   const on = Object.assign({}, t.state.filters, { localOnly: true, radiusMiles: 10 });
   check("local on keeps the Provo pin", t.matchesFilters(t.IDEAS_BY_ID[1854], on) === true);
@@ -119,7 +124,10 @@ section("local on is the only time the radius filters", () => {
   check("local on counts as a filter at 10 miles", t.activeFilterCount(on) === 1);
   check("local on plus a custom radius counts as two",
     t.activeFilterCount(Object.assign({}, on, { radiusMiles: 5 })) === 2);
-  check("local off does not count the radius", t.activeFilterCount(off) === 0);
+  check("a custom radius counts while a location is on, even if local is off", t.activeFilterCount(off) === 1);
+  t.state.location = null;
+  check("with no fix, local off does not count the radius", t.activeFilterCount(off) === 0);
+  t.state.location = { lat: PROVO.lat, lng: PROVO.lng };
   check("the show label uses a thousands separator",
     t.formatShowIdeas(1412) === "Show 1,412 ideas" && t.formatShowIdeas(1) === "Show 1 idea" && t.formatShowIdeas(38) === "Show 38 ideas");
 });
@@ -135,17 +143,24 @@ section("the place line follows the radius label", () => {
   check("clearing the fix returns to Near you", t.nearYouLabel() === "Near you");
 });
 
-section("filters sheet shows the switch and the radius only when local is on", () => {
+section("filters sheet shows the radius when local is on or a location is set", () => {
   const t = loadApp({});
-  t.state.location = PROVO;
+  t.state.location = null;
   t.ui.filterDraft = Object.assign({}, t.state.filters, { localOnly: false, radiusMiles: 10 });
   const off = blob(t.buildWhereGroup());
   check("the where section names Local events", off.indexOf("Where") !== -1 && off.indexOf("Local events") !== -1);
-  check("off subtitle and note",
+  check("off without a fix explains that distance applies once location is on",
     off.indexOf("Off · showing everything") !== -1 &&
-    off.indexOf("All activities show. Turn on to pick a distance.") !== -1);
-  check("off hides How far and leaves the switch unchecked",
+    off.indexOf("All activities show until a location is on. Distance applies once we know where you are.") !== -1);
+  check("off without a fix hides How far and leaves the switch unchecked",
     off.indexOf("how-far") === -1 && off.indexOf("is-on") === -1 && off.indexOf("[unchecked]") !== -1);
+  t.state.location = PROVO;
+  const located = blob(t.buildWhereGroup());
+  check("a fix shows How far while local stays off",
+    located.indexOf("Off · distance still applies") !== -1 &&
+    located.indexOf("how-far") !== -1 && located.indexOf("How far?") !== -1);
+  check("a fix does not claim that every activity is showing",
+    located.indexOf("Off · showing everything") === -1 && located.indexOf("All activities show") === -1);
 
   t.ui.filterDraft = Object.assign({}, t.state.filters, { localOnly: true, radiusMiles: 10 });
   const on = blob(t.buildWhereGroup());
@@ -159,16 +174,22 @@ section("filters sheet shows the switch and the radius only when local is on", (
   check("the how far place line is in the panel", on.indexOf("how-far-place") !== -1);
 });
 
-section("discover hides the slider until local is on", () => {
+section("discover shows the slider when the radius filters", () => {
   const t = loadApp({});
-  t.state.location = PROVO;
+  t.state.location = null;
   t.state.filters.localOnly = false;
   t.state.filters.radiusMiles = 10;
+  const nowhere = blob(t.buildDiscoverScreen());
+  check("no fix and local off hides the discover slider and the pill",
+    nowhere.indexOf("radius-row") === -1 && nowhere.indexOf("local-pill") === -1);
+  check("the result line stays ideas", nowhere.indexOf(" ideas") !== -1 && nowhere.indexOf("nearby ideas") === -1);
+  t.state.location = PROVO;
   const off = blob(t.buildDiscoverScreen());
-  check("local off hides the discover slider and the pill",
-    off.indexOf("radius-row") === -1 && off.indexOf("local-pill") === -1);
-  check("local off does not count on the Filters button", off.indexOf('class="badge"') === -1);
-  check("the result line stays ideas", off.indexOf(" ideas") !== -1 && off.indexOf("nearby ideas") === -1);
+  check("a fix shows the slider and still hides the local pill",
+    off.indexOf("radius-row") !== -1 && off.indexOf("local-pill") === -1);
+  check("the default radius is not a Filters badge", off.indexOf('class="badge"') === -1);
+  check("the result line counts nearby ideas", off.indexOf("nearby ideas") !== -1);
+  check("Use my exact location is visible", off.indexOf("Use my exact location") !== -1);
 
   t.state.filters.localOnly = true;
   const on = blob(t.buildDiscoverScreen());

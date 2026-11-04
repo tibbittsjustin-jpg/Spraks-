@@ -687,6 +687,7 @@ function main() {
         ["Event info from Midway City (midwaycityut.gov).", "midwaycityut.gov", "https://www.midwaycityut.gov/"],
         ["Event info from Salt Lake Acting Company (saltlakeactingcompany.org).", "saltlakeactingcompany.org", "https://saltlakeactingcompany.org/"],
         ["Event info from Plan-B Theatre (planbtheatre.org).", "planbtheatre.org", "https://planbtheatre.org/"],
+        ["Event info from Greater Zion (events.greaterzion.com).", "events.greaterzion.com", "https://events.greaterzion.com/"],
       ];
       const discoveryAt = res.body.indexOf("<h2>Discovery only</h2>");
       const eventsHtml = eventsAt === -1 || discoveryAt === -1 ? "" : res.body.slice(eventsAt, discoveryAt);
@@ -739,10 +740,31 @@ function main() {
           lowerItem.indexOf("official") === -1 &&
           lowerItem.indexOf("<img") === -1);
       });
-      check("greaterzion is absent from /sources",
-        res.body.toLowerCase().indexOf("greaterzion") === -1);
+      const greaterZion = EVENT_INFO_LINES[33];
+      check("Greater Zion appears once with an https href on events.greaterzion.com",
+        occurrences(bodyText, greaterZion[0]) === 1 &&
+        eventsText.indexOf(greaterZion[0]) > eventsText.indexOf("Event info from Plan-B Theatre (planbtheatre.org).") &&
+        /href="https:\/\/(?:www\.)?events\.greaterzion\.com\//.test(eventsHtml));
       check("SLCC is absent from /sources",
         res.body.indexOf("SLCC") === -1);
+      const BLM_PERMIT = "Permit information from the U.S. Bureau of Land Management outfitter list. BLM does not endorse or promote any permittee.";
+      const blmHeadingAt = bodyText.indexOf("Bureau of Land Management (BLM)");
+      const blmPageAt = bodyText.indexOf(BLM_PAGE);
+      const permitAt = bodyText.indexOf(BLM_PERMIT);
+      const permitHtmlAt = res.body.indexOf(BLM_PERMIT);
+      const permitStart = res.body.lastIndexOf("<p", permitHtmlAt);
+      const permitEnd = res.body.indexOf("</p>", permitHtmlAt);
+      const permitBlock = permitStart >= 0 && permitEnd > permitHtmlAt ? res.body.slice(permitStart, permitEnd + 4) : "";
+      check("the BLM permit paragraph appears once in the BLM section before Event listings",
+        occurrences(bodyText, BLM_PERMIT) === 1 &&
+        blmHeadingAt !== -1 &&
+        blmPageAt > blmHeadingAt &&
+        permitAt > blmPageAt &&
+        eventsTextAt > permitAt);
+      check("the BLM permit paragraph has no img",
+        permitBlock.length > 0 &&
+        permitBlock.toLowerCase().indexOf("<img") === -1 &&
+        visibleText(permitBlock) === BLM_PERMIT);
       const springville = EVENT_INFO_LINES[11];
       check("Springville Museum of Art appears once with an https href on smofa.org",
         occurrences(bodyText, springville[0]) === 1 &&

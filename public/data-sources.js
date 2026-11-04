@@ -85,6 +85,7 @@
   var BLM_CREDIT = "via Bureau of Land Management";
   var BLM_PAGE = "Bureau of Land Management (BLM). Recreation site information from the BLM National Recreation Sites and Facilities map service (compiled by BLM from Recreation.gov's Recreation Information Database), https://www.blm.gov/programs/recreation. U.S. Government work. No claim to original U.S. Government works. Use of this data does not imply endorsement by the BLM or the U.S. Department of the Interior.";
   var BLM_RECREATION = "https://www.blm.gov/programs/recreation";
+  var BLM_PERMIT_PAGE = "Permit information from the U.S. Bureau of Land Management outfitter list. BLM does not endorse or promote any permittee.";
   // Sources page only. No source_key and no per-card line. The Utah GNIS
   // Place Names credit (ugrc_gnis) stays as it is.
   var USGS_GNIS_LEAD = "USGS GNIS.";
@@ -636,6 +637,7 @@
     { line: "Event info from Midway City (midwaycityut.gov).", domain: "midwaycityut.gov", href: "https://www.midwaycityut.gov/" },
     { line: "Event info from Salt Lake Acting Company (saltlakeactingcompany.org).", domain: "saltlakeactingcompany.org", href: "https://saltlakeactingcompany.org/" },
     { line: "Event info from Plan-B Theatre (planbtheatre.org).", domain: "planbtheatre.org", href: "https://planbtheatre.org/" },
+    { line: "Event info from Greater Zion (events.greaterzion.com).", domain: "events.greaterzion.com", href: "https://events.greaterzion.com/" },
   ];
 
   function eventInfoList(lines) {
@@ -711,6 +713,7 @@
     html.push("<h2>Bureau of Land Management (BLM)</h2>");
     html.push(creditList([BLM_SOURCE]));
     html.push(paragraphPhrases(BLM_PAGE, BLM_SOURCE.pagePhrases));
+    html.push(paragraph(BLM_PERMIT_PAGE));
     html.push(paragraphBoldLead(USGS_GNIS_PAGE, USGS_GNIS_LEAD, [
       { text: USGS_GNIS_URL, href: USGS_GNIS_URL }
     ]));

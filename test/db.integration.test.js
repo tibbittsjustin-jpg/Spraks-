@@ -9,6 +9,7 @@ const path = require("path");
 const { Pool } = require("pg");
 const filters = require("../shared/filters");
 const costBands = require("../public/cost-bands");
+const timeWindows = require("../public/time-windows");
 const { migrate } = require("../db/migrate");
 const { seed, loadIdeas } = require("../db/seed");
 const { closePool, poolConfig } = require("../db");
@@ -54,7 +55,7 @@ function postJson(port, urlPath, payload) {
 function matchesFilters(idea, f) {
   if (f.duration.length && f.duration.indexOf(idea.duration) === -1) return false;
   if (f.cost.length && !costBands.costMatches(idea.cost, f.cost)) return false;
-  if (f.time.length && !idea.time.some(function (t) { return f.time.indexOf(t) !== -1; })) return false;
+  if (f.time.length && !timeWindows.timeMatches(idea, f.time)) return false;
   if (f.setting.length) {
     var ok = idea.setting === "Both" || f.setting.indexOf(idea.setting) !== -1;
     if (!ok) return false;

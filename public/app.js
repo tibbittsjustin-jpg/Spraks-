@@ -41,7 +41,7 @@
   var FILTER_DEFS = [
     { key:"duration", label:"Date Length", options:["Quick (under 1 hr)","Short (1-2 hrs)","Half-day (2-5 hrs)","Full day","Overnight"] },
     { key:"cost",     label:"Budget",      options:["Free","$1-$20","$21-$40","$41-$60","$61-$80","$81-$100","Over $100"] },
-    { key:"time",     label:"Time of Day", options:["Morning","Afternoon","Evening","Night"] },
+    { key:"time",     label:"Time of Day", options:SparkTimeWindows.TIME_WINDOWS.slice() },
     { key:"setting",  label:"Indoor / Outdoor", options:["Indoor","Outdoor"] },
     { key:"vibe",     label:"Vibe",        options:["Chill","Romantic","Active","Adventurous","Creative","Silly","Cozy","Spontaneous"] },
     { key:"season",   label:"Season",      options:["Spring","Summer","Fall","Winter"] },
@@ -289,6 +289,7 @@
   var pendingDoneNormalize = false;
   var pendingPinSave = false;
   var pendingLikeSave = false;
+  var pendingTimeFilterSave = false;
   var state = loadState();
 
   function loadState(){
@@ -306,6 +307,13 @@
       parsed.filters.radiusMiles = SparkRadius.clampRadiusMiles(parsed.filters.radiusMiles);
       // Older saves have no Local events switch. Only an explicit true turns it on.
       parsed.filters.localOnly = parsed.filters.localOnly === true;
+      // Morning / Afternoon / Evening / Night buttons become the five windows.
+      // A Morning save selects Morning and Midday. New slugs are left as they are.
+      var migratedTime = SparkTimeWindows.migrateFilterSelection(parsed.filters.time);
+      if(migratedTime.changed){
+        parsed.filters.time = migratedTime.values;
+        pendingTimeFilterSave = true;
+      }
       // A saved fix from an older build is {lat, lng, grantedAt} with no mode.
       // Keep it only as a stale stand-in. Exact mode is remembered only when
       // this device already stored that choice. Bad data becomes no fix.
@@ -545,12 +553,13 @@
   }
 
   rehydrateRealIdeas();
-  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave || pendingLikeSave){
+  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave || pendingLikeSave || pendingTimeFilterSave){
     pendingDobScrub = false;
     pendingIdentitySave = false;
     pendingDoneNormalize = false;
     pendingPinSave = false;
     pendingLikeSave = false;
+    pendingTimeFilterSave = false;
     saveState();
   }
 
@@ -844,7 +853,7 @@
   // every existing code path (filters, saving, plans, Done, sharing) untouched.
   function hydrateRealIdea(raw, filters){
     var ALL_SEASONS = ["Spring","Summer","Fall","Winter"];
-    var ALL_TIMES = ["Morning","Afternoon","Evening","Night"];
+    var ALL_TIMES = SparkTimeWindows.TIME_WINDOWS.slice();
     var ALL_STAGES = ["First Date","Second/Third Date","Serious Relationship"];
     var ALL_DATETYPES = ["Solo/Couple","Double Date","Group Date"];
     var stableKey = stableKeyForReal(raw);
@@ -2392,7 +2401,7 @@
   function matchesFilters(idea, f){
     if(f.duration.length && f.duration.indexOf(idea.duration) === -1) return false;
     if(f.cost.length && !SparkCostBands.costMatches(idea.cost, f.cost)) return false;
-    if(f.time.length && !idea.time.some(function(t){ return f.time.indexOf(t) !== -1; })) return false;
+    if(f.time.length && !SparkTimeWindows.timeMatches(idea, f.time)) return false;
     if(f.setting.length){
       var ok = idea.setting === "Both" || f.setting.indexOf(idea.setting) !== -1;
       if(!ok) return false;
@@ -3668,6 +3677,17 @@
     return group;
   }
 
+  function timeWindowChip(id){
+    var parts = SparkTimeWindows.displayParts(id);
+    var chip = el("button", "chip chip-time",
+      '<span class="chip-time-word">' + escapeHtml(parts.word) + "</span>" +
+      '<span class="chip-time-hours">' + escapeHtml(parts.hours) + "</span>");
+    chip.type = "button";
+    chip.setAttribute("data-value", id);
+    chip.setAttribute("aria-label", SparkTimeWindows.displayLabel(id));
+    return chip;
+  }
+
   function renderFilterBody(){
     var body = $("#filter-body");
     var scroll = body.scrollTop || 0;
@@ -3679,9 +3699,13 @@
       group.appendChild(el("div", "filter-group-title", def.label));
       var chipWrap = el("div", "chip-select");
       def.options.forEach(function(opt){
-        var shown = def.key === "cost" ? SparkCostBands.displayLabel(opt) : opt;
-        var chip = el("button", "chip", escapeHtml(shown));
-        chip.type = "button";
+        var chip;
+        if(def.key === "time") chip = timeWindowChip(opt);
+        else {
+          var shown = def.key === "cost" ? SparkCostBands.displayLabel(opt) : opt;
+          chip = el("button", "chip", escapeHtml(shown));
+          chip.type = "button";
+        }
         if(ui.filterDraft[def.key].indexOf(opt) !== -1) chip.classList.add("selected");
         chip.addEventListener("click", function(){
           var arr = ui.filterDraft[def.key];
@@ -3924,7 +3948,7 @@
     }
 
     var tagGrid = el("div", "tag-grid");
-    var tags = [idea.duration, displayCost(idea), idea.setting].concat(idea.time || [], idea.vibe || [], idea.season || [], idea.stage || []);
+    var tags = [idea.duration, displayCost(idea), idea.setting].concat(SparkTimeWindows.labelsForActivity(idea), idea.vibe || [], idea.season || [], idea.stage || []);
     if(idea.food) tags.push("Food involved");
     tags.forEach(function(t){
       if(t == null || t === "") return;
@@ -6310,9 +6334,11 @@
     wrap.setAttribute("data-field", field);
     var def = filterDef(field);
     (def ? def.options : []).forEach(function(option){
-      var chip = el("button", "chip", escapeHtml(option));
-      chip.type = "button";
-      chip.setAttribute("data-value", option);
+      var chip = field === "time" ? timeWindowChip(option) : el("button", "chip", escapeHtml(option));
+      if(field !== "time"){
+        chip.type = "button";
+        chip.setAttribute("data-value", option);
+      }
       chip.addEventListener("click", function(){ chip.classList.toggle("selected"); });
       wrap.appendChild(chip);
     });

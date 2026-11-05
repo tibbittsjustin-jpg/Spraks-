@@ -9,6 +9,7 @@
 
 const filters = require("../shared/filters");
 const costBands = require("../public/cost-bands");
+const timeWindows = require("../public/time-windows");
 
 const METERS_PER_MILE = 1609.344;
 const MAX_RADIUS_MILES = 100;
@@ -194,6 +195,18 @@ function sharedFilters(params) {
   Object.keys(OVERLAP_FIELDS).forEach(key => {
     const list = splitList(params[key]);
     if (!list.length) return;
+    if (key === "time") {
+      // Chips are the five windows. An old URL or saved name (Morning,
+      // Afternoon, Evening, Night) expands to those windows first.
+      // Dated rows with a start clock are matched on that hour. Everyone
+      // else overlaps the stored tags that can fall in the windows.
+      const resolved = timeWindows.selectionFromQuery(list);
+      if (resolved.invalid || !resolved.windows.length) throw invalidFilter("time");
+      const pred = timeWindows.sqlPredicate(resolved.windows, values.length + 1);
+      pred.values.forEach(value => values.push(value));
+      where.push(pred.sql);
+      return;
+    }
     assertAllowed(key, list, filters[key]);
     values.push(list);
     where.push(OVERLAP_FIELDS[key] + " && $" + values.length + "::text[]");

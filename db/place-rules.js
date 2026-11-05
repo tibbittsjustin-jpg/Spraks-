@@ -122,6 +122,11 @@ function valueSet(key) {
   if (!list) return null;
   const set = new Set();
   list.forEach(value => set.add(String(value)));
+  // Rules still emit Morning / Afternoon / Evening / Night. The filter
+  // buttons are the new slugs. Both are legal stored values.
+  if (key === "time" && Array.isArray(filters.legacyTime)) {
+    filters.legacyTime.forEach(value => set.add(String(value)));
+  }
   return set;
 }
 

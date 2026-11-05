@@ -746,6 +746,21 @@ padding:8px 13px; border-radius:16px; background:var(--surface); font-size:12.5p
 border:1.5px solid var(--border); font-family:inherit;
 }
 .chip-select .chip.selected{ background:var(--accent); color:var(--color-on-accent); border-color:transparent; }
+/* Time windows use the same chip as budget. The word sits on one line and
+   the hours sit under it, small, so "Late Night" and "9 PM–1 AM" do not
+   wrap inside a phone-width filter sheet. */
+.chip-select .chip.chip-time{
+  display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:1px; line-height:1.15; padding:6px 11px; text-align:center; white-space:nowrap;
+}
+.chip-select .chip.chip-time .chip-time-word{
+  display:block; font-size:12.5px; font-weight:800; white-space:nowrap;
+}
+.chip-select .chip.chip-time .chip-time-hours{
+  display:block; font-size:10px; font-weight:700; letter-spacing:.01em; white-space:nowrap;
+  color:var(--text-soft);
+}
+.chip-select .chip.chip-time.selected .chip-time-hours{ color:inherit; }
 
 /* filter overlay */
 .filter-sheet{ height:82%; }

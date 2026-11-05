@@ -450,6 +450,24 @@ const NOV5Z_EVENT_INFO_LINES = [
   ["Event info from The Scratch Pad (www.climbthescratchpad.com).", "www.climbthescratchpad.com", "https://www.climbthescratchpad.com/"],
   ["Event info from The Westerner (westernerslc.com).", "westernerslc.com", "https://westernerslc.com/"]
 ];
+const NOV5AA_EVENT_INFO_LINES = [
+  ["Event info from CUMC Holiday Boutique (www.cumcholidayboutique.com).", "www.cumcholidayboutique.com", "https://www.cumcholidayboutique.com/"],
+  ["Event info from Chamber Music Society of SLC (cmsofslc.org).", "cmsofslc.org", "https://cmsofslc.org/"],
+  ["Event info from Earn Your Turkey Run (earnyourturkey.com).", "earnyourturkey.com", "https://earnyourturkey.com/"],
+  ["Event info from Great Salt Lake Audubon (greatsaltlakeaudubon.org).", "greatsaltlakeaudubon.org", "https://greatsaltlakeaudubon.org/"],
+  ["Event info from NOVA Chamber Music (www.novaslc.org).", "www.novaslc.org", "https://www.novaslc.org/"],
+  ["Event info from Park City Treble Makers (parkcitytreblemakers.org).", "parkcitytreblemakers.org", "https://parkcitytreblemakers.org/"],
+  ["Event info from Red Cliffs Audubon (www.redcliffsaudubon.org).", "www.redcliffsaudubon.org", "https://www.redcliffsaudubon.org/"],
+  ["Event info from Runtastic (runtasticevents.com).", "runtasticevents.com", "https://runtasticevents.com/"],
+  ["Event info from Shepherd of the Hills UMC (shumcstgeorge.com).", "shumcstgeorge.com", "https://shumcstgeorge.com/"],
+  ["Event info from Sonrise Christian Church (sonrisechurch.net).", "sonrisechurch.net", "https://sonrisechurch.net/"],
+  ["Event info from Speak For Yourself Open Mic (speakforyourselfopenmic.wordpress.com).", "speakforyourselfopenmic.wordpress.com", "https://speakforyourselfopenmic.wordpress.com/"],
+  ["Event info from Square Talk Utah (utsquaredance.org).", "utsquaredance.org", "https://utsquaredance.org/"],
+  ["Event info from The Bayou (www.utahbayou.com).", "www.utahbayou.com", "https://www.utahbayou.com/"],
+  ["Event info from The L.A.B. (www.thelabutah.com).", "www.thelabutah.com", "https://www.thelabutah.com/"],
+  ["Event info from Wasatch Trails Foundation (www.wasatchtrails.org).", "www.wasatchtrails.org", "https://www.wasatchtrails.org/"],
+  ["Event info from Utah Global Diplomacy (www.utahglobaldiplomacy.org).", "www.utahglobaldiplomacy.org", "https://www.utahglobaldiplomacy.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1974,6 +1992,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5zPrevious !== -1 && lineAt > nov5zPrevious);
         nov5zPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5aaPrevious = eventsText.indexOf("Event info from The Westerner (westernerslc.com).");
+      check("nov5aa checks 16 verbatim event-info lines", NOV5AA_EVENT_INFO_LINES.length === 16);
+      NOV5AA_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5aaPrevious !== -1 && lineAt > nov5aaPrevious);
+        nov5aaPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

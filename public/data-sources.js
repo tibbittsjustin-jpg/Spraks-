@@ -672,6 +672,7 @@
     { line: "Event info from Sip and Vibe SLC (sipandvibeslc.com).", domain: "sipandvibeslc.com", href: "https://sipandvibeslc.com/" },
     { line: "Event info from ComedyBox Utah (comedyboxutah.com).", domain: "comedyboxutah.com", href: "https://comedyboxutah.com/" },
     { line: "Event info from Home Range Brewing (homerangebeer.com).", domain: "homerangebeer.com", href: "https://homerangebeer.com/" },
+    { line: "Event info from Moab Arts (moabarts.org).", domain: "moabarts.org", href: "https://moabarts.org/" },
   ];
 
   function eventInfoList(lines) {

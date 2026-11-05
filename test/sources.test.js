@@ -82,7 +82,8 @@ const NOV4O_EVENT_INFO_LINES = [
   ["Event info from The Painted Peacock (thepaintedpeacock.art).", "thepaintedpeacock.art", "https://thepaintedpeacock.art/"],
   ["Event info from Sip and Vibe SLC (sipandvibeslc.com).", "sipandvibeslc.com", "https://sipandvibeslc.com/"],
   ["Event info from ComedyBox Utah (comedyboxutah.com).", "comedyboxutah.com", "https://comedyboxutah.com/"],
-  ["Event info from Home Range Brewing (homerangebeer.com).", "homerangebeer.com", "https://homerangebeer.com/"]
+  ["Event info from Home Range Brewing (homerangebeer.com).", "homerangebeer.com", "https://homerangebeer.com/"],
+  ["Event info from Moab Arts (moabarts.org).", "moabarts.org", "https://moabarts.org/"]
 ];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
@@ -880,6 +881,7 @@ function main() {
         nov4mPrevious = lineAt;
       });
       let nov4oPrevious = eventsText.indexOf("Event info from Alpine City (alpineut.gov).");
+      check("nov4o checks 7 verbatim event-info lines", NOV4O_EVENT_INFO_LINES.length === 7);
       NOV4O_EVENT_INFO_LINES.forEach(function (row) {
         const line = row[0];
         const domain = row[1];

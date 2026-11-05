@@ -85,6 +85,51 @@ const NOV4O_EVENT_INFO_LINES = [
   ["Event info from Home Range Brewing (homerangebeer.com).", "homerangebeer.com", "https://homerangebeer.com/"],
   ["Event info from Moab Arts (moabarts.org).", "moabarts.org", "https://moabarts.org/"]
 ];
+const NOV5ABC_NOV4E_EVENT_INFO_LINES = [
+  ["Event info from Visit Beaver County (visitbeavercountyut.com).", "visitbeavercountyut.com", "https://visitbeavercountyut.com/"],
+  ["Event info from Milford City (www.milfordcityutah.com).", "www.milfordcityutah.com", "https://www.milfordcityutah.com/"],
+  ["Event info from Minersville Town (minersvilleut.gov).", "minersvilleut.gov", "https://minersvilleut.gov/"],
+  ["Event info from Tremonton City (tremontoncity.lib.utah.gov).", "tremontoncity.lib.utah.gov", "https://tremontoncity.lib.utah.gov/"],
+  ["Event info from Heritage Theatre Utah (www.heritagetheatreutah.com).", "www.heritagetheatreutah.com", "https://www.heritagetheatreutah.com/"],
+  ["Event info from Utah State Parks (stateparks.utah.gov).", "stateparks.utah.gov", "https://stateparks.utah.gov/"],
+  ["Event info from Panguitch City (panguitchutah.gov).", "panguitchutah.gov", "https://panguitchutah.gov/"],
+  ["Event info from Cedar Valley Community Theatre (www.cvct.online).", "www.cvct.online", "https://www.cvct.online/"],
+  ["Event info from Tooele Valley Theatre (www.tooelevalleytheatre.org).", "www.tooelevalleytheatre.org", "https://www.tooelevalleytheatre.org/"],
+  ["Event info from Timpanogos Valley Theatre (timpvalleytheatre.com).", "timpvalleytheatre.com", "https://timpvalleytheatre.com/"],
+  ["Event info from Once Upon a Time in America Museum (www.onceuponatimeinamericamuseum.com).", "www.onceuponatimeinamericamuseum.com", "https://www.onceuponatimeinamericamuseum.com/"],
+  ["Event info from Bountiful Main Street (bountifulmainstreet.com).", "bountifulmainstreet.com", "https://bountifulmainstreet.com/"],
+  ["Event info from Sevier Valley Center (richfield.snow.edu).", "richfield.snow.edu", "https://richfield.snow.edu/"],
+  ["Event info from Richfield Area Chamber (richfieldareachamber.com).", "richfieldareachamber.com", "https://richfieldareachamber.com/"],
+  ["Event info from Wild Peak Events (www.wildpeakevents.com).", "www.wildpeakevents.com", "https://www.wildpeakevents.com/"],
+  ["Event info from Visit Emery County (visitemerycounty.com).", "visitemerycounty.com", "https://visitemerycounty.com/"],
+  ["Event info from Emery County (emery.utah.gov).", "emery.utah.gov", "https://emery.utah.gov/"],
+  ["Event info from Helper City (www.helpercity.gov).", "www.helpercity.gov", "https://www.helpercity.gov/"],
+  ["Event info from Castle Dale City (www.visitcastledale.com).", "www.visitcastledale.com", "https://www.visitcastledale.com/"],
+  ["Event info from Emery County Library System (lib.emerycounty.com).", "lib.emerycounty.com", "https://lib.emerycounty.com/"],
+  ["Event info from Fairview Museum (www.fairviewmuseum.org).", "www.fairviewmuseum.org", "https://www.fairviewmuseum.org/"],
+  ["Event info from Vernal Theatre (vernaltheatre.com).", "vernaltheatre.com", "https://vernaltheatre.com/"],
+  ["Event info from Loa Town (loautah.gov).", "loautah.gov", "https://loautah.gov/"],
+  ["Event info from Wayne County Fair (waynecountyutahfair.com).", "waynecountyutahfair.com", "https://waynecountyutahfair.com/"],
+  ["Event info from Casino Star Theatre (www.casinostartheatre.com).", "www.casinostartheatre.com", "https://www.casinostartheatre.com/"],
+  ["Event info from Juab County Fair (juabcountyfair.com).", "juabcountyfair.com", "https://juabcountyfair.com/"],
+  ["Event info from Vernal Community Events (thisisvernal.trumba.com).", "thisisvernal.trumba.com", "https://thisisvernal.trumba.com/"],
+  ["Event info from Museum of Uintah County (themuc.org).", "themuc.org", "https://themuc.org/"],
+  ["Event info from Vernal Holly Days (www.communityhollydays.com).", "www.communityhollydays.com", "https://www.communityhollydays.com/"],
+  ["Event info from Duchesne County Library (duchesnecounty.librarycalendar.com).", "duchesnecounty.librarycalendar.com", "https://duchesnecounty.librarycalendar.com/"],
+  ["Event info from Daggett County (www.daggettcounty.gov).", "www.daggettcounty.gov", "https://www.daggettcounty.gov/"],
+  ["Event info from Flaming Gorge Chamber (www.flaminggorge.com).", "www.flaminggorge.com", "https://www.flaminggorge.com/"],
+  ["Event info from Morgan County Library (morgancounty.lib.utah.gov).", "morgancounty.lib.utah.gov", "https://morgancounty.lib.utah.gov/"],
+  ["Event info from Bear Lake Valley CVB (bearlake.org).", "bearlake.org", "https://bearlake.org/"],
+  ["Event info from Rich County (www.richcounty.gov).", "www.richcounty.gov", "https://www.richcounty.gov/"],
+  ["Event info from Torrey Town (www.torreyutah.gov).", "www.torreyutah.gov", "https://www.torreyutah.gov/"],
+  ["Event info from Marysvale Chamber (www.marysvaleutah.org).", "www.marysvaleutah.org", "https://www.marysvaleutah.org/"],
+  ["Event info from Paiute ATV Jamboree (www.paiute-jam.com).", "www.paiute-jam.com", "https://www.paiute-jam.com/"],
+  ["Event info from Uintah County Western Park (www.westernpark.org).", "www.westernpark.org", "https://www.westernpark.org/"],
+  ["Event info from Escalante City (escalanteutah.gov).", "escalanteutah.gov", "https://escalanteutah.gov/"],
+  ["Event info from Morgan County Fair (www.morgancountyfair.org).", "www.morgancountyfair.org", "https://www.morgancountyfair.org/"],
+  ["Event info from Stellar Vista Observatory (stellarvistaobservatory.org).", "stellarvistaobservatory.org", "https://stellarvistaobservatory.org/public-star-parties/"],
+  ["Event info from Cache Valley Astronomical Society (cvas-utahskies.org).", "cvas-utahskies.org", "https://cvas-utahskies.org/events/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -905,6 +950,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov4oPrevious !== -1 && lineAt > nov4oPrevious);
         nov4oPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5abcPrevious = eventsText.indexOf("Event info from Moab Arts (moabarts.org).");
+      check("nov5abc+nov4e checks 43 verbatim event-info lines", NOV5ABC_NOV4E_EVENT_INFO_LINES.length === 43);
+      NOV5ABC_NOV4E_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5abcPrevious !== -1 && lineAt > nov5abcPrevious);
+        nov5abcPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

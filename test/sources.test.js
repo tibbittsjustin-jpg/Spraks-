@@ -68,6 +68,13 @@ const NOV4K_EVENT_INFO_LINES = [
   "Event info from Ogden Twilight (ogdentwilight.com).",
   "Event info from Loveland Living Planet Aquarium (livingplanetaquarium.org)."
 ];
+const NOV4M_EVENT_INFO_LINES = [
+  "Event info from Roosevelt City (rooseveltcity.gov).",
+  "Event info from Utah Division of Outdoor Recreation (recreation.utah.gov).",
+  "Event info from Clinton City (clinton.utah.gov).",
+  "Event info from HawkWatch International (hawkwatch.org).",
+  "Event info from Alpine City (alpineut.gov)."
+];
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
 const NOT_AFFILIATED = "Jaderoo is not affiliated with or endorsed by any of these sources.";
@@ -842,6 +849,25 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov4kPrevious !== -1 && lineAt > nov4kPrevious);
         nov4kPrevious = lineAt;
+      });
+      let nov4mPrevious = eventsText.indexOf("Event info from Loveland Living Planet Aquarium (livingplanetaquarium.org).");
+      NOV4M_EVENT_INFO_LINES.forEach(function (line) {
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov4mPrevious !== -1 && lineAt > nov4mPrevious);
+        nov4mPrevious = lineAt;
       });
       const sourcesLower = res.body.toLowerCase();
       check("Moab Area Chamber is absent from /sources",

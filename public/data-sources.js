@@ -661,6 +661,11 @@
     { line: "Event info from Park Silly Sunday Market (parksillysundaymarket.com).", domain: "parksillysundaymarket.com", href: "https://parksillysundaymarket.com/" },
     { line: "Event info from Ogden Twilight (ogdentwilight.com).", domain: "ogdentwilight.com", href: "https://www.ogdentwilight.com/" },
     { line: "Event info from Loveland Living Planet Aquarium (livingplanetaquarium.org).", domain: "livingplanetaquarium.org", href: "https://livingplanetaquarium.org/" },
+    { line: "Event info from Roosevelt City (rooseveltcity.gov).", domain: "rooseveltcity.gov", href: "https://rooseveltcity.gov/" },
+    { line: "Event info from Utah Division of Outdoor Recreation (recreation.utah.gov).", domain: "recreation.utah.gov", href: "https://recreation.utah.gov/" },
+    { line: "Event info from Clinton City (clinton.utah.gov).", domain: "clinton.utah.gov", href: "https://clinton.utah.gov/" },
+    { line: "Event info from HawkWatch International (hawkwatch.org).", domain: "hawkwatch.org", href: "https://hawkwatch.org/" },
+    { line: "Event info from Alpine City (alpineut.gov).", domain: "alpineut.gov", href: "https://alpineut.gov/" },
   ];
 
   function eventInfoList(lines) {

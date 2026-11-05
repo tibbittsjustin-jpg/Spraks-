@@ -52,7 +52,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Morning",
@@ -405,7 +405,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$21-$40",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Afternoon",
@@ -488,7 +488,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$20-$30",
+  "cost": "$1-$20",
   "duration": "Half-day (2-5 hrs)",
   "time": [
    "Evening",
@@ -611,7 +611,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Quick (under 1 hr)",
   "time": [
    "Afternoon",
@@ -652,7 +652,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$1-$10",
+  "cost": "$1-$20",
   "duration": "Quick (under 1 hr)",
   "time": [
    "Afternoon",
@@ -693,7 +693,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Afternoon",
@@ -732,7 +732,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$1-$20",
   "duration": "Quick (under 1 hr)",
   "time": [
    "Evening",
@@ -777,7 +777,8 @@
   ],
   "occurrences_flag": false,
   "expires_at": "2027-01-01",
-  "status": "pending"
+  "status": "pending",
+  "cost_unit": "per car"
  },
  {
   "title": "Walk Luminaria at Thanksgiving Point",
@@ -787,7 +788,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$21-$40",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening",
@@ -1062,7 +1063,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$61-$80",
   "duration": "Half-day (2-5 hrs)",
   "time": [
    "Evening",
@@ -1139,7 +1140,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$61-$80",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Night"
@@ -1625,7 +1626,7 @@
    "Fall",
    "Winter"
   ],
-  "cost": "$100 and under",
+  "cost": "$61-$80",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -1791,7 +1792,7 @@
   "season": [
    "Winter"
   ],
-  "cost": "$20-$30",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"
@@ -2038,7 +2039,7 @@
   "season": [
    "Fall"
   ],
-  "cost": "$100 and under",
+  "cost": "$1-$20",
   "duration": "Short (1-2 hrs)",
   "time": [
    "Evening"

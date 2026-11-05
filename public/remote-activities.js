@@ -16,11 +16,13 @@
 })(this, function () {
   "use strict";
 
+  // 6: cached ideas carry costUnit. Budget labels are the $20 bands.
+  // A version 5 cache has no costUnit, so it is not reused.
   // 5: saved lists also cache catalog rows fetched by id. Those rows keep
   // the numeric id the list stored. A version 4 cache was pages only.
   // 4: pages are a cursor, not an offset dump.
   // 3 added source_key and source_credit.
-  var API_VERSION = "5";
+  var API_VERSION = "6";
   var CATALOG_BUCKET = "catalog-ids";
   var ID_BATCH = 200;
   var CACHE_TTL_MS = 6 * 60 * 60 * 1000;
@@ -139,6 +141,15 @@
     return key;
   }
 
+  function costBandsApi() {
+    if (typeof SparkCostBands !== "undefined" && SparkCostBands) return SparkCostBands;
+    return require("./cost-bands");
+  }
+
+  function cleanCostUnit(value) {
+    return value === "per car" ? "per car" : null;
+  }
+
   function cleanSourceCredit(value) {
     if (typeof value !== "string") return null;
     var text = value.replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim();
@@ -176,7 +187,9 @@
       season: textList(row.season),
       food: row.food === true,
       age21: row.age21 === true,
-      cost: typeof row.cost === "string" ? row.cost : "",
+      cost: costBandsApi().storedLabel(typeof row.cost === "string" ? row.cost : ""),
+      costUnit: cleanCostUnit(row.cost_unit != null ? row.cost_unit : row.costUnit),
+      cost_unit: cleanCostUnit(row.cost_unit != null ? row.cost_unit : row.costUnit),
       duration: typeof row.duration === "string" ? row.duration : "",
       time: textList(row.time),
       vibe: textList(row.vibe),

@@ -144,6 +144,10 @@ async function main() {
     check("pin and distance are copied from distance_miles",
       idea.lat === 40.24 && idea.lng === -111.66 && idea.distanceMiles === 4.5);
     check("device fields are not copied", idea.deviceId == null && idea.localId == null);
+    const legacy = remote.mapActivityToIdea(row(100003, { cost: "$20-$30", cost_unit: "per car" }));
+    check("a legacy cost is stored as written", legacy && legacy.cost === "$20-$30");
+    check("cost unit is copied for the card",
+      legacy && legacy.costUnit === "per car" && legacy.cost_unit === "per car");
 
     const hidden = remote.mapActivityToIdea(row(100002, {
       title: "Secret page",

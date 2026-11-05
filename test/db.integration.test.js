@@ -8,6 +8,7 @@ const os = require("os");
 const path = require("path");
 const { Pool } = require("pg");
 const filters = require("../shared/filters");
+const costBands = require("../public/cost-bands");
 const { migrate } = require("../db/migrate");
 const { seed, loadIdeas } = require("../db/seed");
 const { closePool, poolConfig } = require("../db");
@@ -52,7 +53,7 @@ function postJson(port, urlPath, payload) {
 
 function matchesFilters(idea, f) {
   if (f.duration.length && f.duration.indexOf(idea.duration) === -1) return false;
-  if (f.cost.length && f.cost.indexOf(idea.cost) === -1) return false;
+  if (f.cost.length && !costBands.costMatches(idea.cost, f.cost)) return false;
   if (f.time.length && !idea.time.some(function (t) { return f.time.indexOf(t) !== -1; })) return false;
   if (f.setting.length) {
     var ok = idea.setting === "Both" || f.setting.indexOf(idea.setting) !== -1;
@@ -724,13 +725,74 @@ async function main() {
     await resetDatabase(pool);
     // The current seed writes materials, so 004 is already applied here.
     // The upgrade under test is 003 (source_url and city) and 006.
+    // The catalog now stores $20 bands, which the pre-018 check rejects, so
+    // 018 is applied to a few old-cost fixtures before the catalog is seeded.
     await applyMigrationFiles(pool, ["001_init.sql", "002_over100_age21.sql", "004_materials.sql"]);
-    await seed({ pool: pool, connectionString: connectionString, coordsDir: emptyDir });
-    const beforeUpgrade = await pool.query(
-      "select id, title, description, category, age21, status, source, cost from activities order by id"
-    );
     await pool.query(
       "insert into submissions (payload, submitter_email) values ('{\"title\":\"Hi\"}'::jsonb, 'Before@Move.dev')"
+    );
+    const oldFixtureCosts = ["Free", "$1-$10", "$20-$30", "$100 and under", "Over $100"];
+    const fixtureIds = [];
+    for (let i = 0; i < oldFixtureCosts.length; i++) {
+      const fixtureId = 890001 + i;
+      await pool.query(
+        "insert into activities (id, title, description, category, setting, cost, duration, status, source) " +
+        "values ($1, $2, 'before', 'Hiking & Nature', 'Outdoor', $3, 'Quick (under 1 hr)', 'approved', 'curated')",
+        [fixtureId, "Pre " + oldFixtureCosts[i], oldFixtureCosts[i]]
+      );
+      fixtureIds.push(fixtureId);
+    }
+    const before018 = await pool.query(
+      "select id, cost from activities where id = any($1::int[]) order by id",
+      [fixtureIds]
+    );
+    check("$1-$10 is accepted before 019",
+      before018.rows.some(row => row.cost === "$1-$10") && before018.rows.length === oldFixtureCosts.length,
+      JSON.stringify(before018.rows));
+    await applyMigrationFiles(pool, ["018_cost_bands_20.sql"]);
+    const after018 = await pool.query(
+      "select id, cost, cost_unit from activities where id = any($1::int[]) order by id",
+      [fixtureIds]
+    );
+    check("018 applies on upgrade and leaves stored costs and cost_unit untouched",
+      after018.rows.length === before018.rows.length &&
+      after018.rows.every((row, i) =>
+        row.id === before018.rows[i].id && row.cost === before018.rows[i].cost && row.cost_unit == null),
+      JSON.stringify(after018.rows));
+    const stillOld = await pool.query(
+      "insert into activities (id, title, category, setting, cost, duration) " +
+      "values (890010, 'Still old', 'Hiking & Nature', 'Outdoor', '$1-$10', 'Quick (under 1 hr)') returning id, cost"
+    );
+    check("$1-$10 still inserts after 018 and before 019",
+      stillOld.rows[0] && stillOld.rows[0].cost === "$1-$10", JSON.stringify(stillOld.rows[0]));
+    await applyMigrationFiles(pool, ["019_cost_bands_20_rename.sql"]);
+    const after019 = await pool.query(
+      "select id, cost from activities where id = any($1::int[]) order by id",
+      [fixtureIds.concat([890010])]
+    );
+    const renamedTen = after019.rows.filter(row => row.id === 890002 || row.id === 890010);
+    const keptOther = after019.rows.filter(row => row.id !== 890002 && row.id !== 890010);
+    check("$1-$10 becomes $1-$20 after 019",
+      renamedTen.length === 2 && renamedTen.every(row => row.cost === "$1-$20") &&
+      keptOther.every(row => row.cost !== "$1-$10" && row.cost !== "$1-$20"),
+      JSON.stringify(after019.rows));
+    const sql019 = fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "019_cost_bands_20_rename.sql"), "utf8");
+    let reran019Early = true;
+    let reran019EarlyError = "";
+    try {
+      await pool.query(sql019);
+      await pool.query(sql019);
+    } catch (err) {
+      reran019Early = false;
+      reran019EarlyError = err.message;
+    }
+    const leftoverTen = await pool.query("select count(*)::int as n from activities where cost = '$1-$10'");
+    check("019 can run again and leaves no $1-$10",
+      reran019Early && leftoverTen.rows[0].n === 0, reran019EarlyError + " " + JSON.stringify(leftoverTen.rows[0]));
+    await pool.query("delete from activities where id = any($1::int[])", [fixtureIds.concat([890010])]);
+    await seed({ pool: pool, connectionString: connectionString, coordsDir: emptyDir });
+    const beforeUpgrade = await pool.query(
+      "select id, title, description, category, age21, status, source, cost, cost_unit from activities order by id"
     );
     const upgrade = await migrate({ pool: pool, connectionString: connectionString });
     const afterUpgrade = await pool.query(
@@ -741,9 +803,13 @@ async function main() {
       upgrade.applied.indexOf("006_security_hardening.sql") !== -1 &&
       upgrade.applied.indexOf("001_init.sql") === -1 &&
       upgrade.applied.indexOf("002_over100_age21.sql") === -1 &&
+      upgrade.applied.indexOf("018_cost_bands_20.sql") === -1 &&
+      upgrade.applied.indexOf("019_cost_bands_20_rename.sql") === -1 &&
       upgrade.skipped.indexOf("001_init.sql") !== -1 &&
       upgrade.skipped.indexOf("002_over100_age21.sql") !== -1 &&
-      upgrade.skipped.indexOf("004_materials.sql") !== -1,
+      upgrade.skipped.indexOf("004_materials.sql") !== -1 &&
+      upgrade.skipped.indexOf("018_cost_bands_20.sql") !== -1 &&
+      upgrade.skipped.indexOf("019_cost_bands_20_rename.sql") !== -1,
       upgrade.applied.join(",") + " / " + upgrade.skipped.join(","));
     const upgradedSame = beforeUpgrade.rows.length === ideas.length &&
       afterUpgrade.rows.length === ideas.length &&
@@ -752,20 +818,10 @@ async function main() {
         return next && row.id === next.id && row.title === next.title &&
           row.description === next.description && row.category === next.category &&
           row.age21 === next.age21 && row.status === next.status && row.source === next.source &&
+          row.cost === next.cost && row.cost_unit == null && next.cost_unit == null &&
           next.source_url == null && next.city == null;
       });
     check("003 and 006 on a seeded database leave rows untouched", upgradedSame, String(afterUpgrade.rows.length));
-    check("018 applies on upgrade and leaves stored costs and cost_unit untouched",
-      upgrade.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
-      upgrade.applied.indexOf("016_nearby_keyset.sql") !== -1 &&
-      upgrade.applied.indexOf("016_nearby_keyset.sql") < upgrade.applied.indexOf("018_cost_bands_20.sql") &&
-      upgrade.applied.indexOf("017_place_staging.sql") > upgrade.applied.indexOf("018_cost_bands_20.sql") &&
-      beforeUpgrade.rows.length === afterUpgrade.rows.length &&
-      beforeUpgrade.rows.every((row, i) => {
-        const next = afterUpgrade.rows[i];
-        return next && row.id === next.id && row.cost === next.cost && next.cost_unit == null;
-      }),
-      upgrade.applied.join(","));
     const keptEmail = await pool.query(
       "select (submitter_email = 'before@move.dev') as same, submitter_email::text as raw from submissions"
     );
@@ -782,11 +838,13 @@ async function main() {
     check("migration 004 applied", first.applied.indexOf("004_materials.sql") !== -1, first.applied.join(","));
     check("migration 006 applied", first.applied.indexOf("006_security_hardening.sql") !== -1, first.applied.join(","));
     check("migration 010 applied", first.applied.indexOf("010_lists_friends.sql") !== -1, first.applied.join(","));
-    check("016 applies, then 018, then 017",
+    check("016 applies, then 018, then 017, then 019",
       first.applied.indexOf("016_nearby_keyset.sql") !== -1 &&
       first.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
+      first.applied.indexOf("019_cost_bands_20_rename.sql") !== -1 &&
       first.applied.indexOf("016_nearby_keyset.sql") < first.applied.indexOf("018_cost_bands_20.sql") &&
       first.applied.indexOf("017_place_staging.sql") > first.applied.indexOf("018_cost_bands_20.sql") &&
+      first.applied.indexOf("019_cost_bands_20_rename.sql") > first.applied.indexOf("017_place_staging.sql") &&
       first.applied.join(","));
     check("005 is not required for 006 to apply",
       first.applied.indexOf("005_subscriptions.sql") === -1 &&
@@ -802,8 +860,10 @@ async function main() {
       second.skipped.indexOf("010_lists_friends.sql") !== -1 &&
       second.skipped.indexOf("016_nearby_keyset.sql") !== -1 &&
       second.skipped.indexOf("018_cost_bands_20.sql") !== -1 &&
+      second.skipped.indexOf("019_cost_bands_20_rename.sql") !== -1 &&
       second.skipped.indexOf("016_nearby_keyset.sql") < second.skipped.indexOf("018_cost_bands_20.sql") &&
-      second.skipped.indexOf("017_place_staging.sql") > second.skipped.indexOf("018_cost_bands_20.sql"));
+      second.skipped.indexOf("017_place_staging.sql") > second.skipped.indexOf("018_cost_bands_20.sql") &&
+      second.skipped.indexOf("019_cost_bands_20_rename.sql") > second.skipped.indexOf("017_place_staging.sql"));
     let reran = true;
     try {
       await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "003_source_url_city.sql"), "utf8"));
@@ -1093,6 +1153,19 @@ async function main() {
       const result = await insertedBand(cost, "New");
       check("new cost " + cost + " inserts", result === true, String(result));
     }
+    const sql019Again = fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "019_cost_bands_20_rename.sql"), "utf8");
+    await pool.query(sql019Again);
+    const renamedAfter = await pool.query(
+      "select cost from activities where title = 'Old $1-$10'"
+    );
+    const tenLeft = await pool.query("select count(*)::int as n from activities where cost = '$1-$10'");
+    check("019 renames a $1-$10 inserted after it to $1-$20",
+      renamedAfter.rows.length === 1 && renamedAfter.rows[0].cost === "$1-$20" && tenLeft.rows[0].n === 0,
+      JSON.stringify(renamedAfter.rows) + " left " + JSON.stringify(tenLeft.rows[0]));
+    await pool.query(sql019Again);
+    const renamedTwice = await pool.query("select cost from activities where title = 'Old $1-$10'");
+    check("019 is idempotent after the rename",
+      renamedTwice.rows.length === 1 && renamedTwice.rows[0].cost === "$1-$20");
     let perCarId = null;
     let nullUnitId = null;
     let perCarValue = null;

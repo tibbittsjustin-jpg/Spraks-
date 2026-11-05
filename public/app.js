@@ -40,7 +40,7 @@
 
   var FILTER_DEFS = [
     { key:"duration", label:"Date Length", options:["Quick (under 1 hr)","Short (1-2 hrs)","Half-day (2-5 hrs)","Full day","Overnight"] },
-    { key:"cost",     label:"Budget",      options:["Free","$1-$10","$20-$30","$100 and under","Over $100"] },
+    { key:"cost",     label:"Budget",      options:["Free","$1-$20","$21-$40","$41-$60","$61-$80","$81-$100","Over $100"] },
     { key:"time",     label:"Time of Day", options:["Morning","Afternoon","Evening","Night"] },
     { key:"setting",  label:"Indoor / Outdoor", options:["Indoor","Outdoor"] },
     { key:"vibe",     label:"Vibe",        options:["Chill","Romantic","Active","Adventurous","Creative","Silly","Cozy","Spontaneous"] },
@@ -859,7 +859,7 @@
       setting: raw.setting === "Outdoor" ? "Outdoor" : "Indoor",
       season: (filters.season && filters.season.length) ? filters.season.slice() : ALL_SEASONS,
       food: !!raw.food,
-      cost: raw.cost || "$20-$30",
+      cost: raw.cost || "$1-$20",
       duration: (filters.duration && filters.duration.length) ? filters.duration[0] : (raw.durationGuess || "Half-day (2-5 hrs)"),
       time: (filters.time && filters.time.length) ? filters.time.slice() : ALL_TIMES,
       vibe: (raw.vibe && raw.vibe.length) ? raw.vibe : ["Chill"],
@@ -1428,7 +1428,10 @@
   }
 
   function displayCost(idea){
-    return (idea && idea.cost) ? idea.cost : "";
+    if(!idea || !idea.cost) return "";
+    var label = SparkCostBands.displayLabel(idea.cost);
+    if(idea.costUnit === "per car" && idea.cost !== "Free") return label + " per car";
+    return label;
   }
 
   /* ---------- UI router state (not persisted) ---------- */
@@ -2175,7 +2178,7 @@
   /* ---------- Filtering ---------- */
   function matchesFilters(idea, f){
     if(f.duration.length && f.duration.indexOf(idea.duration) === -1) return false;
-    if(f.cost.length && f.cost.indexOf(idea.cost) === -1) return false;
+    if(f.cost.length && !SparkCostBands.costMatches(idea.cost, f.cost)) return false;
     if(f.time.length && !idea.time.some(function(t){ return f.time.indexOf(t) !== -1; })) return false;
     if(f.setting.length){
       var ok = idea.setting === "Both" || f.setting.indexOf(idea.setting) !== -1;
@@ -3372,7 +3375,8 @@
       group.appendChild(el("div", "filter-group-title", def.label));
       var chipWrap = el("div", "chip-select");
       def.options.forEach(function(opt){
-        var chip = el("button", "chip", escapeHtml(opt));
+        var shown = def.key === "cost" ? SparkCostBands.displayLabel(opt) : opt;
+        var chip = el("button", "chip", escapeHtml(shown));
         chip.type = "button";
         if(ui.filterDraft[def.key].indexOf(opt) !== -1) chip.classList.add("selected");
         chip.addEventListener("click", function(){
@@ -5964,13 +5968,14 @@
     return input;
   }
 
-  function addSelectField(form, field, label, options, optional){
+  function addSelectField(form, field, label, options, optional, labelFor){
     addFieldLabel(form, label);
     var select = el("select");
     select.setAttribute("data-field", field);
     var html = optional ? '<option value="">Optional</option>' : "";
     options.forEach(function(option){
-      html += '<option value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</option>';
+      var shown = labelFor ? labelFor(option) : option;
+      html += '<option value="' + escapeHtml(option) + '">' + escapeHtml(shown) + '</option>';
     });
     select.innerHTML = html;
     form.appendChild(select);
@@ -6140,7 +6145,9 @@
     });
     ["setting", "cost", "duration"].forEach(function(key){
       var def = filterDef(key);
-      if(def) addSelectField(form, key, def.label, def.options, true);
+      if(!def) return;
+      addSelectField(form, key, def.label, def.options, true,
+        key === "cost" ? function(option){ return SparkCostBands.displayLabel(option); } : null);
     });
     ["time", "season", "vibe", "stage", "dateType"].forEach(function(key){
       var def = filterDef(key);

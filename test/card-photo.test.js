@@ -161,8 +161,11 @@ section("Photo does not change filtering", () => {
   idea.openNow = true;
   idea.conditions = "Clear";
   check("same filter result with photo facts attached", t.matchesFilters(idea, t.state.filters) === before);
-  const narrow = Object.assign({}, t.state.filters, { cost: ["$100 and under"] });
+  const narrow = Object.assign({}, t.state.filters, { cost: ["$81-$100"] });
   check("a budget filter still excludes this free idea", t.matchesFilters(idea, narrow) === false);
+  const costDef = t.FILTER_DEFS.filter(def => def.key === "cost")[0];
+  check("$81-$100 is a real budget chip",
+    !!costDef && costDef.options.indexOf("$81-$100") !== -1);
 });
 
 section("Duration caption", () => {

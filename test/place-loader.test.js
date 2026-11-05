@@ -33,8 +33,9 @@ function one(dataset, record) {
 }
 
 check("213 rules compile", rules.length === 213);
-check("filters.js cost list is unchanged",
-  filters.cost.join("|") === "Free|$1-$10|$20-$30|$100 and under|Over $100");
+check("filters.js cost list is the seven $20 bands, matching place-rules",
+  filters.cost.join("|") === "Free|$1-$20|$21-$40|$41-$60|$61-$80|$81-$100|Over $100" &&
+  filters.cost.join("|") === rulesLib.COST_BANDS.join("|"));
 check("Justin bands are the mapping keys",
   rulesLib.COST_BANDS.join("|") === "Free|$1-$20|$21-$40|$41-$60|$61-$80|$81-$100|Over $100");
 check("$20 is the top of the first paid band", rulesLib.bandFee(20) === "$1-$20" && rulesLib.bandFee(21) === "$21-$40");

@@ -8,6 +8,7 @@
 "use strict";
 
 const filters = require("../shared/filters");
+const costBands = require("../public/cost-bands");
 
 const METERS_PER_MILE = 1609.344;
 const MAX_RADIUS_MILES = 100;
@@ -26,7 +27,7 @@ const OVERLAP_FIELDS = {
 };
 
 const SELECT_COLUMNS =
-  "id, title, description, materials, category, icon, setting, season, food, age21, cost, duration, " +
+  "id, title, description, materials, category, icon, setting, season, food, age21, cost, cost_unit, duration, " +
   "time, vibe, stage, date_type, scene, motif, source, tier, address, city, source_url, source_key, source_credit, " +
   "to_char(expires_at, 'YYYY-MM-DD') AS expires_at, occurrences, affiliate_url, updated_at, " +
   "ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng";
@@ -178,8 +179,15 @@ function sharedFilters(params) {
   Object.keys(EQ_FIELDS).forEach(key => {
     const list = splitList(params[key]);
     if (!list.length) return;
-    assertAllowed(key, list, filters[key]);
-    values.push(list);
+    if (key === "cost") {
+      // Chips are the seven new bands. Each expands to the stored strings
+      // that can fall in it, including a legacy label kept on a flagged row.
+      assertAllowed(key, list, filters.cost.slice());
+      values.push(costBands.storedCostsForBands(list));
+    } else {
+      assertAllowed(key, list, filters[key]);
+      values.push(list);
+    }
     where.push(EQ_FIELDS[key] + " = ANY($" + values.length + "::text[])");
   });
 
@@ -439,7 +447,9 @@ function mapRow(row, located) {
     season: row.season || [],
     food: row.food,
     age21: row.age21 === true,
-    cost: row.cost,
+    cost: costBands.storedLabel(row.cost),
+    costUnit: row.cost_unit == null ? null : row.cost_unit,
+    cost_unit: row.cost_unit == null ? null : row.cost_unit,
     duration: row.duration,
     time: row.time || [],
     vibe: row.vibe || [],

@@ -373,6 +373,26 @@ const NOV5R_EVENT_INFO_LINES = [
   ["Event info from UTCH (www.utch.org).", "www.utch.org", "https://www.utch.org/"],
   ["Event info from Utah State Capitol (utahstatecapitol.utah.gov).", "utahstatecapitol.utah.gov", "https://utahstatecapitol.utah.gov/"]
 ];
+const NOV5S_EVENT_INFO_LINES = [
+  ["Event info from CromaTCG (cromatcg.com).", "cromatcg.com", "https://cromatcg.com/"],
+  ["Event info from Goose Games SLC (goosegamesslc.com).", "goosegamesslc.com", "https://goosegamesslc.com/"],
+  ["Event info from Salt City Games (saltcitygames.shop).", "saltcitygames.shop", "https://saltcitygames.shop/"],
+  ["Event info from Tailgate Tavern (www.tailgatetavernslc.com).", "www.tailgatetavernslc.com", "https://www.tailgatetavernslc.com/"],
+  ["Event info from Tavernacle (www.tavernacle.com).", "www.tavernacle.com", "https://www.tavernacle.com/"],
+  ["Event info from Terracotta Tortoise Clay Center (terracottatortoise.com).", "terracottatortoise.com", "https://terracottatortoise.com/"],
+  ["Event info from The Clay Hole (theclayhole.com).", "theclayhole.com", "https://theclayhole.com/"],
+  ["Event info from Throw Art Studio (www.throwartstudios.app).", "www.throwartstudios.app", "https://www.throwartstudios.app/"]
+];
+const NOV5T_EVENT_INFO_LINES = [
+  ["Event info from 801TAG (www.801tag.com).", "www.801tag.com", "https://www.801tag.com/"],
+  ["Event info from Airborne Lindon (airbornelindon.com).", "airbornelindon.com", "https://airbornelindon.com/"],
+  ["Event info from Hostlers Model Railroad Club (hostlerspres6589.wildapricot.org).", "hostlerspres6589.wildapricot.org", "https://hostlerspres6589.wildapricot.org/"],
+  ["Event info from Meldrum Christmas Tree Farm (utahchristmastreefarm.weebly.com).", "utahchristmastreefarm.weebly.com", "https://utahchristmastreefarm.weebly.com/"],
+  ["Event info from Sparetime Lanes (sparetimelanes.com).", "sparetimelanes.com", "https://sparetimelanes.com/"],
+  ["Event info from The wAIRhouse (thewairhouse.com).", "thewairhouse.com", "https://thewairhouse.com/"],
+  ["Event info from Urban Flea Market (www.fleamarketslc.com).", "www.fleamarketslc.com", "https://www.fleamarketslc.com/"],
+  ["Event info from Valley Bowling Lanes (www.valleybowlinglanesutah.com).", "www.valleybowlinglanesutah.com", "https://www.valleybowlinglanesutah.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1641,6 +1661,70 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5rPrevious !== -1 && lineAt > nov5rPrevious);
         nov5rPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5sPrevious = eventsText.indexOf("Event info from Utah State Capitol (utahstatecapitol.utah.gov).");
+      check("nov5s checks 8 verbatim event-info lines", NOV5S_EVENT_INFO_LINES.length === 8);
+      NOV5S_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5sPrevious !== -1 && lineAt > nov5sPrevious);
+        nov5sPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5tPrevious = eventsText.indexOf("Event info from Throw Art Studio (www.throwartstudios.app).");
+      check("nov5t checks 8 verbatim event-info lines", NOV5T_EVENT_INFO_LINES.length === 8);
+      NOV5T_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5tPrevious !== -1 && lineAt > nov5tPrevious);
+        nov5tPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

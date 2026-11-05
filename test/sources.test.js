@@ -243,6 +243,19 @@ const NOV5HI_EVENT_INFO_LINES = [
   ["Event info from West Bountiful City (wbcityut.gov).", "wbcityut.gov", "https://wbcityut.gov/"],
   ["Event info from Wolfdog Brewing (www.wolfdogbrewing.com).", "www.wolfdogbrewing.com", "https://www.wolfdogbrewing.com/"]
 ];
+const NOV5J_EVENT_INFO_LINES = [
+  ["Event info from American West Symphony & Chorus (www.americanwestsymphony.com).", "www.americanwestsymphony.com", "https://www.americanwestsymphony.com/"],
+  ["Event info from Bout Time Pub & Grub Lehi (www.bouttimepub.com).", "www.bouttimepub.com", "https://www.bouttimepub.com/"],
+  ["Event info from JG Art Gallery exhibitions (jgartgallery.com).", "jgartgallery.com", "https://jgartgallery.com/"],
+  ["Event info from Logan Tabernacle (logantabernacle.com).", "logantabernacle.com", "https://logantabernacle.com/"],
+  ["Event info from Lyceum Philharmonic Christmas (lyceumphilharmonic.com).", "lyceumphilharmonic.com", "https://lyceumphilharmonic.com/"],
+  ["Event info from Saratoga Arts (saratoga-arts.org).", "saratoga-arts.org", "https://saratoga-arts.org/"],
+  ["Event info from Sears Art Museum schedule (www.searsart.com).", "www.searsart.com", "https://www.searsart.com/"],
+  ["Event info from Skyridge Theatre (skyridgetheatre.com).", "skyridgetheatre.com", "https://skyridgetheatre.com/"],
+  ["Event info from SoJo Choral Arts / Seasons Chorale (www.sojochoralarts.org).", "www.sojochoralarts.org", "https://www.sojochoralarts.org/"],
+  ["Event info from Wasatch Chorale performances (www.wasatchchorale.org).", "www.wasatchchorale.org", "https://www.wasatchchorale.org/"],
+  ["Event info from West Jordan Symphony (www.westjordansymphony.org).", "www.westjordansymphony.org", "https://www.westjordansymphony.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1191,6 +1204,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5hiPrevious !== -1 && lineAt > nov5hiPrevious);
         nov5hiPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5jPrevious = eventsText.indexOf("Event info from Wolfdog Brewing (www.wolfdogbrewing.com).");
+      check("nov5j checks 11 verbatim event-info lines", NOV5J_EVENT_INFO_LINES.length === 11);
+      NOV5J_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5jPrevious !== -1 && lineAt > nov5jPrevious);
+        nov5jPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

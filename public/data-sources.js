@@ -823,6 +823,17 @@
     { line: "Event info from Wellsville City (www.wellsvillecity.com).", domain: "www.wellsvillecity.com", href: "https://www.wellsvillecity.com/" },
     { line: "Event info from West Bountiful City (wbcityut.gov).", domain: "wbcityut.gov", href: "https://wbcityut.gov/" },
     { line: "Event info from Wolfdog Brewing (www.wolfdogbrewing.com).", domain: "www.wolfdogbrewing.com", href: "https://www.wolfdogbrewing.com/" },
+    { line: "Event info from American West Symphony & Chorus (www.americanwestsymphony.com).", domain: "www.americanwestsymphony.com", href: "https://www.americanwestsymphony.com/" },
+    { line: "Event info from Bout Time Pub & Grub Lehi (www.bouttimepub.com).", domain: "www.bouttimepub.com", href: "https://www.bouttimepub.com/" },
+    { line: "Event info from JG Art Gallery exhibitions (jgartgallery.com).", domain: "jgartgallery.com", href: "https://jgartgallery.com/" },
+    { line: "Event info from Logan Tabernacle (logantabernacle.com).", domain: "logantabernacle.com", href: "https://logantabernacle.com/" },
+    { line: "Event info from Lyceum Philharmonic Christmas (lyceumphilharmonic.com).", domain: "lyceumphilharmonic.com", href: "https://lyceumphilharmonic.com/" },
+    { line: "Event info from Saratoga Arts (saratoga-arts.org).", domain: "saratoga-arts.org", href: "https://saratoga-arts.org/" },
+    { line: "Event info from Sears Art Museum schedule (www.searsart.com).", domain: "www.searsart.com", href: "https://www.searsart.com/" },
+    { line: "Event info from Skyridge Theatre (skyridgetheatre.com).", domain: "skyridgetheatre.com", href: "https://skyridgetheatre.com/" },
+    { line: "Event info from SoJo Choral Arts / Seasons Chorale (www.sojochoralarts.org).", domain: "www.sojochoralarts.org", href: "https://www.sojochoralarts.org/" },
+    { line: "Event info from Wasatch Chorale performances (www.wasatchchorale.org).", domain: "www.wasatchchorale.org", href: "https://www.wasatchchorale.org/" },
+    { line: "Event info from West Jordan Symphony (www.westjordansymphony.org).", domain: "www.westjordansymphony.org", href: "https://www.westjordansymphony.org/" },
   ];
 
   function eventInfoList(lines) {

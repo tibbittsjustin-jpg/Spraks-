@@ -16,13 +16,16 @@
 })(this, function () {
   "use strict";
 
+  // 7: ideas carry audience. A version 6 cache has no audience field, so it
+  // is not reused. Empty and missing audience stay empty. A selected chip
+  // does not match an empty list.
   // 6: cached ideas carry costUnit. Budget labels are the $20 bands.
   // A version 5 cache has no costUnit, so it is not reused.
   // 5: saved lists also cache catalog rows fetched by id. Those rows keep
   // the numeric id the list stored. A version 4 cache was pages only.
   // 4: pages are a cursor, not an offset dump.
   // 3 added source_key and source_credit.
-  var API_VERSION = "6";
+  var API_VERSION = "7";
   var CATALOG_BUCKET = "catalog-ids";
   var ID_BATCH = 200;
   var CACHE_TTL_MS = 6 * 60 * 60 * 1000;
@@ -141,6 +144,11 @@
     return key;
   }
 
+  function audienceApi() {
+    if (typeof SparkAudience !== "undefined" && SparkAudience) return SparkAudience;
+    return require("./audience");
+  }
+
   function costBandsApi() {
     if (typeof SparkCostBands !== "undefined" && SparkCostBands) return SparkCostBands;
     return require("./cost-bands");
@@ -195,6 +203,9 @@
       vibe: textList(row.vibe),
       stage: textList(row.stage),
       dateType: textList(row.dateType || row.date_type),
+      audience: row && Object.prototype.hasOwnProperty.call(row, "audience")
+        ? audienceApi().canonicalStored(row.audience)
+        : null,
       scene: typeof row.scene === "string" ? row.scene : null,
       motif: typeof row.motif === "string" ? row.motif : null,
       source_url: website || null,
@@ -226,6 +237,11 @@
     ["materials", "season", "time", "vibe", "stage", "dateType"].forEach(function (key) {
       if (!Array.isArray(idea[key])) idea[key] = [];
     });
+    if (Object.prototype.hasOwnProperty.call(idea, "audience")) {
+      idea.audience = audienceApi().canonicalStored(idea.audience);
+    } else {
+      idea.audience = null;
+    }
     if (idea.food !== true) idea.food = false;
     if (idea.age21 !== true) idea.age21 = false;
     if (idea.occurrences == null || typeof idea.occurrences !== "object") idea.occurrences = null;
@@ -609,6 +625,11 @@
     ["materials", "season", "time", "vibe", "stage", "dateType"].forEach(function (key) {
       if (!Array.isArray(idea[key])) idea[key] = [];
     });
+    if (Object.prototype.hasOwnProperty.call(idea, "audience")) {
+      idea.audience = audienceApi().canonicalStored(idea.audience);
+    } else {
+      idea.audience = null;
+    }
     if (idea.food !== true) idea.food = false;
     if (idea.age21 !== true) idea.age21 = false;
     return idea;

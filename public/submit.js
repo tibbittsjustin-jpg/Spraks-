@@ -13,7 +13,7 @@
   "use strict";
 
   var STRING_KEYS = ["title", "description", "category", "setting", "cost", "duration", "venueName", "city", "sourceUrl"];
-  var LIST_KEYS = ["season", "time", "vibe", "stage", "dateType"];
+  var LIST_KEYS = ["season", "time", "vibe", "stage", "dateType", "audience"];
   var STORED_STRINGS = STRING_KEYS.concat(["submittedAt"]);
 
   function cleanString(value) {
@@ -113,7 +113,7 @@
   var STORED_KEYS = {
     title: 1, description: 1, category: 1, setting: 1, cost: 1, duration: 1,
     venueName: 1, city: 1, sourceUrl: 1, submittedAt: 1, season: 1, time: 1,
-    vibe: 1, stage: 1, dateType: 1, food: 1, age21: 1, status: 1
+    vibe: 1, stage: 1, dateType: 1, audience: 1, food: 1, age21: 1, status: 1
   };
 
   function ideaNeedsMigration(idea) {

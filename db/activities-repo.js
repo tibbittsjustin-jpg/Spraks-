@@ -12,6 +12,7 @@ const costBands = require("../public/cost-bands");
 const timeWindows = require("../public/time-windows");
 const occurrences = require("../public/occurrences");
 const feed = require("../public/feed");
+const audience = require("../public/audience");
 
 const METERS_PER_MILE = 1609.344;
 const MAX_RADIUS_MILES = 100;
@@ -34,6 +35,16 @@ const SELECT_COLUMNS =
   "time, vibe, stage, date_type, scene, motif, source, tier, address, city, source_url, source_key, source_credit, " +
   "to_char(expires_at, 'YYYY-MM-DD') AS expires_at, occurrences, affiliate_url, updated_at, " +
   "ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng";
+
+function selectList(opts) {
+  if (opts && opts.audienceColumn === false) return SELECT_COLUMNS;
+  return SELECT_COLUMNS + ", audience";
+}
+
+function missingAudienceColumn(err) {
+  if (!err || err.code !== "42703") return false;
+  return /audience/i.test(String(err.message || ""));
+}
 
 // A date column compared in America/Denver. now()::date would follow the
 // session clock, so 11:30pm in Denver would already look like tomorrow in UTC.
@@ -306,7 +317,34 @@ function rowPassesKeyset(row, cursor) {
   return false;
 }
 
-function sharedFilters(params) {
+function readAudienceParam(value) {
+  const raw = splitList(value);
+  if (!raw.length) return [];
+  const selected = [];
+  raw.forEach(token => {
+    const canon = token === audience.LEGACY_FAMILY ? audience.FAMILY : token;
+    if (filters.audience.indexOf(canon) === -1) throw invalidFilter("audience");
+    if (selected.indexOf(canon) === -1) selected.push(canon);
+  });
+  return selected;
+}
+
+// Same OR overlap as vibe and season: the row matches when its audience
+// shares any selected chip. Empty audience matches nothing. Good with kids
+// is read as Family Friendly. A 21+ row never counts as Family Friendly,
+// whether or not hide21 is set. Other chips on that row still overlap.
+function appendAudienceFilter(where, values, selected) {
+  if (!selected.length) return;
+  values.push(selected);
+  const selIdx = values.length;
+  where.push(
+    "(CASE WHEN age21 IS TRUE THEN array_remove(array_replace(coalesce(audience, '{}'::text[]), 'Good with kids', 'Family Friendly'), 'Family Friendly') " +
+    "ELSE array_replace(coalesce(audience, '{}'::text[]), 'Good with kids', 'Family Friendly') END) && $" +
+    selIdx + "::text[]"
+  );
+}
+
+function sharedFilters(params, opts) {
   const values = [];
   const where = ["status = 'approved'", STILL_SHOWING_SQL];
   // Only an actual boolean opts into paid rows. The query string cannot.
@@ -347,6 +385,11 @@ function sharedFilters(params) {
     where.push(OVERLAP_FIELDS[key] + " && $" + values.length + "::text[]");
   });
 
+  const audienceSelected = readAudienceParam(params.audience);
+  if (audienceSelected.length && !(opts && opts.audienceColumn === false)) {
+    appendAudienceFilter(where, values, audienceSelected);
+  }
+
   const setting = splitList(params.setting);
   if (setting.length) {
     assertAllowed("setting", setting, filters.setting);
@@ -374,7 +417,7 @@ function sharedFilters(params) {
     where.push("lower(city) = ANY($" + values.length + "::text[])");
   }
 
-  return { where: where, values: values };
+  return { where: where, values: values, audienceSelected: audienceSelected };
 }
 
 function pageLimit(params) {
@@ -388,13 +431,14 @@ function pageLimit(params) {
 }
 
 function copyFilters(shared) {
-  return { where: shared.where.slice(), values: shared.values.slice() };
+  return { where: shared.where.slice(), values: shared.values.slice(), columns: shared.columns };
 }
 
 function finishQuery(where, values, order, limit) {
   values.push(limit);
   const limitIdx = values.length;
-  const text = "SELECT " + SELECT_COLUMNS + where.distanceSql +
+  const columns = where.columns || SELECT_COLUMNS;
+  const text = "SELECT " + columns + where.distanceSql +
     " FROM activities WHERE " + where.clauses.join(" AND ") +
     " " + order + " LIMIT $" + limitIdx;
   return { text: text, values: values, limit: limit };
@@ -445,7 +489,7 @@ function buildHappeningRankQuery(params, shared, selection, limit, cursor, local
       "::int AND (" + start + ") = $" + sIdx + "::int AND id > $" + idIdx + "::int))");
   }
   const query = finishQuery(
-    { clauses: part.where, distanceSql: distanceSql },
+    { clauses: part.where, distanceSql: distanceSql, columns: part.columns },
     part.values,
     "ORDER BY " + flag + ", " + start + ", id",
     limit
@@ -500,7 +544,7 @@ function buildLocalRankQuery(params, shared, selection, limit, cursor, localOnly
         part.where.push("id > $" + part.values.length + "::integer");
       }
     }
-    const query = finishQuery({ clauses: part.where, distanceSql: distanceSql }, part.values, order, limit);
+    const query = finishQuery({ clauses: part.where, distanceSql: distanceSql, columns: part.columns }, part.values, order, limit);
     query.name = name;
     return query;
   });
@@ -522,13 +566,15 @@ function buildLocalRankQuery(params, shared, selection, limit, cursor, localOnly
   };
 }
 
-function buildListQuery(params) {
+function buildListQuery(params, opts) {
   params = params || {};
+  opts = opts || {};
   if (params.offset != null && params.offset !== "") throw invalidFilter("offset");
 
   const limit = pageLimit(params);
   const cursor = decodeCursor(params.cursor);
-  const shared = sharedFilters(params);
+  const shared = sharedFilters(params, opts);
+  shared.columns = selectList(opts);
   const localOnly = localOnlyFlag(params.localOnly);
   const selection = resolveFeedParams(params);
   const dateIdx = appendFeedSql(shared.where, shared.values, selection);
@@ -554,7 +600,7 @@ function buildListQuery(params) {
       part.where.push("id > $" + part.values.length + "::integer");
     }
     const query = finishQuery(
-      { clauses: part.where, distanceSql: "" },
+      { clauses: part.where, distanceSql: "", columns: part.columns },
       part.values,
       "ORDER BY id",
       limit
@@ -619,7 +665,7 @@ function buildListQuery(params) {
     const distanceSql = ", CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance(location, " + point.pointSql +
       ") / 1609.344)::numeric, 1) END AS distance_miles, (location <-> " + point.pointSql + ")::text AS distance_meters";
     return finishQuery(
-      { clauses: part.where, distanceSql: distanceSql },
+      { clauses: part.where, distanceSql: distanceSql, columns: part.columns },
       part.values,
       "ORDER BY location <-> " + point.pointSql + ", id",
       limit
@@ -634,7 +680,7 @@ function buildListQuery(params) {
       part.where.push("id > $" + part.values.length + "::integer");
     }
     return finishQuery(
-      { clauses: part.where, distanceSql: ", NULL::numeric AS distance_miles, NULL::text AS distance_meters" },
+      { clauses: part.where, distanceSql: ", NULL::numeric AS distance_miles, NULL::text AS distance_meters", columns: part.columns },
       part.values,
       "ORDER BY id",
       limit
@@ -757,6 +803,9 @@ function mapRow(row, located) {
     vibe: row.vibe || [],
     stage: row.stage || [],
     dateType: row.date_type || [],
+    // Absent column stays null. An empty array stays empty. Neither is
+    // rewritten into a chip. Good with kids is stored here as Family Friendly.
+    audience: Object.prototype.hasOwnProperty.call(row, "audience") ? audience.canonicalStored(row.audience) : null,
     scene: row.scene,
     motif: row.motif,
     source: row.source,
@@ -783,9 +832,7 @@ function mapRow(row, located) {
   return item;
 }
 
-async function listActivities(params, db) {
-  const built = buildListQuery(params);
-  const runner = db || require("./index").getPool();
+async function collectRows(built, runner) {
   let rows = [];
   if (built.mode === "phases") {
     let start = 0;
@@ -818,7 +865,28 @@ async function listActivities(params, db) {
     const result = await runner.query(built.text, built.values);
     rows = result.rows;
   }
+  return rows;
+}
+
+async function listActivities(params, db) {
+  params = params || {};
+  const runner = db || require("./index").getPool();
+  let built = buildListQuery(params);
+  let rows = [];
+  let droppedAudience = false;
+  try {
+    rows = await collectRows(built, runner);
+  } catch (err) {
+    if (!missingAudienceColumn(err)) throw err;
+    droppedAudience = true;
+    built = buildListQuery(params, { audienceColumn: false });
+    rows = await collectRows(built, runner);
+  }
   let items = rows.map(row => mapRow(row, built.located));
+  if (droppedAudience) {
+    const selected = audience.normalizeFilterSelection(splitList(params.audience));
+    if (selected.length) items = items.filter(item => audience.matchesAudience(item, selected));
+  }
   const selection = built.feed
     ? { feed: built.feed, when: built.whenToken || "" }
     : resolveFeedParams(params || {});
@@ -861,30 +929,40 @@ function parseIdList(value) {
 
 // Approved free rows that are still showing, by id. No location, no paging.
 // Ids the caller asked for that are pending, paid, or finished are omitted.
-function activitiesByIdsQuery(ids) {
+function activitiesByIdsQuery(ids, opts) {
   const list = parseIdList(ids);
   return {
-    text: "SELECT " + SELECT_COLUMNS + " FROM activities WHERE id = ANY($1::int[]) AND status = 'approved' AND tier = 'free' AND " +
+    text: "SELECT " + selectList(opts) + " FROM activities WHERE id = ANY($1::int[]) AND status = 'approved' AND tier = 'free' AND " +
       STILL_SHOWING_SQL + " ORDER BY id",
     values: [list],
     ids: list
   };
 }
 
+async function queryAllowingMissingAudience(runner, build) {
+  try {
+    const built = build({ audienceColumn: true });
+    return await runner.query(built.text, built.values);
+  } catch (err) {
+    if (!missingAudienceColumn(err)) throw err;
+    const built = build({ audienceColumn: false });
+    return await runner.query(built.text, built.values);
+  }
+}
+
 async function listActivitiesByIds(ids, db) {
-  const built = activitiesByIdsQuery(ids);
   const runner = db || require("./index").getPool();
-  const result = await runner.query(built.text, built.values);
+  const result = await queryAllowingMissingAudience(runner, opts => activitiesByIdsQuery(ids, opts));
   return { items: result.rows.map(row => mapRow(row, false)) };
 }
 
 async function getActivity(id, db) {
   const runner = db || require("./index").getPool();
-  const result = await runner.query(
-    "SELECT " + SELECT_COLUMNS + " FROM activities WHERE id = $1 AND status = 'approved' AND tier = 'free' AND " +
-    STILL_SHOWING_SQL,
-    [id]
-  );
+  const result = await queryAllowingMissingAudience(runner, opts => ({
+    text: "SELECT " + selectList(opts) + " FROM activities WHERE id = $1 AND status = 'approved' AND tier = 'free' AND " +
+      STILL_SHOWING_SQL,
+    values: [id]
+  }));
   if (!result.rows.length) return null;
   return mapRow(result.rows[0], false);
 }

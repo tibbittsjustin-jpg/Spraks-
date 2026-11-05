@@ -16,6 +16,7 @@
 
 const costBands = require("../public/cost-bands");
 const timeWindows = require("../public/time-windows");
+const audience = require("../public/audience");
 
 const cost = costBands.COST_BANDS.slice();
 const legacyCost = ["$20-$30", "$100 and under"];
@@ -71,6 +72,8 @@ module.exports = {
   selectionFromQuery: timeWindows.selectionFromQuery,
   storedTimesForWindows: timeWindows.storedValuesForWindows,
   vibe: ["Chill", "Romantic", "Active", "Adventurous", "Creative", "Silly", "Cozy", "Spontaneous"],
+  // Discover chips. stage and dateType stay for rows and older clients.
+  audience: audience.AUDIENCE.slice(),
   stage: ["First Date", "Second/Third Date", "Serious Relationship"],
   dateType: ["Solo/Couple", "Double Date", "Group Date"],
   food: [true, false],

@@ -335,6 +335,81 @@
     return "";
   }
 
+  function hostWithoutDot(hostname){
+    return String(hostname || "").toLowerCase().replace(/\.+$/g, "");
+  }
+
+  function isHostOrChild(host, domain){
+    host = hostWithoutDot(host);
+    domain = String(domain || "").toLowerCase();
+    if(!host || !domain) return false;
+    return host === domain || host.slice(-(domain.length + 1)) === "." + domain;
+  }
+
+  // brand.tld, or a subdomain of it. One or two labels after the brand
+  // covers ticketmaster.com and ticketmaster.co.uk, and does not treat
+  // ticketmaster.com.evil.example as that brand.
+  function isBrandHost(host, brand){
+    host = hostWithoutDot(host);
+    brand = String(brand || "").toLowerCase();
+    if(!host || !brand) return false;
+    var labels = host.split(".");
+    var brandLabels = brand.split(".");
+    if(labels.length <= brandLabels.length) return false;
+    for(var i = 0; i <= labels.length - brandLabels.length; i++){
+      var ok = true;
+      for(var j = 0; j < brandLabels.length; j++){
+        if(labels[i + j] !== brandLabels[j]){ ok = false; break; }
+      }
+      if(!ok) continue;
+      var after = labels.length - (i + brandLabels.length);
+      if(after === 1 || after === 2) return true;
+    }
+    return false;
+  }
+
+  function isMapsPath(pathname){
+    var path = String(pathname || "").toLowerCase();
+    if(path.length > 1 && path.charAt(path.length - 1) === "/") path = path.slice(0, -1);
+    return path === "/maps" || path.indexOf("/maps/") === 0;
+  }
+
+  function sourceHostBlocked(parsed){
+    var host = hostWithoutDot(parsed && parsed.hostname);
+    if(!host) return true;
+    var exact = ["sugarspace.org", "nowplayingutah.com", "maps.apple.com", "openstreetmap.org", "maps.app.goo.gl"];
+    for(var i = 0; i < exact.length; i++){
+      if(isHostOrChild(host, exact[i])) return true;
+    }
+    if(isBrandHost(host, "ticketmaster")) return true;
+    if(isBrandHost(host, "nominatim")) return true;
+    if(isBrandHost(host, "maps.google")) return true;
+    if(isMapsPath(parsed.pathname)){
+      if(isBrandHost(host, "google")) return true;
+      if(isHostOrChild(host, "goo.gl")) return true;
+      if(isHostOrChild(host, "bing.com")) return true;
+    }
+    return false;
+  }
+
+  // The page a card or detail "More info" link may open. Built on
+  // activityWebsite, then drops map sites, ticket sites, and the other
+  // hosts that are not the event's own page.
+  function sourceLink(idea){
+    var href = activityWebsite(idea);
+    if(!href) return "";
+    var parsed;
+    try {
+      parsed = new URL(href);
+    } catch (err) {
+      return "";
+    }
+    if(parsed.protocol !== "https:") return "";
+    if(parsed.username || parsed.password) return "";
+    if(sourceHostBlocked(parsed)) return "";
+    return parsed.href;
+  }
+
   // Shared direction lock for a pointer gesture. Stays undecided until
   // travel leaves a 10px slop, then locks for the rest of the gesture:
   // vertical when |dy| wins, horizontal only when |dx| > 1.5×|dy|.
@@ -712,6 +787,7 @@
     escapeHtml: escapeHtml,
     httpsPageUrl: httpsPageUrl,
     activityWebsite: activityWebsite,
+    sourceLink: sourceLink,
     fmtDate: fmtDate,
     todayISO: todayISO,
     pad2: pad2,

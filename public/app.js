@@ -1564,11 +1564,223 @@
   function showToast(msg){
     lastToastMessage = String(msg || "");
     var t = $("#toast");
+    if(t && t.classList) t.classList.remove("toast-return");
     t.textContent = msg;
     t.classList.toggle("toast-wrap", String(msg || "").length > 42);
     t.classList.remove("hidden");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ t.classList.add("hidden"); }, 2200);
+  }
+
+  // Where the person was just before a source link opened outside the app.
+  // sessionStorage covers a same-tab return. localStorage covers the iOS
+  // standalone reload, which drops the session, and expires after 30 minutes.
+  // Coordinates and other location fields are never written.
+  var RETURN_STORAGE_KEY = "jaderoo_return_v1";
+  var RETURN_TTL_MS = 30 * 60 * 1000;
+  var pendingFrontCardId = null;
+  var lastAppliedScrollTop = 0;
+  var lastReturnToastNode = null;
+  var returnToastIdeaId = null;
+  var restoringReturn = false;
+
+  function storageArea(kind){
+    try{
+      if(kind === "session"){
+        if(typeof sessionStorage === "undefined" || !sessionStorage) return null;
+        return sessionStorage;
+      }
+      if(typeof localStorage === "undefined" || !localStorage) return null;
+      return localStorage;
+    }catch(err){
+      return null;
+    }
+  }
+
+  function writeReturnPayload(payload){
+    var json;
+    try{ json = JSON.stringify(payload); }catch(err){ return; }
+    ["session", "local"].forEach(function(kind){
+      var area = storageArea(kind);
+      if(!area) return;
+      try{ area.setItem(RETURN_STORAGE_KEY, json); }catch(err){}
+    });
+  }
+
+  function clearReturnPayload(){
+    ["session", "local"].forEach(function(kind){
+      var area = storageArea(kind);
+      if(!area) return;
+      try{ area.removeItem(RETURN_STORAGE_KEY); }catch(err){}
+    });
+  }
+
+  function parseReturnPayload(raw){
+    if(!raw || typeof raw !== "string") return null;
+    var data;
+    try{ data = JSON.parse(raw); }catch(err){ return null; }
+    if(!data || typeof data !== "object") return null;
+    var ts = Number(data.ts);
+    if(!isFinite(ts)) return null;
+    var scroll = Number(data.scrollTop);
+    var out = {
+      tab: typeof data.tab === "string" ? data.tab : "discover",
+      scrollTop: isFinite(scroll) && scroll >= 0 ? scroll : 0,
+      ts: ts
+    };
+    var hasDetail = data.detailId != null && data.detailId !== "";
+    var hasCard = data.openCardId != null && data.openCardId !== "";
+    if(hasDetail && !hasCard) out.detailId = data.detailId;
+    else if(hasCard) out.openCardId = data.openCardId;
+    return out;
+  }
+
+  function readReturnPayload(){
+    var sessionRaw = null;
+    var localRaw = null;
+    var sessionArea = storageArea("session");
+    var localArea = storageArea("local");
+    try{ if(sessionArea) sessionRaw = sessionArea.getItem(RETURN_STORAGE_KEY); }catch(err){}
+    try{ if(localArea) localRaw = localArea.getItem(RETURN_STORAGE_KEY); }catch(err2){}
+    if(sessionRaw){
+      var fromSession = parseReturnPayload(sessionRaw);
+      if(fromSession) return fromSession;
+    }
+    if(localRaw){
+      var fromLocal = parseReturnPayload(localRaw);
+      if(!fromLocal || Date.now() - fromLocal.ts >= RETURN_TTL_MS){
+        clearReturnPayload();
+        return null;
+      }
+      return fromLocal;
+    }
+    if(sessionRaw) clearReturnPayload();
+    return null;
+  }
+
+  function readContentScroll(){
+    try{
+      var content = document.getElementById("content");
+      if(!content || typeof content.querySelector !== "function") return 0;
+      var screen = content.querySelector(".screen");
+      if(!screen || typeof screen.scrollTop !== "number") return 0;
+      if(typeof content.contains === "function" && content.contains(screen)) return screen.scrollTop || 0;
+    }catch(err){}
+    return 0;
+  }
+
+  function applyRestoredScroll(value){
+    var n = Number(value);
+    if(!isFinite(n) || n < 0) n = 0;
+    lastAppliedScrollTop = n;
+    var content = null;
+    var screen = null;
+    try{
+      content = document.getElementById("content");
+      if(content && typeof content.querySelector === "function") screen = content.querySelector(".screen");
+    }catch(err){}
+    if(!content || !screen) return;
+    var real = false;
+    if(typeof content.contains === "function"){
+      try{ real = content.contains(screen); }catch(err2){ real = false; }
+    }
+    if(real){
+      try{ screen.scrollTop = n; }catch(err3){}
+    }
+  }
+
+  function saveSourceReturn(idea){
+    var payload = {
+      tab: ui && ui.tab ? ui.tab : "discover",
+      scrollTop: readContentScroll(),
+      ts: Date.now()
+    };
+    if(ui && ui.screen === "detail" && ui.detailIdeaId != null) payload.detailId = ui.detailIdeaId;
+    else if(idea && idea.id != null) payload.openCardId = idea.id;
+    else return;
+    writeReturnPayload(payload);
+  }
+
+  function showReturnToast(ideaId){
+    var idea = ideaForSaved(ideaId);
+    var title = idea && idea.title ? String(idea.title) : "this event";
+    var message = "Back in Jaderoo, you were on \u2039" + title + "\u203a";
+    lastToastMessage = message;
+    returnToastIdeaId = ideaId;
+    var t = $("#toast");
+    lastReturnToastNode = t;
+    if(!t) return;
+    if(t.classList){
+      t.classList.add("toast-return");
+      t.classList.remove("toast-wrap");
+      t.classList.remove("hidden");
+    }
+    t.textContent = "";
+    var span = document.createElement("span");
+    span.className = "toast-return-text";
+    span.textContent = message;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "toast-return-btn";
+    btn.textContent = "Return to event";
+    btn.addEventListener("click", function(ev){
+      if(ev && ev.stopPropagation) ev.stopPropagation();
+      if(ev && ev.preventDefault) ev.preventDefault();
+      reopenReturnedEvent();
+    });
+    if(t.appendChild){
+      t.appendChild(span);
+      t.appendChild(btn);
+    }
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){
+      if(t.classList) t.classList.add("hidden");
+    }, 4000);
+  }
+
+  function reopenReturnedEvent(){
+    if(returnToastIdeaId == null) return;
+    goToDetail(returnToastIdeaId);
+  }
+
+  function restoreWayBack(){
+    if(restoringReturn) return false;
+    if(typeof planShareFragment === "function" && planShareFragment() != null) return false;
+    var payload = readReturnPayload();
+    if(!payload) return false;
+    if(!ageGateSatisfied(state)) return false;
+    clearReturnPayload();
+    restoringReturn = true;
+    try{
+      var tab = payload.tab;
+      if(tab !== "discover" && tab !== "friends" && tab !== "saved" && tab !== "done") tab = "discover";
+      ui.tab = tab;
+      ui.savedBucket = null;
+      ui.detailFriendId = null;
+      setNavActive(tab);
+      var ideaId = null;
+      if(payload.detailId != null && payload.detailId !== ""){
+        pendingFrontCardId = null;
+        ideaId = payload.detailId;
+        goToDetail(ideaId);
+      } else if(payload.openCardId != null && payload.openCardId !== ""){
+        pendingFrontCardId = tab === "discover" ? payload.openCardId : null;
+        ideaId = payload.openCardId;
+        ui.screen = "list";
+        ui.detailIdeaId = null;
+        renderContent();
+      } else {
+        pendingFrontCardId = null;
+        ui.screen = "list";
+        ui.detailIdeaId = null;
+        renderContent();
+      }
+      applyRestoredScroll(payload.scrollTop);
+      if(ideaId != null) showReturnToast(ideaId);
+      return true;
+    }finally{
+      restoringReturn = false;
+    }
   }
   function openOverlay(id){ $(id).classList.remove("hidden"); }
   function closeOverlay(id){ $(id).classList.add("hidden"); }
@@ -2027,6 +2239,7 @@
       requestLocation({ silent:true });
     }
     switchTab("discover");
+    restoreWayBack();
   }
 
   /* ---------- How-to tutorial (shown once, right after signup) ---------- */
@@ -2823,6 +3036,11 @@
     // Three cards are mounted. Only those photos are requested: the front
     // card and the next one load now, and the third waits (loading=lazy).
     var ids = deck.remaining.slice(0, 3);
+    if(pendingFrontCardId != null && IDEAS_BY_ID[pendingFrontCardId]){
+      ids = ids.filter(function(id){ return id !== pendingFrontCardId; });
+      ids.unshift(pendingFrontCardId);
+      if(ids.length > 3) ids = ids.slice(0, 3);
+    }
 
     if(ids.length === 0){
       var tonightEmpty = state.filters.tonight === true && deck.total === 0;
@@ -3138,6 +3356,89 @@
       '</div>';
   }
 
+  function hitsMoreInfo(e){
+    var node = e && e.target;
+    var guard = 0;
+    while(node && guard < 8){
+      var cls = node.className ? String(node.className) : "";
+      if(cls.indexOf("more-info-link") !== -1) return true;
+      node = node.parentNode;
+      guard++;
+    }
+    return false;
+  }
+
+  function armSourceLink(link, idea){
+    function remember(ev){
+      if(ev && ev.stopPropagation) ev.stopPropagation();
+      saveSourceReturn(idea);
+    }
+    link.addEventListener("click", remember);
+    link.addEventListener("pointerdown", remember);
+    link.addEventListener("pointerup", remember);
+    link.addEventListener("touchstart", remember);
+    link.addEventListener("touchend", remember);
+  }
+
+  function removeMoreInfoLinks(root){
+    if(!root) return;
+    if(typeof root.querySelectorAll === "function"){
+      var found = [];
+      try{
+        var list = root.querySelectorAll(".more-info-link");
+        if(list && list.length){
+          for(var i = 0; i < list.length; i++) found.push(list[i]);
+        }
+      }catch(err){}
+      if(found.length){
+        found.forEach(function(node){
+          if(node && node.remove) node.remove();
+          else if(node && node.parentNode && node.parentNode.removeChild){
+            try{ node.parentNode.removeChild(node); }catch(err2){}
+          }
+        });
+        return;
+      }
+    }
+    var kids = root.children;
+    if(!kids || !kids.length) return;
+    var copy = [];
+    for(var k = 0; k < kids.length; k++) copy.push(kids[k]);
+    copy.forEach(function(child){
+      var cls = child && child.className ? String(child.className) : "";
+      if(cls.indexOf("more-info-link") !== -1){
+        if(kids.splice && typeof kids.indexOf === "function"){
+          var idx = kids.indexOf(child);
+          if(idx !== -1) kids.splice(idx, 1);
+        }
+        return;
+      }
+      removeMoreInfoLinks(child);
+    });
+  }
+
+  function mountCardMoreInfo(card, idea){
+    if(!card) return null;
+    removeMoreInfoLinks(card);
+    var href = SparkUtil.sourceLink(idea);
+    if(!href) return null;
+    var link = document.createElement("a");
+    link.className = "more-info-link";
+    link.textContent = "More info \u2197";
+    link.setAttribute("href", href);
+    link.setAttribute("target", "_blank");
+    link.setAttribute("rel", "noopener noreferrer");
+    armSourceLink(link, idea);
+    var host = card;
+    if(typeof card.querySelector === "function" && typeof card.contains === "function"){
+      var found = null;
+      try{ found = card.querySelector(".card-photo-overlay, .card-body, .saved-card-body, .ir-text"); }catch(err){ found = null; }
+      if(found && found !== card && card.contains(found)) host = found;
+    }
+    if(host && host.appendChild) host.appendChild(link);
+    return link;
+  }
+
   function buildSwipeCard(idea, isTop, depth){
     var card = el("div", "swipe-card");
     card.dataset.id = idea.id;
@@ -3145,6 +3446,7 @@
     if(photo) card.className = "swipe-card has-photo";
     var rank = typeof depth === "number" ? depth : (isTop ? 0 : 1);
     card.innerHTML = photo ? photoSwipeCardHtml(idea, photo, rank) : classicSwipeCardHtml(idea);
+    mountCardMoreInfo(card, idea);
     if(isTop) attachSwipeHandlers(card, idea.id);
     return card;
   }
@@ -3205,6 +3507,7 @@
       try { card.setPointerCapture(id); } catch(err){}
     }
     function onDown(e){
+      if(hitsMoreInfo(e)) return;
       if(e.button != null && e.button !== 0) return;
       dragging = true;
       axis = null;
@@ -3269,7 +3572,7 @@
       }
       if(decision.action === "tap"){
         resetVisual();
-        if(tappedSourceCredit(e)) return;
+        if(tappedSourceCredit(e) || hitsMoreInfo(e)) return;
         goToDetail(ideaId);
         return;
       }
@@ -3294,6 +3597,7 @@
   }
 
   function finishSwipe(card, direction, ideaId){
+    if(pendingFrontCardId === ideaId) pendingFrontCardId = null;
     card.style.transition = "transform .35s ease, opacity .35s ease";
     card.style.transform = direction === "yes"
       ? "translate(130%,0) rotate(14deg)"
@@ -3510,16 +3814,18 @@
     openFilterOverlay();
   });
 
-  // Secure website only. The address is set with setAttribute, never innerHTML.
+  // Secure source page only. The address is set with setAttribute, never innerHTML.
+  // An empty sourceLink hides the control.
   function visitWebsiteLink(idea){
-    var href = SparkUtil.activityWebsite(idea);
+    var href = SparkUtil.sourceLink(idea);
     if(!href) return null;
     var link = document.createElement("a");
     link.className = "btn-outline";
-    link.textContent = "Visit website";
+    link.textContent = "More info / Source";
     link.setAttribute("href", href);
     link.setAttribute("target", "_blank");
     link.setAttribute("rel", "noopener noreferrer");
+    armSourceLink(link, idea);
     return link;
   }
 
@@ -3596,8 +3902,16 @@
       realBlock.innerHTML =
         '<div class="detail-real-title">' + icon("map-pin") + ' Real Nearby Spot</div>' +
         '<div class="detail-real-name">' + escapeHtml(idea.placeName || idea.title) + '</div>' +
-        (idea.address ? '<div class="detail-real-addr">' + escapeHtml(idea.address) + escapeHtml(ratingHtml) + '</div>' : '') +
-        (idea.mapsUrl ? '<a class="btn-outline btn-block detail-real-link" href="' + idea.mapsUrl + '" target="_blank" rel="noopener">' + icon("map-pin") + ' Open in Maps</a>' : '');
+        (idea.address ? '<div class="detail-real-addr">' + escapeHtml(idea.address) + escapeHtml(ratingHtml) + '</div>' : '');
+      if(idea.mapsUrl){
+        var mapsLink = document.createElement("a");
+        mapsLink.className = "btn-outline btn-block detail-real-link";
+        mapsLink.innerHTML = icon("map-pin") + " Open in Maps";
+        mapsLink.setAttribute("href", String(idea.mapsUrl));
+        mapsLink.setAttribute("target", "_blank");
+        mapsLink.setAttribute("rel", "noopener noreferrer");
+        realBlock.appendChild(mapsLink);
+      }
       wrap.appendChild(realBlock);
     }
 
@@ -4348,7 +4662,11 @@
       '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
       '<div class="ir-sub">' + escapeHtml(subtext) + '</div>' + statusBadgeHtml(idea) + '</span>' +
       '<span class="ir-chevron">›</span>';
-    row.addEventListener("click", function(){ goToDetail(idea.id); });
+    mountCardMoreInfo(row, idea);
+    row.addEventListener("click", function(ev){
+      if(hitsMoreInfo(ev)) return;
+      goToDetail(idea.id);
+    });
     return row;
   }
 
@@ -4807,7 +5125,9 @@
     card.appendChild(body);
     if(like) appendSavedLikeButton(card, like);
     else card.appendChild(mark);
-    card.addEventListener("click", function(){
+    mountCardMoreInfo(card, idea);
+    card.addEventListener("click", function(ev){
+      if(hitsMoreInfo(ev)) return;
       if(opts.onOpen) opts.onOpen();
       else goToDetail(idea.id);
     });
@@ -5733,7 +6053,9 @@
       '<span class="ir-text"><div class="ir-title">' + escapeHtml(idea.title) + '</div>' +
       '<div class="ir-sub">' + escapeHtml(idea.category) + '</div>' + statusBadgeHtml(idea) + '</span>' +
       '<span class="ir-chevron">›</span>';
-    row.addEventListener("click", function(){
+    mountCardMoreInfo(row, idea);
+    row.addEventListener("click", function(ev){
+      if(hitsMoreInfo(ev)) return;
       ui.screen = "detail"; ui.detailIdeaId = idea.id;
       renderContent();
     });
@@ -7099,12 +7421,13 @@
     return copy;
   }
   function buildSharedPlanCard(idea){
+    var shown = sharedPlanCardIdea(idea);
     var filters = state.filters;
     var prev = filters ? filters.localOnly : false;
     if(filters) filters.localOnly = false;
     var card;
     try{
-      card = buildSwipeCard(sharedPlanCardIdea(idea), false, 0);
+      card = buildSwipeCard(shown, false, 0);
     }finally{
       if(filters) filters.localOnly = prev;
     }
@@ -7114,6 +7437,7 @@
         .replace(/<span class="stamp yes">SAVE<\/span><span class="stamp no">PASS<\/span>/g, "")
         .replace(/<div class="card-hint">[\s\S]*?<\/div>/g, "");
     }
+    mountCardMoreInfo(card, shown);
     return card;
   }
   function sharedPlanIdeas(ideaIds){
@@ -7257,6 +7581,13 @@
   function boot(){
     prefillOnboarding();
     window.addEventListener("hashchange", onSharedPlanHash);
+    window.addEventListener("pageshow", function(){ restoreWayBack(); });
+    document.addEventListener("visibilitychange", function(){
+      var stateName = "";
+      try{ stateName = document.visibilityState || ""; }catch(err){}
+      if(stateName === "hidden") return;
+      restoreWayBack();
+    });
     if(routeSharedPlan()) return;
     if(ageGateSatisfied(state)){
       state.onboarded = true;

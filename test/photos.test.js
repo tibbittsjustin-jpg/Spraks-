@@ -62,19 +62,28 @@ section("every idea id exists and every photo file resolves", () => {
   check("photos.js is the photos.json map", JSON.stringify(fromJs) === JSON.stringify(json));
 
   const ids = Object.keys(json);
+  const catalogPhotoIds = ids.filter(key => Number(key) < 100000);
   check("the approved map covers the catalog except reviewed cover fallbacks",
-    ids.length === ideas.length - COVER_FALLBACK.length,
-    ids.length + " of " + ideas.length);
+    catalogPhotoIds.length === ideas.length - COVER_FALLBACK.length,
+    catalogPhotoIds.length + " of " + ideas.length);
 
   const unknown = [];
   const missingFiles = [];
   const unsafe = [];
   const referenced = new Set();
+  const venueProblems = [];
   ids.forEach(key => {
     const id = Number(key);
     const entry = json[key];
     if (!Number.isInteger(id) || String(id) !== key) unknown.push(key);
-    else if (!ideaIds.has(id)) unknown.push(key);
+    /* Database activities use ids from 100000. They are not in the static catalog. */
+    else if (!ideaIds.has(id) && id < 100000) unknown.push(key);
+    if (id >= 100000) {
+      if (!entry || !entry.license_url || !entry.source_url) venueProblems.push(key + " rights");
+      const sa = entry && typeof entry.credit === "string" && entry.credit.indexOf("CC BY-SA") !== -1;
+      if (sa && entry.fit !== "contain") venueProblems.push(key + " fit");
+      if (!sa && entry && entry.fit) venueProblems.push(key + " unexpected fit");
+    }
     const url = entry && entry.url;
     const abs = resolvePhoto(url);
     if (!abs) unsafe.push(key + " " + url);
@@ -101,8 +110,15 @@ section("every idea id exists and every photo file resolves", () => {
   const onDisk = walkFiles(PHOTOS_ROOT, []);
   const extra = onDisk.filter(p => !referenced.has(p));
   check("every file in public/photos is used by the map", extra.length === 0, extra.slice(0, 4).join(","));
-  check("379 images in the approved set", referenced.size === 379 && onDisk.length === 379,
+  check("459 images in the approved set", referenced.size === 459 && onDisk.length === 459,
     "referenced " + referenced.size + " disk " + onDisk.length);
+  const repIds = ids.filter(key => json[key] && json[key].representative === true).map(Number).sort((a, b) => a - b);
+  const expectedRep = [9, 71, 241, 331, 335, 951, 1051, 1068, 1322, 1519, 1695, 1851, 1905, 1925, 100057, 100288, 100313, 100412, 100416, 100480, 100484, 100514, 100535, 100577, 100646, 100685, 100694, 100703, 100706];
+  check("close-relevant venue photos are the representative set",
+    repIds.length === expectedRep.length && expectedRep.every((id, i) => repIds[i] === id),
+    repIds.join(","));
+  check("new venue photos keep a license and source, and CC BY-SA uses contain",
+    venueProblems.length === 0, venueProblems.slice(0, 6).join(","));
 
   const credits = fs.readFileSync(path.join(PUBLIC, "CREDITS.md"), "utf8");
   const aiLines = credits.split("\n").filter(line => line.indexOf("AI-generated image") !== -1 && line.indexOf("photos/") !== -1);

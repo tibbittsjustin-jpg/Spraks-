@@ -418,7 +418,8 @@
   "url": "photos/ice-skating/ice-skating-1.webp",
   "credit": "Photo: René Vlak / Wikimedia Commons, CC0",
   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Skating_and_ice_sailing_on_the_Gouwzee.jpg"
+  "source_url": "https://commons.wikimedia.org/wiki/File:Skating_and_ice_sailing_on_the_Gouwzee.jpg",
+  "representative": true
  },
  "72": {
   "url": "photos/ice-cream/ice-cream-2.webp",
@@ -11925,5 +11926,885 @@
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
   "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg"
+ },
+ "100057": {
+  "url": "photos/hobble-creek-canyon/hobble-creek-canyon-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Southwest_from_east_end_of_Hobble_Creek_Canyon_Parkway,_Utah_County,_Utah,_May_16.jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100241": {
+  "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
+ },
+ "100288": {
+  "url": "photos/orem-library/orem-library-1.webp",
+  "credit": "Photo: Ben P L from Provo, USA / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Orem_Public_Library_(41378147980).jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100291": {
+  "url": "photos/botanical-garden/botanical-garden-1.webp",
+  "credit": "Photo: Daderot / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:March_vista_-_Red_Butte_Garden_and_Arboretum_-_DSC07509.JPG"
+ },
+ "100292": {
+  "url": "photos/casino-star-theatre/casino-star-theatre-1.webp",
+  "credit": "Photo: P. Kent Fairbanks / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Casino_Theatre,_Gunnison.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Casino_Theatre,_Gunnison.jpg"
+ },
+ "100313": {
+  "url": "photos/gardner-village/gardner-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Gardner_Village_sign.JPG",
+  "fit": "contain",
+  "representative": true
+ },
+ "100337": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100353": {
+  "url": "photos/covey-center/covey-center-1.webp",
+  "credit": "Photo: Ben P L from Provo / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Covey_Center_for_the_Arts_(42047782692).jpg",
+  "fit": "contain"
+ },
+ "100400": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100412": {
+  "url": "photos/canyons-village/canyons-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Canyons_Resort_Transit_Hub_in_Summit_County,_Utah,_Apr_16.jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100416": {
+  "url": "photos/gardner-village/gardner-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Gardner_Village_sign.JPG",
+  "fit": "contain",
+  "representative": true
+ },
+ "100435": {
+  "url": "photos/hilton-salt-lake/hilton-salt-lake-1.webp",
+  "credit": "Photo: Ricardo630 / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Hilton_slc.jpg",
+  "fit": "contain"
+ },
+ "100436": {
+  "url": "photos/fort-douglas-museum/fort-douglas-museum-1.webp",
+  "credit": "Photo: Milonica at en.wikipedia / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:FortDouglasMuseum.jpg",
+  "fit": "contain"
+ },
+ "100438": {
+  "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
+ },
+ "100442": {
+  "url": "photos/cathedral-of-the-madeleine/cathedral-of-the-madeleine-1.webp",
+  "credit": "Photo: Adrian Comollo / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Madeleine,_SLC.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Madeleine,_SLC.jpg"
+ },
+ "100448": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100459": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100470": {
+  "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
+ },
+ "100480": {
+  "url": "photos/tracy-aviary/tracy-aviary-1.webp",
+  "credit": "Photo: Pollardjosephd / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Tracy_Aviary.jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100484": {
+  "url": "photos/gardner-village/gardner-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Gardner_Village_sign.JPG",
+  "fit": "contain",
+  "representative": true
+ },
+ "100496": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100498": {
+  "url": "photos/hilton-salt-lake/hilton-salt-lake-1.webp",
+  "credit": "Photo: Ricardo630 / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Hilton_slc.jpg",
+  "fit": "contain"
+ },
+ "100504": {
+  "url": "photos/murray-theater/murray-theater-1.webp",
+  "credit": "Photo: Murray Theater / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Murray_Theater.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Murray_Theater.jpg"
+ },
+ "100511": {
+  "url": "photos/thanksgiving-point/thanksgiving-point-1.webp",
+  "credit": "Photo: Ben P L from Provo, USA / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Thanksgiving_Point_tower_(32595068228).jpg",
+  "fit": "contain"
+ },
+ "100514": {
+  "url": "photos/canyons-village/canyons-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Canyons_Resort_Transit_Hub_in_Summit_County,_Utah,_Apr_16.jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100515": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100535": {
+  "url": "photos/temple-square/temple-square-1.webp",
+  "credit": "Photo: Chanilim714 / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Assembly_Hall_-_Temple_Square_Salt_Lake_City_UT_-_panoramio.jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100536": {
+  "url": "photos/abravanel-hall/abravanel-hall-1.webp",
+  "credit": "Photo: Ricardo630 / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Slc_abravanel_hall.jpg",
+  "fit": "contain"
+ },
+ "100541": {
+  "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
+ },
+ "100544": {
+  "url": "photos/covey-center/covey-center-1.webp",
+  "credit": "Photo: Ben P L from Provo / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Covey_Center_for_the_Arts_(42047782692).jpg",
+  "fit": "contain"
+ },
+ "100550": {
+  "url": "photos/first-presbyterian-salt-lake/first-presbyterian-salt-lake-1.webp",
+  "credit": "Photo: Suicasmo / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:First_Presbyterian_Church_of_Salt_Lake_City_20170306.jpg",
+  "fit": "contain"
+ },
+ "100558": {
+  "url": "photos/cathedral-of-the-madeleine/cathedral-of-the-madeleine-1.webp",
+  "credit": "Photo: Adrian Comollo / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Madeleine,_SLC.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Madeleine,_SLC.jpg"
+ },
+ "100577": {
+  "url": "photos/gardner-village/gardner-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Gardner_Village_sign.JPG",
+  "fit": "contain",
+  "representative": true
+ },
+ "100585": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100586": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100605": {
+  "url": "photos/hilton-salt-lake/hilton-salt-lake-1.webp",
+  "credit": "Photo: Ricardo630 / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Hilton_slc.jpg",
+  "fit": "contain"
+ },
+ "100608": {
+  "url": "photos/first-united-methodist-salt-lake/first-united-methodist-salt-lake-1.webp",
+  "credit": "Photo: Stephaniet / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:First_Methodist_Episcopal_Church_Salt_Lake_City_Utah.JPG",
+  "fit": "contain"
+ },
+ "100612": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100616": {
+  "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
+ },
+ "100619": {
+  "url": "photos/abravanel-hall/abravanel-hall-1.webp",
+  "credit": "Photo: Ricardo630 / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Slc_abravanel_hall.jpg",
+  "fit": "contain"
+ },
+ "100620": {
+  "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
+ },
+ "100627": {
+  "url": "photos/provo-historic-courthouse/provo-historic-courthouse-1.webp",
+  "credit": "Photo: Farragutful / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Historic_Utah_County_Courthouse_03.jpg",
+  "fit": "contain"
+ },
+ "100631": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100636": {
+  "url": "photos/first-presbyterian-salt-lake/first-presbyterian-salt-lake-1.webp",
+  "credit": "Photo: Suicasmo / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:First_Presbyterian_Church_of_Salt_Lake_City_20170306.jpg",
+  "fit": "contain"
+ },
+ "100639": {
+  "url": "photos/murray-theater/murray-theater-1.webp",
+  "credit": "Photo: Murray Theater / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Murray_Theater.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Murray_Theater.jpg"
+ },
+ "100645": {
+  "url": "photos/covey-center/covey-center-1.webp",
+  "credit": "Photo: Ben P L from Provo / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Covey_Center_for_the_Arts_(42047782692).jpg",
+  "fit": "contain"
+ },
+ "100646": {
+  "url": "photos/gardner-village/gardner-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Gardner_Village_sign.JPG",
+  "fit": "contain",
+  "representative": true
+ },
+ "100653": {
+  "url": "photos/clark-historic-farm/clark-historic-farm-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Anderson-Clark_Farmstead_Grantsville_Utah.jpeg",
+  "fit": "contain"
+ },
+ "100655": {
+  "url": "photos/hilton-salt-lake/hilton-salt-lake-1.webp",
+  "credit": "Photo: Ricardo630 / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Hilton_slc.jpg",
+  "fit": "contain"
+ },
+ "100659": {
+  "url": "photos/cathedral-of-the-madeleine/cathedral-of-the-madeleine-1.webp",
+  "credit": "Photo: Adrian Comollo / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Madeleine,_SLC.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Madeleine,_SLC.jpg"
+ },
+ "100662": {
+  "url": "photos/logan-tabernacle/logan-tabernacle-1.webp",
+  "credit": "Photo: Cornellrockey / Wikimedia Commons, CC BY-SA 2.5",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Logan_Tabernacle_(Logan,_UT).jpg",
+  "fit": "contain"
+ },
+ "100663": {
+  "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
+ },
+ "100665": {
+  "url": "photos/casino-star-theatre/casino-star-theatre-1.webp",
+  "credit": "Photo: P. Kent Fairbanks / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Casino_Theatre,_Gunnison.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Casino_Theatre,_Gunnison.jpg"
+ },
+ "100668": {
+  "url": "photos/church-history-museum/church-history-museum-1.webp",
+  "credit": "Photo: Beneathtimp / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Church_History_Museum_-_Salt_Lake_City,_Utah_-_2_May_2020.jpg"
+ },
+ "100669": {
+  "url": "photos/logan-tabernacle/logan-tabernacle-1.webp",
+  "credit": "Photo: Cornellrockey / Wikimedia Commons, CC BY-SA 2.5",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Logan_Tabernacle_(Logan,_UT).jpg",
+  "fit": "contain"
+ },
+ "100673": {
+  "url": "photos/logan-tabernacle/logan-tabernacle-1.webp",
+  "credit": "Photo: Cornellrockey / Wikimedia Commons, CC BY-SA 2.5",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Logan_Tabernacle_(Logan,_UT).jpg",
+  "fit": "contain"
+ },
+ "100675": {
+  "url": "photos/st-george-tabernacle/st-george-tabernacle-1.webp",
+  "credit": "Photo: P. Kent Fairbanks / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:St._George_Tabernacle.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:St._George_Tabernacle.jpg"
+ },
+ "100681": {
+  "url": "photos/cathedral-of-the-madeleine/cathedral-of-the-madeleine-1.webp",
+  "credit": "Photo: Adrian Comollo / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Madeleine,_SLC.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Madeleine,_SLC.jpg"
+ },
+ "100682": {
+  "url": "photos/utah-state-capitol/utah-state-capitol-1.webp",
+  "credit": "Photo: LoneStarMike / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:UtahStateCapitol-Mar2008-a.JPG",
+  "fit": "contain"
+ },
+ "100683": {
+  "url": "photos/logan-tabernacle/logan-tabernacle-1.webp",
+  "credit": "Photo: Cornellrockey / Wikimedia Commons, CC BY-SA 2.5",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Logan_Tabernacle_(Logan,_UT).jpg",
+  "fit": "contain"
+ },
+ "100685": {
+  "url": "photos/canyons-village/canyons-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Canyons_Resort_Transit_Hub_in_Summit_County,_Utah,_Apr_16.jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100686": {
+  "url": "photos/kingsbury-hall/kingsbury-hall-1.webp",
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_kingsbury.jpg"
+ },
+ "100691": {
+  "url": "photos/logan-tabernacle/logan-tabernacle-1.webp",
+  "credit": "Photo: Cornellrockey / Wikimedia Commons, CC BY-SA 2.5",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Logan_Tabernacle_(Logan,_UT).jpg",
+  "fit": "contain"
+ },
+ "100694": {
+  "url": "photos/orem-library/orem-library-1.webp",
+  "credit": "Photo: Ben P L from Provo, USA / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Orem_Public_Library_(41378147980).jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100695": {
+  "url": "photos/hilton-salt-lake/hilton-salt-lake-1.webp",
+  "credit": "Photo: Ricardo630 / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Hilton_slc.jpg",
+  "fit": "contain"
+ },
+ "100698": {
+  "url": "photos/logan-tabernacle/logan-tabernacle-1.webp",
+  "credit": "Photo: Cornellrockey / Wikimedia Commons, CC BY-SA 2.5",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Logan_Tabernacle_(Logan,_UT).jpg",
+  "fit": "contain"
+ },
+ "100703": {
+  "url": "photos/canyons-village/canyons-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Canyons_Resort_Transit_Hub_in_Summit_County,_Utah,_Apr_16.jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100706": {
+  "url": "photos/canyons-village/canyons-village-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Canyons_Resort_Transit_Hub_in_Summit_County,_Utah,_Apr_16.jpg",
+  "fit": "contain",
+  "representative": true
+ },
+ "100717": {
+  "url": "photos/st-george-tabernacle/st-george-tabernacle-1.webp",
+  "credit": "Photo: P. Kent Fairbanks / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:St._George_Tabernacle.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:St._George_Tabernacle.jpg"
+ },
+ "100720": {
+  "url": "photos/anasazi-state-park-museum/anasazi-state-park-museum-1.webp",
+  "credit": "Photo: Nickeyrc / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Anasazi_Indian_State_Park.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Anasazi_Indian_State_Park.jpg"
+ },
+ "100721": {
+  "url": "photos/ashton-gardens/ashton-gardens-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:South_through_Ashton_Gardens_at_Thanksgiving_Point,_early_May_16.jpg",
+  "fit": "contain"
+ },
+ "100724": {
+  "url": "photos/beehive-house/beehive-house-1.webp",
+  "credit": "Photo: Beneathtimp / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Beehive_House_-_Salt_Lake_City,_Utah_-_2_May_2020.jpg"
+ },
+ "100725": {
+  "url": "photos/bicknell-dup-museum/bicknell-dup-museum-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Bicknell_Utah_DUP_Museum.jpeg",
+  "fit": "contain"
+ },
+ "100730": {
+  "url": "photos/brigham-city-museum/brigham-city-museum-1.webp",
+  "credit": "Photo: Ntsimp / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Brigham_City_Museum.jpeg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Brigham_City_Museum.jpeg"
+ },
+ "100731": {
+  "url": "photos/brigham-young-winter-home/brigham-young-winter-home-1.webp",
+  "credit": "Photo: P. Kent Fairbanks / Historic American Buildings Survey / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Historic_American_Buildings_Survey,_P._Kent_Fairbanks,_Photographer_August,_1968_WEST_ELEVATION._-_Brigham_Young_Winter_House,_200_North_and_100_West_Streets,_Saint_George,_HABS_UTAH,27-SAGEO,13-3.tif#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Historic_American_Buildings_Survey,_P._Kent_Fairbanks,_Photographer_August,_1968_WEST_ELEVATION._-_Brigham_Young_Winter_House,_200_North_and_100_West_Streets,_Saint_George,_HABS_UTAH,27-SAGEO,13-3.tif"
+ },
+ "100734": {
+  "url": "photos/byu-bean-museum/byu-bean-museum-1.webp",
+  "credit": "Photo: GreenwoodKL / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:BYU_MLBM.jpg",
+  "fit": "contain"
+ },
+ "100735": {
+  "url": "photos/byu-museum-of-paleontology/byu-museum-of-paleontology-1.webp",
+  "credit": "Photo: GreenwoodKL / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:BYU_MP.JPG",
+  "fit": "contain"
+ },
+ "100746": {
+  "url": "photos/clark-historic-farm/clark-historic-farm-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Anderson-Clark_Farmstead_Grantsville_Utah.jpeg",
+  "fit": "contain"
+ },
+ "100747": {
+  "url": "photos/clark-planetarium/clark-planetarium-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Clark_Planetarium_at_The_Gateway.JPG",
+  "fit": "contain"
+ },
+ "100754": {
+  "url": "photos/discovery-gateway/discovery-gateway-1.webp",
+  "credit": "Photo: LoneStarMike / Wikimedia Commons, CC BY 3.0",
+  "license_url": "https://creativecommons.org/licenses/by/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:DiscoveryGatewaySLC.JPG"
+ },
+ "100758": {
+  "url": "photos/eccles-art-center/eccles-art-center-1.webp",
+  "credit": "Photo: Ntsimp / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Eccles_Art_Center_Ogden_Utah.jpeg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Eccles_Art_Center_Ogden_Utah.jpeg"
+ },
+ "100766": {
+  "url": "photos/farmington-historical-museum/farmington-historical-museum-1.webp",
+  "credit": "Photo: Ben P L / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Farmington_Historical_Museum_001.jpg",
+  "fit": "contain"
+ },
+ "100767": {
+  "url": "photos/fielding-garr-ranch/fielding-garr-ranch-1.webp",
+  "credit": "Photo: Simple Insomnia / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Fielding_Garr_Ranch.jpg"
+ },
+ "100769": {
+  "url": "photos/fort-buenaventura/fort-buenaventura-1.webp",
+  "credit": "Photo: Beneathtimp / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Fort_Buenaventura_replica_-_17_April_2021.jpg"
+ },
+ "100771": {
+  "url": "photos/fremont-indian-state-park/fremont-indian-state-park-1.webp",
+  "credit": "Photo: Ntsimp / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Fremont_Indian_State_Park_museum_Utah.jpeg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Fremont_Indian_State_Park_museum_Utah.jpeg"
+ },
+ "100772": {
+  "url": "photos/frontier-homestead-state-park/frontier-homestead-state-park-1.webp",
+  "credit": "Photo: A. E. Crane, U.S. Department of Transportation / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Scenic_Byway_143_-_Utah%27s_Patchwork_Parkway_-_Oldest_Log_Cabin_in_Southern_Utah_-_NARA_-_7722001.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Scenic_Byway_143_-_Utah%27s_Patchwork_Parkway_-_Oldest_Log_Cabin_in_Southern_Utah_-_NARA_-_7722001.jpg"
+ },
+ "100776": {
+  "url": "photos/granary-arts/granary-arts-1.webp",
+  "credit": "Photo: Granary arts / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Granary_Arts.jpg",
+  "fit": "contain"
+ },
+ "100777": {
+  "url": "photos/clark-historic-farm/clark-historic-farm-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Anderson-Clark_Farmstead_Grantsville_Utah.jpeg",
+  "fit": "contain"
+ },
+ "100781": {
+  "url": "photos/heritage-museum-of-layton/heritage-museum-of-layton-1.webp",
+  "credit": "Photo: Ntsimp / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Layton_Utah_Heritage_Museum.jpeg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Layton_Utah_Heritage_Museum.jpeg"
+ },
+ "100783": {
+  "url": "photos/holmgren-historical-farm/holmgren-historical-farm-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Holmgren_Farmstead_Tremonton_Utah.jpeg",
+  "fit": "contain"
+ },
+ "100788": {
+  "url": "photos/hutchings-museum/hutchings-museum-1.webp",
+  "credit": "Photo: Daniela-Larsen-Explored / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Hutchings_Museum.jpg",
+  "fit": "contain"
+ },
+ "100790": {
+  "url": "photos/international-peace-gardens/international-peace-gardens-1.webp",
+  "credit": "Photo: Fuse.dragon / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Intl_Peace_Gardens_SLC.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Intl_Peace_Gardens_SLC.jpg"
+ },
+ "100791": {
+  "url": "photos/jacob-hamblin-home/jacob-hamblin-home-1.webp",
+  "credit": "Photo: Beneathtimp / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Jacob_Hamblin_Home,_second_story_interior_-_Santa_Clara,_Utah_-_17_January_2015.jpg"
+ },
+ "100794": {
+  "url": "photos/john-wesley-powell-museum/john-wesley-powell-museum-1.webp",
+  "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:John_Wesley_Powell_River_History_Museum_(51026650401).jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:John_Wesley_Powell_River_History_Museum_(51026650401).jpg"
+ },
+ "100797": {
+  "url": "photos/juab-county-dup-museum/juab-county-dup-museum-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Juab_County_DUP_Museum_Nephi_Utah.jpeg",
+  "fit": "contain"
+ },
+ "100802": {
+  "url": "photos/heritage-museum-of-layton/heritage-museum-of-layton-1.webp",
+  "credit": "Photo: Ntsimp / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Layton_Utah_Heritage_Museum.jpeg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Layton_Utah_Heritage_Museum.jpeg"
+ },
+ "100803": {
+  "url": "photos/church-history-museum/church-history-museum-1.webp",
+  "credit": "Photo: Beneathtimp / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Church_History_Museum_-_Salt_Lake_City,_Utah_-_2_May_2020.jpg"
+ },
+ "100806": {
+  "url": "photos/loveland-living-planet-aquarium/loveland-living-planet-aquarium-1.webp",
+  "credit": "Photo: cifraser1 / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Touch_pool.jpg"
+ },
+ "100809": {
+  "url": "photos/manti-city-hall/manti-city-hall-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Manti_Utah_City_Hall.jpeg",
+  "fit": "contain"
+ },
+ "100821": {
+  "url": "photos/museum-of-ancient-life/museum-of-ancient-life-1.webp",
+  "credit": "Photo: WehaveaTrex / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Dinosaur_origins_display_at_The_Museum_of_Ancient_Life.jpg",
+  "fit": "contain"
+ },
+ "100823": {
+  "url": "photos/museum-of-natural-curiosity/museum-of-natural-curiosity-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Museum_of_Natural_Curiosity_entrance,_Feb_17.jpg",
+  "fit": "contain"
+ },
+ "100824": {
+  "url": "photos/museum-of-the-san-rafael/museum-of-the-san-rafael-1.webp",
+  "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Museum_of_the_San_Rafael--_Emery_County,_Utah_(51796481132).jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Museum_of_the_San_Rafael--_Emery_County,_Utah_(51796481132).jpg"
+ },
+ "100826": {
+  "url": "photos/ogden-union-station/ogden-union-station-1.webp",
+  "credit": "Photo: Richard Bauer / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Ogden_Utah_Union_Station_-_December_2005.jpg"
+ },
+ "100828": {
+  "url": "photos/natural-history-museum-of-utah/natural-history-museum-of-utah-1.webp",
+  "credit": "Photo: Daderot / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Heliobatis_radians,_Lincoln_County,_Wyoming_-_Natural_History_Museum_of_Utah_-_DSC07176.JPG"
+ },
+ "100834": {
+  "url": "photos/ogden-nature-center/ogden-nature-center-1.webp",
+  "credit": "Photo: Ntsimp / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Ogden_Nature_Center.jpeg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Ogden_Nature_Center.jpeg"
+ },
+ "100838": {
+  "url": "photos/orderville-dup-museum/orderville-dup-museum-1.webp",
+  "credit": "Photo: Ken Lund / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Orderville_Utah_DUP_museum.jpg",
+  "fit": "contain"
+ },
+ "100842": {
+  "url": "photos/park-city-museum/park-city-museum-1.webp",
+  "credit": "Photo: Saalebaer / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Park_City_Museum_in_Park_City_Utah.JPG"
+ },
+ "100844": {
+  "url": "photos/pioneer-memorial-museum/pioneer-memorial-museum-1.webp",
+  "credit": "Photo: Tracie Hall / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Pioneer_Memorial_Museum_Salt_Lake_City_Utah.jpg",
+  "fit": "contain"
+ },
+ "100847": {
+  "url": "photos/provo-pioneer-museum/provo-pioneer-museum-1.webp",
+  "credit": "Photo: Jllm06 / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Provo_Pioneer_Museum_1.JPG",
+  "fit": "contain"
+ },
+ "100848": {
+  "url": "photos/provo-pioneer-village/provo-pioneer-village-1.webp",
+  "credit": "Photo: Jllm06 / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Provo_Pioneer_Village.JPG",
+  "fit": "contain"
+ },
+ "100850": {
+  "url": "photos/botanical-garden/botanical-garden-1.webp",
+  "credit": "Photo: Daderot / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:March_vista_-_Red_Butte_Garden_and_Arboretum_-_DSC07509.JPG"
+ },
+ "100854": {
+  "url": "photos/scipio-town-hall/scipio-town-hall-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Scipio_Utah_town_hall.jpeg",
+  "fit": "contain"
+ },
+ "100856": {
+  "url": "photos/sandy-museum/sandy-museum-1.webp",
+  "credit": "Photo: A-M Bernshaw / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Sandy_Museum_01.jpg",
+  "fit": "contain"
+ },
+ "100858": {
+  "url": "photos/santaquin-chieftain-museum/santaquin-chieftain-museum-1.webp",
+  "credit": "Photo: Ntsimp / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Chieftain_Museum_Santaquin_Utah.jpeg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Chieftain_Museum_Santaquin_Utah.jpeg"
+ },
+ "100861": {
+  "url": "photos/southern-utah-museum-of-art/southern-utah-museum-of-art-1.webp",
+  "credit": "Photo: Calderoliver / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Southern_Utah_Museum_of_Art.jpg",
+  "fit": "contain"
+ },
+ "100863": {
+  "url": "photos/springville-museum-of-art/springville-museum-of-art-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Springville_Utah_Museum_of_Art.jpeg",
+  "fit": "contain"
+ },
+ "100865": {
+  "url": "photos/st-george-dinosaur-discovery/st-george-dinosaur-discovery-1.webp",
+  "credit": "Photo: 5of7 / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:The_St._George_Dinosaur_Discovery_Site_at_Johnson_Farm.jpg",
+  "fit": "contain"
+ },
+ "100867": {
+  "url": "photos/st-george-art-museum/st-george-art-museum-1.webp",
+  "credit": "Photo: Beneathtimp / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:St._George_Art_Museum_-_St._George,_Utah_-_7_February_2015.jpg"
+ },
+ "100869": {
+  "url": "photos/stokes-nature-center/stokes-nature-center-1.webp",
+  "credit": "Photo: A. E. Crane, U.S. Department of Transportation / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Logan_Canyon_Scenic_Byway_-_The_Stokes_Nature_Center_-_NARA_-_7720257.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Logan_Canyon_Scenic_Byway_-_The_Stokes_Nature_Center_-_NARA_-_7720257.jpg"
+ },
+ "100871": {
+  "url": "photos/syracuse-dup-museum/syracuse-dup-museum-1.webp",
+  "credit": "Photo: Ntsimp / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Syracuse_Utah_DUP_museum.jpeg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Syracuse_Utah_DUP_museum.jpeg"
+ },
+ "100875": {
+  "url": "photos/territorial-statehouse/territorial-statehouse-1.webp",
+  "credit": "Photo: Benmckune / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Territorial_Statehouse_in_Fillmore_Utah.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Territorial_Statehouse_in_Fillmore_Utah.jpg"
+ },
+ "100876": {
+  "url": "photos/thanksgiving-point/thanksgiving-point-1.webp",
+  "credit": "Photo: Ben P L from Provo, USA / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Thanksgiving_Point_tower_(32595068228).jpg",
+  "fit": "contain"
+ },
+ "100879": {
+  "url": "photos/whitaker-house/whitaker-house-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Whitaker_House_Centerville_Utah.jpeg",
+  "fit": "contain"
+ },
+ "100881": {
+  "url": "photos/tintic-mining-museum/tintic-mining-museum-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Tintic_Mining_Museum_Eureka_Utah.jpeg",
+  "fit": "contain"
+ },
+ "100882": {
+  "url": "photos/topaz-museum/topaz-museum-1.webp",
+  "credit": "Photo: mliu92 from San Mateo / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Topaz_Museum_(rear);_Delta,_Utah_(20494679972).jpg",
+  "fit": "contain"
+ },
+ "100884": {
+  "url": "photos/tracy-aviary/tracy-aviary-1.webp",
+  "credit": "Photo: Pollardjosephd / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Tracy_Aviary.jpg",
+  "fit": "contain"
+ },
+ "100887": {
+  "url": "photos/utah-field-house/utah-field-house-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Utah_Field_House_of_Natural_History_State_Park_Museum,_Sep_17.jpg",
+  "fit": "contain"
+ },
+ "100888": {
+  "url": "photos/umoca/umoca-1.webp",
+  "credit": "Photo: Utah Museum of Contemporary Art / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Utah_Museum_of_Contemporary_Art.jpg",
+  "fit": "contain"
+ },
+ "100889": {
+  "url": "photos/utah-museum-of-fine-arts/utah-museum-of-fine-arts-1.webp",
+  "credit": "Photo: Tricia Simpson / Wikimedia Commons, CC BY-SA 3.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Utah_Museum_of_Fine_Arts.jpeg",
+  "fit": "contain"
+ },
+ "100891": {
+  "url": "photos/hogle-zoo/hogle-zoo-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Hogle_Zoo_sign,_Mar_17.jpg",
+  "fit": "contain"
+ },
+ "100900": {
+  "url": "photos/helper-mining-railroad-museum/helper-mining-railroad-museum-1.webp",
+  "credit": "Photo: An Errant Knight / Wikimedia Commons, CC BY-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Western_Mining_and_Railroad_Museum,_May_17.jpg",
+  "fit": "contain"
+ },
+ "100901": {
+  "url": "photos/wheeler-historic-farm/wheeler-historic-farm-1.webp",
+  "credit": "Photo: Stundra / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Wheeler_Farm_House.JPG#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Wheeler_Farm_House.JPG"
  }
 }

@@ -196,6 +196,86 @@ section("Representative label and fit/contain stay on the card", () => {
   check("the saved card repeats the representative label",
     savedHtml.indexOf("Representative photo — not this venue/event.") !== -1 &&
     savedHtml.indexOf("photo-fit") !== -1);
+
+  t.applyCatalogIdeas([{
+    id: 100535,
+    title: "Temple Square",
+    description: "A walk through Temple Square.",
+    category: "Culture, Community & Local Attractions",
+    icon: "",
+    setting: "Outdoor",
+    season: [],
+    food: false,
+    age21: false,
+    cost: "Free",
+    duration: "Half-day (2-5 hrs)",
+    time: [],
+    vibe: [],
+    stage: [],
+    dateType: [],
+    audience: null,
+    materials: []
+  }, {
+    id: 100884,
+    title: "Tracy Aviary",
+    description: "Walk the aviary.",
+    category: "Outdoors & Adventure",
+    icon: "",
+    setting: "Outdoor",
+    season: [],
+    food: false,
+    age21: false,
+    cost: "$",
+    duration: "Half-day (2-5 hrs)",
+    time: [],
+    vibe: [],
+    stage: [],
+    dateType: [],
+    audience: null,
+    materials: []
+  }]);
+  const square = t.ideaPhoto(t.IDEAS_BY_ID[100535]);
+  check("a hydrated close match keeps the catalog label and contain fit",
+    square && square.representative === true && square.fit === "contain" &&
+    square.url.indexOf("temple-square") !== -1);
+  const aviary = t.ideaPhoto(t.IDEAS_BY_ID[100884]);
+  check("an exact venue photo is contained without the representative label",
+    aviary && aviary.representative !== true && aviary.fit === "contain" &&
+    aviary.url.indexOf("tracy-aviary") !== -1);
+  const squareCard = cardOf(t, t.IDEAS_BY_ID[100535]);
+  check("the hydrated close match renders the label",
+    squareCard.html.indexOf("Representative photo — not this venue/event.") !== -1);
+  const aviaryCard = cardOf(t, t.IDEAS_BY_ID[100884]);
+  check("the exact aviary card does not show the representative label",
+    aviaryCard.html.indexOf("Representative photo — not this venue/event.") === -1 &&
+    aviaryCard.html.indexOf("photo-fit") !== -1);
+
+  t.applyCatalogIdeas([{
+    id: 71,
+    title: "Skate a Pond by Moonlight",
+    description: "Skate a frozen pond under a full moon.",
+    category: "Winter & Snow Adventures",
+    icon: "",
+    setting: "Outdoor",
+    season: ["Winter"],
+    food: false,
+    age21: false,
+    cost: "Free",
+    duration: "Half-day (2-5 hrs)",
+    time: [],
+    vibe: [],
+    stage: [],
+    dateType: [],
+    audience: null,
+    materials: []
+  }]);
+  const pond = t.IDEAS_BY_ID[71];
+  const pondPhoto = t.ideaPhoto(pond);
+  check("skate a pond by moonlight keeps the Gouwzee photo and the representative flag",
+    pondPhoto && pondPhoto.representative === true && pondPhoto.url.indexOf("ice-skating-1") !== -1);
+  const pondCard = cardOf(t, pond);
+  check("the pond card shows the representative label",
+    pondCard.html.indexOf("Representative photo — not this venue/event.") !== -1);
 });
 
 section("Duration caption", () => {

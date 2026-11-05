@@ -7,14 +7,22 @@
     if (typeof module === "object" && module.exports) return require(path);
     return root[globalName];
   }
-  var api = factory(load("./occurrences", "SparkOccurrences"), load("./data-sources", "JaderooSources"));
+  var api = factory(load("./occurrences", "SparkOccurrences"));
   if (typeof module === "object" && module.exports) module.exports = api;
   else root.SparkFeed = api;
-})(this, function (occ, sources) {
+})(this, function (occ) {
   "use strict";
 
   var HORIZON_DAYS = 14;
   var NO_START = 24 * 60 + 1;
+  /* activities.id identity starts at 100000. Approved rows below that are
+     the original curated seed (ids 2–2000, source curated, created
+     2026-10-29). Rows at or above it are the later loads (source ai,
+     created Oct 31–Nov 4), including almost every dated event.
+     Nearby-place cards use 9000000–9999999 and are not activities ids. */
+  var NEW_ROW_ID = 100000;
+  var REAL_ID_MIN = 9000000;
+  var REAL_ID_MAX = 10000000;
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var LOCAL_PHASES = ["nn", "ng", "on", "og"];
   var UNLOCATED_PHASES = ["ni", "oi"];
@@ -174,6 +182,50 @@
     return isFinite(n) ? n : 0;
   }
 
+  /* Activities id, not a nearby-place id. dbId and "db:<n>" are the
+     client copies of that column. */
+  function numericDbId(row) {
+    if (!row || typeof row !== "object") return null;
+    if (typeof row.dbId === "number" && isFinite(row.dbId) && Math.floor(row.dbId) === row.dbId) return row.dbId;
+    var raw = row.id;
+    if (typeof raw === "string") {
+      var prefixed = /^db:(\d+)$/.exec(raw);
+      if (!prefixed) return null;
+      return Number(prefixed[1]);
+    }
+    if (typeof raw === "number" && isFinite(raw) && Math.floor(raw) === raw) {
+      if (raw >= REAL_ID_MIN && raw < REAL_ID_MAX) return null;
+      return raw;
+    }
+    return null;
+  }
+
+  /* Ticketmaster cards from the remote activities feed have no activities
+     id. isEvent, or a stableKey of tm:…, is that live event. */
+  function isRemoteLiveEvent(row) {
+    if (!row || typeof row !== "object") return false;
+    if (row.isEvent === true) return true;
+    return typeof row.stableKey === "string" && row.stableKey.indexOf("tm:") === 0;
+  }
+
+  function isNewRow(row) {
+    if (isRemoteLiveEvent(row)) return true;
+    var id = numericDbId(row);
+    return id != null && id >= NEW_ROW_ID;
+  }
+
+  function newRowSql() {
+    return "(id >= " + NEW_ROW_ID + ")";
+  }
+
+  function newRowCountSql() {
+    var pred = newRowSql();
+    return "SELECT count(*) FILTER (WHERE " + pred + ") AS new_rows,\n" +
+      "       count(*) FILTER (WHERE NOT " + pred + ") AS older_rows\n" +
+      "FROM activities\n" +
+      "WHERE status = 'approved';";
+  }
+
   /* Minutes from midnight on isoDate, or NO_START when that day has no clock.
      The SQL sort uses the same 1441 sentinel. */
   function startSortKey(row, isoDate) {
@@ -191,8 +243,8 @@
   }
 
   function compareHappening(a, b, isoDate) {
-    var aNew = sources.isNewRow(a) ? 0 : 1;
-    var bNew = sources.isNewRow(b) ? 0 : 1;
+    var aNew = isNewRow(a) ? 0 : 1;
+    var bNew = isNewRow(b) ? 0 : 1;
     if (aNew !== bNew) return aNew - bNew;
     var aStart = startSortKey(a, isoDate);
     var bStart = startSortKey(b, isoDate);
@@ -202,7 +254,7 @@
 
   function passesHappeningKeyset(row, cursor, isoDate) {
     if (!cursor) return true;
-    var n = sources.isNewRow(row) ? 0 : 1;
+    var n = isNewRow(row) ? 0 : 1;
     var s = startSortKey(row, isoDate);
     if (n !== cursor.n) return n > cursor.n;
     if (s !== cursor.s) return s > cursor.s;
@@ -210,7 +262,7 @@
   }
 
   function localPhase(row, located) {
-    var fresh = sources.isNewRow(row);
+    var fresh = isNewRow(row);
     if (!located) return fresh ? "ni" : "oi";
     var pinned = row && row.dist != null && row.dist !== "";
     if (fresh && pinned) return "nn";
@@ -243,7 +295,7 @@
     var older = [];
     for (var i = 0; i < ids.length; i++) {
       var idea = getIdea(ids[i]);
-      if (sources.isNewRow(idea)) fresh.push(ids[i]);
+      if (isNewRow(idea)) fresh.push(ids[i]);
       else older.push(ids[i]);
     }
     return fresh.concat(older);
@@ -252,6 +304,10 @@
   return {
     HORIZON_DAYS: HORIZON_DAYS,
     NO_START: NO_START,
+    NEW_ROW_ID: NEW_ROW_ID,
+    isNewRow: isNewRow,
+    newRowSql: newRowSql,
+    newRowCountSql: newRowCountSql,
     feedModeOf: feedModeOf,
     canonicalWhen: canonicalWhen,
     maxDate: maxDate,

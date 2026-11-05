@@ -407,8 +407,10 @@ async function main() {
     const countBefore = t.countIdeasMatching(t.state.filters);
     const added = t.applyRemoteIdeas([anytime]);
     const after = t.computeDeck();
-    check("the current card stays when activities arrive", after.remaining[0] === first, String(after.remaining[0]));
-    check("the new idea is appended", added.length === 1 && after.remaining.indexOf(anytime.id) !== -1);
+    check("a new activities row leads when it arrives",
+      after.remaining[0] === anytime.id && after.remaining.indexOf(first) > 0,
+      String(after.remaining[0]));
+    check("the new idea is in the deck", added.length === 1 && after.remaining.indexOf(anytime.id) !== -1);
     const withRemote = t.countIdeasMatching(t.state.filters);
     check("the filter count includes it", withRemote === countBefore + 1, withRemote + " vs " + countBefore);
     t.applyRemoteIdeas([expired]);

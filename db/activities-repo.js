@@ -11,7 +11,6 @@ const filters = require("../shared/filters");
 const costBands = require("../public/cost-bands");
 const timeWindows = require("../public/time-windows");
 const occurrences = require("../public/occurrences");
-const sources = require("../public/data-sources");
 const feed = require("../public/feed");
 
 const METERS_PER_MILE = 1609.344;
@@ -256,7 +255,7 @@ function appendFeedSql(where, values, selection) {
 }
 
 function newFlagSql() {
-  return "(CASE WHEN " + sources.newRowSql() + " THEN 0 ELSE 1 END)";
+  return "(CASE WHEN " + feed.newRowSql() + " THEN 0 ELSE 1 END)";
 }
 
 function startKeySql(dateIdx) {
@@ -476,7 +475,7 @@ function buildLocalRankQuery(params, shared, selection, limit, cursor, localOnly
     const fresh = name.charAt(0) === "n";
     const pinned = name.charAt(1) === "n";
     const part = copyFilters(shared);
-    part.where.push(fresh ? sources.newRowSql() : ("NOT " + sources.newRowSql()));
+    part.where.push(fresh ? feed.newRowSql() : ("NOT " + feed.newRowSql()));
     let distanceSql = ", NULL::numeric AS distance_miles, NULL::text AS distance_meters";
     let order = "ORDER BY id";
     if (pinned) {
@@ -690,13 +689,13 @@ function cursorFromRow(row, located, built) {
     return {
       v: 2,
       p: "h",
-      n: sources.isNewRow(row) ? 0 : 1,
+      n: feed.isNewRow(row) ? 0 : 1,
       s: feed.startSortKey(row, built.whenDate),
       id: id
     };
   }
   if (built && built.rank === "local") {
-    const fresh = sources.isNewRow(row);
+    const fresh = feed.isNewRow(row);
     if (!built.located) return { v: 2, p: fresh ? "ni" : "oi", id: id };
     const meters = row.distance_meters;
     if (meters != null && String(meters).trim() !== "") {

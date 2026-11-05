@@ -5,7 +5,6 @@
 const { loadApp } = require("./harness");
 const occ = require("../public/occurrences");
 const feed = require("../public/feed");
-const sources = require("../public/data-sources");
 const { buildListQuery, encodeCursor } = require("../db/activities-repo");
 
 let pass = 0, fail = 0;
@@ -197,6 +196,18 @@ section("the happening bar", () => {
 });
 
 section("new rows lead, with a stable id tiebreak", () => {
+  check("the cutoff is the activities identity start", feed.NEW_ROW_ID === 100000);
+  check("an activities id at the cutoff is new", feed.isNewRow({ id: 100000 }) === true);
+  check("a seed id is older", feed.isNewRow({ id: 2000, source: "curated" }) === false);
+  check("a source key does not make a seed id new",
+    feed.isNewRow({ id: 50, source: "business", source_key: "uofu", source_credit: "via UMFA" }) === false);
+  check("a client copy of a new activities row is new",
+    feed.isNewRow({ id: "db:100238", dbId: 100238 }) === true);
+  check("a nearby place id is older", feed.isNewRow({ id: 9000001, isReal: true }) === false);
+  check("a Ticketmaster card with no activities id is new",
+    feed.isNewRow({ id: 9123456, isEvent: true, stableKey: "tm:G5" }) === true);
+  check("a row with no numeric id is older", feed.isNewRow({ title: "Walk" }) === false);
+
   function row(id, extra) {
     return Object.assign({
       id: id,
@@ -204,37 +215,37 @@ section("new rows lead, with a stable id tiebreak", () => {
       occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "19:00" }] }
     }, extra || {});
   }
-  const freshEarly = row(30, { source_key: "uofu", occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "19:00" }] } });
-  const freshLate = row(10, { source: "business", occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "21:00" }] } });
-  const freshTie = row(12, { source_key: "byu", occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "19:00" }] } });
-  const older = row(4, { source_key: "ugrc_trailheads", occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "18:00" }] } });
+  const freshEarly = row(100030, { occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "19:00" }] } });
+  const freshLate = row(100010, { occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "21:00" }] } });
+  const freshTie = row(100012, { occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "19:00" }] } });
+  const older = row(4, { occurrences: { kind: "dates", dates: [{ date: "2026-11-15", start: "18:00" }] } });
   const ordered = [older, freshLate, freshEarly, freshTie].sort((a, b) => feed.compareHappening(a, b, "2026-11-15"));
   check("new rows come before an older place",
-    ordered.map(item => item.id).join(",") === "12,30,10,4",
+    ordered.map(item => item.id).join(",") === "100012,100030,100010,4",
     ordered.map(item => item.id).join(","));
   check("the same start time breaks ties by id",
     feed.compareHappening(freshTie, freshEarly, "2026-11-15") < 0 &&
     feed.compareHappening(freshEarly, freshTie, "2026-11-15") > 0);
-  const localIds = feed.partitionNewFirst([4, 30, 10, 12], id => ({ id: id, source_key: id >= 10 ? "uofu" : "ugrc_trailheads" }));
+  const localIds = feed.partitionNewFirst([4, 100030, 100010, 100012], id => ({ id: id }));
   check("local mode keeps today's order inside each group",
-    localIds.join(",") === "30,10,12,4");
+    localIds.join(",") === "100030,100010,100012,4");
 
   const page = ordered.slice(0, 2);
   const cursor = {
     p: "h",
-    n: sources.isNewRow(page[1]) ? 0 : 1,
+    n: feed.isNewRow(page[1]) ? 0 : 1,
     s: feed.startSortKey(page[1], "2026-11-15"),
     id: page[1].id
   };
   const rest = ordered.filter(item => feed.passesHappeningKeyset(item, cursor, "2026-11-15"));
   check("a happening page continues without overlap",
-    rest.map(item => item.id).join(",") === "10,4",
+    rest.map(item => item.id).join(",") === "100010,4",
     rest.map(item => item.id).join(","));
   const located = [
-    { id: 2, source_key: "ugrc_parks", dist: 1 },
-    { id: 8, source_key: "uofu", dist: 3 },
-    { id: 9, source_key: "uofu", dist: null },
-    { id: 3, source_key: "ugrc_parks", dist: null }
+    { id: 2, dist: 1 },
+    { id: 100008, dist: 3 },
+    { id: 100009, dist: null },
+    { id: 3, dist: null }
   ];
   located.sort((a, b) => {
     const phases = ["nn", "ng", "on", "og"];
@@ -256,7 +267,7 @@ section("new rows lead, with a stable id tiebreak", () => {
   });
   check("happening SQL orders new rows, then start, then id",
     sql.rank === "happening" &&
-    sql.text.indexOf(sources.newRowSql()) !== -1 &&
+    sql.text.indexOf(feed.newRowSql()) !== -1 &&
     sql.text.indexOf("1441") !== -1 &&
     sql.text.indexOf("ORDER BY") !== -1);
   const pageToken = encodeCursor({ v: 2, p: "h", n: 0, s: 19 * 60, id: 30 });
@@ -268,16 +279,18 @@ section("new rows lead, with a stable id tiebreak", () => {
     cursor: pageToken
   });
   check("the next happening page keeps the same order expression",
-    next.text.indexOf("ORDER BY") !== -1 && next.text.indexOf(sources.newRowSql()) !== -1 &&
+    next.text.indexOf("ORDER BY") !== -1 && next.text.indexOf("id >= " + feed.NEW_ROW_ID) !== -1 &&
     next.values.indexOf(0) !== -1 && next.values.indexOf(19 * 60) !== -1 && next.values.indexOf(30) !== -1);
   const localSql = buildListQuery({ feed: "local", rank: "new", limit: 2 });
   check("local SQL asks for new rows before older rows",
     localSql.mode === "phases" &&
     localSql.phases.map(phase => phase.name).join(",") === "ni,oi" &&
-    localSql.text.indexOf(sources.newRowSql()) !== -1);
+    localSql.text.indexOf("id >= " + feed.NEW_ROW_ID) !== -1 &&
+    localSql.text.indexOf("NOT (id >= " + feed.NEW_ROW_ID + ")") !== -1);
   check("the read-only newness count uses that same predicate",
-    sources.newRowCountSql().indexOf(sources.newRowSql()) !== -1 &&
-    sources.newRowCountSql().indexOf("status = 'approved'") !== -1);
+    feed.newRowCountSql().indexOf(feed.newRowSql()) !== -1 &&
+    feed.newRowCountSql().indexOf("status = 'approved'") !== -1 &&
+    feed.newRowCountSql().indexOf("source_key") === -1);
   check("openOnDay does not hide a place", feed.openOnDay({ title: "Park" }, "2026-11-15") === true);
 });
 

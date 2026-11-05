@@ -472,58 +472,6 @@
     return parts;
   }
 
-  /* A row is new when it is a business or a credited event, discovery,
-     or hand-entered yearly listing. Those groups are the loads that
-     should lead Discover.
-     Reads source (the activity_source enum; "business" counts), and
-     source_key / sourceKey or source_credit / sourceCredit when they
-     match an events, discovery, or manual entry below.
-     created_at is on every row and there is no stored "first review"
-     cutoff, so a timestamp would be invented. id >= 100000 is every
-     database row, including place datasets. geo_source is how a pin
-     was geocoded. Neither one is newness.
-     newRowCountSql() is the read-only count. Do not run it from the app. */
-  var NEW_GROUPS = { events: true, discovery: true, manual: true };
-
-  function isNewRow(row) {
-    if (!row || typeof row !== "object") return false;
-    if (row.source === "business") return true;
-    var known = lookup(row);
-    return !!(known && NEW_GROUPS[known.group]);
-  }
-
-  function sqlLiteral(value) {
-    return "'" + String(value).replace(/'/g, "''") + "'";
-  }
-
-  function newRowSql() {
-    var keys = [];
-    var credits = [];
-    var seenKey = Object.create(null);
-    var seenCredit = Object.create(null);
-    ENTRIES.forEach(function (item) {
-      if (!item || !NEW_GROUPS[item.group]) return;
-      if (item.key && !seenKey[item.key]) {
-        seenKey[item.key] = true;
-        keys.push(item.key);
-      }
-      if (item.credit && !seenCredit[item.credit]) {
-        seenCredit[item.credit] = true;
-        credits.push(item.credit);
-      }
-    });
-    return "(source = 'business' OR source_key IN (" + keys.map(sqlLiteral).join(", ") +
-      ") OR source_credit IN (" + credits.map(sqlLiteral).join(", ") + "))";
-  }
-
-  function newRowCountSql() {
-    var pred = newRowSql();
-    return "SELECT count(*) FILTER (WHERE " + pred + ") AS new_rows,\n" +
-      "       count(*) FILTER (WHERE NOT " + pred + ") AS older_rows\n" +
-      "FROM activities\n" +
-      "WHERE status = 'approved';";
-  }
-
   function lookup(idea) {
     var key = cleanKey(field(idea, "source_key", "sourceKey"));
     if (key && BY_KEY[key]) return BY_KEY[key];
@@ -880,9 +828,6 @@
     escapeHtml: escapeHtml,
     httpsPageUrl: httpsPageUrl,
     cleanCredit: cleanCredit,
-    cleanKey: cleanKey,
-    isNewRow: isNewRow,
-    newRowSql: newRowSql,
-    newRowCountSql: newRowCountSql
+    cleanKey: cleanKey
   };
 });

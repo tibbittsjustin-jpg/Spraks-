@@ -550,6 +550,158 @@ async function exerciseListSchema(pool) {
   }
 }
 
+async function exerciseCostBandPromote(pool) {
+  await pool.query(
+    "insert into place_datasets (dataset_key, title, owner, license_code, credit_line, legal_ref, " +
+    "approval_status, priority, dedupe_radius_m, load_enabled, license_checked_on, license_info_seen) " +
+    "values ('cost_band_probe', 'Cost probe', 'test', 'CC-BY-4.0', 'probe credit', 'test', " +
+    "'approved', 1, 150, true, '2026-11-02', 'seen') " +
+    "on conflict (dataset_key) do update set approval_status = 'approved'"
+  );
+  const bands = ["Free", "$1-$20", "$21-$40", "$41-$60", "$81-$100", "Over $100"];
+  for (let i = 0; i < bands.length; i++) {
+    await pool.query(
+      "insert into place_staging (dataset_key, source_record_id, title, description, category, setting, " +
+      "cost, cost_band_new, duration, source_credit, link_flag, dedupe_radius_m, tag_review, dedupe_result) " +
+      "values ('cost_band_probe', $1, $2, '', 'Hiking & Nature', 'Outdoor', $3, $3, " +
+      "'Short (1-2 hrs)', 'probe credit', 'dataset', 150, false, 'new')",
+      ["band-" + i, "Probe " + bands[i], bands[i]]
+    );
+  }
+  await pool.query(
+    "insert into place_loader_config (key, value, note) values ('cost_bands_live', '\"legacy\"', 'test') " +
+    "on conflict (key) do update set value = excluded.value"
+  );
+  const legacy = await pool.query("select place_staging_promote('cost_band_probe', null) as report");
+  const report = legacy.rows[0].report;
+  const refused = (report.refused || []).map(row => row.cost_band_new).sort();
+  const stored = await pool.query(
+    "select s.source_record_id, s.status, s.cost_band_new, a.cost as live_cost " +
+    "from place_staging s left join activities a " +
+    "on a.dataset_key = s.dataset_key and a.source_record_id = s.source_record_id " +
+    "where s.dataset_key = 'cost_band_probe' order by s.source_record_id"
+  );
+  const byBand = {};
+  stored.rows.forEach(row => { byBand[row.cost_band_new] = row; });
+  check("legacy promote writes the old band and reports the unmapped ones",
+    report.cost_bands_live === "legacy" && report.inserted === 4 &&
+    refused.join("|") === "$1-$20|$21-$40" &&
+    byBand.Free.live_cost === "Free" && byBand.Free.status === "promoted" && byBand.Free.cost_band_new === "Free" &&
+    byBand["$41-$60"].live_cost === "$100 and under" && byBand["$41-$60"].cost_band_new === "$41-$60" &&
+    byBand["$81-$100"].live_cost === "$100 and under" &&
+    byBand["Over $100"].live_cost === "Over $100" &&
+    byBand["$1-$20"].live_cost == null && byBand["$1-$20"].status === "pending" &&
+    byBand["$21-$40"].status === "pending",
+    JSON.stringify(report) + " " + JSON.stringify(stored.rows));
+
+  await pool.query("delete from place_source_credits where dataset_key = 'cost_band_probe'");
+  await pool.query("delete from activities where dataset_key = 'cost_band_probe'");
+  await pool.query("update place_staging set status = 'pending' where dataset_key = 'cost_band_probe'");
+  await pool.query(
+    "update place_loader_config set value = '\"new\"' where key = 'cost_bands_live'"
+  );
+  const fresh = await pool.query("select place_staging_promote('cost_band_probe', null) as report");
+  const again = fresh.rows[0].report;
+  const live = await pool.query(
+    "select cost from activities where dataset_key = 'cost_band_probe' and source_record_id = 'band-1'"
+  );
+  check("COST_BANDS_LIVE=new writes the $20 band and refuses nothing",
+    again.cost_bands_live === "new" && again.inserted === 6 && again.refused.length === 0 &&
+    live.rows[0] && live.rows[0].cost === "$1-$20",
+    JSON.stringify(again));
+
+  await pool.query("update place_loader_config set value = '\"nope\"' where key = 'cost_bands_live'");
+  let bad = "";
+  try {
+    await pool.query("select place_staging_promote('cost_band_probe', null)");
+  } catch (err) {
+    bad = err.message || "";
+  }
+  check("a bad COST_BANDS_LIVE value refuses the promote", bad.indexOf("COST_BANDS_LIVE") !== -1, bad);
+
+  await pool.query("delete from place_source_credits where dataset_key = 'cost_band_probe'");
+  await pool.query("delete from activities where dataset_key = 'cost_band_probe'");
+  await pool.query("delete from place_staging where dataset_key = 'cost_band_probe'");
+  await pool.query("delete from place_datasets where dataset_key = 'cost_band_probe'");
+  await pool.query(
+    "update place_loader_config set value = '\"legacy\"' where key = 'cost_bands_live'"
+  );
+}
+
+async function exerciseBatchPromoteGuards(pool) {
+  async function dataset(key, status) {
+    await pool.query(
+      "insert into place_datasets (dataset_key, title, owner, license_code, credit_line, legal_ref, " +
+      "approval_status, priority, dedupe_radius_m, load_enabled, license_checked_on, license_info_seen) " +
+      "values ($1, $1, 'test', 'CC-BY-4.0', 'probe credit', 'test', $2, 1, 150, true, '2026-11-02', 'seen')",
+      [key, status]
+    );
+  }
+  async function stage(key, recordId, batchId) {
+    await pool.query(
+      "insert into place_staging (dataset_key, source_record_id, title, description, category, setting, " +
+      "cost, cost_band_new, duration, source_credit, link_flag, dedupe_radius_m, tag_review, dedupe_result, " +
+      "approval_batch_id) values ($1, $2, $2, '', 'Hiking & Nature', 'Outdoor', 'Free', 'Free', " +
+      "'Short (1-2 hrs)', 'probe credit', 'dataset', 150, false, 'new', $3)",
+      [key, recordId, batchId]
+    );
+  }
+  await dataset("promote_pending", "pending");
+  const pendingBatch = (await pool.query("select gen_random_uuid() as id")).rows[0].id;
+  await pool.query(
+    "insert into place_approval_batches (id, dataset_key, approval_status) values ($1, 'promote_pending', 'approved')",
+    [pendingBatch]
+  );
+  await stage("promote_pending", "pending-row", pendingBatch);
+  let unapproved = "";
+  try {
+    await pool.query("select place_staging_promote(null, $1)", [pendingBatch]);
+  } catch (err) {
+    unapproved = err.message || "";
+  }
+  const pendingLeft = await pool.query(
+    "select status from place_staging where dataset_key = 'promote_pending' and source_record_id = 'pending-row'"
+  );
+  check("a batch promote refuses an unapproved dataset",
+    unapproved.indexOf("refusing to promote unapproved dataset promote_pending") !== -1 &&
+    pendingLeft.rows[0] && pendingLeft.rows[0].status === "pending",
+    unapproved);
+
+  await dataset("promote_home", "approved");
+  await dataset("promote_other", "approved");
+  const mixedBatch = (await pool.query("select gen_random_uuid() as id")).rows[0].id;
+  await pool.query(
+    "insert into place_approval_batches (id, dataset_key, approval_status) values ($1, 'promote_home', 'approved')",
+    [mixedBatch]
+  );
+  await stage("promote_home", "home-row", mixedBatch);
+  await stage("promote_other", "other-row", mixedBatch);
+  let mismatch = "";
+  try {
+    await pool.query("select place_staging_promote(null, $1)", [mixedBatch]);
+  } catch (err) {
+    mismatch = err.message || "";
+  }
+  const mixed = await pool.query(
+    "select dataset_key, status from place_staging where approval_batch_id = $1 order by dataset_key",
+    [mixedBatch]
+  );
+  const promoted = await pool.query(
+    "select count(*)::int as n from activities where dataset_key in ('promote_home', 'promote_other')"
+  );
+  check("a batch promote refuses a row from a different dataset",
+    mismatch.indexOf("belongs to dataset promote_other not promote_home") !== -1 &&
+    mixed.rows.length === 2 && mixed.rows.every(row => row.status === "pending") &&
+    promoted.rows[0].n === 0,
+    mismatch);
+
+  await pool.query("delete from place_source_credits where dataset_key in ('promote_pending', 'promote_home', 'promote_other')");
+  await pool.query("delete from activities where dataset_key in ('promote_pending', 'promote_home', 'promote_other')");
+  await pool.query("delete from place_staging where dataset_key in ('promote_pending', 'promote_home', 'promote_other')");
+  await pool.query("delete from place_approval_batches where dataset_key in ('promote_pending', 'promote_home')");
+  await pool.query("delete from place_datasets where dataset_key in ('promote_pending', 'promote_home', 'promote_other')");
+}
+
 async function main() {
   if (!process.env.TEST_DATABASE_URL) {
     console.log("  SKIP db integration (TEST_DATABASE_URL unset)");
@@ -686,13 +838,13 @@ async function main() {
     check("migration 004 applied", first.applied.indexOf("004_materials.sql") !== -1, first.applied.join(","));
     check("migration 006 applied", first.applied.indexOf("006_security_hardening.sql") !== -1, first.applied.join(","));
     check("migration 010 applied", first.applied.indexOf("010_lists_friends.sql") !== -1, first.applied.join(","));
-    check("migrations 016, 018, and 019 apply and 017 does not",
+    check("016 applies, then 018, then 017, then 019",
+      first.applied.indexOf("016_nearby_keyset.sql") !== -1 &&
       first.applied.indexOf("018_cost_bands_20.sql") !== -1 &&
       first.applied.indexOf("019_cost_bands_20_rename.sql") !== -1 &&
-      first.applied.indexOf("016_nearby_keyset.sql") !== -1 &&
-      first.applied.indexOf("018_cost_bands_20.sql") < first.applied.indexOf("019_cost_bands_20_rename.sql") &&
-      first.applied.every(file => file.indexOf("017_") !== 0) &&
-      first.skipped.every(file => file.indexOf("017_") !== 0),
+      first.applied.indexOf("016_nearby_keyset.sql") < first.applied.indexOf("018_cost_bands_20.sql") &&
+      first.applied.indexOf("017_place_staging.sql") > first.applied.indexOf("018_cost_bands_20.sql") &&
+      first.applied.indexOf("019_cost_bands_20_rename.sql") > first.applied.indexOf("017_place_staging.sql") &&
       first.applied.join(","));
     check("005 is not required for 006 to apply",
       first.applied.indexOf("005_subscriptions.sql") === -1 &&
@@ -706,8 +858,12 @@ async function main() {
       second.skipped.indexOf("004_materials.sql") !== -1 &&
       second.skipped.indexOf("006_security_hardening.sql") !== -1 &&
       second.skipped.indexOf("010_lists_friends.sql") !== -1 &&
+      second.skipped.indexOf("016_nearby_keyset.sql") !== -1 &&
       second.skipped.indexOf("018_cost_bands_20.sql") !== -1 &&
-      second.skipped.indexOf("019_cost_bands_20_rename.sql") !== -1);
+      second.skipped.indexOf("019_cost_bands_20_rename.sql") !== -1 &&
+      second.skipped.indexOf("016_nearby_keyset.sql") < second.skipped.indexOf("018_cost_bands_20.sql") &&
+      second.skipped.indexOf("017_place_staging.sql") > second.skipped.indexOf("018_cost_bands_20.sql") &&
+      second.skipped.indexOf("019_cost_bands_20_rename.sql") > second.skipped.indexOf("017_place_staging.sql"));
     let reran = true;
     try {
       await pool.query(fs.readFileSync(path.join(__dirname, "..", "db", "migrations", "003_source_url_city.sql"), "utf8"));
@@ -1586,6 +1742,8 @@ async function main() {
     check("database email check rejects a bad address", badEmailCode === "23514", badEmailCode);
 
     await exerciseListSchema(pool);
+    await exerciseCostBandPromote(pool);
+    await exerciseBatchPromoteGuards(pool);
   } catch (err) {
     check("integration suite", false, (err && (err.stack || err.message) || String(err)).slice(0, 500));
   } finally {

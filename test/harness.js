@@ -59,7 +59,7 @@ function makeSandbox(storage) {
 function loadApp(storage) {
   const sandbox = makeSandbox(storage);
   vm.createContext(sandbox);
-  ["data.js", "motifs.js", "util.js", "occurrences.js", "radius.js", "pins.js", "photos.js", "submit.js", "cost-bands.js", "remote-activities.js", "data-sources.js"].forEach(f => {
+  ["data.js", "motifs.js", "util.js", "occurrences.js", "radius.js", "pins.js", "photos.js", "submit.js", "cost-bands.js", "remote-activities.js", "data-sources.js", "map-config.js", "place-search.js", "radius-map.js"].forEach(f => {
     vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), sandbox, { filename: f });
   });
   let src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
@@ -77,6 +77,7 @@ function loadApp(storage) {
     totalSavedCount: totalSavedCount,
     isRealId: (typeof isRealId === "function") ? isRealId : function(id){ return typeof id==="number" && id>=9000000 && id<10000000; },
     displayCost: displayCost,
+    renderFilterBody: renderFilterBody,
     localDateISO: localDateISO,
     computeDeck: computeDeck, matchesFilters: matchesFilters, placeLabel: placeLabel,
     nearYouLabel: nearYouLabel, ideaDistanceMiles: ideaDistanceMiles,
@@ -87,6 +88,26 @@ function loadApp(storage) {
     timeBadgeLabel: function(idea){ return SparkUtil.timeBadgeLabel(idea); },
     ideaStatusBadge: function(idea){ return SparkUtil.ideaStatusBadge(idea); },
     tonightMatchCount: tonightMatchCount, toggleTonightFilter: toggleTonightFilter,
+    widenTonightRadius: widenTonightRadius,
+    requestLocation: requestLocation,
+    clearLocation: clearLocation,
+    askExactLocation: askExactLocation,
+    confirmExactLocation: confirmExactLocation,
+    dismissExactLocation: dismissExactLocation,
+    accuracyPhrase: accuracyPhrase,
+    locationStatusText: locationStatusText,
+    geoOptions: geoOptions,
+    buildLocationBar: buildLocationBar,
+    refreshRemoteActivities: refreshRemoteActivities,
+    applyPickedSpot: applyPickedSpot,
+    openPickMode: openPickMode,
+    setDiscoverRadius: setDiscoverRadius,
+    savedCenterIsPicked: savedCenterIsPicked,
+    enterApp: enterApp,
+    get pickMode(){ return pickMode; },
+    get radiusMapHandle(){ return radiusMapHandle; },
+    get locationPhase(){ return locationPhase; },
+    get exactPromptOpen(){ return exactPromptOpen; },
     buildDiscoverScreen: buildDiscoverScreen,
     buildSwipeCard: buildSwipeCard, buildIdeaRow: buildIdeaRow,
     buildFriendIdeaRow: buildFriendIdeaRow,

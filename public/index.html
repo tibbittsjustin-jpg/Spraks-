@@ -30,6 +30,7 @@
 })();
 </script>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css">
 </head>
 <body>
 
@@ -69,7 +70,7 @@
 
 <button type="submit" class="btn-primary btn-block">Let's Go</button>
 </form>
-<p class="onboarding-sources">© 2026 Jaderoo. No claim to original U.S. Government works. <a href="/sources">Sources</a></p>
+<p class="onboarding-sources">© 2026 Jaderoo. No claim to original U.S. Government works. <a href="/sources">Sources</a> · <a href="/licenses">Open-source licenses</a></p>
 </div>
 </div>
 
@@ -156,8 +157,13 @@
 <span class="pmi-text"><b>Sources</b><br><small>Where place and event listings come from</small></span>
 <span class="pmi-chevron">›</span>
 </button>
+<button class="profile-menu-item" data-action="licenses">
+<span class="pmi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h8.5L19 7v13.5H7z"/><path d="M15.5 3.5V7H19"/><path d="M9 12h6M9 16h6"/></svg></span>
+<span class="pmi-text"><b>Open-source licenses</b><br><small>MapLibre and other shipped software</small></span>
+<span class="pmi-chevron">›</span>
+</button>
 </div>
-<p class="profile-legal">© 2026 Jaderoo. No claim to original U.S. Government works. <a href="/sources">Sources</a></p>
+<p class="profile-legal">© 2026 Jaderoo. No claim to original U.S. Government works. <a href="/sources">Sources</a> · <a href="/licenses">Open-source licenses</a></p>
 
 <div class="profile-setting-row">
 <span class="pmi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z"/></svg></span>
@@ -294,6 +300,10 @@
 <script src="cost-bands.js"></script>
 <script src="remote-activities.js"></script>
 <script src="data-sources.js"></script>
+<script src="vendor/maplibre/maplibre-gl.js"></script>
+<script src="map-config.js"></script>
+<script src="place-search.js"></script>
+<script src="radius-map.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -13,7 +13,7 @@
 
    Stored shape is always one of:
      { "kind": "dates", "dates": [{ "date", "start?", "end?" }] }
-     { "kind": "weekly", "start", "end"?, "weekdays", "exclude"?, "week_of_month"? }
+     { "kind": "weekly", "start", "end"?, "weekdays", "exclude"?, "week_of_month"?, "start_time"?, "end_time"? }
    Several bounded ranges, or a range with days off, become a date list so a
    gap is not treated as a show day. One ongoing range stays weekly, with no
    end date.
@@ -111,6 +111,36 @@
     if (m.length === 1) m = "0" + m;
     if (d.length === 1) d = "0" + d;
     return y + "-" + m + "-" + d;
+  }
+
+  /* Hour and minute in America/Denver. Never the device clock. */
+  function denverClock(now) {
+    var dt = (now instanceof Date && !isNaN(now.getTime())) ? now : new Date();
+    var parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Denver",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }).formatToParts(dt);
+    var hour = 0;
+    var minute = 0;
+    var dayPeriod = "";
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      if (part.type === "hour") hour = Number(part.value);
+      else if (part.type === "minute") minute = Number(part.value);
+      else if (part.type === "dayPeriod") dayPeriod = String(part.value || "").toLowerCase();
+    }
+    if (!isFinite(hour)) hour = 0;
+    if (!isFinite(minute)) minute = 0;
+    if (hour === 24) hour = 0;
+    if (dayPeriod) {
+      if (dayPeriod.indexOf("pm") !== -1 && hour < 12) hour += 12;
+      if (dayPeriod.indexOf("am") !== -1 && hour === 12) hour = 0;
+    }
+    if (hour < 0 || hour > 23) hour = ((hour % 24) + 24) % 24;
+    if (minute < 0 || minute > 59) minute = 0;
+    return { hour: hour, minute: minute };
   }
 
   function normalizeTime(value) {
@@ -261,7 +291,23 @@
     if (end) value.end = end;
     if (exclude.length) value.exclude = exclude;
     if (weekOfMonth.length) value.week_of_month = weekOfMonth;
+    var clockStart = optionalClock(raw.start_time != null ? raw.start_time : raw.timeStart);
+    var clockEnd = optionalClock(raw.end_time != null ? raw.end_time : raw.timeEnd);
+    if (research) {
+      var fromStart = optionalClock(raw.start);
+      var fromEnd = optionalClock(raw.end);
+      if (fromStart) clockStart = fromStart;
+      if (fromEnd) clockEnd = fromEnd;
+    }
+    if (clockStart) value.start_time = clockStart;
+    if (clockEnd) value.end_time = clockEnd;
     return { ok: true, value: value };
+  }
+
+  function optionalClock(value) {
+    if (typeof value !== "string" || !value.trim()) return null;
+    var parsed = normalizeTime(value);
+    return parsed.ok ? parsed.value : null;
   }
 
   function isDateItem(raw) {
@@ -407,14 +453,74 @@
     return visibleOnPlan(idea, "", now) === false;
   }
 
+  /* 4:00pm Denver. An event that starts then, or is still going then, is tonight. */
+  var TONIGHT_START_MIN = 16 * 60;
+  var NO_END_GRACE_MIN = 3 * 60;
+
+  function clockMinutes(value) {
+    if (value == null) return null;
+    var parts = String(value).split(":");
+    if (parts.length < 2) return null;
+    var hour = Number(parts[0]);
+    var minute = Number(parts[1]);
+    if (!isFinite(hour) || !isFinite(minute)) return null;
+    return hour * 60 + minute;
+  }
+
+  /* dateOnlyCounts is the "date with no clock time" case. A weekly rule
+     with no clock time does not use that exception. An end of 00:00 is
+     the end of the civil night, not a time that already passed. An end
+     earlier than the start runs past midnight. The slot is over at the
+     end minute, and a start with no end lasts three hours. */
+  function tonightSlot(start, end, nowMin, dateOnlyCounts) {
+    if (start == null && end == null) return dateOnlyCounts === true;
+    var startMin = clockMinutes(start);
+    var endMin = clockMinutes(end);
+    if (endMin === 0) endMin = 24 * 60;
+    else if (startMin != null && endMin != null && endMin < startMin) endMin += 24 * 60;
+    var startsTonight = startMin != null && startMin >= TONIGHT_START_MIN;
+    var endsTonight = endMin != null && endMin >= TONIGHT_START_MIN;
+    if (!startsTonight && !endsTonight) return false;
+    if (endMin != null) return nowMin < endMin;
+    return startMin == null || nowMin < startMin + NO_END_GRACE_MIN;
+  }
+
+  /* True when a dated or weekly schedule falls on today's Denver civil
+     day and the clock window is tonight. Anytime (null occurrences) is
+     false. A dated row with no start and no end matches for the whole day. */
+  function occursTonight(idea, now) {
+    if (!idea || typeof idea !== "object" || idea.occurrences == null) return false;
+    var norm = normalizeOccurrences(idea.occurrences);
+    if (!norm.ok || !norm.value) return false;
+    var today = denverToday(now);
+    var clock = denverClock(now);
+    var nowMin = clock.hour * 60 + clock.minute;
+    if (norm.value.kind === "dates") {
+      var dates = norm.value.dates;
+      for (var i = 0; i < dates.length; i++) {
+        var entry = dates[i];
+        if (!entry || entry.date !== today) continue;
+        if (tonightSlot(entry.start || null, entry.end || null, nowMin, true)) return true;
+      }
+      return false;
+    }
+    if (norm.value.kind === "weekly") {
+      if (!occursOn(norm.value, today)) return false;
+      return tonightSlot(norm.value.start_time || null, norm.value.end_time || null, nowMin, false);
+    }
+    return false;
+  }
+
   return {
     WEEKDAYS: WEEKDAYS,
     parseISODate: parseISODate,
     weekdayIndex: weekdayIndex,
     weekdayName: weekdayName,
     denverToday: denverToday,
+    denverClock: denverClock,
     normalizeOccurrences: normalizeOccurrences,
     occursOn: occursOn,
+    occursTonight: occursTonight,
     visibleOnPlan: visibleOnPlan,
     isPast: isPast
   };

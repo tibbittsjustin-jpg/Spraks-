@@ -120,6 +120,8 @@ section("research ranges become a stored schedule", () => {
     ongoing.ok && ongoing.value.kind === "weekly" && ongoing.value.end == null &&
     ongoing.value.weekdays.join(",") === "Thu,Sat" &&
     ongoing.value.exclude.join(",") === "2026-12-24,2026-12-26");
+  check("an open weekday range keeps its clock times",
+    ongoing.ok && ongoing.value.start_time === "21:00" && ongoing.value.end_time === "00:00");
   check("a day off is not a show day", occ.occursOn(ongoing.value, "2026-12-24") === false);
   check("a later Thursday still happens", occ.occursOn(ongoing.value, "2026-12-17") === true);
   const firstFriday = occ.normalizeOccurrences([{
@@ -164,6 +166,151 @@ section("the discover deck uses the active plan date", () => {
   t.ui.activePlanId = null;
   check("clearing the plan shows the game again when it has not expired",
     t.matchesFilters(Object.assign({}, GAME, { expires_at: "2099-01-01" }), open) === true);
+});
+
+function onDay(date, start, end) {
+  const entry = { date: date };
+  if (start) entry.start = start;
+  if (end) entry.end = end;
+  return { title: "Show", occurrences: { kind: "dates", dates: [entry] } };
+}
+
+section("occurs tonight uses the Denver civil day and clock", () => {
+  const late = new Date("2026-11-01T05:30:00.000Z");
+  const localDay = late.getFullYear() + "-" + String(late.getMonth() + 1).padStart(2, "0") + "-" +
+    String(late.getDate()).padStart(2, "0");
+  check("11:30pm Denver is still October 31", occ.denverToday(late) === "2026-10-31" && occ.denverClock(late).hour === 23);
+  check("a date-only event today matches", occ.occursTonight(onDay("2026-10-31"), late) === true);
+  check("a date-only event on the UTC day does not", occ.occursTonight(onDay("2026-11-01"), late) === false);
+  check("a dated event with no time matches at noon Denver",
+    occ.occursTonight(onDay("2026-10-31"), new Date("2026-10-31T18:00:00.000Z")) === true);
+  check("anytime is not tonight", occ.occursTonight({ title: "Walk", occurrences: null }, late) === false);
+  check("a missing schedule is not tonight", occ.occursTonight({ title: "Walk" }, late) === false);
+
+  const noEnd = onDay("2026-10-31", "19:00");
+  check("just inside the three-hour grace is still tonight",
+    occ.occursTonight(noEnd, new Date("2026-11-01T03:59:00.000Z")) === true);
+  check("three hours past a start with no end is over",
+    occ.occursTonight(noEnd, new Date("2026-11-01T04:00:00.000Z")) === false);
+  check("a 4:00pm start with no end is tonight",
+    occ.occursTonight(onDay("2026-10-31", "16:00"), new Date("2026-10-31T22:00:00.000Z")) === true);
+  check("a 4:00pm start is over three hours later",
+    occ.occursTonight(onDay("2026-10-31", "16:00"), new Date("2026-11-01T01:00:00.000Z")) === false);
+  check("an afternoon start with no end is not tonight",
+    occ.occursTonight(onDay("2026-10-31", "15:00"), new Date("2026-10-31T23:00:00.000Z")) === false);
+
+  const ended = onDay("2026-10-31", "19:00", "21:00");
+  check("a show still running at 8:30pm is tonight",
+    occ.occursTonight(ended, new Date("2026-11-01T02:30:00.000Z")) === true);
+  check("a show is over once the end time has passed",
+    occ.occursTonight(ended, new Date("2026-11-01T03:30:00.000Z")) === false);
+  const afternoon = onDay("2026-10-31", "14:00", "18:00");
+  check("an event that runs until 6pm is tonight at noon",
+    occ.occursTonight(afternoon, new Date("2026-10-31T18:00:00.000Z")) === true);
+  check("that event is over at 6:30pm",
+    occ.occursTonight(afternoon, new Date("2026-11-01T00:30:00.000Z")) === false);
+  check("a morning event is not tonight",
+    occ.occursTonight(onDay("2026-10-31", "09:00", "12:00"), new Date("2026-10-31T18:00:00.000Z")) === false);
+  check("a later show the same day keeps the idea tonight",
+    occ.occursTonight({
+      occurrences: { kind: "dates", dates: [
+        { date: "2026-10-31", start: "13:00", end: "15:00" },
+        { date: "2026-10-31", start: "19:00", end: "21:00" }
+      ] }
+    }, new Date("2026-11-01T02:00:00.000Z")) === true);
+
+  const weekly = {
+    title: "Late skate",
+    occurrences: {
+      kind: "weekly",
+      start: "2026-01-01",
+      weekdays: ["Thu"],
+      start_time: "19:00",
+      end_time: "22:00"
+    }
+  };
+  check("a Thursday weekly show is tonight on Thursday",
+    occ.occursTonight(weekly, new Date("2026-10-30T02:00:00.000Z")) === true);
+  check("that weekly show is over after it ends",
+    occ.occursTonight(weekly, new Date("2026-10-30T04:30:00.000Z")) === false);
+  check("that weekly show is not tonight on Friday",
+    occ.occursTonight(weekly, new Date("2026-10-30T20:00:00.000Z")) === false);
+  check("a weekly rule with no clock time is not tonight",
+    occ.occursTonight({
+      occurrences: { kind: "weekly", start: "2026-01-01", weekdays: ["Thu"] }
+    }, new Date("2026-10-30T02:00:00.000Z")) === false);
+  check("a weekly end of midnight is still running at 11pm",
+    occ.occursTonight({
+      occurrences: {
+        kind: "weekly",
+        start: "2026-01-01",
+        weekdays: ["Thu"],
+        start_time: "21:00",
+        end_time: "00:00"
+      }
+    }, new Date("2026-10-30T05:00:00.000Z")) === true);
+  check("a daytime weekly rule is not tonight",
+    occ.occursTonight({
+      occurrences: {
+        kind: "weekly",
+        start: "2026-01-01",
+        weekdays: ["Thu"],
+        start_time: "10:00",
+        end_time: "14:00"
+      }
+    }, new Date("2026-10-30T02:00:00.000Z")) === false);
+  const research = {
+    occurrences: [{
+      start_date: "2026-01-01",
+      end_date: null,
+      weekdays: ["Thu"],
+      start: "19:00",
+      end: "22:00"
+    }]
+  };
+  check("a research weekly range keeps its hours and matches Thursday night",
+    occ.occursTonight(research, new Date("2026-10-30T02:00:00.000Z")) === true);
+
+  if (localDay !== "2026-10-31") {
+    check("this process calendar day is not the Denver day", localDay === "2026-11-01" && late.getHours() !== 23);
+  }
+});
+
+section("occurs tonight ignores a non-Denver process timezone", () => {
+  const { spawnSync } = require("child_process");
+  const script = `
+    const occ = require(${JSON.stringify(require("path").join(__dirname, "../public/occurrences.js"))});
+    const late = new Date("2026-11-01T05:30:00.000Z");
+    const inside = new Date("2026-11-01T03:59:00.000Z");
+    const outside = new Date("2026-11-01T04:00:00.000Z");
+    const pad = (n) => String(n).padStart(2, "0");
+    const localDay = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    const noEnd = { occurrences: { kind: "dates", dates: [{ date: "2026-10-31", start: "19:00" }] } };
+    process.stdout.write(JSON.stringify({
+      localDay: localDay(late),
+      localHour: late.getHours(),
+      outsideHour: outside.getHours(),
+      denverToday: occ.denverToday(late),
+      today: occ.occursTonight({ occurrences: { kind: "dates", dates: [{ date: "2026-10-31" }] } }, late),
+      utcDay: occ.occursTonight({ occurrences: { kind: "dates", dates: [{ date: "2026-11-01" }] } }, late),
+      inside: occ.occursTonight(noEnd, inside),
+      outside: occ.occursTonight(noEnd, outside)
+    }));
+  `;
+  const run = spawnSync(process.execPath, ["-e", script], {
+    env: Object.assign({}, process.env, { TZ: "Pacific/Auckland" }),
+    encoding: "utf8"
+  });
+  let parsed = null;
+  try { parsed = JSON.parse(run.stdout || ""); } catch (err) { parsed = null; }
+  check("Auckland reports a different calendar day than Denver",
+    run.status === 0 && parsed && parsed.localDay === "2026-11-01" && parsed.denverToday === "2026-10-31" &&
+    parsed.localHour !== 23,
+    run.stderr || run.stdout);
+  check("the Denver date matches and the Auckland date does not",
+    parsed && parsed.today === true && parsed.utcDay === false);
+  check("the grace window follows Denver even when Auckland reads 5pm",
+    parsed && parsed.inside === true && parsed.outside === false && parsed.outsideHour === 17);
 });
 
 module.exports = { pass: pass, fail: fail };

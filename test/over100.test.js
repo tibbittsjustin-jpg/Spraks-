@@ -56,19 +56,22 @@ section("Over $100 cost filter", () => {
   const low = Object.assign({}, t.state.filters, { cost: ["$1-$20"] });
   const mid = Object.assign({}, t.state.filters, { cost: ["$21-$40"] });
   const high = Object.assign({}, t.state.filters, { cost: ["$41-$60"] });
-  check("a $20-$30 row matches $1-$20 and $21-$40",
-    t.matchesFilters(legacy, low) && t.matchesFilters(legacy, mid) && !t.matchesFilters(legacy, high));
+  check("a $20-$30 row matches only $21-$40",
+    !t.matchesFilters(legacy, low) && t.matchesFilters(legacy, mid) && !t.matchesFilters(legacy, high));
   const wide = { cost: "$100 and under" };
   const wideBands = ["$21-$40", "$41-$60", "$61-$80", "$81-$100"];
   check("a $100 and under row matches $21-$40 through $81-$100",
     wideBands.every(band => t.matchesFilters(wide, Object.assign({}, t.state.filters, { cost: [band] }))) &&
     !t.matchesFilters(wide, onlyOver) && !t.matchesFilters(wide, low));
-  check("the card shows the stored legacy label", t.displayCost(legacy) === "$20-$30");
+  check("the card prints the new step, not the stored $20-$30 label",
+    t.displayCost(legacy) === "$21\u2013$40");
   const perCar = { cost: "$1-$20", costUnit: "per car" };
-  check("displayCost appends per car except on Free",
-    t.displayCost(perCar) === "$1-$20 per car" &&
+  check("displayCost appends per car except on Free and uses en dashes",
+    t.displayCost(perCar) === "$1\u2013$20 per car" &&
     t.displayCost({ cost: "Free", costUnit: "per car" }) === "Free" &&
-    t.displayCost({ cost: "$21-$40" }) === "$21-$40");
+    t.displayCost({ cost: "$21-$40" }) === "$21\u2013$40" &&
+    t.displayCost({ cost: "$1-$10" }) === "$1\u2013$20" &&
+    t.displayCost({ cost: "$100 and under", costUnit: "per car" }) === "Up to $100 per car");
   const bare = t.hydrateRealIdea({ title: "No price", description: "The model left cost off." }, t.state.filters);
   check("a nearby spot with no AI cost defaults to $1-$20", bare.cost === "$1-$20");
 });

@@ -1,9 +1,14 @@
 /* $20 cost bands and the legacy read alias.
 
-   One helper, bandsForStoredCost. The card shows the stored label.
-   A filter for a new band also matches every old string that could fall
-   in it. $1-$10 is only the read alias: migration 019 renames it, and new
-   rows do not store it. $20-$30 and $100 and under stay on flagged rows.
+   bandsForStoredCost decides which buttons a stored string matches.
+   $1-$10 matches $1-$20. $20-$30 matches only $21-$40.
+   $100 and under matches $21-$40 through $81-$100.
+   A new band matches only itself.
+
+   displayLabel is the text on a card, a detail tag, and a budget button.
+   It uses an en dash. Stored values and filter queries keep the ASCII hyphen.
+   $1-$10 prints as $1–$20, $20-$30 as $21–$40, and
+   $100 and under as Up to $100.
 
    Loaded before remote-activities.js and app.js. Node tests require() it.
    ============================================================ */
@@ -15,12 +20,13 @@
   "use strict";
 
   var COST_BANDS = ["Free", "$1-$20", "$21-$40", "$41-$60", "$61-$80", "$81-$100", "Over $100"];
+  var EN_DASH = "\u2013";
 
   // Old strings that can still be stored, and the new bands each one matches.
   // $1-$10 is not a value we write anymore. It still matches $1-$20 until 019 runs.
   function bandsForStoredCost(stored) {
     if (stored === "$1-$10") return ["$1-$20"];
-    if (stored === "$20-$30") return ["$1-$20", "$21-$40"];
+    if (stored === "$20-$30") return ["$21-$40"];
     if (stored === "$100 and under") return ["$21-$40", "$41-$60", "$61-$80", "$81-$100"];
     return [stored];
   }
@@ -51,7 +57,18 @@
     return false;
   }
 
-  // The card prints this string. The alias never rewrites it.
+  // Shown text. New steps swap the hyphen for an en dash. Legacy stored
+  // strings print the new step, except $100 and under, which is "Up to $100".
+  function displayLabel(value) {
+    var text = typeof value === "string" ? value : "";
+    if (text === "$1-$10") return "$1" + EN_DASH + "$20";
+    if (text === "$20-$30") return "$21" + EN_DASH + "$40";
+    if (text === "$100 and under") return "Up to $100";
+    if (COST_BANDS.indexOf(text) !== -1) return text.replace(/-/g, EN_DASH);
+    return text;
+  }
+
+  // The stored value, unchanged. Cards print displayLabel, not this.
   function storedLabel(value) {
     var text = typeof value === "string" ? value : "";
     bandsForStoredCost(text);
@@ -60,9 +77,11 @@
 
   return {
     COST_BANDS: COST_BANDS,
+    EN_DASH: EN_DASH,
     bandsForStoredCost: bandsForStoredCost,
     storedCostsForBands: storedCostsForBands,
     costMatches: costMatches,
+    displayLabel: displayLabel,
     storedLabel: storedLabel
   };
 });

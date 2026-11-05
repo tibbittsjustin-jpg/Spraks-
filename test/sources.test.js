@@ -46,6 +46,35 @@ const STATE_PARKS_PAGE = "Utah State Parks. Park names, locations and links come
 const NPS_CREDIT = "via National Park Service (nps.gov)";
 const NPS_PAGE = "National Park Service. Names, locations and links for national park units in Utah come from nps.gov, a U.S. Department of the Interior website. No claim to original U.S. Government works. We don't use NPS photos or the NPS Arrowhead, and the National Park Service doesn't endorse Jaderoo. Check the park's nps.gov page for current conditions, alerts and closures.";
 const NPS_NOTICE = "No claim to original U.S. Government works.";
+const NPS_PLACE_PAGES_LEAD = "National Park Service.";
+const NPS_PLACE_PAGES = "National Park Service. Some park and monument locations come from National Park Service place pages on nps.gov, or from NPS-published public-domain datasets we have host-checked. Credit: National Park Service. No claim to original U.S. Government works. Locations are approximate. Features may be seasonal, permit-only, or closed, so check the park before you go. The National Park Service does not endorse Jaderoo.";
+const NOV4K_EVENT_INFO_LINES = [
+  "Event info from Sundance Mountain Resort (sundanceresort.com).",
+  "Event info from Off Broadway Theatre (theobt.org).",
+  "Event info from Utah Festival Opera & Musical Theatre (utahfestival.org).",
+  "Event info from Kilby Court (kilbycourt.com).",
+  "Event info from Red Butte Garden (redbuttegarden.org).",
+  "Event info from Utah Shakespeare Festival (bard.org).",
+  "Event info from Utah Olympic Legacy Foundation (utaholympiclegacy.org).",
+  "Event info from Ogden Nature Center (ogdennaturecenter.org).",
+  "Event info from Gardner Village (gardnervillage.com).",
+  "Event info from Davis Arts Council (davisarts.org).",
+  "Event info from Repertory Dance Theatre (rdtutah.org).",
+  "Event info from Utah's Hogle Zoo (hoglezoo.org).",
+  "Event info from Sugar Space (sugarspace.org).",
+  "Event info from Sugar House Chamber (sugarhousechamber.org).",
+  "Event info from Moab Music Festival (moabmusicfest.org).",
+  "Event info from Park Silly Sunday Market (parksillysundaymarket.com).",
+  "Event info from Ogden Twilight (ogdentwilight.com).",
+  "Event info from Loveland Living Planet Aquarium (livingplanetaquarium.org)."
+];
+const NOV4M_EVENT_INFO_LINES = [
+  "Event info from Roosevelt City (rooseveltcity.gov).",
+  "Event info from Utah Division of Outdoor Recreation (recreation.utah.gov).",
+  "Event info from Clinton City (clinton.utah.gov).",
+  "Event info from HawkWatch International (hawkwatch.org).",
+  "Event info from Alpine City (alpineut.gov)."
+];
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
 const NOT_AFFILIATED = "Jaderoo is not affiliated with or endorsed by any of these sources.";
@@ -56,6 +85,9 @@ const UGRC_VIA = ", via UGRC SGID · CC BY 4.0 · data modified";
 const UGRC_SGID_INTRO_TEMPLATE = "Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID). Data Sources: UGRC SGID (data modified). Layers used: {list each layer title, linked to its dataset page}. Licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Changes made by Jaderoo: records filtered to activity types, polygons and lines reduced to points, trail segments combined by trail name, fields renamed and reformatted, and our own short summaries added. Neither UGRC nor the State of Utah endorses Jaderoo.";
 const UGRC_SGID_DISCLAIMER = "UGRC disclaimer (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\"";
 const UGRC_SGID_GNIS = "GNIS place names originate from the U.S. Geological Survey Geographic Names Information System. Credit: U.S. Geological Survey.";
+const ADDRESS_POINTS_DATASET = "https://opendata.gis.utah.gov/datasets/3f4f7a8efcd147febeca8bacaea67a14_0";
+const EVENT_LOCATIONS_LEAD = "Event locations (geocoding).";
+const EVENT_LOCATIONS_PAGE = "Event locations (geocoding). Map locations for event addresses are calculated by matching each venue address against Utah Address Points, a dataset in the Utah Geospatial Resource Center (UGRC) State Geographic Information Database (SGID), https://opendata.gis.utah.gov/datasets/3f4f7a8efcd147febeca8bacaea67a14_0, licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Data Sources: UGRC SGID (data modified). Changes we made: we keep only the matched location, converted to latitude/longitude, and don't show or republish the address list. Locations may be approximate. Neither UGRC nor the State of Utah endorses Jaderoo.";
 const GNIS_USGS_CREDIT = "Credit: U.S. Geological Survey.";
 const GNIS_ACCESS = "Check access and conditions before you go.";
 const GNIS_NOTE = GNIS_USGS_CREDIT + " " + GNIS_ACCESS;
@@ -67,6 +99,13 @@ const BLM_CREDIT = "via Bureau of Land Management";
 const BLM_PAGE = "Bureau of Land Management (BLM). Recreation site information from the BLM National Recreation Sites and Facilities map service (compiled by BLM from Recreation.gov's Recreation Information Database), https://www.blm.gov/programs/recreation. U.S. Government work. No claim to original U.S. Government works. Use of this data does not imply endorsement by the BLM or the U.S. Department of the Interior.";
 const BLM_RECREATION = "https://www.blm.gov/programs/recreation";
 const BLM_SAMPLE = "https://www.blm.gov/visit/search-details/14494/2";
+const USGS_GNIS_LEAD = "USGS GNIS.";
+const USGS_GNIS_URL = "https://www.usgs.gov/tools/geographic-names-information-system-gnis";
+const USGS_GNIS_PAGE = "USGS GNIS. Some place names and locations come from the Geographic Names Information System (GNIS), U.S. Geological Survey, " + USGS_GNIS_URL + ". Credit: U.S. Geological Survey. Locations are approximate. Features may be on private or closed land, so check access and conditions before you go. Neither USGS nor the U.S. government endorses Jaderoo.";
+const CENSUS_LEAD = "U.S. Census Bureau.";
+const CENSUS_URL = "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html";
+const CENSUS_PAGE = "U.S. Census Bureau. Some general city or area locations are center points we calculated from the U.S. Census Bureau's 2023 Cartographic Boundary Files (places), " + CENSUS_URL + ". These show the general area, not the exact venue location. Credit: U.S. Census Bureau. The Census Bureau didn't produce or review these center points, and neither the Census Bureau nor the U.S. government endorses Jaderoo.";
+const USGS_NATIONAL_MAP_CREDIT = "Map services and data available from U.S. Geological Survey, National Geospatial Program. Credit: U.S. Geological Survey. Neither USGS nor the U.S. government endorses Jaderoo.";
 const ROUND8_LAYERS = [
   ["ugrc_monuments", "Utah Monuments and Markers", "63de4118823e4e3eba943ca43caefc72", "Utah Monuments and Markers (Utah Division of State History)" + UGRC_VIA],
   ["ugrc_boat_ramps", "Utah Boat Ramps", "0d12b74c39eb453088e992bf089d9890", "Utah Boat Ramps" + UGRC_VIA],
@@ -89,6 +128,21 @@ function visibleText(html) {
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&amp;/g, "&");
+}
+
+function occurrences(haystack, needle) {
+  const text = String(haystack || "");
+  const find = String(needle || "");
+  if (!find) return 0;
+  let count = 0;
+  let from = 0;
+  while (from <= text.length) {
+    const at = text.indexOf(find, from);
+    if (at === -1) break;
+    count++;
+    from = at + find.length;
+  }
+  return count;
 }
 
 function walkText(node) {
@@ -312,6 +366,11 @@ section("round 8 credit lines and sources blocks", () => {
   check("the new UGRC block does not repeat Utah Trailheads", intro.indexOf("Utah Trailheads") === -1);
   check("round 8 disclaimer matches the module", sources.UGRC_SGID_DISCLAIMER === UGRC_SGID_DISCLAIMER);
   check("round 8 GNIS origin line matches the module", sources.UGRC_SGID_GNIS === UGRC_SGID_GNIS);
+  check("event locations paragraph matches the module",
+    sources.EVENT_LOCATIONS_PAGE === EVENT_LOCATIONS_PAGE &&
+    sources.EVENT_LOCATIONS_LEAD === EVENT_LOCATIONS_LEAD &&
+    sources.ADDRESS_POINTS_DATASET === ADDRESS_POINTS_DATASET &&
+    EVENT_LOCATIONS_PAGE.indexOf(EVENT_LOCATIONS_LEAD) === 0);
   check("GNIS carries the USGS credit and the access caution",
     sources.GNIS_USGS_CREDIT === GNIS_USGS_CREDIT &&
     sources.GNIS_ACCESS === GNIS_ACCESS &&
@@ -514,6 +573,20 @@ function main() {
     check("the CC BY license is a link", page.indexOf('href="' + CC_BY + '"') !== -1);
     check("the UGRC policy is a link", page.indexOf('href="https://gis.utah.gov/documentation/policy/license/"') !== -1);
     check("the report link is a mailto", page.indexOf('href="mailto:support@jaderoo.com?subject=Report%20or%20remove%20a%20listing"') !== -1);
+    const OSM_LINE = "Some locations © OpenStreetMap contributors, available under the Open Database License (ODbL)";
+    const OSM_HREF = "https://www.openstreetmap.org/copyright";
+    function anchorAttrsFor(html, exact) {
+      const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/g;
+      let match;
+      while ((match = re.exec(html))) {
+        if (visibleText(match[2]) === exact) return match[1];
+      }
+      return "";
+    }
+    const osmAttrs = anchorAttrsFor(page, OSM_LINE);
+    check("the Sources page shows the exact OpenStreetMap line",
+      text.indexOf(OSM_LINE) !== -1 && osmAttrs.indexOf('href="' + OSM_HREF + '"') !== -1,
+      osmAttrs);
     ["via The City Library", "Salt Lake City Public Library", "via Pleasant Grove", "locations geocoded", "polygons reduced to center points", "Data: Utah UGRC"].forEach(banned => {
       check("page does not list " + banned, text.indexOf(banned) === -1);
     });
@@ -533,10 +606,280 @@ function main() {
       check("the route serves the not-affiliated line", bodyText.indexOf(NOT_AFFILIATED) !== -1);
       check("the route serves the NPS 403 notice", bodyText.indexOf(NPS_NOTICE) !== -1);
       check("the route serves the round 8 UGRC disclaimer", bodyText.indexOf(UGRC_SGID_DISCLAIMER) !== -1);
+      check("the event locations paragraph appears on /sources once",
+        occurrences(bodyText, EVENT_LOCATIONS_PAGE) === 1,
+        String(occurrences(bodyText, EVENT_LOCATIONS_PAGE)));
+      check("the UGRC disclaimer still appears on /sources once",
+        occurrences(bodyText, UGRC_SGID_DISCLAIMER) === 1,
+        String(occurrences(bodyText, UGRC_SGID_DISCLAIMER)));
+      const ugrcHeading = res.body.indexOf('id="ugrc-sgid"');
+      const disclaimerAt = res.body.indexOf("UGRC disclaimer (unmodified)");
+      const blockEnd = res.body.indexOf("</div>", disclaimerAt);
+      const eventAt = res.body.indexOf("<strong>" + EVENT_LOCATIONS_LEAD + "</strong>");
+      check("the paragraph sits under the shared UGRC block",
+        ugrcHeading !== -1 && disclaimerAt > ugrcHeading && blockEnd > disclaimerAt && eventAt > blockEnd);
+      check("event location urls are links whose text is the url",
+        res.body.indexOf('href="' + ADDRESS_POINTS_DATASET + '"') !== -1 &&
+        res.body.indexOf(">" + ADDRESS_POINTS_DATASET + "</a>") !== -1 &&
+        res.body.indexOf('href="' + ADDRESS_POINTS_DATASET + ',"') === -1 &&
+        res.body.indexOf(">" + CC_BY + "</a>") !== -1);
+      check("the page does not use the UGRC Web API wording",
+        bodyText.indexOf("api.mapserv.utah.gov") === -1 &&
+        bodyText.indexOf("UGRC Web API") === -1);
+      check("the page does not add a per-pin Location line",
+        bodyText.indexOf("Location: Utah Address Points") === -1 &&
+        bodyText.indexOf("Location: UGRC Web API") === -1);
       check("the route serves the USFS block", bodyText.indexOf(USFS_PAGE) !== -1);
       check("the route serves the BLM block", bodyText.indexOf(BLM_PAGE) !== -1);
       check("the route serves the GNIS access caution", bodyText.indexOf(GNIS_ACCESS) !== -1);
       check("the route serves the CC BY link", res.body.indexOf('href="' + CC_BY + '"') !== -1);
+      const routeOsmAttrs = anchorAttrsFor(res.body, OSM_LINE);
+      check("the route serves the exact OpenStreetMap line",
+        bodyText.indexOf(OSM_LINE) !== -1 && routeOsmAttrs.indexOf('href="' + OSM_HREF + '"') !== -1,
+        routeOsmAttrs);
+      function paragraphBlock(html, lead) {
+        const marker = "<strong>" + lead + "</strong>";
+        const at = html.indexOf(marker);
+        if (at < 0) return "";
+        const start = html.lastIndexOf("<p", at);
+        const end = html.indexOf("</p>", at);
+        if (start < 0 || end < 0) return "";
+        return html.slice(start, end + 4);
+      }
+      function exactHref(html, urlText) {
+        const attrs = anchorAttrsFor(html, urlText);
+        const match = /href="([^"]*)"/.exec(attrs);
+        return match ? match[1] : "";
+      }
+      const usgsBlock = paragraphBlock(res.body, USGS_GNIS_LEAD);
+      const censusBlock = paragraphBlock(res.body, CENSUS_LEAD);
+      const eventsAt = res.body.indexOf("<h2>Event listings</h2>");
+      const blmAt = res.body.indexOf("<h2>Bureau of Land Management (BLM)</h2>");
+      check("the USGS GNIS paragraph appears on /sources once",
+        occurrences(bodyText, USGS_GNIS_PAGE) === 1 && visibleText(usgsBlock) === USGS_GNIS_PAGE,
+        String(occurrences(bodyText, USGS_GNIS_PAGE)));
+      check("the USGS GNIS link href equals its URL",
+        exactHref(usgsBlock, USGS_GNIS_URL) === USGS_GNIS_URL);
+      check("the USGS GNIS block has no img",
+        usgsBlock.length > 0 && usgsBlock.toLowerCase().indexOf("<img") === -1);
+      check("the Census paragraph appears on /sources once",
+        occurrences(bodyText, CENSUS_PAGE) === 1 && visibleText(censusBlock) === CENSUS_PAGE,
+        String(occurrences(bodyText, CENSUS_PAGE)));
+      check("the Census link href equals its URL",
+        exactHref(censusBlock, CENSUS_URL) === CENSUS_URL);
+      check("the Census block has no img",
+        censusBlock.length > 0 && censusBlock.toLowerCase().indexOf("<img") === -1);
+      const nationalAt = res.body.indexOf('id="national-map"');
+      const nationalParaAt = res.body.indexOf(USGS_NATIONAL_MAP_CREDIT);
+      const nationalEnd = nationalParaAt === -1 ? -1 : res.body.indexOf("</p>", nationalParaAt);
+      const nationalBlock = nationalParaAt === -1 || nationalEnd === -1 ? "" : res.body.slice(res.body.lastIndexOf("<p", nationalParaAt), nationalEnd + 4);
+      check("the National Map credit is the Legal sentence, once, with no image",
+        sources.USGS_NATIONAL_MAP_CREDIT === USGS_NATIONAL_MAP_CREDIT &&
+        occurrences(bodyText, USGS_NATIONAL_MAP_CREDIT) === 1 &&
+        visibleText(nationalBlock) === USGS_NATIONAL_MAP_CREDIT &&
+        nationalAt !== -1 &&
+        nationalAt > res.body.indexOf("<strong>" + CENSUS_LEAD + "</strong>") &&
+        eventsAt > nationalAt &&
+        nationalBlock.toLowerCase().indexOf("<img") === -1 &&
+        nationalBlock.toLowerCase().indexOf("logo") === -1,
+        String(occurrences(bodyText, USGS_NATIONAL_MAP_CREDIT)));
+      check("gazetteer is absent from /sources",
+        res.body.toLowerCase().indexOf("gazetteer") === -1);
+      check("USGS and Census credits sit with the place-data credits, before Event listings",
+        blmAt !== -1 &&
+        res.body.indexOf("<strong>" + USGS_GNIS_LEAD + "</strong>") > blmAt &&
+        res.body.indexOf("<strong>" + CENSUS_LEAD + "</strong>") > res.body.indexOf("<strong>" + USGS_GNIS_LEAD + "</strong>") &&
+        eventsAt > res.body.indexOf("<strong>" + CENSUS_LEAD + "</strong>"));
+      check("the place-data paragraphs match the module constants",
+        sources.USGS_GNIS_PAGE === USGS_GNIS_PAGE &&
+        sources.USGS_GNIS_URL === USGS_GNIS_URL &&
+        sources.USGS_GNIS_LEAD === USGS_GNIS_LEAD &&
+        sources.CENSUS_PAGE === CENSUS_PAGE &&
+        sources.CENSUS_URL === CENSUS_URL &&
+        sources.CENSUS_LEAD === CENSUS_LEAD);
+      const EVENT_INFO_LINES = [
+        ["Event info from Brigham City Public Library (library.bcutah.gov). See the library's page for details.", "library.bcutah.gov", "https://library.bcutah.gov/"],
+        ["Event info from Utah Humanities (utahhumanities.org).", "utahhumanities.org", "https://utahhumanities.org/"],
+        ["Event info from Spanish Fork Public Library (spanishfork.libcal.com).", "spanishfork.libcal.com", "https://spanishfork.libcal.com/"],
+        ["Event info from Lehi City Library (lehicity.libcal.com).", "lehicity.libcal.com", "https://lehicity.libcal.com/"],
+        ["Event info from the Gallivan Center (thegallivancenter.com).", "thegallivancenter.com", "https://thegallivancenter.com/"],
+        ["Event info from Utah Film Center (utahfilmcenter.org).", "utahfilmcenter.org", "https://utahfilmcenter.org/"],
+        ["Event info from Peery's Egyptian Theater (ogdenpet.com).", "ogdenpet.com", "https://ogdenpet.com/"],
+        ["Event info from Brigham City Museum of Art & History (museum.bcutah.gov).", "museum.bcutah.gov", "https://museum.bcutah.gov/"],
+        ["Event info from Stokes Nature Center (logannature.org).", "logannature.org", "https://logannature.org/"],
+        ["Event info from Bear River Heritage Area (bearriverheritage.com).", "bearriverheritage.com", "https://bearriverheritage.com/"],
+        ["Event info from Ogden Shakespeare Festival (ogdenshakesfest.org).", "ogdenshakesfest.org", "https://ogdenshakesfest.org/"],
+        ["Event info from Springville Museum of Art (smofa.org).", "smofa.org", "https://www.smofa.org/"],
+        ["Event info from CacheCalendar (cachecalendar.com).", "cachecalendar.com", "https://cachecalendar.com/"],
+        ["Event info from Visit Cedar City · Brian Head (visitcedarcity.com).", "visitcedarcity.com", "https://visitcedarcity.com/"],
+        ["Event info from Town of Springdale (springdale.utah.gov).", "springdale.utah.gov", "https://www.springdale.utah.gov/"],
+        ["Event info from South Valley Chamber (southvalleychamber.com).", "southvalleychamber.com", "https://www.southvalleychamber.com/"],
+        ["Event info from Historic Park City Alliance (historicparkcityutah.com).", "historicparkcityutah.com", "https://historicparkcityutah.com/"],
+        ["Event info from The State Room Presents (thestateroompresents.com).", "thestateroompresents.com", "https://thestateroompresents.com/"],
+        ["Event info from Egyptian Theatre (parkcityshows.com).", "parkcityshows.com", "https://parkcityshows.com/"],
+        ["Event info from South Salt Lake City (sslc.gov).", "sslc.gov", "https://sslc.gov/"],
+        ["Event info from Hyrum City (hyrumcity.gov).", "hyrumcity.gov", "https://www.hyrumcity.gov/"],
+        ["Event info from Kayenta Center for the Arts (kayentaarts.org).", "kayentaarts.org", "https://kayentaarts.org/"],
+        ["Event info from North Salt Lake City (nslcity.org).", "nslcity.org", "https://nslcity.org/"],
+        ["Event info from Syracuse City Recreation (syracuserecreation.com).", "syracuserecreation.com", "https://syracuserecreation.com/"],
+        ["Event info from South Jordan City (sjc.utah.gov).", "sjc.utah.gov", "https://sjc.utah.gov/"],
+        ["Event info from Park City Museum (parkcityhistory.org).", "parkcityhistory.org", "https://parkcityhistory.org/"],
+        ["Event info from Clearfield City (clearfield.city).", "clearfield.city", "https://clearfield.city/"],
+        ["Event info from Ballet West (balletwest.org).", "balletwest.org", "https://www.balletwest.org/"],
+        ["Event info from Draper Historic Theatre (draperhistorictheatre.org).", "draperhistorictheatre.org", "https://www.draperhistorictheatre.org/"],
+        ["Event info from Wasatch Mountain Institute (wasatchmountaininstitute.org).", "wasatchmountaininstitute.org", "https://www.wasatchmountaininstitute.org/"],
+        ["Event info from Midway City (midwaycityut.gov).", "midwaycityut.gov", "https://www.midwaycityut.gov/"],
+        ["Event info from Salt Lake Acting Company (saltlakeactingcompany.org).", "saltlakeactingcompany.org", "https://saltlakeactingcompany.org/"],
+        ["Event info from Plan-B Theatre (planbtheatre.org).", "planbtheatre.org", "https://planbtheatre.org/"],
+        ["Event info from Greater Zion (events.greaterzion.com).", "events.greaterzion.com", "https://events.greaterzion.com/"],
+      ];
+      const discoveryAt = res.body.indexOf("<h2>Discovery only</h2>");
+      const eventsHtml = eventsAt === -1 || discoveryAt === -1 ? "" : res.body.slice(eventsAt, discoveryAt);
+      const eventsText = visibleText(eventsHtml);
+      const eventsTextAt = bodyText.indexOf("Event listings");
+      const discoveryTextAt = bodyText.indexOf("Discovery only");
+      check("the Event listings section has no img",
+        eventsHtml.length > 0 && eventsHtml.toLowerCase().indexOf("<img") === -1);
+      check("event info lines are not per-card credits",
+        sources.ENTRIES.every(entry => String(entry.credit || "").indexOf("Event info from") === -1));
+      let previousLineAt = eventsTextAt;
+      EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        let host = "";
+        try { host = new URL(foundHref).hostname; } catch (err) { host = ""; }
+        const onDomain = foundHref.indexOf("https://") === 0 &&
+          (host === domain || host.endsWith("." + domain));
+        const lineAt = bodyText.indexOf(line);
+        const lowerItem = itemHtml.toLowerCase();
+        check(line + " appears once in /sources",
+          occurrences(bodyText, line) === 1, String(occurrences(bodyText, line)));
+        check(line + " sits in Event listings",
+          eventsTextAt !== -1 && discoveryTextAt > eventsTextAt &&
+          lineAt > eventsTextAt && lineAt < discoveryTextAt);
+        check(line + " keeps its order in Event listings",
+          lineAt > previousLineAt);
+        previousLineAt = lineAt;
+        check(domain + " links over https on that domain",
+          onDomain && foundHref === href, foundHref);
+        check(line + " has no endorsement wording",
+          line.toLowerCase().indexOf("endorse") === -1 &&
+          line.toLowerCase().indexOf("partner") === -1 &&
+          line.toLowerCase().indexOf("official") === -1 &&
+          lowerItem.indexOf("endorse") === -1 &&
+          lowerItem.indexOf("partner") === -1 &&
+          lowerItem.indexOf("official") === -1 &&
+          lowerItem.indexOf("<img") === -1);
+      });
+      const greaterZion = EVENT_INFO_LINES[33];
+      check("Greater Zion appears once with an https href on events.greaterzion.com",
+        occurrences(bodyText, greaterZion[0]) === 1 &&
+        eventsText.indexOf(greaterZion[0]) > eventsText.indexOf("Event info from Plan-B Theatre (planbtheatre.org).") &&
+        /href="https:\/\/(?:www\.)?events\.greaterzion\.com\//.test(eventsHtml));
+      check("SLCC is absent from /sources",
+        res.body.indexOf("SLCC") === -1);
+      const BLM_PERMIT = "Permit information from the U.S. Bureau of Land Management outfitter list. BLM does not endorse or promote any permittee.";
+      const blmHeadingAt = bodyText.indexOf("Bureau of Land Management (BLM)");
+      const blmPageAt = bodyText.indexOf(BLM_PAGE);
+      const permitAt = bodyText.indexOf(BLM_PERMIT);
+      const permitHtmlAt = res.body.indexOf(BLM_PERMIT);
+      const permitStart = res.body.lastIndexOf("<p", permitHtmlAt);
+      const permitEnd = res.body.indexOf("</p>", permitHtmlAt);
+      const permitBlock = permitStart >= 0 && permitEnd > permitHtmlAt ? res.body.slice(permitStart, permitEnd + 4) : "";
+      check("the BLM permit paragraph appears once in the BLM section before Event listings",
+        occurrences(bodyText, BLM_PERMIT) === 1 &&
+        blmHeadingAt !== -1 &&
+        blmPageAt > blmHeadingAt &&
+        permitAt > blmPageAt &&
+        eventsTextAt > permitAt);
+      check("the BLM permit paragraph has no img",
+        permitBlock.length > 0 &&
+        permitBlock.toLowerCase().indexOf("<img") === -1 &&
+        visibleText(permitBlock) === BLM_PERMIT);
+      const springville = EVENT_INFO_LINES[11];
+      check("Springville Museum of Art appears once with an https href on smofa.org",
+        occurrences(bodyText, springville[0]) === 1 &&
+        eventsText.indexOf(springville[0]) > eventsText.indexOf("Event info from Ogden Shakespeare Festival (ogdenshakesfest.org).") &&
+        /href="https:\/\/(?:www\.)?smofa\.org\/"/.test(eventsHtml));
+      check("the older NPS park-unit credit is unchanged",
+        sources.NPS_CREDIT === NPS_CREDIT &&
+        sources.NPS_PAGE === NPS_PAGE &&
+        occurrences(bodyText, NPS_PAGE) === 1);
+      check("the NPS place-pages credit matches the module",
+        sources.NPS_PLACE_PAGES_LEAD === NPS_PLACE_PAGES_LEAD &&
+        sources.NPS_PLACE_PAGES === NPS_PLACE_PAGES);
+      const npsPlacesBlock = paragraphBlock(res.body, NPS_PLACE_PAGES_LEAD);
+      const npsPlacesAt = bodyText.indexOf(NPS_PLACE_PAGES);
+      const npsUnitsAt = bodyText.indexOf(NPS_PAGE);
+      check("the NPS place-pages credit appears once, as its own bold-lead paragraph",
+        occurrences(bodyText, NPS_PLACE_PAGES) === 1 &&
+        visibleText(npsPlacesBlock) === NPS_PLACE_PAGES &&
+        npsPlacesBlock.indexOf("<strong>" + NPS_PLACE_PAGES_LEAD + "</strong>") !== -1 &&
+        npsUnitsAt !== -1 &&
+        npsPlacesAt > npsUnitsAt &&
+        npsPlacesAt < bodyText.indexOf("Utah Museums Directory"));
+      let nov4kPrevious = eventsText.indexOf("Event info from Greater Zion (events.greaterzion.com).");
+      NOV4K_EVENT_INFO_LINES.forEach(function (line) {
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov4kPrevious !== -1 && lineAt > nov4kPrevious);
+        nov4kPrevious = lineAt;
+      });
+      let nov4mPrevious = eventsText.indexOf("Event info from Loveland Living Planet Aquarium (livingplanetaquarium.org).");
+      NOV4M_EVENT_INFO_LINES.forEach(function (line) {
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov4mPrevious !== -1 && lineAt > nov4mPrevious);
+        nov4mPrevious = lineAt;
+      });
+      const sourcesLower = res.body.toLowerCase();
+      check("Moab Area Chamber is absent from /sources",
+        res.body.indexOf("Moab Area Chamber") === -1 &&
+        sourcesLower.indexOf("moab area chamber") === -1);
+      check("stgeorgechamber is absent from /sources",
+        sourcesLower.indexOf("stgeorgechamber") === -1);
+      check("theruth is absent from /sources",
+        sourcesLower.indexOf("theruth") === -1);
+      check("NowPlayingUtah is absent from /sources",
+        res.body.indexOf("NowPlayingUtah") === -1 &&
+        sourcesLower.indexOf("nowplayingutah") === -1);
       const home = await request(server.address().port, "/");
       check("home loads the sources script and links Sources",
         home.status === 200 &&
@@ -573,11 +916,11 @@ function main() {
       /revoke all on table public\.activities from authenticated/i.test(sql));
     check("the migration creates no policy and grants nothing",
       /create policy/i.test(sql) === false && /\bgrant\b/i.test(sql) === false);
-    check("016 is the nearby index migration, 017 stays unused, and 018 and 019 are the cost-band migrations",
+    check("016 is the nearby index migration, 017 is place staging, and 018 and 019 are the cost-band migrations",
       files.indexOf("016_nearby_keyset.sql") !== -1 &&
+      files.indexOf("017_place_staging.sql") !== -1 &&
       files.indexOf("018_cost_bands_20.sql") !== -1 &&
-      files.indexOf("019_cost_bands_20_rename.sql") !== -1 &&
-      files.every(name => name.indexOf("017_") !== 0));
+      files.indexOf("019_cost_bands_20_rename.sql") !== -1);
   }));
 }
 

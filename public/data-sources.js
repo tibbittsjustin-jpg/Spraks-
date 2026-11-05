@@ -44,6 +44,9 @@
   var NPS_CREDIT = "via National Park Service (nps.gov)";
   var NPS_PAGE = "National Park Service. Names, locations and links for national park units in Utah come from nps.gov, a U.S. Department of the Interior website. No claim to original U.S. Government works. We don't use NPS photos or the NPS Arrowhead, and the National Park Service doesn't endorse Jaderoo. Check the park's nps.gov page for current conditions, alerts and closures.";
   var NPS_NOTICE = "No claim to original U.S. Government works.";
+  // Sources page only. No source_key. The park-unit credit above stays.
+  var NPS_PLACE_PAGES_LEAD = "National Park Service.";
+  var NPS_PLACE_PAGES = "National Park Service. Some park and monument locations come from National Park Service place pages on nps.gov, or from NPS-published public-domain datasets we have host-checked. Credit: National Park Service. No claim to original U.S. Government works. Locations are approximate. Features may be seasonal, permit-only, or closed, so check the park before you go. The National Park Service does not endorse Jaderoo.";
 
   var MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
   var MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -71,6 +74,11 @@
   var UGRC_SGID_INTRO_TEMPLATE = "Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID). Data Sources: UGRC SGID (data modified). Layers used: {list each layer title, linked to its dataset page}. Licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Changes made by Jaderoo: records filtered to activity types, polygons and lines reduced to points, trail segments combined by trail name, fields renamed and reformatted, and our own short summaries added. Neither UGRC nor the State of Utah endorses Jaderoo.";
   var UGRC_SGID_DISCLAIMER = "UGRC disclaimer (unmodified): \"The data, including but not limited to geographic data, tabular data, and analytical data, are provided \"as is\" and \"as available\", with no guarantees relating to the availability, completeness, or accuracy of data, and without any express or implied warranties. These data are provided as a public service for informational purposes only. You are solely responsible for obtaining the proper evaluation of a location and associated data by a qualified professional. UGRC reserves the right to change, revise, suspend or discontinue published data and services without notice at any time. Neither UGRC nor the State of Utah are responsible for any misuse or misrepresentation of the data. UGRC and the State of Utah are not obligated to provide you with any maintenance or support. The user assumes the entire risk as to the quality and performance of the data. You agree to hold the State of Utah harmless for any claims, liability, costs, and damages relating to your use of the data. You agree that your sole remedy for any dissatisfaction or claims is to discontinue use of the data.\"";
   var UGRC_SGID_GNIS = "GNIS place names originate from the U.S. Geological Survey Geographic Names Information System. Credit: U.S. Geological Survey.";
+  // R8.5. The lead-in is bold on the page. This sits under the shared
+  // UGRC block, which already shows the unmodified disclaimer once.
+  var ADDRESS_POINTS_DATASET = "https://opendata.gis.utah.gov/datasets/3f4f7a8efcd147febeca8bacaea67a14_0";
+  var EVENT_LOCATIONS_LEAD = "Event locations (geocoding).";
+  var EVENT_LOCATIONS_PAGE = "Event locations (geocoding). Map locations for event addresses are calculated by matching each venue address against Utah Address Points, a dataset in the Utah Geospatial Resource Center (UGRC) State Geographic Information Database (SGID), https://opendata.gis.utah.gov/datasets/3f4f7a8efcd147febeca8bacaea67a14_0, licensed under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Data Sources: UGRC SGID (data modified). Changes we made: we keep only the matched location, converted to latitude/longitude, and don't show or republish the address list. Locations may be approximate. Neither UGRC nor the State of Utah endorses Jaderoo.";
   var GNIS_USGS_CREDIT = "Credit: U.S. Geological Survey.";
   var GNIS_ACCESS = "Check access and conditions before you go.";
   var GNIS_NOTE = GNIS_USGS_CREDIT + " " + GNIS_ACCESS;
@@ -80,6 +88,17 @@
   var BLM_CREDIT = "via Bureau of Land Management";
   var BLM_PAGE = "Bureau of Land Management (BLM). Recreation site information from the BLM National Recreation Sites and Facilities map service (compiled by BLM from Recreation.gov's Recreation Information Database), https://www.blm.gov/programs/recreation. U.S. Government work. No claim to original U.S. Government works. Use of this data does not imply endorsement by the BLM or the U.S. Department of the Interior.";
   var BLM_RECREATION = "https://www.blm.gov/programs/recreation";
+  var BLM_PERMIT_PAGE = "Permit information from the U.S. Bureau of Land Management outfitter list. BLM does not endorse or promote any permittee.";
+  // Sources page only. No source_key and no per-card line. The Utah GNIS
+  // Place Names credit (ugrc_gnis) stays as it is.
+  var USGS_GNIS_LEAD = "USGS GNIS.";
+  var USGS_GNIS_URL = "https://www.usgs.gov/tools/geographic-names-information-system-gnis";
+  var USGS_GNIS_PAGE = "USGS GNIS. Some place names and locations come from the Geographic Names Information System (GNIS), U.S. Geological Survey, " + USGS_GNIS_URL + ". Credit: U.S. Geological Survey. Locations are approximate. Features may be on private or closed land, so check access and conditions before you go. Neither USGS nor the U.S. government endorses Jaderoo.";
+  var CENSUS_LEAD = "U.S. Census Bureau.";
+  var CENSUS_URL = "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html";
+  var CENSUS_PAGE = "U.S. Census Bureau. Some general city or area locations are center points we calculated from the U.S. Census Bureau's 2023 Cartographic Boundary Files (places), " + CENSUS_URL + ". These show the general area, not the exact venue location. Credit: U.S. Census Bureau. The Census Bureau didn't produce or review these center points, and neither the Census Bureau nor the U.S. government endorses Jaderoo.";
+  // Legal nov4f §1b. The map corner uses a shorter line. This is the /sources text.
+  var USGS_NATIONAL_MAP_CREDIT = "Map services and data available from U.S. Geological Survey, National Geospatial Program. Credit: U.S. Geological Survey. Neither USGS nor the U.S. government endorses Jaderoo.";
   var BULK_LOADER_NOTES = "Set activities.source_key to key. The key selects the credit line; source_credit may be omitted or set to that same sentence (1 to 500 characters, no control characters). UGRC layers: set source_url to datasetUrl. usfs: set source_url to the record recareaurl. blm: set source_url to the record BLMRecURL. source_url must be https. Do not store Sources page paragraphs in source_credit.";
 
   function ugrcDatasetUrl(itemId) {
@@ -553,6 +572,15 @@
     return "<p>" + html + "</p>";
   }
 
+  function paragraphBoldLead(text, lead, phrases) {
+    var source = String(text || "");
+    var label = String(lead || "");
+    if (!label || source.indexOf(label) !== 0) return paragraphPhrases(source, phrases);
+    var rest = paragraphPhrases(source.slice(label.length), phrases);
+    var inner = rest.slice(3, rest.length - 4);
+    return "<p><strong>" + escapeHtml(label) + "</strong>" + inner + "</p>";
+  }
+
   function creditList(items) {
     var html = "<ul>";
     items.forEach(function (item) {
@@ -576,6 +604,89 @@
     html += "</ul>";
     return html;
   }
+
+  // Sources page only. These lines are not source keys and do not change
+  // card credits. The parenthetical domain is the link text; hrefs are the
+  // final https homepage after redirects.
+  var EVENT_INFO_LINES = [
+    { line: "Event info from Brigham City Public Library (library.bcutah.gov). See the library's page for details.", domain: "library.bcutah.gov", href: "https://library.bcutah.gov/" },
+    { line: "Event info from Utah Humanities (utahhumanities.org).", domain: "utahhumanities.org", href: "https://utahhumanities.org/" },
+    { line: "Event info from Spanish Fork Public Library (spanishfork.libcal.com).", domain: "spanishfork.libcal.com", href: "https://spanishfork.libcal.com/" },
+    { line: "Event info from Lehi City Library (lehicity.libcal.com).", domain: "lehicity.libcal.com", href: "https://lehicity.libcal.com/" },
+    { line: "Event info from the Gallivan Center (thegallivancenter.com).", domain: "thegallivancenter.com", href: "https://thegallivancenter.com/" },
+    { line: "Event info from Utah Film Center (utahfilmcenter.org).", domain: "utahfilmcenter.org", href: "https://utahfilmcenter.org/" },
+    { line: "Event info from Peery's Egyptian Theater (ogdenpet.com).", domain: "ogdenpet.com", href: "https://ogdenpet.com/" },
+    { line: "Event info from Brigham City Museum of Art & History (museum.bcutah.gov).", domain: "museum.bcutah.gov", href: "https://museum.bcutah.gov/" },
+    { line: "Event info from Stokes Nature Center (logannature.org).", domain: "logannature.org", href: "https://logannature.org/" },
+    { line: "Event info from Bear River Heritage Area (bearriverheritage.com).", domain: "bearriverheritage.com", href: "https://bearriverheritage.com/" },
+    { line: "Event info from Ogden Shakespeare Festival (ogdenshakesfest.org).", domain: "ogdenshakesfest.org", href: "https://ogdenshakesfest.org/" },
+    { line: "Event info from Springville Museum of Art (smofa.org).", domain: "smofa.org", href: "https://www.smofa.org/" },
+    { line: "Event info from CacheCalendar (cachecalendar.com).", domain: "cachecalendar.com", href: "https://cachecalendar.com/" },
+    { line: "Event info from Visit Cedar City · Brian Head (visitcedarcity.com).", domain: "visitcedarcity.com", href: "https://visitcedarcity.com/" },
+    { line: "Event info from Town of Springdale (springdale.utah.gov).", domain: "springdale.utah.gov", href: "https://www.springdale.utah.gov/" },
+    { line: "Event info from South Valley Chamber (southvalleychamber.com).", domain: "southvalleychamber.com", href: "https://www.southvalleychamber.com/" },
+    { line: "Event info from Historic Park City Alliance (historicparkcityutah.com).", domain: "historicparkcityutah.com", href: "https://historicparkcityutah.com/" },
+    { line: "Event info from The State Room Presents (thestateroompresents.com).", domain: "thestateroompresents.com", href: "https://thestateroompresents.com/" },
+    { line: "Event info from Egyptian Theatre (parkcityshows.com).", domain: "parkcityshows.com", href: "https://parkcityshows.com/" },
+    { line: "Event info from South Salt Lake City (sslc.gov).", domain: "sslc.gov", href: "https://sslc.gov/" },
+    { line: "Event info from Hyrum City (hyrumcity.gov).", domain: "hyrumcity.gov", href: "https://www.hyrumcity.gov/" },
+    { line: "Event info from Kayenta Center for the Arts (kayentaarts.org).", domain: "kayentaarts.org", href: "https://kayentaarts.org/" },
+    { line: "Event info from North Salt Lake City (nslcity.org).", domain: "nslcity.org", href: "https://nslcity.org/" },
+    { line: "Event info from Syracuse City Recreation (syracuserecreation.com).", domain: "syracuserecreation.com", href: "https://syracuserecreation.com/" },
+    { line: "Event info from South Jordan City (sjc.utah.gov).", domain: "sjc.utah.gov", href: "https://sjc.utah.gov/" },
+    { line: "Event info from Park City Museum (parkcityhistory.org).", domain: "parkcityhistory.org", href: "https://parkcityhistory.org/" },
+    { line: "Event info from Clearfield City (clearfield.city).", domain: "clearfield.city", href: "https://clearfield.city/" },
+    { line: "Event info from Ballet West (balletwest.org).", domain: "balletwest.org", href: "https://www.balletwest.org/" },
+    { line: "Event info from Draper Historic Theatre (draperhistorictheatre.org).", domain: "draperhistorictheatre.org", href: "https://www.draperhistorictheatre.org/" },
+    { line: "Event info from Wasatch Mountain Institute (wasatchmountaininstitute.org).", domain: "wasatchmountaininstitute.org", href: "https://www.wasatchmountaininstitute.org/" },
+    { line: "Event info from Midway City (midwaycityut.gov).", domain: "midwaycityut.gov", href: "https://www.midwaycityut.gov/" },
+    { line: "Event info from Salt Lake Acting Company (saltlakeactingcompany.org).", domain: "saltlakeactingcompany.org", href: "https://saltlakeactingcompany.org/" },
+    { line: "Event info from Plan-B Theatre (planbtheatre.org).", domain: "planbtheatre.org", href: "https://planbtheatre.org/" },
+    { line: "Event info from Greater Zion (events.greaterzion.com).", domain: "events.greaterzion.com", href: "https://events.greaterzion.com/" },
+    { line: "Event info from Sundance Mountain Resort (sundanceresort.com).", domain: "sundanceresort.com", href: "https://www.sundanceresort.com/" },
+    { line: "Event info from Off Broadway Theatre (theobt.org).", domain: "theobt.org", href: "https://www.theobt.org/" },
+    { line: "Event info from Utah Festival Opera & Musical Theatre (utahfestival.org).", domain: "utahfestival.org", href: "https://utahfestival.org/" },
+    { line: "Event info from Kilby Court (kilbycourt.com).", domain: "kilbycourt.com", href: "https://www.kilbycourt.com/" },
+    { line: "Event info from Red Butte Garden (redbuttegarden.org).", domain: "redbuttegarden.org", href: "https://redbuttegarden.org/" },
+    { line: "Event info from Utah Shakespeare Festival (bard.org).", domain: "bard.org", href: "https://www.bard.org/" },
+    { line: "Event info from Utah Olympic Legacy Foundation (utaholympiclegacy.org).", domain: "utaholympiclegacy.org", href: "https://utaholympiclegacy.org/" },
+    { line: "Event info from Ogden Nature Center (ogdennaturecenter.org).", domain: "ogdennaturecenter.org", href: "https://ogdennaturecenter.org/" },
+    { line: "Event info from Gardner Village (gardnervillage.com).", domain: "gardnervillage.com", href: "https://gardnervillage.com/" },
+    { line: "Event info from Davis Arts Council (davisarts.org).", domain: "davisarts.org", href: "https://davisarts.org/" },
+    { line: "Event info from Repertory Dance Theatre (rdtutah.org).", domain: "rdtutah.org", href: "https://rdtutah.org/" },
+    { line: "Event info from Utah's Hogle Zoo (hoglezoo.org).", domain: "hoglezoo.org", href: "https://www.hoglezoo.org/" },
+    { line: "Event info from Sugar Space (sugarspace.org).", domain: "sugarspace.org", href: "https://sugarspace.org/" },
+    { line: "Event info from Sugar House Chamber (sugarhousechamber.org).", domain: "sugarhousechamber.org", href: "https://sugarhousechamber.org/" },
+    { line: "Event info from Moab Music Festival (moabmusicfest.org).", domain: "moabmusicfest.org", href: "https://moabmusicfest.org/" },
+    { line: "Event info from Park Silly Sunday Market (parksillysundaymarket.com).", domain: "parksillysundaymarket.com", href: "https://parksillysundaymarket.com/" },
+    { line: "Event info from Ogden Twilight (ogdentwilight.com).", domain: "ogdentwilight.com", href: "https://www.ogdentwilight.com/" },
+    { line: "Event info from Loveland Living Planet Aquarium (livingplanetaquarium.org).", domain: "livingplanetaquarium.org", href: "https://livingplanetaquarium.org/" },
+    { line: "Event info from Roosevelt City (rooseveltcity.gov).", domain: "rooseveltcity.gov", href: "https://rooseveltcity.gov/" },
+    { line: "Event info from Utah Division of Outdoor Recreation (recreation.utah.gov).", domain: "recreation.utah.gov", href: "https://recreation.utah.gov/" },
+    { line: "Event info from Clinton City (clinton.utah.gov).", domain: "clinton.utah.gov", href: "https://clinton.utah.gov/" },
+    { line: "Event info from HawkWatch International (hawkwatch.org).", domain: "hawkwatch.org", href: "https://hawkwatch.org/" },
+    { line: "Event info from Alpine City (alpineut.gov).", domain: "alpineut.gov", href: "https://alpineut.gov/" },
+  ];
+
+  function eventInfoList(lines) {
+    var html = "<ul>";
+    lines.forEach(function (item) {
+      var mark = "(" + item.domain + ")";
+      var at = item.line.indexOf(mark);
+      var before = item.line.slice(0, at + 1);
+      var after = item.line.slice(at + 1 + item.domain.length);
+      html += "<li>" + htmlForParts([
+        { text: before },
+        { text: item.domain, href: item.href, external: true },
+        { text: after }
+      ]) + "</li>";
+    });
+    html += "</ul>";
+    return html;
+  }
+
+  var OSM_LOCATIONS_LINE = "Some locations © OpenStreetMap contributors, available under the Open Database License (ODbL)";
+  var OSM_COPYRIGHT_HREF = "https://www.openstreetmap.org/copyright";
 
   function renderPage() {
     var html = [];
@@ -609,6 +720,7 @@
     html.push('<h2 id="nps">National Park Service</h2>');
     html.push(paragraph(NPS_CREDIT));
     html.push(paragraph(NPS_PAGE));
+    html.push(paragraphBoldLead(NPS_PLACE_PAGES, NPS_PLACE_PAGES_LEAD));
     html.push('<h2 id="museums">Utah Museums Directory</h2>');
     html.push(paragraph(MUSEUMS_CREDIT));
     html.push(paragraph(MUSEUMS_PAGE));
@@ -620,15 +732,34 @@
     html.push(paragraph(UGRC_SGID_GNIS));
     html.push(paragraph(GNIS_ACCESS));
     html.push("</div>");
+    html.push(paragraphBoldLead(EVENT_LOCATIONS_PAGE, EVENT_LOCATIONS_LEAD, [
+      { text: ADDRESS_POINTS_DATASET, href: ADDRESS_POINTS_DATASET },
+      { text: CC_BY, href: CC_BY }
+    ]));
     html.push("<h2>USDA Forest Service</h2>");
     html.push(creditList([USFS_SOURCE]));
     html.push(paragraphPhrases(USFS_PAGE, USFS_SOURCE.pagePhrases));
     html.push("<h2>Bureau of Land Management (BLM)</h2>");
     html.push(creditList([BLM_SOURCE]));
     html.push(paragraphPhrases(BLM_PAGE, BLM_SOURCE.pagePhrases));
+    html.push(paragraph(BLM_PERMIT_PAGE));
+    html.push(paragraphBoldLead(USGS_GNIS_PAGE, USGS_GNIS_LEAD, [
+      { text: USGS_GNIS_URL, href: USGS_GNIS_URL }
+    ]));
+    html.push(paragraphBoldLead(CENSUS_PAGE, CENSUS_LEAD, [
+      { text: CENSUS_URL, href: CENSUS_URL }
+    ]));
+    html.push('<h2 id="national-map">U.S. Geological Survey, The National Map</h2>');
+    html.push(paragraph(USGS_NATIONAL_MAP_CREDIT));
+    html.push("<p>" + htmlForParts([{
+      text: OSM_LOCATIONS_LINE,
+      href: httpsPageUrl(OSM_COPYRIGHT_HREF),
+      external: true
+    }]) + "</p>");
     html.push("<h2>Event listings</h2>");
     html.push('<p class="muted">Each event listing links to the organizer and shows the credit below.</p>');
     html.push(groupList("events"));
+    html.push(eventInfoList(EVENT_INFO_LINES));
     html.push("<h2>Discovery only</h2>");
     html.push(paragraph("Visit Salt Lake and Explore Utah Valley are used only to find events. Jaderoo does not copy their listings. When an event is shown, the credit names the organizer."));
     html.push(groupList("discovery"));
@@ -654,12 +785,17 @@
     NPS_CREDIT: NPS_CREDIT,
     NPS_PAGE: NPS_PAGE,
     NPS_NOTICE: NPS_NOTICE,
+    NPS_PLACE_PAGES_LEAD: NPS_PLACE_PAGES_LEAD,
+    NPS_PLACE_PAGES: NPS_PLACE_PAGES,
     MUSEUMS_CREDIT: MUSEUMS_CREDIT,
     MUSEUMS_PAGE: MUSEUMS_PAGE,
     UGRC_SGID_INTRO_TEMPLATE: UGRC_SGID_INTRO_TEMPLATE,
     UGRC_SGID_INTRO: UGRC_SGID_INTRO,
     UGRC_SGID_DISCLAIMER: UGRC_SGID_DISCLAIMER,
     UGRC_SGID_GNIS: UGRC_SGID_GNIS,
+    ADDRESS_POINTS_DATASET: ADDRESS_POINTS_DATASET,
+    EVENT_LOCATIONS_LEAD: EVENT_LOCATIONS_LEAD,
+    EVENT_LOCATIONS_PAGE: EVENT_LOCATIONS_PAGE,
     GNIS_USGS_CREDIT: GNIS_USGS_CREDIT,
     GNIS_ACCESS: GNIS_ACCESS,
     GNIS_NOTE: GNIS_NOTE,
@@ -669,6 +805,13 @@
     BLM_CREDIT: BLM_CREDIT,
     BLM_PAGE: BLM_PAGE,
     BLM_RECREATION: BLM_RECREATION,
+    USGS_GNIS_LEAD: USGS_GNIS_LEAD,
+    USGS_GNIS_URL: USGS_GNIS_URL,
+    USGS_GNIS_PAGE: USGS_GNIS_PAGE,
+    CENSUS_LEAD: CENSUS_LEAD,
+    CENSUS_URL: CENSUS_URL,
+    CENSUS_PAGE: CENSUS_PAGE,
+    USGS_NATIONAL_MAP_CREDIT: USGS_NATIONAL_MAP_CREDIT,
     UGRC_ROUND8: UGRC_ROUND8,
     ROUND8_SOURCES: ROUND8_SOURCES,
     BULK_LOADER_NOTES: BULK_LOADER_NOTES,

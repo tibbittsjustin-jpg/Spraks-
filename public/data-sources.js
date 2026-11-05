@@ -994,6 +994,22 @@
     { line: "Event info from The Prestige Salt Lake (prestigesaltlake.com).", domain: "prestigesaltlake.com", href: "https://prestigesaltlake.com/" },
     { line: "Event info from The Scratch Pad (www.climbthescratchpad.com).", domain: "www.climbthescratchpad.com", href: "https://www.climbthescratchpad.com/" },
     { line: "Event info from The Westerner (westernerslc.com).", domain: "westernerslc.com", href: "https://westernerslc.com/" },
+    { line: "Event info from CUMC Holiday Boutique (www.cumcholidayboutique.com).", domain: "www.cumcholidayboutique.com", href: "https://www.cumcholidayboutique.com/" },
+    { line: "Event info from Chamber Music Society of SLC (cmsofslc.org).", domain: "cmsofslc.org", href: "https://cmsofslc.org/" },
+    { line: "Event info from Earn Your Turkey Run (earnyourturkey.com).", domain: "earnyourturkey.com", href: "https://earnyourturkey.com/" },
+    { line: "Event info from Great Salt Lake Audubon (greatsaltlakeaudubon.org).", domain: "greatsaltlakeaudubon.org", href: "https://greatsaltlakeaudubon.org/" },
+    { line: "Event info from NOVA Chamber Music (www.novaslc.org).", domain: "www.novaslc.org", href: "https://www.novaslc.org/" },
+    { line: "Event info from Park City Treble Makers (parkcitytreblemakers.org).", domain: "parkcitytreblemakers.org", href: "https://parkcitytreblemakers.org/" },
+    { line: "Event info from Red Cliffs Audubon (www.redcliffsaudubon.org).", domain: "www.redcliffsaudubon.org", href: "https://www.redcliffsaudubon.org/" },
+    { line: "Event info from Runtastic (runtasticevents.com).", domain: "runtasticevents.com", href: "https://runtasticevents.com/" },
+    { line: "Event info from Shepherd of the Hills UMC (shumcstgeorge.com).", domain: "shumcstgeorge.com", href: "https://shumcstgeorge.com/" },
+    { line: "Event info from Sonrise Christian Church (sonrisechurch.net).", domain: "sonrisechurch.net", href: "https://sonrisechurch.net/" },
+    { line: "Event info from Speak For Yourself Open Mic (speakforyourselfopenmic.wordpress.com).", domain: "speakforyourselfopenmic.wordpress.com", href: "https://speakforyourselfopenmic.wordpress.com/" },
+    { line: "Event info from Square Talk Utah (utsquaredance.org).", domain: "utsquaredance.org", href: "https://utsquaredance.org/" },
+    { line: "Event info from The Bayou (www.utahbayou.com).", domain: "www.utahbayou.com", href: "https://www.utahbayou.com/" },
+    { line: "Event info from The L.A.B. (www.thelabutah.com).", domain: "www.thelabutah.com", href: "https://www.thelabutah.com/" },
+    { line: "Event info from Wasatch Trails Foundation (www.wasatchtrails.org).", domain: "www.wasatchtrails.org", href: "https://www.wasatchtrails.org/" },
+    { line: "Event info from Utah Global Diplomacy (www.utahglobaldiplomacy.org).", domain: "www.utahglobaldiplomacy.org", href: "https://www.utahglobaldiplomacy.org/" },
   ];
 
   function eventInfoList(lines) {

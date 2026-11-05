@@ -904,6 +904,20 @@
     { line: "Event info from Sky SLC (skyslc.com).", domain: "skyslc.com", href: "https://skyslc.com/" },
     { line: "Event info from St. George Brewing (stgbeer.com).", domain: "stgbeer.com", href: "https://stgbeer.com/" },
     { line: "Event info from Women's Wine Hiking Society (winehikingsociety.com).", domain: "winehikingsociety.com", href: "https://winehikingsociety.com/" },
+    { line: "Event info from Alpine Luminaires (alpinelights.org).", domain: "alpinelights.org", href: "https://alpinelights.org/" },
+    { line: "Event info from Canyons Village Management Association (cvma.com).", domain: "cvma.com", href: "https://cvma.com/" },
+    { line: "Event info from Cedar City Community Band (www.cedarcitycommunityband.org).", domain: "www.cedarcitycommunityband.org", href: "https://www.cedarcitycommunityband.org/" },
+    { line: "Event info from Helper Library (helper.lib.utah.gov).", domain: "helper.lib.utah.gov", href: "https://helper.lib.utah.gov/" },
+    { line: "Event info from McQuarrie Memorial Pioneer Museum (www.dupstgeorge.org).", domain: "www.dupstgeorge.org", href: "https://www.dupstgeorge.org/" },
+    { line: "Event info from Monticello City (www.monticelloutah.org).", domain: "www.monticelloutah.org", href: "https://www.monticelloutah.org/" },
+    { line: "Event info from Murray City Library (murraylibraryut.libnet.info).", domain: "murraylibraryut.libnet.info", href: "https://murraylibraryut.libnet.info/" },
+    { line: "Event info from Murray Concert Band (murrayconcertband.org).", domain: "murrayconcertband.org", href: "https://murrayconcertband.org/" },
+    { line: "Event info from Newton Library (newton.lib.utah.gov).", domain: "newton.lib.utah.gov", href: "https://newton.lib.utah.gov/" },
+    { line: "Event info from U of U School of Music (music.utah.edu).", domain: "music.utah.edu", href: "https://music.utah.edu/" },
+    { line: "Event info from U of U Student Affairs (studentaffairs.utah.edu).", domain: "studentaffairs.utah.edu", href: "https://studentaffairs.utah.edu/" },
+    { line: "Event info from Utah Valley Interfaith Choirs (utahvalleyinterfaithchoir.org).", domain: "utahvalleyinterfaithchoir.org", href: "https://utahvalleyinterfaithchoir.org/" },
+    { line: "Event info from West Jordan Community Band (westjordancommunityband.com).", domain: "westjordancommunityband.com", href: "https://westjordancommunityband.com/" },
+    { line: "Event info from West Valley Symphony (westvalleysymphonyutah.org).", domain: "westvalleysymphonyutah.org", href: "https://westvalleysymphonyutah.org/" },
   ];
 
   function eventInfoList(lines) {

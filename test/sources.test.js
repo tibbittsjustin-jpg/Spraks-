@@ -338,6 +338,22 @@ const NOV5O_EVENT_INFO_LINES = [
   ["Event info from St. George Brewing (stgbeer.com).", "stgbeer.com", "https://stgbeer.com/"],
   ["Event info from Women's Wine Hiking Society (winehikingsociety.com).", "winehikingsociety.com", "https://winehikingsociety.com/"],
 ];
+const NOV5P_EVENT_INFO_LINES = [
+  ["Event info from Alpine Luminaires (alpinelights.org).", "alpinelights.org", "https://alpinelights.org/"],
+  ["Event info from Canyons Village Management Association (cvma.com).", "cvma.com", "https://cvma.com/"],
+  ["Event info from Cedar City Community Band (www.cedarcitycommunityband.org).", "www.cedarcitycommunityband.org", "https://www.cedarcitycommunityband.org/"],
+  ["Event info from Helper Library (helper.lib.utah.gov).", "helper.lib.utah.gov", "https://helper.lib.utah.gov/"],
+  ["Event info from McQuarrie Memorial Pioneer Museum (www.dupstgeorge.org).", "www.dupstgeorge.org", "https://www.dupstgeorge.org/"],
+  ["Event info from Monticello City (www.monticelloutah.org).", "www.monticelloutah.org", "https://www.monticelloutah.org/"],
+  ["Event info from Murray City Library (murraylibraryut.libnet.info).", "murraylibraryut.libnet.info", "https://murraylibraryut.libnet.info/"],
+  ["Event info from Murray Concert Band (murrayconcertband.org).", "murrayconcertband.org", "https://murrayconcertband.org/"],
+  ["Event info from Newton Library (newton.lib.utah.gov).", "newton.lib.utah.gov", "https://newton.lib.utah.gov/"],
+  ["Event info from U of U School of Music (music.utah.edu).", "music.utah.edu", "https://music.utah.edu/"],
+  ["Event info from U of U Student Affairs (studentaffairs.utah.edu).", "studentaffairs.utah.edu", "https://studentaffairs.utah.edu/"],
+  ["Event info from Utah Valley Interfaith Choirs (utahvalleyinterfaithchoir.org).", "utahvalleyinterfaithchoir.org", "https://utahvalleyinterfaithchoir.org/"],
+  ["Event info from West Jordan Community Band (westjordancommunityband.com).", "westjordancommunityband.com", "https://westjordancommunityband.com/"],
+  ["Event info from West Valley Symphony (westvalleysymphonyutah.org).", "westvalleysymphonyutah.org", "https://westvalleysymphonyutah.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1510,6 +1526,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5oPrevious !== -1 && lineAt > nov5oPrevious);
         nov5oPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5pPrevious = eventsText.indexOf("Event info from Women's Wine Hiking Society (winehikingsociety.com).");
+      check("nov5p checks 14 verbatim event-info lines", NOV5P_EVENT_INFO_LINES.length === 14);
+      NOV5P_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5pPrevious !== -1 && lineAt > nov5pPrevious);
+        nov5pPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

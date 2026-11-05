@@ -46,6 +46,28 @@ const STATE_PARKS_PAGE = "Utah State Parks. Park names, locations and links come
 const NPS_CREDIT = "via National Park Service (nps.gov)";
 const NPS_PAGE = "National Park Service. Names, locations and links for national park units in Utah come from nps.gov, a U.S. Department of the Interior website. No claim to original U.S. Government works. We don't use NPS photos or the NPS Arrowhead, and the National Park Service doesn't endorse Jaderoo. Check the park's nps.gov page for current conditions, alerts and closures.";
 const NPS_NOTICE = "No claim to original U.S. Government works.";
+const NPS_PLACE_PAGES_LEAD = "National Park Service.";
+const NPS_PLACE_PAGES = "National Park Service. Some park and monument locations come from National Park Service place pages on nps.gov, or from NPS-published public-domain datasets we have host-checked. Credit: National Park Service. No claim to original U.S. Government works. Locations are approximate. Features may be seasonal, permit-only, or closed, so check the park before you go. The National Park Service does not endorse Jaderoo.";
+const NOV4K_EVENT_INFO_LINES = [
+  "Event info from Sundance Mountain Resort (sundanceresort.com).",
+  "Event info from Off Broadway Theatre (theobt.org).",
+  "Event info from Utah Festival Opera & Musical Theatre (utahfestival.org).",
+  "Event info from Kilby Court (kilbycourt.com).",
+  "Event info from Red Butte Garden (redbuttegarden.org).",
+  "Event info from Utah Shakespeare Festival (bard.org).",
+  "Event info from Utah Olympic Legacy Foundation (utaholympiclegacy.org).",
+  "Event info from Ogden Nature Center (ogdennaturecenter.org).",
+  "Event info from Gardner Village (gardnervillage.com).",
+  "Event info from Davis Arts Council (davisarts.org).",
+  "Event info from Repertory Dance Theatre (rdtutah.org).",
+  "Event info from Utah's Hogle Zoo (hoglezoo.org).",
+  "Event info from Sugar Space (sugarspace.org).",
+  "Event info from Sugar House Chamber (sugarhousechamber.org).",
+  "Event info from Moab Music Festival (moabmusicfest.org).",
+  "Event info from Park Silly Sunday Market (parksillysundaymarket.com).",
+  "Event info from Ogden Twilight (ogdentwilight.com).",
+  "Event info from Loveland Living Planet Aquarium (livingplanetaquarium.org)."
+];
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
 const NOT_AFFILIATED = "Jaderoo is not affiliated with or endorsed by any of these sources.";
@@ -785,6 +807,53 @@ function main() {
         occurrences(bodyText, springville[0]) === 1 &&
         eventsText.indexOf(springville[0]) > eventsText.indexOf("Event info from Ogden Shakespeare Festival (ogdenshakesfest.org).") &&
         /href="https:\/\/(?:www\.)?smofa\.org\/"/.test(eventsHtml));
+      check("the older NPS park-unit credit is unchanged",
+        sources.NPS_CREDIT === NPS_CREDIT &&
+        sources.NPS_PAGE === NPS_PAGE &&
+        occurrences(bodyText, NPS_PAGE) === 1);
+      check("the NPS place-pages credit matches the module",
+        sources.NPS_PLACE_PAGES_LEAD === NPS_PLACE_PAGES_LEAD &&
+        sources.NPS_PLACE_PAGES === NPS_PLACE_PAGES);
+      const npsPlacesBlock = paragraphBlock(res.body, NPS_PLACE_PAGES_LEAD);
+      const npsPlacesAt = bodyText.indexOf(NPS_PLACE_PAGES);
+      const npsUnitsAt = bodyText.indexOf(NPS_PAGE);
+      check("the NPS place-pages credit appears once, as its own bold-lead paragraph",
+        occurrences(bodyText, NPS_PLACE_PAGES) === 1 &&
+        visibleText(npsPlacesBlock) === NPS_PLACE_PAGES &&
+        npsPlacesBlock.indexOf("<strong>" + NPS_PLACE_PAGES_LEAD + "</strong>") !== -1 &&
+        npsUnitsAt !== -1 &&
+        npsPlacesAt > npsUnitsAt &&
+        npsPlacesAt < bodyText.indexOf("Utah Museums Directory"));
+      let nov4kPrevious = eventsText.indexOf("Event info from Greater Zion (events.greaterzion.com).");
+      NOV4K_EVENT_INFO_LINES.forEach(function (line) {
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov4kPrevious !== -1 && lineAt > nov4kPrevious);
+        nov4kPrevious = lineAt;
+      });
+      const sourcesLower = res.body.toLowerCase();
+      check("Moab Area Chamber is absent from /sources",
+        res.body.indexOf("Moab Area Chamber") === -1 &&
+        sourcesLower.indexOf("moab area chamber") === -1);
+      check("stgeorgechamber is absent from /sources",
+        sourcesLower.indexOf("stgeorgechamber") === -1);
+      check("theruth is absent from /sources",
+        sourcesLower.indexOf("theruth") === -1);
+      check("NowPlayingUtah is absent from /sources",
+        res.body.indexOf("NowPlayingUtah") === -1 &&
+        sourcesLower.indexOf("nowplayingutah") === -1);
       const home = await request(server.address().port, "/");
       check("home loads the sources script and links Sources",
         home.status === 200 &&

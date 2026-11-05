@@ -44,6 +44,9 @@
   var NPS_CREDIT = "via National Park Service (nps.gov)";
   var NPS_PAGE = "National Park Service. Names, locations and links for national park units in Utah come from nps.gov, a U.S. Department of the Interior website. No claim to original U.S. Government works. We don't use NPS photos or the NPS Arrowhead, and the National Park Service doesn't endorse Jaderoo. Check the park's nps.gov page for current conditions, alerts and closures.";
   var NPS_NOTICE = "No claim to original U.S. Government works.";
+  // Sources page only. No source_key. The park-unit credit above stays.
+  var NPS_PLACE_PAGES_LEAD = "National Park Service.";
+  var NPS_PLACE_PAGES = "National Park Service. Some park and monument locations come from National Park Service place pages on nps.gov, or from NPS-published public-domain datasets we have host-checked. Credit: National Park Service. No claim to original U.S. Government works. Locations are approximate. Features may be seasonal, permit-only, or closed, so check the park before you go. The National Park Service does not endorse Jaderoo.";
 
   var MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
   var MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -640,6 +643,24 @@
     { line: "Event info from Salt Lake Acting Company (saltlakeactingcompany.org).", domain: "saltlakeactingcompany.org", href: "https://saltlakeactingcompany.org/" },
     { line: "Event info from Plan-B Theatre (planbtheatre.org).", domain: "planbtheatre.org", href: "https://planbtheatre.org/" },
     { line: "Event info from Greater Zion (events.greaterzion.com).", domain: "events.greaterzion.com", href: "https://events.greaterzion.com/" },
+    { line: "Event info from Sundance Mountain Resort (sundanceresort.com).", domain: "sundanceresort.com", href: "https://www.sundanceresort.com/" },
+    { line: "Event info from Off Broadway Theatre (theobt.org).", domain: "theobt.org", href: "https://www.theobt.org/" },
+    { line: "Event info from Utah Festival Opera & Musical Theatre (utahfestival.org).", domain: "utahfestival.org", href: "https://utahfestival.org/" },
+    { line: "Event info from Kilby Court (kilbycourt.com).", domain: "kilbycourt.com", href: "https://www.kilbycourt.com/" },
+    { line: "Event info from Red Butte Garden (redbuttegarden.org).", domain: "redbuttegarden.org", href: "https://redbuttegarden.org/" },
+    { line: "Event info from Utah Shakespeare Festival (bard.org).", domain: "bard.org", href: "https://www.bard.org/" },
+    { line: "Event info from Utah Olympic Legacy Foundation (utaholympiclegacy.org).", domain: "utaholympiclegacy.org", href: "https://utaholympiclegacy.org/" },
+    { line: "Event info from Ogden Nature Center (ogdennaturecenter.org).", domain: "ogdennaturecenter.org", href: "https://ogdennaturecenter.org/" },
+    { line: "Event info from Gardner Village (gardnervillage.com).", domain: "gardnervillage.com", href: "https://gardnervillage.com/" },
+    { line: "Event info from Davis Arts Council (davisarts.org).", domain: "davisarts.org", href: "https://davisarts.org/" },
+    { line: "Event info from Repertory Dance Theatre (rdtutah.org).", domain: "rdtutah.org", href: "https://rdtutah.org/" },
+    { line: "Event info from Utah's Hogle Zoo (hoglezoo.org).", domain: "hoglezoo.org", href: "https://www.hoglezoo.org/" },
+    { line: "Event info from Sugar Space (sugarspace.org).", domain: "sugarspace.org", href: "https://sugarspace.org/" },
+    { line: "Event info from Sugar House Chamber (sugarhousechamber.org).", domain: "sugarhousechamber.org", href: "https://sugarhousechamber.org/" },
+    { line: "Event info from Moab Music Festival (moabmusicfest.org).", domain: "moabmusicfest.org", href: "https://moabmusicfest.org/" },
+    { line: "Event info from Park Silly Sunday Market (parksillysundaymarket.com).", domain: "parksillysundaymarket.com", href: "https://parksillysundaymarket.com/" },
+    { line: "Event info from Ogden Twilight (ogdentwilight.com).", domain: "ogdentwilight.com", href: "https://www.ogdentwilight.com/" },
+    { line: "Event info from Loveland Living Planet Aquarium (livingplanetaquarium.org).", domain: "livingplanetaquarium.org", href: "https://livingplanetaquarium.org/" },
   ];
 
   function eventInfoList(lines) {
@@ -694,6 +715,7 @@
     html.push('<h2 id="nps">National Park Service</h2>');
     html.push(paragraph(NPS_CREDIT));
     html.push(paragraph(NPS_PAGE));
+    html.push(paragraphBoldLead(NPS_PLACE_PAGES, NPS_PLACE_PAGES_LEAD));
     html.push('<h2 id="museums">Utah Museums Directory</h2>');
     html.push(paragraph(MUSEUMS_CREDIT));
     html.push(paragraph(MUSEUMS_PAGE));
@@ -758,6 +780,8 @@
     NPS_CREDIT: NPS_CREDIT,
     NPS_PAGE: NPS_PAGE,
     NPS_NOTICE: NPS_NOTICE,
+    NPS_PLACE_PAGES_LEAD: NPS_PLACE_PAGES_LEAD,
+    NPS_PLACE_PAGES: NPS_PLACE_PAGES,
     MUSEUMS_CREDIT: MUSEUMS_CREDIT,
     MUSEUMS_PAGE: MUSEUMS_PAGE,
     UGRC_SGID_INTRO_TEMPLATE: UGRC_SGID_INTRO_TEMPLATE,

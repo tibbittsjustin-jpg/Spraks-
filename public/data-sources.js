@@ -949,6 +949,11 @@
     { line: "Event info from The wAIRhouse (thewairhouse.com).", domain: "thewairhouse.com", href: "https://thewairhouse.com/" },
     { line: "Event info from Urban Flea Market (www.fleamarketslc.com).", domain: "www.fleamarketslc.com", href: "https://www.fleamarketslc.com/" },
     { line: "Event info from Valley Bowling Lanes (www.valleybowlinglanesutah.com).", domain: "www.valleybowlinglanesutah.com", href: "https://www.valleybowlinglanesutah.com/" },
+    { line: "Event info from Cactus & Tropicals (cactusandtropicals.com).", domain: "cactusandtropicals.com", href: "https://cactusandtropicals.com/" },
+    { line: "Event info from Farmers Market Ogden (farmersmarketogden.com).", domain: "farmersmarketogden.com", href: "https://farmersmarketogden.com/" },
+    { line: "Event info from Humane Society of Utah (utahhumane.org).", domain: "utahhumane.org", href: "https://utahhumane.org/" },
+    { line: "Event info from Nuzzles & Co (nuzzlesandco.org).", domain: "nuzzlesandco.org", href: "https://nuzzlesandco.org/" },
+    { line: "Event info from United Way of Utah County (volunteer.unitedwayuc.org).", domain: "volunteer.unitedwayuc.org", href: "https://volunteer.unitedwayuc.org/" },
   ];
 
   function eventInfoList(lines) {

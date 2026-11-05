@@ -393,6 +393,13 @@ const NOV5T_EVENT_INFO_LINES = [
   ["Event info from Urban Flea Market (www.fleamarketslc.com).", "www.fleamarketslc.com", "https://www.fleamarketslc.com/"],
   ["Event info from Valley Bowling Lanes (www.valleybowlinglanesutah.com).", "www.valleybowlinglanesutah.com", "https://www.valleybowlinglanesutah.com/"]
 ];
+const NOV5U_EVENT_INFO_LINES = [
+  ["Event info from Cactus & Tropicals (cactusandtropicals.com).", "cactusandtropicals.com", "https://cactusandtropicals.com/"],
+  ["Event info from Farmers Market Ogden (farmersmarketogden.com).", "farmersmarketogden.com", "https://farmersmarketogden.com/"],
+  ["Event info from Humane Society of Utah (utahhumane.org).", "utahhumane.org", "https://utahhumane.org/"],
+  ["Event info from Nuzzles & Co (nuzzlesandco.org).", "nuzzlesandco.org", "https://nuzzlesandco.org/"],
+  ["Event info from United Way of Utah County (volunteer.unitedwayuc.org).", "volunteer.unitedwayuc.org", "https://volunteer.unitedwayuc.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1725,6 +1732,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5tPrevious !== -1 && lineAt > nov5tPrevious);
         nov5tPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5uPrevious = eventsText.indexOf("Event info from Valley Bowling Lanes (www.valleybowlinglanesutah.com).");
+      check("nov5u checks 5 verbatim event-info lines", NOV5U_EVENT_INFO_LINES.length === 5);
+      NOV5U_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5uPrevious !== -1 && lineAt > nov5uPrevious);
+        nov5uPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

@@ -400,6 +400,23 @@ const NOV5U_EVENT_INFO_LINES = [
   ["Event info from Nuzzles & Co (nuzzlesandco.org).", "nuzzlesandco.org", "https://nuzzlesandco.org/"],
   ["Event info from United Way of Utah County (volunteer.unitedwayuc.org).", "volunteer.unitedwayuc.org", "https://volunteer.unitedwayuc.org/"]
 ];
+const NOV5V_EVENT_INFO_LINES = [
+  ["Event info from Alliance Française SLC (www.afslc-ut.org).", "www.afslc-ut.org", "https://www.afslc-ut.org/"],
+  ["Event info from Ascent Chorus (ascentchorus.org).", "ascentchorus.org", "https://ascentchorus.org/"],
+  ["Event info from Ballroom Utah (ballroomutah.com).", "ballroomutah.com", "https://ballroomutah.com/"],
+  ["Event info from Cottonwood Heights Parks & Rec (www.chparksandrecut.gov).", "www.chparksandrecut.gov", "https://www.chparksandrecut.gov/"],
+  ["Event info from Country Dance Provo (utahcountrydance.com).", "utahcountrydance.com", "https://utahcountrydance.com/"],
+  ["Event info from Huston Holiday Light Show (herrimanlights.com).", "herrimanlights.com", "https://herrimanlights.com/"],
+  ["Event info from Jubilate Choir (jubilatechoirslc.weebly.com).", "jubilatechoirslc.weebly.com", "https://jubilatechoirslc.weebly.com/"],
+  ["Event info from Lieto Voices (www.lietovoices.com).", "www.lietovoices.com", "https://www.lietovoices.com/"],
+  ["Event info from Lightwalk at Tracy Aviary (www.lightwalkslc.com).", "www.lightwalkslc.com", "https://www.lightwalkslc.com/"],
+  ["Event info from Provo Pioneer Village (www.provopioneervillage.org).", "www.provopioneervillage.org", "https://www.provopioneervillage.org/"],
+  ["Event info from Salt Lake City Chess Club (saltlakecitychessclub.com).", "saltlakecitychessclub.com", "https://saltlakecitychessclub.com/"],
+  ["Event info from Southern Utah Heritage Choir (www.heritagechoir.org).", "www.heritagechoir.org", "https://www.heritagechoir.org/"],
+  ["Event info from Utah Orchid Society (utahorchidsociety.org).", "utahorchidsociety.org", "https://utahorchidsociety.org/"],
+  ["Event info from Utah Valley Quilt Guild (www.uvqg.org).", "www.uvqg.org", "https://www.uvqg.org/"],
+  ["Event info from theFINDlab (thefindlab.com).", "thefindlab.com", "https://thefindlab.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1764,6 +1781,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5uPrevious !== -1 && lineAt > nov5uPrevious);
         nov5uPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5vPrevious = eventsText.indexOf("Event info from United Way of Utah County (volunteer.unitedwayuc.org).");
+      check("nov5v checks 15 verbatim event-info lines", NOV5V_EVENT_INFO_LINES.length === 15);
+      NOV5V_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5vPrevious !== -1 && lineAt > nov5vPrevious);
+        nov5vPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

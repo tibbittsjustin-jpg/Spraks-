@@ -870,6 +870,18 @@
     { line: "Event info from The Community Nutcracker (www.communitynutcracker.com).", domain: "www.communitynutcracker.com", href: "https://www.communitynutcracker.com/" },
     { line: "Event info from The Romantics Archive (theromanticsarchive.com).", domain: "theromanticsarchive.com", href: "https://theromanticsarchive.com/" },
     { line: "Event info from Story Crossroads (storycrossroads23.wildapricot.org).", domain: "storycrossroads23.wildapricot.org", href: "https://storycrossroads23.wildapricot.org/" },
+    { line: "Event info from Alpine Community Theater (alpinecommunitytheater.org).", domain: "alpinecommunitytheater.org", href: "https://alpinecommunitytheater.org/" },
+    { line: "Event info from Golden Spike Event Center (www.goldenspikeeventcenter.com).", domain: "www.goldenspikeeventcenter.com", href: "https://www.goldenspikeeventcenter.com/" },
+    { line: "Event info from Material Art Gallery (www.materialartgallery.com).", domain: "www.materialartgallery.com", href: "https://www.materialartgallery.com/" },
+    { line: "Event info from Modern West Fine Art (www.modernwestfineart.com).", domain: "www.modernwestfineart.com", href: "https://www.modernwestfineart.com/" },
+    { line: "Event info from Mountain West Chorale (mountainwestchorale.org).", domain: "mountainwestchorale.org", href: "https://mountainwestchorale.org/" },
+    { line: "Event info from Pickleville on Tour (www.picklevilleontour.com).", domain: "www.picklevilleontour.com", href: "https://www.picklevilleontour.com/" },
+    { line: "Event info from Salt Lake Choral Artists (saltlakechoralartists.org).", domain: "saltlakechoralartists.org", href: "https://saltlakechoralartists.org/" },
+    { line: "Event info from Star of Wonder (starofwonder.com).", domain: "starofwonder.com", href: "https://starofwonder.com/" },
+    { line: "Event info from Sterling Singers (sterlingsingers.org).", domain: "sterlingsingers.org", href: "https://sterlingsingers.org/" },
+    { line: "Event info from Sunset Farmers Markets (sunsetfarmersmarkets.com).", domain: "sunsetfarmersmarkets.com", href: "https://sunsetfarmersmarkets.com/" },
+    { line: "Event info from Utah Cultural Celebration Center (www.culturalcelebration.org).", domain: "www.culturalcelebration.org", href: "https://www.culturalcelebration.org/" },
+    { line: "Event info from UtahPresents (utahpresents.org).", domain: "utahpresents.org", href: "https://utahpresents.org/" },
   ];
 
   function eventInfoList(lines) {

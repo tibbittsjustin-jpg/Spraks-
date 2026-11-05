@@ -980,6 +980,10 @@
     { line: "Event info from Snowpine Lodge (www.snowpine.com).", domain: "www.snowpine.com", href: "https://www.snowpine.com/" },
     { line: "Event info from USTA Utah (www.utahtennis.com).", domain: "www.utahtennis.com", href: "https://www.utahtennis.com/" },
     { line: "Event info from Woodcraft of Salt Lake City (www.woodcraft.com).", domain: "www.woodcraft.com", href: "https://www.woodcraft.com/" },
+    { line: "Event info from Arthritis Foundation (events.arthritis.org).", domain: "events.arthritis.org", href: "https://events.arthritis.org/" },
+    { line: "Event info from Mad Moose Events (www.madmooseevents.com).", domain: "www.madmooseevents.com", href: "https://www.madmooseevents.com/" },
+    { line: "Event info from Moab Trail Marathon (moabtrailmarathon.com).", domain: "moabtrailmarathon.com", href: "https://moabtrailmarathon.com/" },
+    { line: "Event info from Salt Lake Running Co. (slrc.com).", domain: "slrc.com", href: "https://slrc.com/" },
   ];
 
   function eventInfoList(lines) {

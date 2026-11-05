@@ -973,6 +973,13 @@
     { line: "Event info from Rabbit's Foot (rabbitsfootbrewing.com).", domain: "rabbitsfootbrewing.com", href: "https://rabbitsfootbrewing.com/" },
     { line: "Event info from Utah Queer Film Festival (utahqueerfilmfestival.org).", domain: "utahqueerfilmfestival.org", href: "https://utahqueerfilmfestival.org/" },
     { line: "Event info from Washington City Arts Council (washingtoncityartscouncil.com).", domain: "washingtoncityartscouncil.com", href: "https://washingtoncityartscouncil.com/" },
+    { line: "Event info from Club Pickleball USA (clubpickleballusa.com).", domain: "clubpickleballusa.com", href: "https://clubpickleballusa.com/" },
+    { line: "Event info from Salt City Smithery (saltcitysmithery.com).", domain: "saltcitysmithery.com", href: "https://saltcitysmithery.com/" },
+    { line: "Event info from Salt Lake Weaving Studio (www.slweavingstudio.org).", domain: "www.slweavingstudio.org", href: "https://www.slweavingstudio.org/" },
+    { line: "Event info from Sleep in Heavenly Peace UT-Salt Lake (shpbeds.org).", domain: "shpbeds.org", href: "https://shpbeds.org/" },
+    { line: "Event info from Snowpine Lodge (www.snowpine.com).", domain: "www.snowpine.com", href: "https://www.snowpine.com/" },
+    { line: "Event info from USTA Utah (www.utahtennis.com).", domain: "www.utahtennis.com", href: "https://www.utahtennis.com/" },
+    { line: "Event info from Woodcraft of Salt Lake City (www.woodcraft.com).", domain: "www.woodcraft.com", href: "https://www.woodcraft.com/" },
   ];
 
   function eventInfoList(lines) {

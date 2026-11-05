@@ -417,6 +417,12 @@ const NOV5V_EVENT_INFO_LINES = [
   ["Event info from Utah Valley Quilt Guild (www.uvqg.org).", "www.uvqg.org", "https://www.uvqg.org/"],
   ["Event info from theFINDlab (thefindlab.com).", "thefindlab.com", "https://thefindlab.com/"]
 ];
+const NOV5W_EVENT_INFO_LINES = [
+  ["Event info from Epic Brewing (epicbrewing.com).", "epicbrewing.com", "https://epicbrewing.com/"],
+  ["Event info from Rabbit's Foot (rabbitsfootbrewing.com).", "rabbitsfootbrewing.com", "https://rabbitsfootbrewing.com/"],
+  ["Event info from Utah Queer Film Festival (utahqueerfilmfestival.org).", "utahqueerfilmfestival.org", "https://utahqueerfilmfestival.org/"],
+  ["Event info from Washington City Arts Council (washingtoncityartscouncil.com).", "washingtoncityartscouncil.com", "https://washingtoncityartscouncil.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1813,6 +1819,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5vPrevious !== -1 && lineAt > nov5vPrevious);
         nov5vPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5wPrevious = eventsText.indexOf("Event info from theFINDlab (thefindlab.com).");
+      check("nov5w checks 4 verbatim event-info lines", NOV5W_EVENT_INFO_LINES.length === 4);
+      NOV5W_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5wPrevious !== -1 && lineAt > nov5wPrevious);
+        nov5wPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

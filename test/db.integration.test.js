@@ -1686,6 +1686,91 @@ async function main() {
     const leaked = (await fetchAll(port, "")).some(item => item.status || JSON.stringify(item).indexOf("submitter_email") !== -1);
     check("public items never include status or submitter_email", !leaked);
 
+    const audiencePlain = ideas.find(idea => idea.age21 !== true);
+    const audienceBar = ideas.find(idea => idea.age21 === true && idea.id !== audiencePlain.id);
+    const audienceTagged = await pool.query("select count(*)::int as n from activities where cardinality(audience) > 0");
+    check("020 does not backfill audience", audienceTagged.rows[0].n === 0);
+    const audienceIds = [audiencePlain.id, audienceBar.id];
+    await pool.query("update activities set audience = $1::text[] where id = $2", [["Family Friendly"], audiencePlain.id]);
+    await pool.query(
+      "update activities set audience = $1::text[] where id = $2",
+      [["Family Friendly", "Friends"], audienceBar.id]
+    );
+    try {
+      const badAudience = await request(port, "/api/activities?audience=" + encodeURIComponent("Solo/Couple") + "&limit=5");
+      check("Solo/Couple is not an audience filter",
+        badAudience.status === 400 && JSON.parse(badAudience.body).field === "audience", badAudience.body);
+      const enc = encodeURIComponent;
+      const familyPath = "category=" + enc(audiencePlain.category) + "&audience=" + enc("Family Friendly") + "&hide21=false";
+      const familyRows = await fetchAll(port, familyPath);
+      check("Family Friendly returns the reviewed row",
+        familyRows.some(item => item.id === audiencePlain.id && item.audience && item.audience.join("|") === "Family Friendly"));
+      check("Family Friendly does not return untagged rows from that category",
+        familyRows.every(item => item.audience && item.audience.indexOf("Family Friendly") !== -1));
+      check("Family Friendly does not return the 21+ row",
+        familyRows.every(item => item.id !== audienceBar.id));
+      const barFamily = await fetchAll(port, "category=" + enc(audienceBar.category) + "&audience=" + enc("Family Friendly") + "&hide21=false");
+      check("a 21+ row does not match Family Friendly even with hide21 off",
+        barFamily.every(item => item.id !== audienceBar.id));
+      const barFriends = await fetchAll(port, "category=" + enc(audienceBar.category) + "&audience=" + enc("Friends") + "&hide21=false");
+      check("that 21+ row still matches Friends",
+        barFriends.some(item => item.id === audienceBar.id && item.age21 === true));
+      const barEither = await fetchAll(port, "category=" + enc(audienceBar.category) + "&audience=" + enc("Family Friendly,Friends") + "&hide21=false");
+      check("OR still matches the 21+ row through Friends",
+        barEither.some(item => item.id === audienceBar.id));
+      const soloRows = await fetchAll(port, "category=" + enc(audiencePlain.category) + "&audience=" + enc("Solo"));
+      check("untagged rows and a Family Friendly row do not match Solo",
+        soloRows.every(item => item.id !== audiencePlain.id));
+      const detail = await request(port, "/api/activities/" + audiencePlain.id);
+      const detailBody = JSON.parse(detail.body);
+      check("detail returns the audience list",
+        detail.status === 200 && detailBody.audience && detailBody.audience.join("|") === "Family Friendly");
+      check("the check rejects Good with kids", await expectFail(pool.query(
+        "update activities set audience = ARRAY['Good with kids']::text[] where id = $1",
+        [audiencePlain.id]
+      )));
+      check("the check rejects Solo/Couple", await expectFail(pool.query(
+        "update activities set audience = ARRAY['Solo/Couple']::text[] where id = $1",
+        [audiencePlain.id]
+      )));
+      const anonAudience = await pool.connect();
+      try {
+        await anonAudience.query("BEGIN");
+        await anonAudience.query("SET LOCAL ROLE anon");
+        let blocked = false;
+        try {
+          const seen = await anonAudience.query("select audience from activities limit 1");
+          blocked = seen.rows.length === 0;
+        } catch (err) {
+          blocked = true;
+        }
+        check("anon cannot read audience", blocked);
+        await anonAudience.query("ROLLBACK");
+      } finally {
+        anonAudience.release();
+      }
+      await pool.query("alter table activities rename column audience to audience_hidden");
+      try {
+        const missingFamily = await request(port, "/api/activities?audience=" + enc("Family Friendly") + "&limit=5");
+        const missingBody = JSON.parse(missingFamily.body);
+        check("a missing audience column stays a 200 and matches no Family Friendly row",
+          missingFamily.status === 200 && Array.isArray(missingBody.items) && missingBody.items.length === 0,
+          missingFamily.status + " " + missingFamily.body.slice(0, 180));
+        const missingFriends = await request(
+          port,
+          "/api/activities?audience=" + enc("Friends") + "&category=" + enc(audiencePlain.category) + "&limit=10"
+        );
+        const missingFriendsBody = JSON.parse(missingFriends.body);
+        check("a missing column still serves Friends from the untagged fallback",
+          missingFriends.status === 200 && missingFriendsBody.items.length > 0 &&
+          missingFriendsBody.items.every(item => item.audience == null));
+      } finally {
+        await pool.query("alter table activities rename column audience_hidden to audience");
+      }
+    } finally {
+      await pool.query("update activities set audience = '{}' where id = any($1::int[])", [audienceIds]);
+    }
+
     const submitEmail = "submission-route-test@example.com";
     const activityCount = await pool.query("select count(*)::int as n from activities");
     const submitted = await postJson(port, "/api/submissions", {

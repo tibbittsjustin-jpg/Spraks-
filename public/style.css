@@ -775,6 +775,10 @@ border:1.5px solid var(--border); font-family:inherit;
 .filter-scroll{ overflow-y:auto; flex:1; }
 .filter-group{ margin-bottom:20px; }
 .filter-group-title{ font-size:13px; font-weight:800; color:var(--text); margin-bottom:8px; }
+.chip-select .audience-help{
+  flex:1 0 100%; margin:0; padding:0 2px;
+  font-size:12px; line-height:1.4; font-weight:500; color:var(--text-soft);
+}
 .feed-mode{
   display:flex; gap:4px; padding:4px; border-radius:16px;
   background:var(--surface-soft); border:1px solid var(--border);

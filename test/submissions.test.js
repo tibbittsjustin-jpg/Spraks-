@@ -582,7 +582,7 @@ async function main() {
 
     const migrations = fs.readdirSync(path.join(__dirname, "..", "db", "migrations")).filter(name => name.endsWith(".sql")).sort();
     check("known migration files",
-      migrations.join(",") === "001_init.sql,002_over100_age21.sql,003_source_url_city.sql,004_materials.sql,006_security_hardening.sql,007_expires_at.sql,008_occurrences.sql,009_weekly_open_end.sql,010_lists_friends.sql,012_usernames.sql,013_safety_reports.sql,014_report_identity.sql,015_source_credit.sql,016_nearby_keyset.sql,017_place_staging.sql,018_cost_bands_20.sql,019_cost_bands_20_rename.sql",
+      migrations.join(",") === "001_init.sql,002_over100_age21.sql,003_source_url_city.sql,004_materials.sql,006_security_hardening.sql,007_expires_at.sql,008_occurrences.sql,009_weekly_open_end.sql,010_lists_friends.sql,012_usernames.sql,013_safety_reports.sql,014_report_identity.sql,015_source_credit.sql,016_nearby_keyset.sql,017_place_staging.sql,018_cost_bands_20.sql,019_cost_bands_20_rename.sql,020_audience.sql",
       migrations.join(","));
     const routeSrc = fs.readFileSync(path.join(__dirname, "..", "routes", "submissions.js"), "utf8");
     check("insert writes payload and email only", routeSrc.indexOf("insert into submissions (payload, submitter_email) values ($1, $2)") !== -1);

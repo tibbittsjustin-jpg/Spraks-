@@ -45,8 +45,7 @@
     { key:"setting",  label:"Indoor / Outdoor", options:["Indoor","Outdoor"] },
     { key:"vibe",     label:"Vibe",        options:["Chill","Romantic","Active","Adventurous","Creative","Silly","Cozy","Spontaneous"] },
     { key:"season",   label:"Season",      options:["Spring","Summer","Fall","Winter"] },
-    { key:"stage",    label:"Date Stage",  options:["First Date","Second/Third Date","Serious Relationship"] },
-    { key:"dateType", label:"Double or Group Date?", options:["Solo/Couple","Double Date","Group Date"] }
+    { key:"audience", label:"Audience",    options:SparkAudience.AUDIENCE.slice() }
   ];
 
   var STORAGE_KEY = "spark_state_v1";
@@ -223,6 +222,7 @@
       vibe: [],
       stage: [],
       dateType: [],
+      audience: null,
       unavailable: true
     };
   }
@@ -271,7 +271,7 @@
       doneIds:[],       // [{id, date, rating?, recap?, photoKey?}] rating 1–5, recap one line, photoKey points at IndexedDB
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false, feedMode:"local", when:"", radiusMiles:SparkRadius.RADIUS_DEFAULT, localOnly:false },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], audience:[], food:null, hide21:false, tonight:false, feedMode:"local", when:"", radiusMiles:SparkRadius.RADIUS_DEFAULT, localOnly:false },
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
@@ -290,6 +290,7 @@
   var pendingPinSave = false;
   var pendingLikeSave = false;
   var pendingTimeFilterSave = false;
+  var pendingAudienceFilterSave = false;
   var state = loadState();
 
   function loadState(){
@@ -314,6 +315,11 @@
         parsed.filters.time = migratedTime.values;
         pendingTimeFilterSave = true;
       }
+      // Date Stage and Double or Group Date no longer filter the deck.
+      // Drop them. Do not copy Solo/Couple onto Solo or onto audience.
+      var preparedAudience = SparkAudience.prepareSavedFilters(parsed.filters);
+      parsed.filters = preparedAudience.filters;
+      if(preparedAudience.changed) pendingAudienceFilterSave = true;
       // Local Activities is the default. A missing mode stays local.
       // The choice is a mode and a Denver day token, never a coordinate.
       if (parsed.filters.feedMode !== "local" && parsed.filters.feedMode !== "happening") {
@@ -562,13 +568,14 @@
   }
 
   rehydrateRealIdeas();
-  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave || pendingLikeSave || pendingTimeFilterSave){
+  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave || pendingLikeSave || pendingTimeFilterSave || pendingAudienceFilterSave){
     pendingDobScrub = false;
     pendingIdentitySave = false;
     pendingDoneNormalize = false;
     pendingPinSave = false;
     pendingLikeSave = false;
     pendingTimeFilterSave = false;
+    pendingAudienceFilterSave = false;
     saveState();
   }
 
@@ -883,6 +890,7 @@
       vibe: (raw.vibe && raw.vibe.length) ? raw.vibe : ["Chill"],
       stage: (filters.stage && filters.stage.length) ? filters.stage.slice() : ALL_STAGES,
       dateType: (filters.dateType && filters.dateType.length) ? filters.dateType.slice() : ALL_DATETYPES,
+      audience: (filters.audience && filters.audience.length) ? SparkAudience.normalizeFilterSelection(filters.audience) : null,
       isReal: true,
       placeId: raw.placeId || "",
       placeName: raw.placeName,
@@ -1011,6 +1019,7 @@
       vibe: [],
       stage: [],
       dateType: [],
+      audience: null,
       materials: [],
       unavailable: gone,
       pendingLoad: !gone
@@ -1244,7 +1253,7 @@
   function remoteFilterParams(){
     var f = state.filters || {};
     var out = {};
-    ["duration", "cost", "time", "setting", "vibe", "season", "stage", "dateType"].forEach(function(key){
+    ["duration", "cost", "time", "setting", "vibe", "season", "audience"].forEach(function(key){
       if(f[key] && f[key].length) out[key] = f[key].join(",");
     });
     if(f.food === true) out.food = "true";
@@ -1277,8 +1286,7 @@
       setting: f.setting || [],
       vibe: f.vibe || [],
       season: f.season || [],
-      stage: f.stage || [],
-      dateType: f.dateType || [],
+      audience: f.audience || [],
       food: f.food === true ? true : (f.food === false ? false : null),
       hide21: f.hide21 === true,
       localOnly: f.localOnly === true || !!usableOrigin(),
@@ -2423,8 +2431,7 @@
     }
     if(f.vibe.length && !idea.vibe.some(function(v){ return f.vibe.indexOf(v) !== -1; })) return false;
     if(f.season.length && !idea.season.some(function(s){ return f.season.indexOf(s) !== -1; })) return false;
-    if(f.stage.length && !idea.stage.some(function(s){ return f.stage.indexOf(s) !== -1; })) return false;
-    if(f.dateType.length && !idea.dateType.some(function(d){ return f.dateType.indexOf(d) !== -1; })) return false;
+    if(!SparkAudience.matchesAudience(idea, f.audience)) return false;
     if(f.food !== null && idea.food !== f.food) return false;
     if(f.hide21 && idea.age21 === true) return false;
     // The 1–50 radius always filters once a fix is in use, including a
@@ -2557,7 +2564,9 @@
 
   function activeFilterCount(f){
     var n = 0;
-    ["duration","cost","time","setting","vibe","season","stage","dateType"].forEach(function(k){ n += f[k].length; });
+    ["duration","cost","time","setting","vibe","season","audience"].forEach(function(k){
+      if(f[k] && f[k].length) n += f[k].length;
+    });
     if(f.food !== null) n += 1;
     if(f.hide21) n += 1;
     if(f.feedMode === "happening") n += 1;
@@ -3805,7 +3814,14 @@
           updateFilterApplyLabel();
         });
         chipWrap.appendChild(chip);
+        if(def.key === "audience" && opt === SparkAudience.FAMILY){
+          chip.setAttribute("aria-describedby", "audience-family-help");
+          var help = el("p", "audience-help", escapeHtml(SparkAudience.FAMILY_HELP));
+          help.id = "audience-family-help";
+          chipWrap.appendChild(help);
+        }
       });
+      if(def.key === "audience") group.setAttribute("data-filter", "audience");
       group.appendChild(chipWrap);
       body.appendChild(group);
     });
@@ -6433,6 +6449,12 @@
       }
       chip.addEventListener("click", function(){ chip.classList.toggle("selected"); });
       wrap.appendChild(chip);
+      if(field === "audience" && option === SparkAudience.FAMILY){
+        chip.setAttribute("aria-describedby", "audience-family-help-form");
+        var help = el("p", "audience-help", escapeHtml(SparkAudience.FAMILY_HELP));
+        help.id = "audience-family-help-form";
+        wrap.appendChild(help);
+      }
     });
     form.appendChild(wrap);
     return wrap;
@@ -6477,8 +6499,7 @@
       season: chips("season"),
       time: chips("time"),
       vibe: chips("vibe"),
-      stage: chips("stage"),
-      dateType: chips("dateType"),
+      audience: chips("audience"),
       food: checked("food"),
       age21: checked("age21"),
       venueName: text("venueName"),
@@ -6589,7 +6610,7 @@
       addSelectField(form, key, def.label, def.options, true,
         key === "cost" ? function(option){ return SparkCostBands.displayLabel(option); } : null);
     });
-    ["time", "season", "vibe", "stage", "dateType"].forEach(function(key){
+    ["time", "season", "vibe", "audience"].forEach(function(key){
       var def = filterDef(key);
       if(def) addChipField(form, key, def.label);
     });
@@ -6699,7 +6720,7 @@
     ["setting", "cost", "duration", "venueName", "city", "sourceUrl"].forEach(function(key){
       if(typeof input[key] === "string" && input[key].trim()) row[key] = input[key].trim();
     });
-    ["season", "time", "stage", "dateType"].forEach(function(key){
+    ["season", "time", "audience"].forEach(function(key){
       if(Array.isArray(input[key]) && input[key].length) row[key] = input[key].slice();
     });
     if(typeof input.food === "boolean") row.food = input.food;

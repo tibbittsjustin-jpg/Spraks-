@@ -894,6 +894,16 @@
     { line: "Event info from Ogden City (christmasvillage.ogdencity.com).", domain: "christmasvillage.ogdencity.com", href: "https://christmasvillage.ogdencity.com/" },
     { line: "Event info from Peter Breinholt (peterbreinholt.com).", domain: "peterbreinholt.com", href: "https://peterbreinholt.com/" },
     { line: "Event info from Tanner Dance (tannerdance.utah.edu).", domain: "tannerdance.utah.edu", href: "https://tannerdance.utah.edu/" },
+    { line: "Event info from Fisher Art Market (www.fisherartmarket.com).", domain: "www.fisherartmarket.com", href: "https://www.fisherartmarket.com/" },
+    { line: "Event info from La Verkin Winterfest (laverkinwinterfest.com).", domain: "laverkinwinterfest.com", href: "https://laverkinwinterfest.com/" },
+    { line: "Event info from Midway Mercantile (www.midwaymercantile.com).", domain: "www.midwaymercantile.com", href: "https://www.midwaymercantile.com/" },
+    { line: "Event info from OneAnime (oneanime.org).", domain: "oneanime.org", href: "https://oneanime.org/" },
+    { line: "Event info from Punk Rock Pinball (punkrockpinball.com).", domain: "punkrockpinball.com", href: "https://punkrockpinball.com/" },
+    { line: "Event info from Rape Recovery Center (www.raperecoverycenter.org).", domain: "www.raperecoverycenter.org", href: "https://www.raperecoverycenter.org/" },
+    { line: "Event info from Riverhorse on Main (www.riverhorseparkcity.com).", domain: "www.riverhorseparkcity.com", href: "https://www.riverhorseparkcity.com/" },
+    { line: "Event info from Sky SLC (skyslc.com).", domain: "skyslc.com", href: "https://skyslc.com/" },
+    { line: "Event info from St. George Brewing (stgbeer.com).", domain: "stgbeer.com", href: "https://stgbeer.com/" },
+    { line: "Event info from Women's Wine Hiking Society (winehikingsociety.com).", domain: "winehikingsociety.com", href: "https://winehikingsociety.com/" },
   ];
 
   function eventInfoList(lines) {

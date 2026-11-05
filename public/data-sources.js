@@ -984,6 +984,16 @@
     { line: "Event info from Mad Moose Events (www.madmooseevents.com).", domain: "www.madmooseevents.com", href: "https://www.madmooseevents.com/" },
     { line: "Event info from Moab Trail Marathon (moabtrailmarathon.com).", domain: "moabtrailmarathon.com", href: "https://moabtrailmarathon.com/" },
     { line: "Event info from Salt Lake Running Co. (slrc.com).", domain: "slrc.com", href: "https://slrc.com/" },
+    { line: "Event info from Alta Community Enrichment (altacommunity.org).", domain: "altacommunity.org", href: "https://altacommunity.org/" },
+    { line: "Event info from Bad Dog Arts (www.baddogarts.org).", domain: "www.baddogarts.org", href: "https://www.baddogarts.org/" },
+    { line: "Event info from Glass With A Past (glasswithapast.com).", domain: "glasswithapast.com", href: "https://glasswithapast.com/" },
+    { line: "Event info from Midvale Arts (www.midvalearts.com).", domain: "www.midvalearts.com", href: "https://www.midvalearts.com/" },
+    { line: "Event info from Mooon Bread (mooonbread.com).", domain: "mooonbread.com", href: "https://mooonbread.com/" },
+    { line: "Event info from Salt Lake Climbers Alliance (www.saltlakeclimbers.org).", domain: "www.saltlakeclimbers.org", href: "https://www.saltlakeclimbers.org/" },
+    { line: "Event info from The Hive Collaborative (www.thehivecollaborative.com).", domain: "www.thehivecollaborative.com", href: "https://www.thehivecollaborative.com/" },
+    { line: "Event info from The Prestige Salt Lake (prestigesaltlake.com).", domain: "prestigesaltlake.com", href: "https://prestigesaltlake.com/" },
+    { line: "Event info from The Scratch Pad (www.climbthescratchpad.com).", domain: "www.climbthescratchpad.com", href: "https://www.climbthescratchpad.com/" },
+    { line: "Event info from The Westerner (westernerslc.com).", domain: "westernerslc.com", href: "https://westernerslc.com/" },
   ];
 
   function eventInfoList(lines) {

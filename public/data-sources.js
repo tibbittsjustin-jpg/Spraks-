@@ -918,6 +918,11 @@
     { line: "Event info from Utah Valley Interfaith Choirs (utahvalleyinterfaithchoir.org).", domain: "utahvalleyinterfaithchoir.org", href: "https://utahvalleyinterfaithchoir.org/" },
     { line: "Event info from West Jordan Community Band (westjordancommunityband.com).", domain: "westjordancommunityband.com", href: "https://westjordancommunityband.com/" },
     { line: "Event info from West Valley Symphony (westvalleysymphonyutah.org).", domain: "westvalleysymphonyutah.org", href: "https://westvalleysymphonyutah.org/" },
+    { line: "Event info from Alchemy Coffee (alchemycoffee.com).", domain: "alchemycoffee.com", href: "https://alchemycoffee.com/" },
+    { line: "Event info from Herriman High School Theatre (www.herrimantheatre.com).", domain: "www.herrimantheatre.com", href: "https://www.herrimantheatre.com/" },
+    { line: "Event info from Provo High School (provohigh.provo.edu).", domain: "provohigh.provo.edu", href: "https://provohigh.provo.edu/" },
+    { line: "Event info from Urban Indian Center (uicsl.org).", domain: "uicsl.org", href: "https://uicsl.org/" },
+    { line: "Event info from Viewmont High School (vhs.davis.k12.ut.us).", domain: "vhs.davis.k12.ut.us", href: "https://vhs.davis.k12.ut.us/" },
   ];
 
   function eventInfoList(lines) {

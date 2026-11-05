@@ -150,7 +150,7 @@ section("the chip filters the deck and keeps its count honest", () => {
   check("tonight starts off", t.state.filters.tonight === false);
   check("a morning idea stays in the unfiltered deck", t.matchesFilters(t.IDEAS_BY_ID[2], t.state.filters) === true);
 
-  const on = Object.assign({}, t.state.filters, { tonight: true });
+  const on = Object.assign({}, t.state.filters, { feedMode: "happening", when: "tonight", tonight: true });
   check("Evening idea 54 does not match the chip", t.matchesFilters(t.IDEAS_BY_ID[54], on) === false);
   check("Night idea 23 does not match the chip", t.matchesFilters(t.IDEAS_BY_ID[23], on) === false);
   check("Tonight idea 26 does not match the chip", t.matchesFilters(t.IDEAS_BY_ID[26], on) === false);
@@ -177,6 +177,7 @@ section("the chip filters the deck and keeps its count honest", () => {
   check("the filtered deck drops the morning idea", deck.remaining.indexOf(2) === -1);
   check("the filtered deck drops an anytime evening idea", deck.remaining.indexOf(54) === -1);
   check("toggling off returns false", t.toggleTonightFilter() === false && t.state.filters.tonight === false);
+  check("toggling off returns to Local Activities", t.state.filters.feedMode === "local" && t.state.filters.when === "");
 
   function findChip(node, acc) {
     acc = acc || [];
@@ -186,29 +187,8 @@ section("the chip filters the deck and keeps its count honest", () => {
     return acc;
   }
   const offScreen = t.buildDiscoverScreen();
-  const offChip = findChip(offScreen)[0];
-  const offCount = offChip && (offChip.innerHTML.match(/tonight-count">(\d+)</) || [])[1];
-  const chipCount = "0";
-  check("the chip shows the count and not the words Happening tonight",
-    !!offChip && offCount === chipCount && offChip.innerHTML.indexOf("Happening tonight") === -1,
-    offChip && offChip.innerHTML);
-  check("tonight off does not list Also good tonight", textOf(offScreen).indexOf("Also good tonight") === -1);
-  check("the chip keeps a moon icon and no check mark",
-    !!offChip && offChip.innerHTML.indexOf("icon-inline") !== -1 && offChip.innerHTML.indexOf("\u2713") === -1);
-  check("the chip has an accessible happening-tonight label",
-    !!offChip && offChip.getAttribute("aria-label") === "Happening tonight, " + chipCount + " ideas" &&
-    offChip.getAttribute("aria-pressed") === "false",
-    offChip && offChip.getAttribute("aria-label"));
-  t.state.filters.tonight = true;
-  const onChip = findChip(t.buildDiscoverScreen())[0];
-  const onCount = onChip && (onChip.innerHTML.match(/tonight-count">(\d+)</) || [])[1];
-  check("a pressed chip keeps the count, the yellow on-state, and the label",
-    !!onChip && onChip.className.indexOf("is-on") !== -1 &&
-    onCount === chipCount &&
-    onChip.innerHTML.indexOf("Happening tonight") === -1 &&
-    onChip.getAttribute("aria-pressed") === "true" &&
-    onChip.getAttribute("aria-label") === "Happening tonight, " + chipCount + " ideas",
-    onChip && onChip.getAttribute("aria-label"));
+  check("Discover has no Tonight chip", findChip(offScreen).length === 0);
+  check("local mode does not list Also good tonight", textOf(offScreen).indexOf("Also good tonight") === -1);
 });
 
 section("badges render on cards and lists only when the data supports them", () => {
@@ -330,11 +310,11 @@ section("older saves and the theme tokens", () => {
   check("that state still shows a morning idea", t.matchesFilters(t.IDEAS_BY_ID[2], t.state.filters) === true);
 
   const css = fs.readFileSync(path.join(__dirname, "..", "public", "style.css"), "utf8");
-  const chip = css.slice(css.indexOf(".tonight-chip{"), css.indexOf(".tonight-chip{") + 360);
+  const chip = css.slice(css.indexOf(".happening-bar{"), css.indexOf(".happening-bar{") + 280);
   const open = css.slice(css.indexOf(".badge-open{"), css.indexOf(".badge-open{") + 280);
   const time = css.slice(css.indexOf(".badge-time{"), css.indexOf(".badge-time{") + 220);
-  check("the chip uses the yellow tokens",
-    chip.indexOf("var(--color-yellow)") !== -1 && chip.indexOf("var(--color-on-yellow)") !== -1);
+  check("the happening bar uses its own navy tokens",
+    chip.indexOf("var(--color-happening)") !== -1 && chip.indexOf("var(--color-on-happening)") !== -1);
   check("Open now uses deep jade and white",
     open.indexOf("var(--color-jade)") !== -1 && open.indexOf("color:#fff") !== -1);
   check("time pills use the yellow tokens",
@@ -371,6 +351,8 @@ function scheduledIdea(id, title, cost, today) {
 section("the Tonight view lists scheduled events, then anytime ideas", () => {
   const today = occ.denverToday(new Date());
   const emptyApp = loadApp({});
+  emptyApp.state.filters.feedMode = "happening";
+  emptyApp.state.filters.when = "tonight";
   emptyApp.state.filters.tonight = true;
   const evening = emptyApp.IDEAS_BY_ID[54];
   check("the evening catalog idea is anytime", evening.occurrences == null && util.alsoGoodTonight(evening, new Date()) === true);
@@ -382,8 +364,8 @@ section("the Tonight view lists scheduled events, then anytime ideas", () => {
   check("zero tonight events use the scheduled empty state",
     nothingAt !== -1 && emptyScreen.indexOf("No matches yet") === -1 && emptyScreen.indexOf("Clear Filters") === -1);
   check("the empty state offers widen radius", emptyScreen.indexOf("Widen radius") !== -1);
-  check("Also good tonight follows the empty state and lists the anytime idea",
-    alsoAt !== -1 && nothingAt < alsoAt && eveningAt > alsoAt);
+  check("Happening does not add an Also good tonight list",
+    alsoAt === -1 && eveningAt === -1);
   check("widen radius steps to the next stop",
     emptyApp.state.filters.radiusMiles === 10 && emptyApp.widenTonightRadius() === 25 &&
     emptyApp.state.filters.radiusMiles === 25);
@@ -396,25 +378,22 @@ section("the Tonight view lists scheduled events, then anytime ideas", () => {
     scheduledIdea(88002, "Scheduled Paid Show", "$20-$30", today)
   ]);
   check("the scheduled events join the deck", added.length === 2);
+  t.state.filters.feedMode = "happening";
+  t.state.filters.when = "tonight";
   t.state.filters.tonight = true;
-  check("the chip counts both scheduled events and not the anytime idea",
+  check("the count includes both scheduled events and not the anytime idea",
     t.tonightMatchCount() === 2 && util.suitsTonight(t.IDEAS_BY_ID[54], new Date()) === false);
   t.state.filters.cost = ["Free"];
   check("the chip count still honors the other filters", t.tonightMatchCount() === 1);
   t.state.filters.cost = [];
   const screen = textOf(t.buildDiscoverScreen());
-  const split = screen.indexOf("Also good tonight");
-  const before = split === -1 ? screen : screen.slice(0, split);
-  const after = split === -1 ? "" : screen.slice(split);
-  check("scheduled events show before Also good tonight",
-    split !== -1 &&
-    before.indexOf("Scheduled Tonight Concert") !== -1 &&
-    before.indexOf("Scheduled Paid Show") !== -1 &&
-    before.indexOf("Nothing scheduled near you tonight") === -1);
-  check("the anytime evening idea is only in Also good tonight",
-    after.indexOf(evening.title) !== -1 && before.indexOf(evening.title) === -1);
-  check("a scheduled event is not repeated under Also good tonight",
-    after.indexOf("Scheduled Tonight Concert") === -1);
+  check("scheduled events show in Happening",
+    screen.indexOf("Scheduled Tonight Concert") !== -1 &&
+    screen.indexOf("Scheduled Paid Show") !== -1 &&
+    screen.indexOf("Nothing scheduled near you tonight") === -1 &&
+    screen.indexOf("Also good tonight") === -1);
+  check("the anytime evening idea is not in Happening",
+    screen.indexOf(t.IDEAS_BY_ID[54].title) === -1);
 });
 
 module.exports = { pass: pass, fail: fail };

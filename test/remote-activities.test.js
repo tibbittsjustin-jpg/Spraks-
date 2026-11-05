@@ -429,7 +429,9 @@ async function main() {
     t.ui.activePlanId = null;
     t.state.location = { lat: 40.2338, lng: -111.6585 };
     const local = Object.assign({}, t.state.filters, { localOnly: true, radiusMiles: 10 });
-    check("a close pin matches Local events", t.matchesFilters(dated, local) === true);
+    const closeAnytime = Object.assign({}, anytime, { lat: dated.lat, lng: dated.lng, occurrences: null });
+    check("a close anytime pin matches Local events", t.matchesFilters(closeAnytime, local) === true);
+    check("Local Activities leaves a close one-time event out", t.matchesFilters(dated, local) === false);
     check("a far pin is outside the radius", t.matchesFilters(far, local) === false);
     check("a measured distance inside the radius stays", t.matchesFilters(milesOnly, local) === true);
     check("an idea with no place is hidden when Local events is on", t.matchesFilters(anytime, local) === false);

@@ -10,6 +10,9 @@
 const filters = require("../shared/filters");
 const costBands = require("../public/cost-bands");
 const timeWindows = require("../public/time-windows");
+const occurrences = require("../public/occurrences");
+const sources = require("../public/data-sources");
+const feed = require("../public/feed");
 
 const METERS_PER_MILE = 1609.344;
 const MAX_RADIUS_MILES = 100;
@@ -109,12 +112,39 @@ function distanceText(value) {
 // validated and bound as parameters; nothing in the token is concatenated
 // into SQL. The token holds a row id and, for a pin, the distance text
 // Postgres already returned. It does not hold the user's coordinates.
+const RANK_PHASES = { h: 1, nn: 1, ng: 1, on: 1, og: 1, ni: 1, oi: 1 };
+
+function isRankPhase(phase) {
+  return !!RANK_PHASES[phase];
+}
+
 function encodeCursor(cursor) {
+  if (cursor && cursor.v === 2) return encodeRankCursor(cursor);
   if (!cursor || (cursor.p !== "n" && cursor.p !== "g" && cursor.p !== "i")) throw invalidFilter("cursor");
   const id = cursor.id;
   if (!Number.isInteger(id) || id < 1 || id > MAX_ID) throw invalidFilter("cursor");
   const body = { v: 1, p: cursor.p, id: id };
   if (cursor.p === "n") {
+    const d = distanceText(cursor.d);
+    if (!d) throw invalidFilter("cursor");
+    body.d = d;
+  } else if (cursor.d != null) {
+    throw invalidFilter("cursor");
+  }
+  return Buffer.from(JSON.stringify(body), "utf8").toString("base64url");
+}
+
+function encodeRankCursor(cursor) {
+  if (!isRankPhase(cursor.p)) throw invalidFilter("cursor");
+  const id = cursor.id;
+  if (!Number.isInteger(id) || id < 1 || id > MAX_ID) throw invalidFilter("cursor");
+  const body = { v: 2, p: cursor.p, id: id };
+  if (cursor.p === "h") {
+    if (cursor.n !== 0 && cursor.n !== 1) throw invalidFilter("cursor");
+    if (!Number.isInteger(cursor.s) || cursor.s < 0 || cursor.s > feed.NO_START) throw invalidFilter("cursor");
+    body.n = cursor.n;
+    body.s = cursor.s;
+  } else if (cursor.p === "nn" || cursor.p === "on") {
     const d = distanceText(cursor.d);
     if (!d) throw invalidFilter("cursor");
     body.d = d;
@@ -136,6 +166,7 @@ function decodeCursor(token) {
     throw invalidFilter("cursor");
   }
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw invalidFilter("cursor");
+  if (parsed.v === 2) return decodeRankCursor(parsed);
   if (parsed.v !== 1 || (parsed.p !== "n" && parsed.p !== "g" && parsed.p !== "i")) throw invalidFilter("cursor");
   if (!Number.isInteger(parsed.id) || parsed.id < 1 || parsed.id > MAX_ID) throw invalidFilter("cursor");
   if (parsed.p === "n") {
@@ -145,6 +176,111 @@ function decodeCursor(token) {
   }
   if (parsed.d != null) throw invalidFilter("cursor");
   return { p: parsed.p, id: parsed.id, d: null };
+}
+
+function decodeRankCursor(parsed) {
+  if (!isRankPhase(parsed.p)) throw invalidFilter("cursor");
+  if (!Number.isInteger(parsed.id) || parsed.id < 1 || parsed.id > MAX_ID) throw invalidFilter("cursor");
+  if (parsed.p === "h") {
+    if (parsed.n !== 0 && parsed.n !== 1) throw invalidFilter("cursor");
+    if (!Number.isInteger(parsed.s) || parsed.s < 0 || parsed.s > feed.NO_START) throw invalidFilter("cursor");
+    return { v: 2, p: "h", id: parsed.id, n: parsed.n, s: parsed.s };
+  }
+  if (parsed.p === "nn" || parsed.p === "on") {
+    const d = distanceText(parsed.d);
+    if (!d) throw invalidFilter("cursor");
+    return { v: 2, p: parsed.p, id: parsed.id, d: d };
+  }
+  if (parsed.d != null) throw invalidFilter("cursor");
+  return { v: 2, p: parsed.p, id: parsed.id, d: null };
+}
+
+function feedFlag(value) {
+  if (value == null || value === "") return "";
+  if (value === "local" || value === "happening") return value;
+  throw invalidFilter("feed");
+}
+
+function whenFlag(value) {
+  if (value == null || value === "") return "";
+  if (value === "tonight" || value === "today") return value;
+  if (typeof value === "string" && occurrences.parseISODate(value.trim())) return value.trim();
+  throw invalidFilter("when");
+}
+
+function rankFlag(value) {
+  if (value == null || value === "") return "";
+  if (value === "new") return "new";
+  throw invalidFilter("rank");
+}
+
+function resolveFeedParams(params, now) {
+  const feedName = feedFlag(params.feed);
+  let when = whenFlag(params.when);
+  const today = occurrences.denverToday(now || new Date());
+  if (!feedName) return { feed: "", when: "", kind: "none", date: null, today: today };
+  if (feedName === "happening" && !when) when = "tonight";
+  if (when === "tonight") return { feed: feedName, when: when, kind: "tonight", date: today, today: today };
+  if (when === "today") return { feed: feedName, when: when, kind: "day", date: today, today: today };
+  if (when) {
+    if (!feed.dateAllowed(when, now || new Date())) throw invalidFilter("when");
+    return { feed: feedName, when: when, kind: "day", date: when, today: today };
+  }
+  return { feed: feedName, when: "", kind: "none", date: null, today: today };
+}
+
+function dateMatchSql(idx) {
+  return "EXISTS (SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(occurrences->'dates') = 'array' THEN occurrences->'dates' ELSE '[]'::jsonb END) AS item WHERE item->>'date' = $" + idx + ")";
+}
+
+function appendFeedSql(where, values, selection) {
+  if (!selection.feed) return null;
+  let dateIdx = null;
+  if (selection.date) {
+    values.push(selection.date);
+    dateIdx = values.length;
+  }
+  const dated = "occurrences->>'kind' = 'dates'";
+  const anytime = "(occurrences IS NULL OR occurrences->>'kind' IS DISTINCT FROM 'dates')";
+  if (selection.feed === "happening") {
+    where.push(dated);
+    if (dateIdx) where.push(dateMatchSql(dateIdx));
+    return dateIdx;
+  }
+  if (!dateIdx) {
+    where.push(anytime);
+    return null;
+  }
+  where.push("(" + anytime + " OR (" + dated + " AND " + dateMatchSql(dateIdx) + "))");
+  return dateIdx;
+}
+
+function newFlagSql() {
+  return "(CASE WHEN " + sources.newRowSql() + " THEN 0 ELSE 1 END)";
+}
+
+function startKeySql(dateIdx) {
+  return "COALESCE((SELECT min((split_part(item->>'start', ':', 1)::int * 60) + split_part(item->>'start', ':', 2)::int) FROM jsonb_array_elements(CASE WHEN jsonb_typeof(occurrences->'dates') = 'array' THEN occurrences->'dates' ELSE '[]'::jsonb END) AS item WHERE item->>'date' = $" + dateIdx + " AND item->>'start' ~ '^[0-9]{2}:[0-9]{2}$'), " + feed.NO_START + ")";
+}
+
+function readPoint(params) {
+  const latMissing = params.lat == null || params.lat === "";
+  const lngMissing = params.lng == null || params.lng === "";
+  if (latMissing !== lngMissing) throw invalidFilter(latMissing ? "lat" : "lng");
+  if (latMissing) return { located: false, lat: null, lng: null, radiusMiles: null };
+  let lat = asNumber(params.lat);
+  let lng = asNumber(params.lng);
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90) throw invalidFilter("lat");
+  if (!Number.isFinite(lng) || lng < -180 || lng > 180) throw invalidFilter("lng");
+  lat = round2(lat);
+  lng = round2(lng);
+  let radiusMiles;
+  if (params.radiusMiles == null || params.radiusMiles === "") radiusMiles = 25;
+  else {
+    radiusMiles = asNumber(params.radiusMiles);
+    if (!Number.isFinite(radiusMiles)) throw invalidFilter("radiusMiles");
+  }
+  return { located: true, lat: lat, lng: lng, radiusMiles: clamp(radiusMiles, 1, MAX_RADIUS_MILES) };
 }
 
 // Same order the SQL uses: pinned rows by distance then id, then general
@@ -265,6 +401,128 @@ function finishQuery(where, values, order, limit) {
   return { text: text, values: values, limit: limit };
 }
 
+function bindPoint(part, point) {
+  part.values.push(point.lng);
+  const lngIdx = part.values.length;
+  part.values.push(point.lat);
+  const latIdx = part.values.length;
+  part.values.push(point.radiusMiles * METERS_PER_MILE);
+  const metersIdx = part.values.length;
+  return {
+    pointSql: "ST_MakePoint($" + lngIdx + ", $" + latIdx + ")::geography",
+    metersIdx: metersIdx
+  };
+}
+
+function buildHappeningRankQuery(params, shared, selection, limit, cursor, localOnly, dateIdx) {
+  if (cursor && cursor.p !== "h") throw invalidFilter("cursor");
+  if (!dateIdx) throw invalidFilter("when");
+  const point = readPoint(params);
+  const part = copyFilters(shared);
+  let distanceSql = ", NULL::numeric AS distance_miles, NULL::text AS distance_meters";
+  if (point.located) {
+    const bound = bindPoint(part, point);
+    if (localOnly) {
+      part.where.push("location IS NOT NULL");
+      part.where.push("ST_DWithin(location, " + bound.pointSql + ", $" + bound.metersIdx + ")");
+    } else {
+      part.where.push("(location IS NULL OR ST_DWithin(location, " + bound.pointSql + ", $" + bound.metersIdx + "))");
+    }
+    distanceSql = ", CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance(location, " + bound.pointSql +
+      ") / 1609.344)::numeric, 1) END AS distance_miles, CASE WHEN location IS NULL THEN NULL ELSE (location <-> " +
+      bound.pointSql + ")::text END AS distance_meters";
+  }
+  const flag = newFlagSql();
+  const start = startKeySql(dateIdx);
+  if (cursor) {
+    part.values.push(cursor.n);
+    const nIdx = part.values.length;
+    part.values.push(cursor.s);
+    const sIdx = part.values.length;
+    part.values.push(cursor.id);
+    const idIdx = part.values.length;
+    part.where.push("((" + flag + ") > $" + nIdx + "::int OR ((" + flag + ") = $" + nIdx +
+      "::int AND (" + start + ") > $" + sIdx + "::int) OR ((" + flag + ") = $" + nIdx +
+      "::int AND (" + start + ") = $" + sIdx + "::int AND id > $" + idIdx + "::int))");
+  }
+  const query = finishQuery(
+    { clauses: part.where, distanceSql: distanceSql },
+    part.values,
+    "ORDER BY " + flag + ", " + start + ", id",
+    limit
+  );
+  return {
+    mode: "ranked",
+    rank: "happening",
+    text: query.text,
+    values: query.values,
+    queries: [query],
+    limit: limit,
+    located: point.located,
+    localOnly: !!localOnly,
+    cursor: cursor,
+    radiusMiles: point.radiusMiles,
+    feed: selection.feed,
+    whenToken: selection.when,
+    whenDate: selection.date
+  };
+}
+
+function buildLocalRankQuery(params, shared, selection, limit, cursor, localOnly) {
+  const point = readPoint(params);
+  const names = !point.located ? ["ni", "oi"] : (localOnly ? ["nn", "on"] : ["nn", "ng", "on", "og"]);
+  if (cursor && names.indexOf(cursor.p) === -1) throw invalidFilter("cursor");
+  const phases = names.map(name => {
+    const fresh = name.charAt(0) === "n";
+    const pinned = name.charAt(1) === "n";
+    const part = copyFilters(shared);
+    part.where.push(fresh ? sources.newRowSql() : ("NOT " + sources.newRowSql()));
+    let distanceSql = ", NULL::numeric AS distance_miles, NULL::text AS distance_meters";
+    let order = "ORDER BY id";
+    if (pinned) {
+      const bound = bindPoint(part, point);
+      part.where.push("location IS NOT NULL");
+      part.where.push("ST_DWithin(location, " + bound.pointSql + ", $" + bound.metersIdx + ")");
+      distanceSql = ", CASE WHEN location IS NULL THEN NULL ELSE ROUND((ST_Distance(location, " + bound.pointSql +
+        ") / 1609.344)::numeric, 1) END AS distance_miles, (location <-> " + bound.pointSql + ")::text AS distance_meters";
+      order = "ORDER BY location <-> " + bound.pointSql + ", id";
+      if (cursor && cursor.p === name) {
+        part.values.push(cursor.d);
+        const distIdx = part.values.length;
+        part.values.push(cursor.id);
+        const idIdx = part.values.length;
+        part.where.push("((location <-> " + bound.pointSql + ") > $" + distIdx + "::double precision OR ((" +
+          "location <-> " + bound.pointSql + ") = $" + distIdx + "::double precision AND id > $" + idIdx + "::integer))");
+      }
+    } else {
+      if (point.located) part.where.push("location IS NULL");
+      if (cursor && cursor.p === name) {
+        part.values.push(cursor.id);
+        part.where.push("id > $" + part.values.length + "::integer");
+      }
+    }
+    const query = finishQuery({ clauses: part.where, distanceSql: distanceSql }, part.values, order, limit);
+    query.name = name;
+    return query;
+  });
+  return {
+    mode: "phases",
+    rank: "local",
+    text: phases.map(phase => phase.text).join("\n"),
+    values: phases[0].values,
+    phases: phases,
+    queries: phases,
+    limit: limit,
+    located: point.located,
+    localOnly: !!localOnly,
+    cursor: cursor,
+    radiusMiles: point.radiusMiles,
+    feed: selection.feed,
+    whenToken: selection.when,
+    whenDate: selection.date
+  };
+}
+
 function buildListQuery(params) {
   params = params || {};
   if (params.offset != null && params.offset !== "") throw invalidFilter("offset");
@@ -273,6 +531,17 @@ function buildListQuery(params) {
   const cursor = decodeCursor(params.cursor);
   const shared = sharedFilters(params);
   const localOnly = localOnlyFlag(params.localOnly);
+  const selection = resolveFeedParams(params);
+  const dateIdx = appendFeedSql(shared.where, shared.values, selection);
+  const rank = rankFlag(params.rank);
+  if (rank === "new") {
+    if (cursor && !isRankPhase(cursor.p)) throw invalidFilter("cursor");
+    if (selection.feed === "happening") {
+      return buildHappeningRankQuery(params, shared, selection, limit, cursor, localOnly, dateIdx);
+    }
+    return buildLocalRankQuery(params, shared, selection, limit, cursor, localOnly);
+  }
+  if (cursor && isRankPhase(cursor.p)) throw invalidFilter("cursor");
 
   const latMissing = params.lat == null || params.lat === "";
   const lngMissing = params.lng == null || params.lng === "";
@@ -414,9 +683,30 @@ function replaceLimit(query, limit) {
   return { text: query.text, values: values };
 }
 
-function cursorFromRow(row, located) {
+function cursorFromRow(row, located, built) {
   const id = Number(row.id);
   if (!Number.isInteger(id) || id < 1) return null;
+  if (built && built.rank === "happening") {
+    return {
+      v: 2,
+      p: "h",
+      n: sources.isNewRow(row) ? 0 : 1,
+      s: feed.startSortKey(row, built.whenDate),
+      id: id
+    };
+  }
+  if (built && built.rank === "local") {
+    const fresh = sources.isNewRow(row);
+    if (!built.located) return { v: 2, p: fresh ? "ni" : "oi", id: id };
+    const meters = row.distance_meters;
+    if (meters != null && String(meters).trim() !== "") {
+      const d = distanceText(String(meters).trim());
+      if (!d) return null;
+      return { v: 2, p: fresh ? "nn" : "on", id: id, d: d };
+    }
+    if (row.lat != null && row.lng != null) return { v: 2, p: fresh ? "nn" : "on", id: id, d: "0" };
+    return { v: 2, p: fresh ? "ng" : "og", id: id };
+  }
   if (!located) return { p: "i", id: id };
   const meters = row.distance_meters;
   if (meters != null && String(meters).trim() !== "") {
@@ -498,7 +788,21 @@ async function listActivities(params, db) {
   const built = buildListQuery(params);
   const runner = db || require("./index").getPool();
   let rows = [];
-  if (built.mode === "split") {
+  if (built.mode === "phases") {
+    let start = 0;
+    if (built.cursor) {
+      start = built.phases.findIndex(phase => phase.name === built.cursor.p);
+      if (start < 0) throw invalidFilter("cursor");
+    }
+    for (let i = start; i < built.phases.length && rows.length < built.limit; i++) {
+      const phase = replaceLimit(built.phases[i], built.limit - rows.length);
+      const result = await runner.query(phase.text, phase.values);
+      rows = rows.concat(result.rows);
+    }
+  } else if (built.mode === "ranked") {
+    const result = await runner.query(built.text, built.values);
+    rows = result.rows;
+  } else if (built.mode === "split") {
     if (!built.cursor || built.cursor.p === "n") {
       const near = await runner.query(built.near.text, built.near.values);
       rows = near.rows;
@@ -515,10 +819,19 @@ async function listActivities(params, db) {
     const result = await runner.query(built.text, built.values);
     rows = result.rows;
   }
-  const items = rows.map(row => mapRow(row, built.located));
+  let items = rows.map(row => mapRow(row, built.located));
+  const selection = built.feed
+    ? { feed: built.feed, when: built.whenToken || "" }
+    : resolveFeedParams(params || {});
+  if (selection.feed) {
+    items = items.filter(item => feed.matchesFeed(item, {
+      feedMode: selection.feed,
+      when: selection.when
+    }, new Date()));
+  }
   let nextCursor = null;
   if (rows.length === built.limit) {
-    const cursor = cursorFromRow(rows[rows.length - 1], built.located);
+    const cursor = cursorFromRow(rows[rows.length - 1], built.located, built);
     if (cursor) nextCursor = encodeCursor(cursor);
   }
   return {

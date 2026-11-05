@@ -27,6 +27,10 @@ color-scheme:light;
 --color-orange:#E07A2F;
 --color-orange-ink:#8A3E08;
 --color-orange-soft:#FFF1E0;
+/* Happening bar. Navy with white type, same in both themes.
+   White on #1A365D is about 12:1, above WCAG AA. */
+--color-happening:#1A365D;
+--color-on-happening:#FFFFFF;
 /* Ink on photographs. These stay put in both themes. */
 --color-on-photo:#fff;
 --color-ink:#0F4D3A;
@@ -146,6 +150,8 @@ color-scheme:dark;
 --color-orange:#F0A05A;
 --color-orange-ink:#F6D3B0;
 --color-orange-soft:#3A2A1E;
+--color-happening:#1A365D;
+--color-on-happening:#FFFFFF;
 --color-on-photo:#fff;
 --color-ink:#0F4D3A;
 --color-open-dot:#0F4D3A;
@@ -185,6 +191,8 @@ color-scheme:dark;
 --color-orange:#F0A05A;
 --color-orange-ink:#F6D3B0;
 --color-orange-soft:#3A2A1E;
+--color-happening:#1A365D;
+--color-on-happening:#FFFFFF;
 --color-on-photo:#fff;
 --color-ink:#0F4D3A;
 --color-open-dot:#0F4D3A;
@@ -767,6 +775,33 @@ border:1.5px solid var(--border); font-family:inherit;
 .filter-scroll{ overflow-y:auto; flex:1; }
 .filter-group{ margin-bottom:20px; }
 .filter-group-title{ font-size:13px; font-weight:800; color:var(--text); margin-bottom:8px; }
+.feed-mode{
+  display:flex; gap:4px; padding:4px; border-radius:16px;
+  background:var(--surface-soft); border:1px solid var(--border);
+}
+.feed-mode-option{
+  flex:1; border:none; background:transparent; color:var(--text-soft);
+  border-radius:12px; padding:10px 8px; font:inherit; font-size:13px; font-weight:800;
+  cursor:pointer; line-height:1.25;
+}
+.feed-mode-option.is-on{
+  background:var(--surface); color:var(--text); box-shadow:var(--shadow-soft);
+}
+.when-date{
+  display:block; width:100%; margin-top:10px; padding:10px 12px;
+  border-radius:12px; border:1.5px solid var(--border);
+  background:var(--surface); color:var(--text); font:inherit; font-weight:700;
+}
+.happening-bar{
+  background:var(--color-happening); color:var(--color-on-happening);
+  font-size:13px; font-weight:800; line-height:1.3; text-align:center;
+  padding:8px 12px;
+}
+.swipe-card > .happening-bar{
+  position:absolute; z-index:5; top:0; left:0; right:0;
+}
+.saved-card{ flex-wrap:wrap; }
+.saved-card > .happening-bar{ flex:1 0 100%; border-radius:12px; }
 
 /* Where / Local events. The switch reuses the profile toggle.
    On expands the existing How far panel under the row. */

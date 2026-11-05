@@ -923,6 +923,16 @@
     { line: "Event info from Provo High School (provohigh.provo.edu).", domain: "provohigh.provo.edu", href: "https://provohigh.provo.edu/" },
     { line: "Event info from Urban Indian Center (uicsl.org).", domain: "uicsl.org", href: "https://uicsl.org/" },
     { line: "Event info from Viewmont High School (vhs.davis.k12.ut.us).", domain: "vhs.davis.k12.ut.us", href: "https://vhs.davis.k12.ut.us/" },
+    { line: "Event info from Arts & Music at the Madeleine (cotm-music.weebly.com).", domain: "cotm-music.weebly.com", href: "https://cotm-music.weebly.com/" },
+    { line: "Event info from Christ United Methodist Church (www.christumcutah.org).", domain: "www.christumcutah.org", href: "https://www.christumcutah.org/" },
+    { line: "Event info from Eccles Organ Festival (ecclesorganfestival.weebly.com).", domain: "ecclesorganfestival.weebly.com", href: "https://ecclesorganfestival.weebly.com/" },
+    { line: "Event info from Extra Kitsch (extrakitsch.com).", domain: "extrakitsch.com", href: "https://extrakitsch.com/" },
+    { line: "Event info from Salt Lake Children's Choir (childrensing.org).", domain: "childrensing.org", href: "https://childrensing.org/" },
+    { line: "Event info from Tan Van Comedy (tanvancomedy.com).", domain: "tanvancomedy.com", href: "https://tanvancomedy.com/" },
+    { line: "Event info from The Ballpark at America First Square (www.theballparkatafs.com).", domain: "www.theballparkatafs.com", href: "https://www.theballparkatafs.com/" },
+    { line: "Event info from The Pearl On Main (thepearlonmain.com).", domain: "thepearlonmain.com", href: "https://thepearlonmain.com/" },
+    { line: "Event info from UTCH (www.utch.org).", domain: "www.utch.org", href: "https://www.utch.org/" },
+    { line: "Event info from Utah State Capitol (utahstatecapitol.utah.gov).", domain: "utahstatecapitol.utah.gov", href: "https://utahstatecapitol.utah.gov/" },
   ];
 
   function eventInfoList(lines) {

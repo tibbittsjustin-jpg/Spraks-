@@ -869,6 +869,7 @@
     { line: "Event info from Signature Books (www.signaturebooks.com).", domain: "www.signaturebooks.com", href: "https://www.signaturebooks.com/" },
     { line: "Event info from The Community Nutcracker (www.communitynutcracker.com).", domain: "www.communitynutcracker.com", href: "https://www.communitynutcracker.com/" },
     { line: "Event info from The Romantics Archive (theromanticsarchive.com).", domain: "theromanticsarchive.com", href: "https://theromanticsarchive.com/" },
+    { line: "Event info from Story Crossroads (storycrossroads23.wildapricot.org).", domain: "storycrossroads23.wildapricot.org", href: "https://storycrossroads23.wildapricot.org/" },
   ];
 
   function eventInfoList(lines) {

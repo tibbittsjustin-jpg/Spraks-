@@ -431,7 +431,7 @@ var IDEA_PHOTOS = {
  "73": {
   "url": "photos/snowmobiling/snowmobiling-1.webp",
   "credit": "Photo: Yellowstone National Park / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Guided_snowmobile_group_on_the_West_Entrance_Road_(33414051690).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Guided_snowmobile_group_on_the_West_Entrance_Road_(33414051690).jpg"
  },
  "74": {
@@ -563,7 +563,7 @@ var IDEA_PHOTOS = {
  "95": {
   "url": "photos/butterfly-birding/butterfly-birding-1.webp",
   "credit": "Photo: Ryan Hagerty / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg"
  },
  "96": {
@@ -617,7 +617,7 @@ var IDEA_PHOTOS = {
  "104": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "105": {
@@ -845,7 +845,7 @@ var IDEA_PHOTOS = {
  "142": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "143": {
@@ -965,7 +965,7 @@ var IDEA_PHOTOS = {
  "162": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "163": {
@@ -989,7 +989,7 @@ var IDEA_PHOTOS = {
  "166": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "167": {
@@ -1097,13 +1097,13 @@ var IDEA_PHOTOS = {
  "184": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "185": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "186": {
@@ -1127,7 +1127,7 @@ var IDEA_PHOTOS = {
  "189": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "190": {
@@ -1139,13 +1139,13 @@ var IDEA_PHOTOS = {
  "191": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "192": {
   "url": "photos/campfire-smores/campfire-smores-1.webp",
   "credit": "Photo: NPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:S_more%27s!_(87e7123a-8fd6-4348-b4b8-b4a71ade7fe0).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:S_more%27s!_(87e7123a-8fd6-4348-b4b8-b4a71ade7fe0).jpg"
  },
  "193": {
@@ -1163,7 +1163,7 @@ var IDEA_PHOTOS = {
  "195": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "196": {
@@ -1181,7 +1181,7 @@ var IDEA_PHOTOS = {
  "198": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "199": {
@@ -1193,7 +1193,7 @@ var IDEA_PHOTOS = {
  "200": {
   "url": "photos/butterfly-birding/butterfly-birding-2.webp",
   "credit": "Photo: Department of the Interior. U.S. Fish and Wildl… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg"
  },
  "201": {
@@ -1205,7 +1205,7 @@ var IDEA_PHOTOS = {
  "202": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "203": {
@@ -1229,7 +1229,7 @@ var IDEA_PHOTOS = {
  "206": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "207": {
@@ -1253,7 +1253,7 @@ var IDEA_PHOTOS = {
  "210": {
   "url": "photos/hoodoos-arches/hoodoos-arches-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "211": {
@@ -1271,7 +1271,7 @@ var IDEA_PHOTOS = {
  "213": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "214": {
@@ -1283,7 +1283,7 @@ var IDEA_PHOTOS = {
  "215": {
   "url": "photos/slot-canyon/slot-canyon-2.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Merwin_Slot_Canyon_(27426689462).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Merwin_Slot_Canyon_(27426689462).jpg"
  },
  "216": {
@@ -1301,7 +1301,7 @@ var IDEA_PHOTOS = {
  "218": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
   "credit": "Photo: CanyonlandsNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg"
  },
  "219": {
@@ -1337,7 +1337,7 @@ var IDEA_PHOTOS = {
  "224": {
   "url": "photos/geocaching/geocaching-2.webp",
   "credit": "Photo: Miaow Miaow / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG"
  },
  "225": {
@@ -1361,13 +1361,13 @@ var IDEA_PHOTOS = {
  "228": {
   "url": "photos/butterfly-birding/butterfly-birding-1.webp",
   "credit": "Photo: Ryan Hagerty / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg"
  },
  "229": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "230": {
@@ -1391,19 +1391,19 @@ var IDEA_PHOTOS = {
  "233": {
   "url": "photos/butterfly-birding/butterfly-birding-2.webp",
   "credit": "Photo: Department of the Interior. U.S. Fish and Wildl… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg"
  },
  "234": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "235": {
   "url": "photos/horseback/horseback-1.webp",
   "credit": "Photo: ShenandoahNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg"
  },
  "236": {
@@ -1415,7 +1415,7 @@ var IDEA_PHOTOS = {
  "237": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "238": {
@@ -1427,7 +1427,7 @@ var IDEA_PHOTOS = {
  "239": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "240": {
@@ -1451,7 +1451,7 @@ var IDEA_PHOTOS = {
  "243": {
   "url": "photos/clay-shooting/clay-shooting-1.webp",
   "credit": "Photo: U.S. Customs and Border Protection / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Trap_shooting_at_WPFG_(18652772364).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Trap_shooting_at_WPFG_(18652772364).jpg"
  },
  "244": {
@@ -1487,7 +1487,7 @@ var IDEA_PHOTOS = {
  "249": {
   "url": "photos/biking/biking-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg"
  },
  "250": {
@@ -1511,7 +1511,7 @@ var IDEA_PHOTOS = {
  "253": {
   "url": "photos/atv-offroad/atv-offroad-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Law_Enforcement_Keeping_Visitors_Safe_(26817310126).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Law_Enforcement_Keeping_Visitors_Safe_(26817310126).jpg"
  },
  "254": {
@@ -1553,7 +1553,7 @@ var IDEA_PHOTOS = {
  "260": {
   "url": "photos/atv-offroad/atv-offroad-2.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Little_Sahara_Easter_Weekend_(26783809751).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Little_Sahara_Easter_Weekend_(26783809751).jpg"
  },
  "261": {
@@ -1577,7 +1577,7 @@ var IDEA_PHOTOS = {
  "264": {
   "url": "photos/mountain-biking/mountain-biking-2.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg"
  },
  "265": {
@@ -1595,13 +1595,13 @@ var IDEA_PHOTOS = {
  "267": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "268": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "269": {
@@ -1697,7 +1697,7 @@ var IDEA_PHOTOS = {
  "284": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "285": {
@@ -1817,7 +1817,7 @@ var IDEA_PHOTOS = {
  "304": {
   "url": "photos/snowmobiling/snowmobiling-2.webp",
   "credit": "Photo: (NPS Photo), uploaded by en:User:Great Scott. / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:SnowmobilesYellowstone.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:SnowmobilesYellowstone.jpg"
  },
  "305": {
@@ -1835,13 +1835,13 @@ var IDEA_PHOTOS = {
  "307": {
   "url": "photos/horseback/horseback-1.webp",
   "credit": "Photo: ShenandoahNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg"
  },
  "308": {
   "url": "photos/atv-offroad/atv-offroad-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Law_Enforcement_Keeping_Visitors_Safe_(26817310126).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Law_Enforcement_Keeping_Visitors_Safe_(26817310126).jpg"
  },
  "309": {
@@ -1871,7 +1871,7 @@ var IDEA_PHOTOS = {
  "313": {
   "url": "photos/atv-offroad/atv-offroad-2.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Little_Sahara_Easter_Weekend_(26783809751).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Little_Sahara_Easter_Weekend_(26783809751).jpg"
  },
  "314": {
@@ -1883,7 +1883,7 @@ var IDEA_PHOTOS = {
  "315": {
   "url": "photos/mountain-biking/mountain-biking-3.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21243417642).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21243417642).jpg"
  },
  "316": {
@@ -1913,7 +1913,7 @@ var IDEA_PHOTOS = {
  "320": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "321": {
@@ -1949,7 +1949,7 @@ var IDEA_PHOTOS = {
  "326": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "327": {
@@ -1985,7 +1985,7 @@ var IDEA_PHOTOS = {
  "332": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "333": {
@@ -2063,7 +2063,7 @@ var IDEA_PHOTOS = {
  "347": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "348": {
@@ -2093,7 +2093,7 @@ var IDEA_PHOTOS = {
  "352": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "353": {
@@ -2111,7 +2111,7 @@ var IDEA_PHOTOS = {
  "355": {
   "url": "photos/hoodoos-arches/hoodoos-arches-2.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545768.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545768.jpg"
  },
  "356": {
@@ -2123,7 +2123,7 @@ var IDEA_PHOTOS = {
  "357": {
   "url": "photos/hoodoos-arches/hoodoos-arches-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "358": {
@@ -2135,7 +2135,7 @@ var IDEA_PHOTOS = {
  "359": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "360": {
@@ -2165,7 +2165,7 @@ var IDEA_PHOTOS = {
  "364": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "365": {
@@ -2183,7 +2183,7 @@ var IDEA_PHOTOS = {
  "367": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "368": {
@@ -2195,13 +2195,13 @@ var IDEA_PHOTOS = {
  "369": {
   "url": "photos/butterfly-birding/butterfly-birding-1.webp",
   "credit": "Photo: Ryan Hagerty / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg"
  },
  "370": {
   "url": "photos/geyser-hot-springs/geyser-hot-springs-2.webp",
   "credit": "Photo: Neal Herbert / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Early_summer_crowd_at_Old_Faithful_(1b4e9a09-559c-4a47-9f7d-7d034b4f35c9).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Early_summer_crowd_at_Old_Faithful_(1b4e9a09-559c-4a47-9f7d-7d034b4f35c9).jpg"
  },
  "371": {
@@ -2231,7 +2231,7 @@ var IDEA_PHOTOS = {
  "375": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "376": {
@@ -2285,19 +2285,19 @@ var IDEA_PHOTOS = {
  "384": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "385": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "386": {
   "url": "photos/hoodoos-arches/hoodoos-arches-2.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545768.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545768.jpg"
  },
  "387": {
@@ -2315,7 +2315,7 @@ var IDEA_PHOTOS = {
  "389": {
   "url": "photos/hoodoos-arches/hoodoos-arches-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "390": {
@@ -2345,7 +2345,7 @@ var IDEA_PHOTOS = {
  "394": {
   "url": "photos/hoodoos-arches/hoodoos-arches-2.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545768.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545768.jpg"
  },
  "395": {
@@ -2357,13 +2357,13 @@ var IDEA_PHOTOS = {
  "396": {
   "url": "photos/hoodoos-arches/hoodoos-arches-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "397": {
   "url": "photos/slot-canyon/slot-canyon-2.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Merwin_Slot_Canyon_(27426689462).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Merwin_Slot_Canyon_(27426689462).jpg"
  },
  "398": {
@@ -2375,13 +2375,13 @@ var IDEA_PHOTOS = {
  "399": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
   "credit": "Photo: CanyonlandsNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg"
  },
  "400": {
   "url": "photos/biking/biking-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg"
  },
  "401": {
@@ -2417,7 +2417,7 @@ var IDEA_PHOTOS = {
  "406": {
   "url": "photos/hoodoos-arches/hoodoos-arches-2.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545768.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545768.jpg"
  },
  "407": {
@@ -2447,13 +2447,13 @@ var IDEA_PHOTOS = {
  "411": {
   "url": "photos/hoodoos-arches/hoodoos-arches-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "412": {
   "url": "photos/butterfly-birding/butterfly-birding-2.webp",
   "credit": "Photo: Department of the Interior. U.S. Fish and Wildl… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg"
  },
  "413": {
@@ -2465,7 +2465,7 @@ var IDEA_PHOTOS = {
  "414": {
   "url": "photos/slot-canyon/slot-canyon-2.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Merwin_Slot_Canyon_(27426689462).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Merwin_Slot_Canyon_(27426689462).jpg"
  },
  "415": {
@@ -2495,7 +2495,7 @@ var IDEA_PHOTOS = {
  "419": {
   "url": "photos/geyser-hot-springs/geyser-hot-springs-2.webp",
   "credit": "Photo: Neal Herbert / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Early_summer_crowd_at_Old_Faithful_(1b4e9a09-559c-4a47-9f7d-7d034b4f35c9).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Early_summer_crowd_at_Old_Faithful_(1b4e9a09-559c-4a47-9f7d-7d034b4f35c9).jpg"
  },
  "420": {
@@ -2513,7 +2513,7 @@ var IDEA_PHOTOS = {
  "422": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "423": {
@@ -2531,7 +2531,7 @@ var IDEA_PHOTOS = {
  "425": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "426": {
@@ -2855,7 +2855,7 @@ var IDEA_PHOTOS = {
  "479": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
   "credit": "Photo: CanyonlandsNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg"
  },
  "480": {
@@ -2933,13 +2933,13 @@ var IDEA_PHOTOS = {
  "492": {
   "url": "photos/geocaching/geocaching-2.webp",
   "credit": "Photo: Miaow Miaow / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG"
  },
  "493": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "494": {
@@ -2951,13 +2951,13 @@ var IDEA_PHOTOS = {
  "495": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "496": {
   "url": "photos/field-day-races/field-day-races-4.webp",
   "credit": "Photo: David A. Brandenburg, U.S. Navy / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg"
  },
  "497": {
@@ -2969,7 +2969,7 @@ var IDEA_PHOTOS = {
  "498": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "499": {
@@ -2981,7 +2981,7 @@ var IDEA_PHOTOS = {
  "500": {
   "url": "photos/campfire-smores/campfire-smores-2.webp",
   "credit": "Photo: Cpl. Randy L. Bernard / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:USMC-15992.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:USMC-15992.jpg"
  },
  "501": {
@@ -2993,7 +2993,7 @@ var IDEA_PHOTOS = {
  "502": {
   "url": "photos/sound-recording/sound-recording-2.webp",
   "credit": "Photo: t3xt (talk) / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Ecoacoustics_recording_in_Rural_Illinois,_USA.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Ecoacoustics_recording_in_Rural_Illinois,_USA.jpg"
  },
  "503": {
@@ -3059,7 +3059,7 @@ var IDEA_PHOTOS = {
  "513": {
   "url": "photos/biking/biking-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg"
  },
  "514": {
@@ -3095,7 +3095,7 @@ var IDEA_PHOTOS = {
  "519": {
   "url": "photos/bowling/bowling-1.webp",
   "credit": "Photo: Photographer of The White House or executive br… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2017_Harry_S_Truman_Bowling_Alley_-_(Old)_Eisenhower_Executive_Office_Building.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2017_Harry_S_Truman_Bowling_Alley_-_(Old)_Eisenhower_Executive_Office_Building.jpg"
  },
  "520": {
@@ -3107,7 +3107,7 @@ var IDEA_PHOTOS = {
  "521": {
   "url": "photos/marble-run/marble-run-2.webp",
   "credit": "Photo: Carl Steinbeißer / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Murmelbahn.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Murmelbahn.JPG"
  },
  "522": {
@@ -3233,13 +3233,13 @@ var IDEA_PHOTOS = {
  "542": {
   "url": "photos/geocaching/geocaching-2.webp",
   "credit": "Photo: Miaow Miaow / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG"
  },
  "543": {
   "url": "photos/geocaching/geocaching-2.webp",
   "credit": "Photo: Miaow Miaow / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG"
  },
  "544": {
@@ -3281,7 +3281,7 @@ var IDEA_PHOTOS = {
  "550": {
   "url": "photos/field-day-races/field-day-races-4.webp",
   "credit": "Photo: David A. Brandenburg, U.S. Navy / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg"
  },
  "551": {
@@ -3371,7 +3371,7 @@ var IDEA_PHOTOS = {
  "565": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "566": {
@@ -3383,7 +3383,7 @@ var IDEA_PHOTOS = {
  "567": {
   "url": "photos/field-day-races/field-day-races-4.webp",
   "credit": "Photo: David A. Brandenburg, U.S. Navy / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg"
  },
  "568": {
@@ -3413,7 +3413,7 @@ var IDEA_PHOTOS = {
  "572": {
   "url": "photos/field-day-races/field-day-races-4.webp",
   "credit": "Photo: David A. Brandenburg, U.S. Navy / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg"
  },
  "573": {
@@ -3455,13 +3455,13 @@ var IDEA_PHOTOS = {
  "579": {
   "url": "photos/field-day-races/field-day-races-4.webp",
   "credit": "Photo: David A. Brandenburg, U.S. Navy / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg"
  },
  "580": {
   "url": "photos/field-day-races/field-day-races-4.webp",
   "credit": "Photo: David A. Brandenburg, U.S. Navy / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg"
  },
  "581": {
@@ -3521,7 +3521,7 @@ var IDEA_PHOTOS = {
  "590": {
   "url": "photos/field-day-races/field-day-races-4.webp",
   "credit": "Photo: David A. Brandenburg, U.S. Navy / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg"
  },
  "591": {
@@ -3587,7 +3587,7 @@ var IDEA_PHOTOS = {
  "601": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "602": {
@@ -3611,7 +3611,7 @@ var IDEA_PHOTOS = {
  "605": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "606": {
@@ -3737,7 +3737,7 @@ var IDEA_PHOTOS = {
  "626": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "627": {
@@ -3797,7 +3797,7 @@ var IDEA_PHOTOS = {
  "636": {
   "url": "photos/biking/biking-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg"
  },
  "637": {
@@ -3953,13 +3953,13 @@ var IDEA_PHOTOS = {
  "662": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "663": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "664": {
@@ -3971,7 +3971,7 @@ var IDEA_PHOTOS = {
  "665": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "666": {
@@ -3989,7 +3989,7 @@ var IDEA_PHOTOS = {
  "668": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "669": {
@@ -4001,7 +4001,7 @@ var IDEA_PHOTOS = {
  "670": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "671": {
@@ -4049,7 +4049,7 @@ var IDEA_PHOTOS = {
  "678": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "679": {
@@ -4067,13 +4067,13 @@ var IDEA_PHOTOS = {
  "681": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "682": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "683": {
@@ -4121,7 +4121,7 @@ var IDEA_PHOTOS = {
  "690": {
   "url": "photos/gardening/gardening-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg"
  },
  "691": {
@@ -4139,7 +4139,7 @@ var IDEA_PHOTOS = {
  "693": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "694": {
@@ -4163,7 +4163,7 @@ var IDEA_PHOTOS = {
  "697": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "698": {
@@ -4223,7 +4223,7 @@ var IDEA_PHOTOS = {
  "707": {
   "url": "photos/gardening/gardening-3.webp",
   "credit": "Photo: USDAgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg"
  },
  "708": {
@@ -4349,7 +4349,7 @@ var IDEA_PHOTOS = {
  "728": {
   "url": "photos/leatherwork/leatherwork-2.webp",
   "credit": "Photo: Scott Bauer / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Leathertools.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Leathertools.jpg"
  },
  "729": {
@@ -4373,7 +4373,7 @@ var IDEA_PHOTOS = {
  "732": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "733": {
@@ -4391,7 +4391,7 @@ var IDEA_PHOTOS = {
  "735": {
   "url": "photos/butterfly-birding/butterfly-birding-1.webp",
   "credit": "Photo: Ryan Hagerty / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg"
  },
  "736": {
@@ -4451,7 +4451,7 @@ var IDEA_PHOTOS = {
  "745": {
   "url": "photos/gardening/gardening-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg"
  },
  "746": {
@@ -4487,7 +4487,7 @@ var IDEA_PHOTOS = {
  "751": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "752": {
@@ -4559,7 +4559,7 @@ var IDEA_PHOTOS = {
  "763": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "764": {
@@ -4619,7 +4619,7 @@ var IDEA_PHOTOS = {
  "773": {
   "url": "photos/pinata/pinata-1.webp",
   "credit": "Photo: No machine-readable author provided. JEDIKNIGHT… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:PI%C3%91ATA.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:PI%C3%91ATA.jpg"
  },
  "774": {
@@ -4643,7 +4643,7 @@ var IDEA_PHOTOS = {
  "777": {
   "url": "photos/campfire-smores/campfire-smores-1.webp",
   "credit": "Photo: NPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:S_more%27s!_(87e7123a-8fd6-4348-b4b8-b4a71ade7fe0).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:S_more%27s!_(87e7123a-8fd6-4348-b4b8-b4a71ade7fe0).jpg"
  },
  "779": {
@@ -4655,7 +4655,7 @@ var IDEA_PHOTOS = {
  "780": {
   "url": "photos/pinata/pinata-1.webp",
   "credit": "Photo: No machine-readable author provided. JEDIKNIGHT… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:PI%C3%91ATA.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:PI%C3%91ATA.jpg"
  },
  "781": {
@@ -4667,7 +4667,7 @@ var IDEA_PHOTOS = {
  "782": {
   "url": "photos/gardening/gardening-3.webp",
   "credit": "Photo: USDAgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg"
  },
  "783": {
@@ -4751,7 +4751,7 @@ var IDEA_PHOTOS = {
  "796": {
   "url": "photos/gardening/gardening-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg"
  },
  "797": {
@@ -4829,7 +4829,7 @@ var IDEA_PHOTOS = {
  "809": {
   "url": "photos/gardening/gardening-3.webp",
   "credit": "Photo: USDAgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg"
  },
  "810": {
@@ -4841,7 +4841,7 @@ var IDEA_PHOTOS = {
  "811": {
   "url": "photos/marble-run/marble-run-2.webp",
   "credit": "Photo: Carl Steinbeißer / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Murmelbahn.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Murmelbahn.JPG"
  },
  "812": {
@@ -4937,7 +4937,7 @@ var IDEA_PHOTOS = {
  "827": {
   "url": "photos/campfire-smores/campfire-smores-2.webp",
   "credit": "Photo: Cpl. Randy L. Bernard / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:USMC-15992.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:USMC-15992.jpg"
  },
  "828": {
@@ -5069,7 +5069,7 @@ var IDEA_PHOTOS = {
  "849": {
   "url": "photos/volunteer-delivery/volunteer-delivery-1.webp",
   "credit": "Photo: Creator:Jimmy Panetta / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg"
  },
  "850": {
@@ -5117,7 +5117,7 @@ var IDEA_PHOTOS = {
  "857": {
   "url": "photos/pinata/pinata-1.webp",
   "credit": "Photo: No machine-readable author provided. JEDIKNIGHT… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:PI%C3%91ATA.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:PI%C3%91ATA.jpg"
  },
  "858": {
@@ -5141,7 +5141,7 @@ var IDEA_PHOTOS = {
  "861": {
   "url": "photos/campfire-smores/campfire-smores-1.webp",
   "credit": "Photo: NPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:S_more%27s!_(87e7123a-8fd6-4348-b4b8-b4a71ade7fe0).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:S_more%27s!_(87e7123a-8fd6-4348-b4b8-b4a71ade7fe0).jpg"
  },
  "862": {
@@ -5363,7 +5363,7 @@ var IDEA_PHOTOS = {
  "898": {
   "url": "photos/campfire-smores/campfire-smores-2.webp",
   "credit": "Photo: Cpl. Randy L. Bernard / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:USMC-15992.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:USMC-15992.jpg"
  },
  "899": {
@@ -5819,7 +5819,7 @@ var IDEA_PHOTOS = {
  "974": {
   "url": "photos/campfire-smores/campfire-smores-1.webp",
   "credit": "Photo: NPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:S_more%27s!_(87e7123a-8fd6-4348-b4b8-b4a71ade7fe0).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:S_more%27s!_(87e7123a-8fd6-4348-b4b8-b4a71ade7fe0).jpg"
  },
  "975": {
@@ -6173,7 +6173,7 @@ var IDEA_PHOTOS = {
  "1033": {
   "url": "photos/horseback/horseback-1.webp",
   "credit": "Photo: ShenandoahNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg"
  },
  "1034": {
@@ -6677,7 +6677,7 @@ var IDEA_PHOTOS = {
  "1117": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1118": {
@@ -6827,7 +6827,7 @@ var IDEA_PHOTOS = {
  "1142": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
   "credit": "Photo: CanyonlandsNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg"
  },
  "1143": {
@@ -6911,7 +6911,7 @@ var IDEA_PHOTOS = {
  "1156": {
   "url": "photos/costume-party/costume-party-1.webp",
   "credit": "Photo: Sgt. April Campbell / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg"
  },
  "1157": {
@@ -7307,7 +7307,7 @@ var IDEA_PHOTOS = {
  "1222": {
   "url": "photos/costume-party/costume-party-1.webp",
   "credit": "Photo: Sgt. April Campbell / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg"
  },
  "1223": {
@@ -7535,7 +7535,7 @@ var IDEA_PHOTOS = {
  "1260": {
   "url": "photos/sound-recording/sound-recording-2.webp",
   "credit": "Photo: t3xt (talk) / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Ecoacoustics_recording_in_Rural_Illinois,_USA.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Ecoacoustics_recording_in_Rural_Illinois,_USA.jpg"
  },
  "1261": {
@@ -7547,7 +7547,7 @@ var IDEA_PHOTOS = {
  "1262": {
   "url": "photos/geocaching/geocaching-2.webp",
   "credit": "Photo: Miaow Miaow / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG"
  },
  "1263": {
@@ -7601,7 +7601,7 @@ var IDEA_PHOTOS = {
  "1271": {
   "url": "photos/geocaching/geocaching-2.webp",
   "credit": "Photo: Miaow Miaow / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG"
  },
  "1272": {
@@ -7631,7 +7631,7 @@ var IDEA_PHOTOS = {
  "1276": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1277": {
@@ -7661,7 +7661,7 @@ var IDEA_PHOTOS = {
  "1281": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1282": {
@@ -7745,7 +7745,7 @@ var IDEA_PHOTOS = {
  "1295": {
   "url": "photos/field-day-races/field-day-races-4.webp",
   "credit": "Photo: David A. Brandenburg, U.S. Navy / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sack_race.jpg"
  },
  "1296": {
@@ -7859,19 +7859,19 @@ var IDEA_PHOTOS = {
  "1314": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1315": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1316": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "1317": {
@@ -7919,7 +7919,7 @@ var IDEA_PHOTOS = {
  "1324": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1325": {
@@ -7949,7 +7949,7 @@ var IDEA_PHOTOS = {
  "1329": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1330": {
@@ -8141,7 +8141,7 @@ var IDEA_PHOTOS = {
  "1361": {
   "url": "photos/butterfly-birding/butterfly-birding-2.webp",
   "credit": "Photo: Department of the Interior. U.S. Fish and Wildl… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg"
  },
  "1362": {
@@ -8171,13 +8171,13 @@ var IDEA_PHOTOS = {
  "1366": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "1367": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1368": {
@@ -8225,7 +8225,7 @@ var IDEA_PHOTOS = {
  "1375": {
   "url": "photos/gardening/gardening-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg"
  },
  "1376": {
@@ -8279,7 +8279,7 @@ var IDEA_PHOTOS = {
  "1384": {
   "url": "photos/leatherwork/leatherwork-2.webp",
   "credit": "Photo: Scott Bauer / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Leathertools.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Leathertools.jpg"
  },
  "1385": {
@@ -8321,7 +8321,7 @@ var IDEA_PHOTOS = {
  "1391": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1392": {
@@ -8375,7 +8375,7 @@ var IDEA_PHOTOS = {
  "1400": {
   "url": "photos/gardening/gardening-3.webp",
   "credit": "Photo: USDAgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg"
  },
  "1401": {
@@ -8405,7 +8405,7 @@ var IDEA_PHOTOS = {
  "1405": {
   "url": "photos/butterfly-birding/butterfly-birding-1.webp",
   "credit": "Photo: Ryan Hagerty / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg"
  },
  "1406": {
@@ -8489,13 +8489,13 @@ var IDEA_PHOTOS = {
  "1419": {
   "url": "photos/geocaching/geocaching-2.webp",
   "credit": "Photo: Miaow Miaow / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Geocache_CZ_01.JPG"
  },
  "1420": {
   "url": "photos/gardening/gardening-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg"
  },
  "1421": {
@@ -8531,7 +8531,7 @@ var IDEA_PHOTOS = {
  "1427": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1428": {
@@ -8555,7 +8555,7 @@ var IDEA_PHOTOS = {
  "1431": {
   "url": "photos/costume-party/costume-party-1.webp",
   "credit": "Photo: Sgt. April Campbell / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg"
  },
  "1432": {
@@ -8567,7 +8567,7 @@ var IDEA_PHOTOS = {
  "1433": {
   "url": "photos/costume-party/costume-party-1.webp",
   "credit": "Photo: Sgt. April Campbell / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg"
  },
  "1434": {
@@ -8579,7 +8579,7 @@ var IDEA_PHOTOS = {
  "1435": {
   "url": "photos/campfire-smores/campfire-smores-2.webp",
   "credit": "Photo: Cpl. Randy L. Bernard / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:USMC-15992.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:USMC-15992.jpg"
  },
  "1436": {
@@ -8651,13 +8651,13 @@ var IDEA_PHOTOS = {
  "1447": {
   "url": "photos/costume-party/costume-party-1.webp",
   "credit": "Photo: Sgt. April Campbell / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg"
  },
  "1448": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1449": {
@@ -8831,7 +8831,7 @@ var IDEA_PHOTOS = {
  "1477": {
   "url": "photos/costume-party/costume-party-1.webp",
   "credit": "Photo: Sgt. April Campbell / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg"
  },
  "1478": {
@@ -8945,7 +8945,7 @@ var IDEA_PHOTOS = {
  "1496": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1497": {
@@ -9167,13 +9167,13 @@ var IDEA_PHOTOS = {
  "1533": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1534": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
   "credit": "Photo: CanyonlandsNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg"
  },
  "1535": {
@@ -9251,7 +9251,7 @@ var IDEA_PHOTOS = {
  "1547": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1549": {
@@ -9359,7 +9359,7 @@ var IDEA_PHOTOS = {
  "1566": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "1567": {
@@ -9431,7 +9431,7 @@ var IDEA_PHOTOS = {
  "1578": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
   "credit": "Photo: CanyonlandsNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg"
  },
  "1579": {
@@ -9491,7 +9491,7 @@ var IDEA_PHOTOS = {
  "1588": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1589": {
@@ -9521,7 +9521,7 @@ var IDEA_PHOTOS = {
  "1593": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1594": {
@@ -9647,7 +9647,7 @@ var IDEA_PHOTOS = {
  "1614": {
   "url": "photos/gardening/gardening-3.webp",
   "credit": "Photo: USDAgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg"
  },
  "1615": {
@@ -9689,7 +9689,7 @@ var IDEA_PHOTOS = {
  "1621": {
   "url": "photos/volunteer-delivery/volunteer-delivery-2.webp",
   "credit": "Photo: U.S. Air Force photo by Airman 1st Class Daniel… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg"
  },
  "1622": {
@@ -9713,7 +9713,7 @@ var IDEA_PHOTOS = {
  "1625": {
   "url": "photos/donation-volunteer/donation-volunteer-1.webp",
   "credit": "Photo: DHSgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg"
  },
  "1626": {
@@ -9725,19 +9725,19 @@ var IDEA_PHOTOS = {
  "1627": {
   "url": "photos/gardening/gardening-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg"
  },
  "1628": {
   "url": "photos/volunteer-delivery/volunteer-delivery-1.webp",
   "credit": "Photo: Creator:Jimmy Panetta / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg"
  },
  "1629": {
   "url": "photos/gardening/gardening-3.webp",
   "credit": "Photo: USDAgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg"
  },
  "1630": {
@@ -9749,7 +9749,7 @@ var IDEA_PHOTOS = {
  "1631": {
   "url": "photos/roadside-cleanup/roadside-cleanup-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754972).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754972).jpg"
  },
  "1632": {
@@ -9761,7 +9761,7 @@ var IDEA_PHOTOS = {
  "1633": {
   "url": "photos/volunteer-delivery/volunteer-delivery-2.webp",
   "credit": "Photo: U.S. Air Force photo by Airman 1st Class Daniel… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg"
  },
  "1634": {
@@ -9779,49 +9779,49 @@ var IDEA_PHOTOS = {
  "1636": {
   "url": "photos/donation-volunteer/donation-volunteer-2.webp",
   "credit": "Photo: Petty Officer 3rd Class Kyle Carlstrom / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg"
  },
  "1637": {
   "url": "photos/donation-volunteer/donation-volunteer-1.webp",
   "credit": "Photo: DHSgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg"
  },
  "1638": {
   "url": "photos/volunteer-delivery/volunteer-delivery-1.webp",
   "credit": "Photo: Creator:Jimmy Panetta / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg"
  },
  "1639": {
   "url": "photos/volunteer-delivery/volunteer-delivery-2.webp",
   "credit": "Photo: U.S. Air Force photo by Airman 1st Class Daniel… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg"
  },
  "1640": {
   "url": "photos/gardening/gardening-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg"
  },
  "1641": {
   "url": "photos/volunteer-delivery/volunteer-delivery-1.webp",
   "credit": "Photo: Creator:Jimmy Panetta / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg"
  },
  "1642": {
   "url": "photos/donation-volunteer/donation-volunteer-2.webp",
   "credit": "Photo: Petty Officer 3rd Class Kyle Carlstrom / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg"
  },
  "1643": {
   "url": "photos/volunteer-delivery/volunteer-delivery-2.webp",
   "credit": "Photo: U.S. Air Force photo by Airman 1st Class Daniel… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg"
  },
  "1644": {
@@ -9833,7 +9833,7 @@ var IDEA_PHOTOS = {
  "1645": {
   "url": "photos/volunteer-delivery/volunteer-delivery-1.webp",
   "credit": "Photo: Creator:Jimmy Panetta / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg"
  },
  "1646": {
@@ -9845,7 +9845,7 @@ var IDEA_PHOTOS = {
  "1647": {
   "url": "photos/donation-volunteer/donation-volunteer-1.webp",
   "credit": "Photo: DHSgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg"
  },
  "1648": {
@@ -9863,13 +9863,13 @@ var IDEA_PHOTOS = {
  "1650": {
   "url": "photos/volunteer-delivery/volunteer-delivery-2.webp",
   "credit": "Photo: U.S. Air Force photo by Airman 1st Class Daniel… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg"
  },
  "1651": {
   "url": "photos/donation-volunteer/donation-volunteer-2.webp",
   "credit": "Photo: Petty Officer 3rd Class Kyle Carlstrom / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg"
  },
  "1652": {
@@ -9881,7 +9881,7 @@ var IDEA_PHOTOS = {
  "1653": {
   "url": "photos/roadside-cleanup/roadside-cleanup-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754972).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754972).jpg"
  },
  "1654": {
@@ -9899,13 +9899,13 @@ var IDEA_PHOTOS = {
  "1656": {
   "url": "photos/donation-volunteer/donation-volunteer-1.webp",
   "credit": "Photo: DHSgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg"
  },
  "1657": {
   "url": "photos/donation-volunteer/donation-volunteer-2.webp",
   "credit": "Photo: Petty Officer 3rd Class Kyle Carlstrom / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg"
  },
  "1658": {
@@ -9917,13 +9917,13 @@ var IDEA_PHOTOS = {
  "1659": {
   "url": "photos/donation-volunteer/donation-volunteer-1.webp",
   "credit": "Photo: DHSgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg"
  },
  "1660": {
   "url": "photos/donation-volunteer/donation-volunteer-2.webp",
   "credit": "Photo: Petty Officer 3rd Class Kyle Carlstrom / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg"
  },
  "1661": {
@@ -9953,19 +9953,19 @@ var IDEA_PHOTOS = {
  "1665": {
   "url": "photos/volunteer-delivery/volunteer-delivery-1.webp",
   "credit": "Photo: Creator:Jimmy Panetta / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg"
  },
  "1666": {
   "url": "photos/donation-volunteer/donation-volunteer-1.webp",
   "credit": "Photo: DHSgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg"
  },
  "1667": {
   "url": "photos/donation-volunteer/donation-volunteer-2.webp",
   "credit": "Photo: Petty Officer 3rd Class Kyle Carlstrom / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg"
  },
  "1668": {
@@ -9977,7 +9977,7 @@ var IDEA_PHOTOS = {
  "1669": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1670": {
@@ -9995,13 +9995,13 @@ var IDEA_PHOTOS = {
  "1672": {
   "url": "photos/donation-volunteer/donation-volunteer-1.webp",
   "credit": "Photo: DHSgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg"
  },
  "1673": {
   "url": "photos/gardening/gardening-3.webp",
   "credit": "Photo: USDAgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg"
  },
  "1674": {
@@ -10019,19 +10019,19 @@ var IDEA_PHOTOS = {
  "1676": {
   "url": "photos/volunteer-delivery/volunteer-delivery-2.webp",
   "credit": "Photo: U.S. Air Force photo by Airman 1st Class Daniel… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Operation_Grace_Delivery-_volunteers_deliver_food_to_quarantined_(6374618).jpg"
  },
  "1677": {
   "url": "photos/gardening/gardening-1.webp",
   "credit": "Photo: U.S. Army USAG-O by Natalie Stanley / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Army_Volunteers_participate_in_memorial_park_cleanup_(9754968).jpg"
  },
  "1678": {
   "url": "photos/donation-volunteer/donation-volunteer-2.webp",
   "credit": "Photo: Petty Officer 3rd Class Kyle Carlstrom / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg"
  },
  "1679": {
@@ -10061,13 +10061,13 @@ var IDEA_PHOTOS = {
  "1683": {
   "url": "photos/donation-volunteer/donation-volunteer-1.webp",
   "credit": "Photo: DHSgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Acting_Secretary_Wolf_Volunteers_at_the_Capital_Area_Food_Bank_(50695223163).jpg"
  },
  "1684": {
   "url": "photos/gardening/gardening-3.webp",
   "credit": "Photo: USDAgov / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Sankofa_USDA_People%27s_Garden,_New_Orleans,_April_2023_-_14.jpg"
  },
  "1685": {
@@ -10085,13 +10085,13 @@ var IDEA_PHOTOS = {
  "1687": {
   "url": "photos/volunteer-delivery/volunteer-delivery-1.webp",
   "credit": "Photo: Creator:Jimmy Panetta / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Jimmy_Panetta_at_food_distribution_event_at_Seaside,_California_01.jpg"
  },
  "1688": {
   "url": "photos/donation-volunteer/donation-volunteer-2.webp",
   "credit": "Photo: Petty Officer 3rd Class Kyle Carlstrom / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Food_bank_volunteers_150312-N-NB544-013.jpg"
  },
  "1689": {
@@ -10157,7 +10157,7 @@ var IDEA_PHOTOS = {
  "1699": {
   "url": "photos/horseback/horseback-1.webp",
   "credit": "Photo: ShenandoahNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg"
  },
  "1700": {
@@ -10217,13 +10217,13 @@ var IDEA_PHOTOS = {
  "1709": {
   "url": "photos/atv-offroad/atv-offroad-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Law_Enforcement_Keeping_Visitors_Safe_(26817310126).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Law_Enforcement_Keeping_Visitors_Safe_(26817310126).jpg"
  },
  "1710": {
   "url": "photos/storm-chasing/storm-chasing-1.webp",
   "credit": "Photo: NOAA National Severe Storms Laboratory / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Supercell-thunderstorm-in-Kansas.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Supercell-thunderstorm-in-Kansas.jpg"
  },
  "1711": {
@@ -10259,7 +10259,7 @@ var IDEA_PHOTOS = {
  "1716": {
   "url": "photos/butterfly-birding/butterfly-birding-2.webp",
   "credit": "Photo: Department of the Interior. U.S. Fish and Wildl… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Birdwatching_at_Merced_National_Wildlife_Refuge_-_DPLA_-_4f8a9ebb1e0154a038b4f9dd30dab565.jpg"
  },
  "1717": {
@@ -10271,13 +10271,13 @@ var IDEA_PHOTOS = {
  "1718": {
   "url": "photos/canoe-kayak/canoe-kayak-1.webp",
   "credit": "Photo: Region 5 Photography / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_Lake_Tahoe_(47706772582).jpg"
  },
  "1719": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "1720": {
@@ -10331,7 +10331,7 @@ var IDEA_PHOTOS = {
  "1728": {
   "url": "photos/aurora-night-sky/aurora-night-sky-2.webp",
   "credit": "Photo: United States Air Force photo by Senior Airman… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Aurora_borealis_over_Eielson_Air_Force_Base,_Alaska.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Aurora_borealis_over_Eielson_Air_Force_Base,_Alaska.jpg"
  },
  "1729": {
@@ -10367,7 +10367,7 @@ var IDEA_PHOTOS = {
  "1734": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
   "credit": "Photo: CanyonlandsNPS / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg"
  },
  "1735": {
@@ -10379,13 +10379,13 @@ var IDEA_PHOTOS = {
  "1736": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "1737": {
   "url": "photos/butterfly-birding/butterfly-birding-1.webp",
   "credit": "Photo: Ryan Hagerty / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:A_group_of_men_stand_birdwatching.jpg"
  },
  "1738": {
@@ -10619,7 +10619,7 @@ var IDEA_PHOTOS = {
  "1776": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1777": {
@@ -10877,7 +10877,7 @@ var IDEA_PHOTOS = {
  "1819": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1820": {
@@ -10931,7 +10931,7 @@ var IDEA_PHOTOS = {
  "1828": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1829": {
@@ -11051,7 +11051,7 @@ var IDEA_PHOTOS = {
  "1848": {
   "url": "photos/go-karts/go-karts-2.webp",
   "credit": "Photo: Claudio PlanetKart / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Largada_Stock125_Foto_Claudio_Reis.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Largada_Stock125_Foto_Claudio_Reis.jpg"
  },
  "1849": {
@@ -11063,7 +11063,7 @@ var IDEA_PHOTOS = {
  "1850": {
   "url": "photos/bowling/bowling-1.webp",
   "credit": "Photo: Photographer of The White House or executive br… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2017_Harry_S_Truman_Bowling_Alley_-_(Old)_Eisenhower_Executive_Office_Building.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2017_Harry_S_Truman_Bowling_Alley_-_(Old)_Eisenhower_Executive_Office_Building.jpg"
  },
  "1851": {
@@ -11105,7 +11105,7 @@ var IDEA_PHOTOS = {
  "1857": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Indian_Creek_climber_(29216746716).jpg"
  },
  "1858": {
@@ -11123,7 +11123,7 @@ var IDEA_PHOTOS = {
  "1860": {
   "url": "photos/biking/biking-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg"
  },
  "1861": {
@@ -11153,7 +11153,7 @@ var IDEA_PHOTOS = {
  "1865": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
   "credit": "Photo: David Hiser / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "1866": {
@@ -11375,7 +11375,7 @@ var IDEA_PHOTOS = {
  "1902": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1903": {
@@ -11399,7 +11399,7 @@ var IDEA_PHOTOS = {
  "1906": {
   "url": "photos/geyser-hot-springs/geyser-hot-springs-2.webp",
   "credit": "Photo: Neal Herbert / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Early_summer_crowd_at_Old_Faithful_(1b4e9a09-559c-4a47-9f7d-7d034b4f35c9).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Early_summer_crowd_at_Old_Faithful_(1b4e9a09-559c-4a47-9f7d-7d034b4f35c9).jpg"
  },
  "1907": {
@@ -11459,7 +11459,7 @@ var IDEA_PHOTOS = {
  "1916": {
   "url": "photos/hiking-trail/hiking-trail-2.webp",
   "credit": "Photo: mypubliclands / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "1917": {
@@ -11483,7 +11483,7 @@ var IDEA_PHOTOS = {
  "1920": {
   "url": "photos/historic-walk/historic-walk-1.webp",
   "credit": "Photo: Streamline1989 at English Wikipedia / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:2006_Salt_Lake_City,_Utah_mountains.jpg"
  },
  "1921": {
@@ -11531,7 +11531,7 @@ var IDEA_PHOTOS = {
  "1928": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1929": {
@@ -11813,7 +11813,7 @@ var IDEA_PHOTOS = {
  "1975": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1976": {
@@ -11825,7 +11825,7 @@ var IDEA_PHOTOS = {
  "1977": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1978": {
@@ -11867,7 +11867,7 @@ var IDEA_PHOTOS = {
  "1984": {
   "url": "photos/leatherwork/leatherwork-2.webp",
   "credit": "Photo: Scott Bauer / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Leathertools.jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Leathertools.jpg"
  },
  "1985": {
@@ -11921,7 +11921,7 @@ var IDEA_PHOTOS = {
  "1993": {
   "url": "photos/painting-class/painting-class-1.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1994": {
@@ -11933,7 +11933,7 @@ var IDEA_PHOTOS = {
  "1995": {
   "url": "photos/painting-class/painting-class-2.webp",
   "credit": "Photo: U.S. Navy photo by Petty Officer 1st Class Sean… / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999770).jpg"
  },
  "1996": {
@@ -11963,7 +11963,7 @@ var IDEA_PHOTOS = {
  "2000": {
   "url": "photos/biking/biking-1.webp",
   "credit": "Photo: BLMUtah / Wikimedia Commons, Public domain",
-  "license_url": "",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Mountain_Biking-_Moab_Brands_Trails_(21066005078).jpg"
  }
 };

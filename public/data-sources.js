@@ -941,6 +941,14 @@
     { line: "Event info from Terracotta Tortoise Clay Center (terracottatortoise.com).", domain: "terracottatortoise.com", href: "https://terracottatortoise.com/" },
     { line: "Event info from The Clay Hole (theclayhole.com).", domain: "theclayhole.com", href: "https://theclayhole.com/" },
     { line: "Event info from Throw Art Studio (www.throwartstudios.app).", domain: "www.throwartstudios.app", href: "https://www.throwartstudios.app/" },
+    { line: "Event info from 801TAG (www.801tag.com).", domain: "www.801tag.com", href: "https://www.801tag.com/" },
+    { line: "Event info from Airborne Lindon (airbornelindon.com).", domain: "airbornelindon.com", href: "https://airbornelindon.com/" },
+    { line: "Event info from Hostlers Model Railroad Club (hostlerspres6589.wildapricot.org).", domain: "hostlerspres6589.wildapricot.org", href: "https://hostlerspres6589.wildapricot.org/" },
+    { line: "Event info from Meldrum Christmas Tree Farm (utahchristmastreefarm.weebly.com).", domain: "utahchristmastreefarm.weebly.com", href: "https://utahchristmastreefarm.weebly.com/" },
+    { line: "Event info from Sparetime Lanes (sparetimelanes.com).", domain: "sparetimelanes.com", href: "https://sparetimelanes.com/" },
+    { line: "Event info from The wAIRhouse (thewairhouse.com).", domain: "thewairhouse.com", href: "https://thewairhouse.com/" },
+    { line: "Event info from Urban Flea Market (www.fleamarketslc.com).", domain: "www.fleamarketslc.com", href: "https://www.fleamarketslc.com/" },
+    { line: "Event info from Valley Bowling Lanes (www.valleybowlinglanesutah.com).", domain: "www.valleybowlinglanesutah.com", href: "https://www.valleybowlinglanesutah.com/" },
   ];
 
   function eventInfoList(lines) {

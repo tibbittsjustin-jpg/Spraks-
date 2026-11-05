@@ -9,7 +9,14 @@ function fakeEl(tag) {
   const e = {
     style: {}, dataset: {}, value: "", textContent: "", innerHTML: "", children: [],
     classList: { add(){}, remove(){}, toggle(){}, contains(){ return false; } },
-    addEventListener(){}, removeEventListener(){},
+    addEventListener(type, fn){
+      if (typeof fn !== "function") return;
+      if (!this._listeners) this._listeners = Object.create(null);
+      const key = String(type);
+      if (!this._listeners[key]) this._listeners[key] = [];
+      this._listeners[key].push(fn);
+    },
+    removeEventListener(){},
     appendChild(child){ this.children.push(child); return child; },
     setAttribute(name, value){ attrs[String(name)] = String(value); },
     getAttribute(name){
@@ -28,11 +35,33 @@ function makeSandbox(storage) {
     documentElement: fakeEl(), body: fakeEl(),
     querySelector(){ return fakeEl(); }, querySelectorAll(){ return []; },
     getElementById(){ return fakeEl(); }, createElement(tag){ return fakeEl(tag); },
-    addEventListener(){},
+    visibilityState: "visible",
+    addEventListener(type, fn){
+      if (typeof fn !== "function") return;
+      if (!this._listeners) this._listeners = Object.create(null);
+      const key = String(type);
+      if (!this._listeners[key]) this._listeners[key] = [];
+      this._listeners[key].push(fn);
+    },
   };
   const sandbox = {
     document,
-    window: { location: { reload(){} }, addEventListener(){} },
+    window: {
+      location: { reload(){} },
+      addEventListener(type, fn){
+        if (typeof fn !== "function") return;
+        if (!this._listeners) this._listeners = Object.create(null);
+        const key = String(type);
+        if (!this._listeners[key]) this._listeners[key] = [];
+        this._listeners[key].push(fn);
+      },
+    },
+    sessionStorage: {
+      _d: Object.create(null),
+      getItem(k){ return Object.prototype.hasOwnProperty.call(this._d, k) ? this._d[k] : null; },
+      setItem(k, v){ this._d[k] = String(v); },
+      removeItem(k){ delete this._d[k]; },
+    },
     navigator: { geolocation: { getCurrentPosition(){} } },
     localStorage: {
       _d: storage,
@@ -178,6 +207,16 @@ function loadApp(storage) {
     confirmSubmissionBirthday: confirmSubmissionBirthday,
     get onboardingRestarts(){ return onboardingRestarts; },
     get lastToastMessage(){ return lastToastMessage; },
+    get lastReturnToastNode(){ return lastReturnToastNode; },
+    get lastAppliedScrollTop(){ return lastAppliedScrollTop; },
+    get restoredCardId(){ return pendingFrontCardId; },
+    RETURN_TTL_MS: RETURN_TTL_MS,
+    RETURN_STORAGE_KEY: RETURN_STORAGE_KEY,
+    saveSourceReturn: saveSourceReturn,
+    restoreWayBack: restoreWayBack,
+    reopenReturnedEvent: reopenReturnedEvent,
+    get sessionStorage(){ return sessionStorage; },
+    get localStorage(){ return localStorage; },
     fetchCalls: __net.calls,
     get navigator(){ return navigator; },
     get document(){ return document; },

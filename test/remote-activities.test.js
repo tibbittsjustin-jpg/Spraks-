@@ -105,7 +105,7 @@ function walk(node, acc) {
 function visitLinks(screen) {
   const nodes = [];
   walk(screen, nodes);
-  return nodes.filter(node => node.textContent === "Visit website");
+  return nodes.filter(node => node.textContent === "More info / Source");
 }
 
 async function main() {
@@ -435,7 +435,7 @@ async function main() {
 
     const screen = t.buildDetailScreen(dated.id);
     const links = visitLinks(screen);
-    check("Visit website uses the https page",
+    check("More info / Source uses the https page",
       links.length === 1 && links[0].getAttribute("href") === "https://example.com/place");
 
     const cardA = t.buildSwipeCard(t.IDEAS_BY_ID[dated.id], true, 0);

@@ -1,4 +1,4 @@
-/* Visit website: https-only check, and the detail link's target and rel.
+/* Source page on the detail screen: https-only check, and the link's target and rel.
    No database. */
 "use strict";
 
@@ -27,7 +27,7 @@ function walk(node, acc) {
 function visitLinks(screen) {
   const nodes = [];
   walk(screen, nodes);
-  return nodes.filter(node => node.textContent === "Visit website");
+  return nodes.filter(node => node.textContent === "More info / Source");
 }
 
 function innerHtmlBlob(screen) {
@@ -72,7 +72,7 @@ section("detail link", () => {
   const href = "https://example.com/place";
   const shown = screenFor({ id: 880101, source_url: href });
   const links = visitLinks(shown);
-  check("https source_url renders one Visit website link", links.length === 1, String(links.length));
+  check("https source_url renders one More info / Source link", links.length === 1, String(links.length));
   const link = links[0];
   check("link uses the outline button classes",
     link && link.className === "btn-outline" && link.tagName === "A");
@@ -102,7 +102,7 @@ section("detail link", () => {
     visitLinks(apiShape).length === 1 && visitLinks(apiShape)[0].getAttribute("href") === href);
 
   const photoOnly = screenFor({ id: 880303, photo: { url: "https://example.com/photo.jpg", credit: "Photo" } });
-  check("a photo url does not render Visit website", visitLinks(photoOnly).length === 0);
+  check("a photo url does not render More info / Source", visitLinks(photoOnly).length === 0);
 
   const src = fs.readFileSync(path.join(__dirname, "..", "public", "app.js"), "utf8");
   const fn = src.slice(src.indexOf("function visitWebsiteLink"), src.indexOf("function buildDetailScreen"));

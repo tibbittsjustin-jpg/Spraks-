@@ -151,11 +151,11 @@ section("the chip filters the deck and keeps its count honest", () => {
   check("a morning idea stays in the unfiltered deck", t.matchesFilters(t.IDEAS_BY_ID[2], t.state.filters) === true);
 
   const on = Object.assign({}, t.state.filters, { feedMode: "happening", when: "tonight", tonight: true });
-  check("Evening idea 54 does not match the chip", t.matchesFilters(t.IDEAS_BY_ID[54], on) === false);
-  check("Night idea 23 does not match the chip", t.matchesFilters(t.IDEAS_BY_ID[23], on) === false);
-  check("Tonight idea 26 does not match the chip", t.matchesFilters(t.IDEAS_BY_ID[26], on) === false);
-  check("Afternoon and Evening idea 67 does not match the chip", t.matchesFilters(t.IDEAS_BY_ID[67], on) === false);
-  check("Morning idea 2 does not match the chip", t.matchesFilters(t.IDEAS_BY_ID[2], on) === false);
+  check("Evening idea 54 stays when Tonight is the date filter", t.matchesFilters(t.IDEAS_BY_ID[54], on) === true);
+  check("Night idea 23 stays when Tonight is the date filter", t.matchesFilters(t.IDEAS_BY_ID[23], on) === true);
+  check("Tonight idea 26 stays when Tonight is the date filter", t.matchesFilters(t.IDEAS_BY_ID[26], on) === true);
+  check("Afternoon and Evening idea 67 stays when Tonight is the date filter", t.matchesFilters(t.IDEAS_BY_ID[67], on) === true);
+  check("Morning idea 2 stays when Tonight is the date filter", t.matchesFilters(t.IDEAS_BY_ID[2], on) === true);
 
   const morningOnly = Object.assign({}, on, { time: ["Morning"] });
   check("a Morning filter still excludes an Evening-only idea", t.matchesFilters(t.IDEAS_BY_ID[54], morningOnly) === false);
@@ -172,12 +172,12 @@ section("the chip filters the deck and keeps its count honest", () => {
   check("the Filters badge does not count the tonight chip", withTonight === t.activeFilterCount(withCost));
 
   t.state.filters = Object.assign({}, t.state.filters, { cost: [], tonight: false });
-  check("toggling on returns true", t.toggleTonightFilter() === true && t.state.filters.tonight === true);
+  check("toggling on returns true", t.toggleTonightFilter() === true && t.state.filters.tonight === true && t.state.filters.when === "tonight");
   const deck = t.computeDeck();
-  check("the filtered deck drops the morning idea", deck.remaining.indexOf(2) === -1);
-  check("the filtered deck drops an anytime evening idea", deck.remaining.indexOf(54) === -1);
+  check("Tonight keeps the morning anytime idea", deck.remaining.indexOf(2) !== -1);
+  check("Tonight keeps an anytime evening idea", deck.remaining.indexOf(54) !== -1);
   check("toggling off returns false", t.toggleTonightFilter() === false && t.state.filters.tonight === false);
-  check("toggling off returns to Local Activities", t.state.filters.feedMode === "local" && t.state.filters.when === "");
+  check("toggling off clears the date and does not restore a mode", t.state.filters.feedMode == null && t.state.filters.when === "");
 
   function findChip(node, acc) {
     acc = acc || [];
@@ -348,24 +348,20 @@ function scheduledIdea(id, title, cost, today) {
   };
 }
 
-section("the Tonight view lists scheduled events, then anytime ideas", () => {
+section("the mixed list keeps scheduled events and anytime ideas", () => {
   const today = occ.denverToday(new Date());
   const emptyApp = loadApp({});
-  emptyApp.state.filters.feedMode = "happening";
   emptyApp.state.filters.when = "tonight";
   emptyApp.state.filters.tonight = true;
   const evening = emptyApp.IDEAS_BY_ID[54];
   check("the evening catalog idea is anytime", evening.occurrences == null && util.alsoGoodTonight(evening, new Date()) === true);
-  check("that idea is not on the chip", emptyApp.tonightMatchCount() === 0);
-  const emptyScreen = textOf(emptyApp.buildDiscoverScreen());
-  const nothingAt = emptyScreen.indexOf("Nothing scheduled near you tonight");
-  const alsoAt = emptyScreen.indexOf("Also good tonight");
-  const eveningAt = emptyScreen.indexOf(evening.title);
-  check("zero tonight events use the scheduled empty state",
-    nothingAt !== -1 && emptyScreen.indexOf("No matches yet") === -1 && emptyScreen.indexOf("Clear Filters") === -1);
-  check("the empty state offers widen radius", emptyScreen.indexOf("Widen radius") !== -1);
-  check("Happening does not add an Also good tonight list",
-    alsoAt === -1 && eveningAt === -1);
+  check("the dated-event count ignores that anytime idea", emptyApp.tonightMatchCount() === 0);
+  const openDeck = emptyApp.computeDeck();
+  check("Tonight keeps anytime ideas in the deck",
+    openDeck.total > 0 && openDeck.remaining.indexOf(evening.id) !== -1);
+  const openScreen = textOf(emptyApp.buildDiscoverScreen());
+  check("Tonight does not replace the deck with the scheduled empty state",
+    openScreen.indexOf("Nothing scheduled near you tonight") === -1);
   check("widen radius steps to the next stop",
     emptyApp.state.filters.radiusMiles === 10 && emptyApp.widenTonightRadius() === 25 &&
     emptyApp.state.filters.radiusMiles === 25);
@@ -386,14 +382,19 @@ section("the Tonight view lists scheduled events, then anytime ideas", () => {
   t.state.filters.cost = ["Free"];
   check("the chip count still honors the other filters", t.tonightMatchCount() === 1);
   t.state.filters.cost = [];
+  const mixed = t.computeDeck();
+  check("scheduled events stay beside anytime ideas",
+    mixed.remaining.indexOf("db:88001") !== -1 &&
+    mixed.remaining.indexOf("db:88002") !== -1 &&
+    mixed.remaining.indexOf(54) !== -1);
+  const card = t.buildSwipeCard(t.IDEAS_BY_ID["db:88001"], false);
+  check("the dated card keeps its happening bar",
+    card.innerHTML.indexOf("happening-bar") !== -1 &&
+    card.innerHTML.indexOf("Happening") !== -1);
   const screen = textOf(t.buildDiscoverScreen());
-  check("scheduled events show in Happening",
-    screen.indexOf("Scheduled Tonight Concert") !== -1 &&
-    screen.indexOf("Scheduled Paid Show") !== -1 &&
+  check("the mixed deck does not use the scheduled empty state",
     screen.indexOf("Nothing scheduled near you tonight") === -1 &&
     screen.indexOf("Also good tonight") === -1);
-  check("the anytime evening idea is not in Happening",
-    screen.indexOf(t.IDEAS_BY_ID[54].title) === -1);
 });
 
 module.exports = { pass: pass, fail: fail };

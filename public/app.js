@@ -271,7 +271,7 @@
       doneIds:[],       // [{id, date, rating?, recap?, photoKey?}] rating 1–5, recap one line, photoKey points at IndexedDB
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], audience:[], food:null, hide21:false, tonight:false, feedMode:"local", when:"", radiusMiles:SparkRadius.RADIUS_DEFAULT, localOnly:false },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], audience:[], food:null, hide21:false, tonight:false, when:"", radiusMiles:SparkRadius.RADIUS_DEFAULT, localOnly:false },
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
@@ -291,6 +291,7 @@
   var pendingLikeSave = false;
   var pendingTimeFilterSave = false;
   var pendingAudienceFilterSave = false;
+  var pendingFeedClear = false;
   var state = loadState();
 
   function loadState(){
@@ -320,12 +321,13 @@
       var preparedAudience = SparkAudience.prepareSavedFilters(parsed.filters);
       parsed.filters = preparedAudience.filters;
       if(preparedAudience.changed) pendingAudienceFilterSave = true;
-      // Local Activities is the default. A missing mode stays local.
-      // The choice is a mode and a Denver day token, never a coordinate.
-      if (parsed.filters.feedMode !== "local" && parsed.filters.feedMode !== "happening") {
-        parsed.filters.feedMode = "local";
+      // The Local / Happening toggle is gone. A saved mode must not hide
+      // anytime activities or dated events. The When value is the date filter.
+      if (Object.prototype.hasOwnProperty.call(parsed.filters, "feedMode")) {
+        delete parsed.filters.feedMode;
+        pendingFeedClear = true;
       }
-      parsed.filters.when = SparkFeed.storedWhen(parsed.filters.when, new Date(), parsed.filters.feedMode);
+      parsed.filters.when = SparkFeed.storedWhen(parsed.filters.when, new Date());
       delete parsed.filters.lat;
       delete parsed.filters.lng;
       delete parsed.filters.location;
@@ -568,7 +570,7 @@
   }
 
   rehydrateRealIdeas();
-  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave || pendingLikeSave || pendingTimeFilterSave || pendingAudienceFilterSave){
+  if(pendingDobScrub || pendingIdentitySave || pendingDoneNormalize || pendingPinSave || pendingLikeSave || pendingTimeFilterSave || pendingAudienceFilterSave || pendingFeedClear){
     pendingDobScrub = false;
     pendingIdentitySave = false;
     pendingDoneNormalize = false;
@@ -576,6 +578,7 @@
     pendingLikeSave = false;
     pendingTimeFilterSave = false;
     pendingAudienceFilterSave = false;
+    pendingFeedClear = false;
     saveState();
   }
 
@@ -587,6 +590,7 @@
   var exactPromptOpen = false;
   var pickMode = false;
   var radiusMapHandle = null;
+  var filterSheetOpen = false;
   // A recent coarse fix is fine. A days-old cached position is not.
   var APPROXIMATE_MAX_AGE_MS = 300000;
   var APPROXIMATE_TIMEOUT_MS = 10000;
@@ -705,7 +709,7 @@
       saveState();
       if(!opts.silent) showToast("Location isn't available right now. Your picked spot is still on this device.");
       updateLocationBar();
-      syncRadiusMap();
+      syncOpenFilters();
       return;
     }
     state.location = null;
@@ -714,6 +718,7 @@
     if(!opts.silent) showToast(locationStatusText());
     updateLocationBar();
     updateRadiusPlace();
+    syncOpenFilters();
     refreshDeckAfterRadius();
     refreshRemoteActivities();
   }
@@ -746,7 +751,7 @@
     updateLocationBar();
     updateRadiusPlace();
     ensureRadiusRow();
-    syncRadiusMap();
+    syncOpenFilters();
     refreshDeckAfterRadius();
     fetchNearbyIdeas();
     refreshRemoteActivities();
@@ -802,7 +807,6 @@
     pickMode = false;
     state.locationMode = "exact";
     saveState();
-    if(radiusMapHandle && radiusMapHandle.setPickMode) radiusMapHandle.setPickMode(false);
     requestLocation({ exact:true });
   }
 
@@ -816,6 +820,7 @@
     state.locationMode = "approximate";
     saveState();
     renderContent();
+    syncOpenFilters();
     refreshRemoteActivities();
   }
 
@@ -847,21 +852,17 @@
     updateLocationBar();
     updateRadiusPlace();
     ensureRadiusRow();
-    syncRadiusMap();
+    syncOpenFilters();
     refreshDeckAfterRadius();
     fetchNearbyIdeas();
     refreshRemoteActivities();
   }
 
   function openPickMode(){
-    pickMode = true;
     exactPromptOpen = false;
-    if(radiusMapHandle && radiusMapHandle.setPickMode){
-      radiusMapHandle.setPickMode(true);
-      updateLocationBar();
-      return;
-    }
-    renderContent();
+    if(!filterSheetOpen) openFilterOverlay();
+    else if(radiusMapHandle && radiusMapHandle.setPickMode) radiusMapHandle.setPickMode(true);
+    updateLocationBar();
   }
 
   // Turns one raw generated card (from /api/nearby-ideas) into a full idea
@@ -1262,7 +1263,6 @@
     // A fix means the deck is the radius. Ask for pinned rows only so
     // ideas with no location are not paged in from the server.
     if(f.localOnly === true || usableOrigin()) out.localOnly = "1";
-    out.feed = f.feedMode === "happening" ? "happening" : "local";
     if(f.when) out.when = f.when;
     out.rank = "new";
     return out;
@@ -1291,7 +1291,6 @@
       hide21: f.hide21 === true,
       localOnly: f.localOnly === true || !!usableOrigin(),
       radius: remoteRadiusMiles(),
-      feed: f.feedMode === "happening" ? "happening" : "local",
       when: f.when || "",
       rank: "new"
     });
@@ -1816,6 +1815,12 @@
   }
   function openOverlay(id){ $(id).classList.remove("hidden"); }
   function closeOverlay(id){ $(id).classList.add("hidden"); }
+  function closeFilterOverlay(){
+    filterSheetOpen = false;
+    closeOverlay("#filter-overlay");
+    if(radiusMapHandle && radiusMapHandle.destroy) radiusMapHandle.destroy();
+    radiusMapHandle = null;
+  }
 
   function fmtDate(d){ return SparkUtil.fmtDate(d); }
   function todayISO(){ return SparkUtil.todayISO(); }
@@ -2447,8 +2452,8 @@
       if(!ideaHasKnownPlace(idea)) return false;
       if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
     }
-    // Local Activities is anytime rows. Happening is one-time dated events
-    // on the chosen Denver day. Other filters above still apply.
+    // Anytime activities and dated events share this list. A When choice
+    // limits dated events to that Denver day and leaves anytime activities.
     if(!SparkFeed.matchesFeed(idea, f, new Date())) return false;
     var plan = getActivePlan();
     var planDate = plan && typeof plan.date === "string" ? plan.date : "";
@@ -2463,28 +2468,26 @@
   function tonightMatchCount(){
     var f = {};
     for(var k in state.filters) f[k] = state.filters[k];
-    f.feedMode = "happening";
+    delete f.feedMode;
     f.when = "tonight";
     var n = 0;
-    for(var i = 0; i < IDEAS_DATA.length; i++){
-      if(matchesFilters(IDEAS_DATA[i], f)) n++;
+    function consider(idea){
+      if(!SparkOccurrences.isDatedEvent(idea)) return;
+      if(matchesFilters(idea, f)) n++;
     }
+    for(var i = 0; i < IDEAS_DATA.length; i++) consider(IDEAS_DATA[i]);
     if(state.location){
-      for(var r = 0; r < REAL_IDEAS_RUNTIME.length; r++){
-        if(matchesFilters(REAL_IDEAS_RUNTIME[r], f)) n++;
-      }
+      for(var r = 0; r < REAL_IDEAS_RUNTIME.length; r++) consider(REAL_IDEAS_RUNTIME[r]);
     }
-    for(var a = 0; a < REMOTE_IDEAS.length; a++){
-      if(matchesFilters(REMOTE_IDEAS[a], f)) n++;
-    }
+    for(var a = 0; a < REMOTE_IDEAS.length; a++) consider(REMOTE_IDEAS[a]);
     return n;
   }
 
   function toggleTonightFilter(){
-    var on = state.filters.feedMode !== "happening";
-    state.filters.feedMode = on ? "happening" : "local";
+    var on = state.filters.when !== "tonight";
     state.filters.when = on ? "tonight" : "";
     state.filters.tonight = on;
+    delete state.filters.feedMode;
     saveState();
     return on;
   }
@@ -2569,8 +2572,7 @@
     });
     if(f.food !== null) n += 1;
     if(f.hide21) n += 1;
-    if(f.feedMode === "happening") n += 1;
-    else if(f.when) n += 1;
+    if(f.when) n += 1;
     // Local counts on its own. A non-default radius counts whenever it
     // is actually filtering: Local on, or any fix (even with Local off).
     var customRadius = SparkRadius.clampRadiusMiles(f.radiusMiles) !== SparkRadius.RADIUS_DEFAULT;
@@ -2613,13 +2615,6 @@
   // New credited rows first. Happening then sorts each group by start time.
   // Local keeps the order already in `ids` inside each group.
   function orderDeckIds(ids){
-    if(state.filters.feedMode === "happening"){
-      var sel = SparkFeed.resolveSelection(state.filters, new Date());
-      var ranked = ids.slice().sort(function(a, b){
-        return SparkFeed.compareHappening(IDEAS_BY_ID[a], IDEAS_BY_ID[b], sel.date);
-      });
-      return ranked;
-    }
     return SparkFeed.partitionNewFirst(ids, function(id){ return IDEAS_BY_ID[id]; });
   }
 
@@ -2772,11 +2767,32 @@
     if(name) name.textContent = placeLabel();
   }
 
+  function mapRadiusMiles(){
+    if(filterSheetOpen && ui.filterDraft && ui.filterDraft.radiusMiles != null) return ui.filterDraft.radiusMiles;
+    return state.filters && state.filters.radiusMiles;
+  }
+
   function syncRadiusMap(){
     if(!radiusMapHandle) return;
     if(radiusMapHandle.setCenter) radiusMapHandle.setCenter(SparkRadius.ideaPoint(state.location));
-    if(radiusMapHandle.setRadiusMiles) radiusMapHandle.setRadiusMiles(state.filters && state.filters.radiusMiles);
-    if(radiusMapHandle.setPickMode) radiusMapHandle.setPickMode(pickMode);
+    var miles = mapRadiusMiles();
+    if(radiusMapHandle.setRadiusMiles && miles != null) radiusMapHandle.setRadiusMiles(miles);
+    // The filter map is the chooser. A blocked or fresh GPS fix must not
+    // turn off search, tap-to-pick, or the draggable pin.
+    if(radiusMapHandle.setPickMode) radiusMapHandle.setPickMode(true);
+  }
+
+  function settleRadiusMap(){
+    var handle = radiusMapHandle;
+    function run(){
+      if(!handle || radiusMapHandle !== handle || !handle.resize) return;
+      handle.resize();
+    }
+    if(typeof requestAnimationFrame === "function"){
+      requestAnimationFrame(function(){ requestAnimationFrame(run); });
+    } else {
+      run();
+    }
   }
 
   function ensureRadiusRow(){
@@ -2797,7 +2813,7 @@
     saveState();
     var readout = document.getElementById("radius-readout");
     if(readout) readout.textContent = SparkRadius.radiusLabel(next);
-    if(radiusMapHandle && radiusMapHandle.setRadiusMiles) radiusMapHandle.setRadiusMiles(next);
+    if(!filterSheetOpen && radiusMapHandle && radiusMapHandle.setRadiusMiles) radiusMapHandle.setRadiusMiles(next);
     var pillLabel = document.querySelector(".local-pill-label");
     if(pillLabel) pillLabel.textContent = localPillText();
     refreshDeckAfterRadius();
@@ -2888,6 +2904,7 @@
       setSliderPct(slider, sliderFillPct(slider));
       slider.setAttribute("aria-valuenow", String(next));
       slider.setAttribute("aria-valuetext", next + " miles");
+      if(radiusMapHandle && radiusMapHandle.setRadiusMiles) radiusMapHandle.setRadiusMiles(next);
       updateFilterApplyLabel();
     });
     var ticks = el("div", "radius-ticks");
@@ -2931,8 +2948,8 @@
     if(typeof SparkRadiusMap === "undefined" || !SparkRadiusMap.mount) return slot;
     radiusMapHandle = SparkRadiusMap.mount(slot, {
       center: SparkRadius.ideaPoint(state.location),
-      radiusMiles: state.filters && state.filters.radiusMiles,
-      pickMode: pickMode,
+      radiusMiles: mapRadiusMiles(),
+      pickMode: true,
       onPick: function(coord){ applyPickedSpot(coord, ""); },
       onSearchSelect: function(place){ applyPickedSpot(place, place && place.name); }
     });
@@ -2942,7 +2959,6 @@
   function buildDiscoverScreen(){
     var wrap = el("div", "screen discover-screen");
     mountDiscoverHeader(wrap);
-    wrap.appendChild(buildRadiusMapPanel());
 
     if(state.filters.localOnly === true || usableOrigin() || pickMode) wrap.appendChild(buildRadiusRow());
 
@@ -3050,11 +3066,6 @@
       exactBtn.addEventListener("click", askExactLocation);
       row.appendChild(exactBtn);
     }
-    var pickBtn = el("button", "btn-outline pick-spot-btn", "Pick a spot on the map");
-    pickBtn.type = "button";
-    pickBtn.setAttribute("aria-pressed", pickMode ? "true" : "false");
-    pickBtn.addEventListener("click", openPickMode);
-    row.appendChild(pickBtn);
     if(row.children.length) bar.appendChild(row);
     return bar;
   }
@@ -3072,7 +3083,9 @@
     }
 
     if(ids.length === 0){
-      var tonightEmpty = state.filters.feedMode === "happening" && deck.total === 0;
+      var whenFilter = state.filters && state.filters.when;
+      var dateFilter = whenFilter === "tonight" || whenFilter === "today" || /^\d{4}-\d{2}-\d{2}$/.test(whenFilter || "");
+      var tonightEmpty = dateFilter && deck.total === 0;
       if(tonightEmpty){
         deckEl.className = "deck deck-tonight-empty";
         var tonightNote = el("div", "empty-state tonight-empty");
@@ -3659,8 +3672,9 @@
   /* ---------- Filter overlay ---------- */
   function openFilterOverlay(){
     ui.filterDraft = JSON.parse(JSON.stringify(state.filters));
-    renderFilterBody();
+    filterSheetOpen = true;
     openOverlay("#filter-overlay");
+    renderFilterBody();
   }
 
   function buildLocalEventsRow(){
@@ -3698,10 +3712,76 @@
     var group = el("div", "filter-group where-group");
     group.appendChild(el("div", "filter-group-title", "Where"));
     group.appendChild(buildLocalEventsRow());
+    group.appendChild(buildChooseSpot());
     // The slider is the control that filters. Show it whenever a fix is
     // already in use, not only when Local is on.
     group.appendChild((on || usableOrigin()) ? buildHowFarGroup() : buildLocalNote());
     return group;
+  }
+
+  function locationChoiceBlocked(){
+    return locationPhase === "denied" || locationPhase === "timeout" || locationPhase === "unavailable" || locationPhase === "unsupported";
+  }
+
+  function buildChooseSpot(){
+    var block = el("div", "choose-spot");
+    block.appendChild(el("div", "filter-group-title", "Choose a spot"));
+    if(locationChoiceBlocked()){
+      var status = el("p", "choose-spot-status");
+      status.textContent = locationStatusText();
+      block.appendChild(status);
+    }
+    block.appendChild(buildRadiusMapPanel());
+    return block;
+  }
+
+  // Keep the open filter sheet in step with a new fix or a blocked one
+  // without tearing down the map mid-tap.
+  function syncOpenFilters(){
+    syncRadiusMap();
+    if(!filterSheetOpen) return;
+    updateFilterApplyLabel();
+    var body = $("#filter-body");
+    if(!body || typeof body.querySelector !== "function") return;
+    var group = body.querySelector(".where-group");
+    if(!group || typeof group.querySelector !== "function") return;
+    var sub = group.querySelector(".local-events-sub");
+    if(sub){
+      var localOn = ui.filterDraft && ui.filterDraft.localOnly === true;
+      sub.textContent = localOn ? "Only ideas near you" : (usableOrigin() ? "Off · distance still applies" : "Off · showing everything");
+    }
+    var spot = group.querySelector(".choose-spot");
+    if(spot){
+      var status = spot.querySelector(".choose-spot-status");
+      if(locationChoiceBlocked()){
+        if(!status){
+          status = el("p", "choose-spot-status");
+          var title = spot.querySelector(".filter-group-title");
+          if(title && title.nextSibling && spot.insertBefore) spot.insertBefore(status, title.nextSibling);
+          else spot.appendChild(status);
+        }
+        status.textContent = locationStatusText();
+      } else if(status && status.remove){
+        status.remove();
+      }
+    }
+    var wantHow = (ui.filterDraft && ui.filterDraft.localOnly === true) || !!usableOrigin();
+    var how = group.querySelector(".how-far-group");
+    var note = group.querySelector(".local-note");
+    if(wantHow){
+      if(note && note.remove) note.remove();
+      if(!how) group.appendChild(buildHowFarGroup());
+      else {
+        var miles = SparkRadius.clampRadiusMiles(ui.filterDraft.radiusMiles);
+        var value = how.querySelector(".how-far-value");
+        var place = how.querySelector(".how-far-place-name");
+        if(value) value.textContent = SparkRadius.radiusLabel(miles);
+        if(place) place.textContent = nearYouLabel();
+      }
+    } else if(how && how.remove){
+      how.remove();
+      if(!group.querySelector(".local-note")) group.appendChild(buildLocalNote());
+    }
   }
 
   function timeWindowChip(id){
@@ -3715,37 +3795,8 @@
     return chip;
   }
 
-  function buildFeedModeToggle(){
-    if(!ui.filterDraft) ui.filterDraft = JSON.parse(JSON.stringify(state.filters));
-    var mode = ui.filterDraft.feedMode === "happening" ? "happening" : "local";
-    var group = el("div", "filter-group feed-mode-group");
-    var toggle = el("div", "feed-mode");
-    toggle.setAttribute("role", "radiogroup");
-    toggle.setAttribute("aria-label", "What to show");
-    var happeningLabel = SparkFeed.modeLabel({
-      feedMode: "happening",
-      when: ui.filterDraft.when || "tonight"
-    }, new Date());
-    [["local", "Local Activities"], ["happening", happeningLabel]].forEach(function(pair){
-      var on = mode === pair[0];
-      var btn = el("button", "feed-mode-option" + (on ? " is-on" : ""), escapeHtml(pair[1]));
-      btn.type = "button";
-      btn.setAttribute("role", "radio");
-      btn.setAttribute("aria-checked", on ? "true" : "false");
-      btn.addEventListener("click", function(){
-        ui.filterDraft.feedMode = pair[0];
-        if(pair[0] === "happening" && !ui.filterDraft.when) ui.filterDraft.when = "tonight";
-        renderFilterBody();
-      });
-      toggle.appendChild(btn);
-    });
-    group.appendChild(toggle);
-    return group;
-  }
-
   function buildWhenPicker(){
     if(!ui.filterDraft) ui.filterDraft = JSON.parse(JSON.stringify(state.filters));
-    var mode = ui.filterDraft.feedMode === "happening" ? "happening" : "local";
     var when = ui.filterDraft.when || "";
     var group = el("div", "filter-group when-group");
     group.appendChild(el("div", "filter-group-title", "When"));
@@ -3761,7 +3812,7 @@
       });
       chips.appendChild(chip);
     }
-    if(mode === "local") addChip("", "Any time");
+    addChip("", "Any time");
     addChip("tonight", "Tonight");
     addChip("today", "Today");
     group.appendChild(chips);
@@ -3786,10 +3837,11 @@
   }
 
   function renderFilterBody(){
+    if(radiusMapHandle && radiusMapHandle.destroy) radiusMapHandle.destroy();
+    radiusMapHandle = null;
     var body = $("#filter-body");
     var scroll = body.scrollTop || 0;
     body.innerHTML = "";
-    body.appendChild(buildFeedModeToggle());
     body.appendChild(buildWhenPicker());
     body.appendChild(buildWhereGroup());
 
@@ -3861,21 +3913,22 @@
     body.appendChild(ageGroup);
     if(body.scrollTop !== scroll) body.scrollTop = scroll;
     updateFilterApplyLabel();
+    settleRadiusMap();
   }
 
-  $("#filter-close").addEventListener("click", function(){ closeOverlay("#filter-overlay"); });
+  $("#filter-close").addEventListener("click", function(){ closeFilterOverlay(); });
   $("#filter-reset").addEventListener("click", function(){
     ui.filterDraft = defaultState().filters;
     state.filters = defaultState().filters;
     saveState();
-    closeOverlay("#filter-overlay");
+    closeFilterOverlay();
     if(ui.tab === "discover") renderContent();
     refreshRemoteActivities();
   });
   $("#filter-apply").addEventListener("click", function(){
     state.filters = ui.filterDraft;
     saveState();
-    closeOverlay("#filter-overlay");
+    closeFilterOverlay();
     if(ui.tab === "discover") renderContent();
     refreshRemoteActivities();
   });

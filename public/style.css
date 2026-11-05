@@ -779,18 +779,6 @@ border:1.5px solid var(--border); font-family:inherit;
   flex:1 0 100%; margin:0; padding:0 2px;
   font-size:12px; line-height:1.4; font-weight:500; color:var(--text-soft);
 }
-.feed-mode{
-  display:flex; gap:4px; padding:4px; border-radius:16px;
-  background:var(--surface-soft); border:1px solid var(--border);
-}
-.feed-mode-option{
-  flex:1; border:none; background:transparent; color:var(--text-soft);
-  border-radius:12px; padding:10px 8px; font:inherit; font-size:13px; font-weight:800;
-  cursor:pointer; line-height:1.25;
-}
-.feed-mode-option.is-on{
-  background:var(--surface); color:var(--text); box-shadow:var(--shadow-soft);
-}
 .when-date{
   display:block; width:100%; margin-top:10px; padding:10px 12px;
   border-radius:12px; border:1.5px solid var(--border);
@@ -1238,8 +1226,12 @@ background:var(--surface-soft); padding:3px 9px; border-radius:10px;
 /* ---------- Share-a-plan overlay ---------- */
 .plan-share-back{ margin:0 0 4px -10px; display:block; }
 
-/* ---------- Discover screen: radius map ---------- */
-.radius-map-slot{ padding:0 20px 12px; }
+/* ---------- Filters: choose a spot ---------- */
+.choose-spot{ margin-top:14px; }
+.choose-spot-status{
+  margin:0 0 8px; font-size:12.5px; line-height:1.4; font-weight:700; color:var(--text);
+}
+.radius-map-slot{ padding:0 0 4px; }
 .radius-map-search{ margin:0 0 8px; }
 .radius-map-search[hidden]{ display:none; }
 .radius-map-query{ width:100%; }
@@ -1250,9 +1242,10 @@ background:var(--surface-soft); padding:3px 9px; border-radius:10px;
   border-radius:12px; padding:8px 10px; font:inherit; font-size:14px; font-weight:700;
 }
 .radius-map-stage{
-  position:relative; height:220px; border-radius:16px; overflow:hidden;
+  position:relative; width:100%; height:220px; border-radius:16px; overflow:hidden;
   background:var(--surface-soft); border:1.5px solid var(--border);
 }
+.radius-map-stage[hidden]{ display:none !important; }
 .radius-map-canvas{ position:absolute; inset:0; }
 .radius-map-blank{
   position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
@@ -1267,9 +1260,8 @@ background:var(--surface-soft); padding:3px 9px; border-radius:10px;
 }
 .radius-map-pin[hidden]{ display:none; }
 .radius-map-note{
-  position:absolute; left:10px; right:10px; top:10px; z-index:2;
-  margin:0; padding:8px 10px; border-radius:10px;
-  background:color-mix(in srgb, var(--surface) 92%, transparent);
+  margin:0 0 8px; padding:8px 10px; border-radius:10px;
+  background:var(--surface-soft);
   color:var(--text); font-size:12.5px; font-weight:700; line-height:1.35;
 }
 .radius-map-note:empty{ display:none; }

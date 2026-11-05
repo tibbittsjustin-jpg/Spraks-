@@ -1,7 +1,8 @@
-/* Discover feed: Local Activities vs Happening, the Denver date window,
-   the card bar, and new-first ordering. No DOM.
+/* Discover feed: anytime activities and dated events together, the Denver
+   date window, the card bar, and new-first ordering. No DOM.
    Both the browser and the activities query load this file.
-   Dates are America/Denver civil days from SparkOccurrences. */
+   Dates are America/Denver civil days from SparkOccurrences.
+   A saved feed mode does not hide either kind of idea. */
 (function (root, factory) {
   function load(path, globalName) {
     if (typeof module === "object" && module.exports) return require(path);
@@ -48,42 +49,33 @@
     return date >= today && date <= occ.addDays(today, HORIZON_DAYS);
   }
 
-  /* Keep a saved choice only when it is still inside the window.
-     Happening with nothing chosen falls back to Tonight. */
-  function storedWhen(value, now, mode) {
+  /* Keep a saved day only when it is still inside the window.
+     An expired day clears. It does not snap back to Tonight. */
+  function storedWhen(value, now) {
     var when = canonicalWhen(value);
-    var happening = mode === "happening";
     if (when === "tonight" || when === "today") return when;
     if (when && dateAllowed(when, now)) return when;
-    return happening ? "tonight" : "";
+    return "";
   }
 
   function resolveSelection(filters, now) {
-    var mode = feedModeOf(filters);
     var when = canonicalWhen(filters && filters.when);
     var today = occ.denverToday(now);
     var kind = "none";
     var date = null;
-    if (mode === "happening" && !when) when = "tonight";
     if (when === "tonight") {
       kind = "tonight";
       date = today;
     } else if (when === "today") {
       kind = "day";
       date = today;
-    } else if (when) {
-      if (dateAllowed(when, now)) {
-        kind = "day";
-        date = when;
-      } else if (mode === "happening") {
-        kind = "tonight";
-        date = today;
-        when = "tonight";
-      } else {
-        when = "";
-      }
+    } else if (when && dateAllowed(when, now)) {
+      kind = "day";
+      date = when;
+    } else {
+      when = "";
     }
-    return { mode: mode, when: when, kind: kind, date: date, today: today };
+    return { mode: "mixed", when: when, kind: kind, date: date, today: today };
   }
 
   /* Anytime places have no business hours. place_staging.hours is not
@@ -97,20 +89,18 @@
     return true;
   }
 
+  /* Anytime activities and dated events share one list. A When choice
+     limits dated events to that Denver day. It does not drop anytime
+     activities. With no When choice, both kinds stay. feedMode is ignored. */
   function matchesFeed(idea, filters, now) {
     if (!idea || typeof idea !== "object") return false;
     var sel = resolveSelection(filters, now);
     var dated = occ.isDatedEvent(idea);
-    if (sel.mode === "happening") {
-      if (!dated) return false;
-      if (sel.kind === "tonight") return occ.occursTonight(idea, now) === true;
-      return occ.occursOnDateStill(idea, sel.date, now) === true;
-    }
     if (!dated) {
       if (sel.kind === "none") return true;
       return openOnDay(idea, sel.date) === true;
     }
-    if (sel.kind === "none") return false;
+    if (sel.kind === "none") return true;
     if (sel.kind === "tonight") return occ.occursTonight(idea, now) === true;
     return occ.occursOnDateStill(idea, sel.date, now) === true;
   }

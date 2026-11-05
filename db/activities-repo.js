@@ -225,18 +225,18 @@ function rankFlag(value) {
 }
 
 function resolveFeedParams(params, now) {
-  const feedName = feedFlag(params.feed);
+  // feed=local and feed=happening are accepted so an old request does not
+  // 400, and then ignored. Neither value may hide the other kind of row.
+  feedFlag(params.feed);
   let when = whenFlag(params.when);
   const today = occurrences.denverToday(now || new Date());
-  if (!feedName) return { feed: "", when: "", kind: "none", date: null, today: today };
-  if (feedName === "happening" && !when) when = "tonight";
-  if (when === "tonight") return { feed: feedName, when: when, kind: "tonight", date: today, today: today };
-  if (when === "today") return { feed: feedName, when: when, kind: "day", date: today, today: today };
+  if (when === "tonight") return { feed: "", when: when, kind: "tonight", date: today, today: today };
+  if (when === "today") return { feed: "", when: when, kind: "day", date: today, today: today };
   if (when) {
     if (!feed.dateAllowed(when, now || new Date())) throw invalidFilter("when");
-    return { feed: feedName, when: when, kind: "day", date: when, today: today };
+    return { feed: "", when: when, kind: "day", date: when, today: today };
   }
-  return { feed: feedName, when: "", kind: "none", date: null, today: today };
+  return { feed: "", when: "", kind: "none", date: null, today: today };
 }
 
 function dateMatchSql(idx) {
@@ -244,23 +244,11 @@ function dateMatchSql(idx) {
 }
 
 function appendFeedSql(where, values, selection) {
-  if (!selection.feed) return null;
-  let dateIdx = null;
-  if (selection.date) {
-    values.push(selection.date);
-    dateIdx = values.length;
-  }
+  if (!selection || !selection.date) return null;
+  values.push(selection.date);
+  const dateIdx = values.length;
   const dated = "occurrences->>'kind' = 'dates'";
   const anytime = "(occurrences IS NULL OR occurrences->>'kind' IS DISTINCT FROM 'dates')";
-  if (selection.feed === "happening") {
-    where.push(dated);
-    if (dateIdx) where.push(dateMatchSql(dateIdx));
-    return dateIdx;
-  }
-  if (!dateIdx) {
-    where.push(anytime);
-    return null;
-  }
   where.push("(" + anytime + " OR (" + dated + " AND " + dateMatchSql(dateIdx) + "))");
   return dateIdx;
 }
@@ -577,13 +565,10 @@ function buildListQuery(params, opts) {
   shared.columns = selectList(opts);
   const localOnly = localOnlyFlag(params.localOnly);
   const selection = resolveFeedParams(params);
-  const dateIdx = appendFeedSql(shared.where, shared.values, selection);
+  appendFeedSql(shared.where, shared.values, selection);
   const rank = rankFlag(params.rank);
   if (rank === "new") {
     if (cursor && !isRankPhase(cursor.p)) throw invalidFilter("cursor");
-    if (selection.feed === "happening") {
-      return buildHappeningRankQuery(params, shared, selection, limit, cursor, localOnly, dateIdx);
-    }
     return buildLocalRankQuery(params, shared, selection, limit, cursor, localOnly);
   }
   if (cursor && isRankPhase(cursor.p)) throw invalidFilter("cursor");
@@ -887,12 +872,9 @@ async function listActivities(params, db) {
     const selected = audience.normalizeFilterSelection(splitList(params.audience));
     if (selected.length) items = items.filter(item => audience.matchesAudience(item, selected));
   }
-  const selection = built.feed
-    ? { feed: built.feed, when: built.whenToken || "" }
-    : resolveFeedParams(params || {});
-  if (selection.feed) {
+  const selection = resolveFeedParams(params || {});
+  if (selection.when) {
     items = items.filter(item => feed.matchesFeed(item, {
-      feedMode: selection.feed,
       when: selection.when
     }, new Date()));
   }

@@ -236,7 +236,9 @@ section("filter sheet chips and help", () => {
   check("unrelated filters stay on the sheet",
     sheet.indexOf("Budget") !== -1 && sheet.indexOf("Food Involved?") !== -1 &&
     sheet.indexOf("Hide 21+") !== -1 && sheet.indexOf("Where") !== -1 &&
-    sheet.indexOf("Local Activities") !== -1 && sheet.indexOf("Time of Day") !== -1);
+    sheet.indexOf("Choose a spot") !== -1 && sheet.indexOf("Time of Day") !== -1);
+  check("the Local Activities toggle is not on the sheet",
+    sheet.indexOf("Local Activities") === -1 && sheet.indexOf("Happening Tonight") === -1);
 
   const familyChip = chips.children[0];
   check("Family Friendly points at the help",

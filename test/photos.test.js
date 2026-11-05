@@ -27,6 +27,8 @@ const PHOTOS_ROOT = path.join(PUBLIC, "photos");
 /* Same ids as test/removed-ids.test.js. They are not in the map.
    Id 340 was already absent. */
 const REMOVED = [336, 778, 1424, 1548];
+/* No suitable licensed real photo. These catalog ideas use the cover. */
+const COVER_FALLBACK = [176, 730, 762, 953, 954, 1034, 1487, 1691, 1853];
 
 function loadPhotoMap() {
   const sandbox = {};
@@ -60,7 +62,9 @@ section("every idea id exists and every photo file resolves", () => {
   check("photos.js is the photos.json map", JSON.stringify(fromJs) === JSON.stringify(json));
 
   const ids = Object.keys(json);
-  check("the approved map covers the catalog", ids.length >= ideas.length, String(ids.length));
+  check("the approved map covers the catalog except reviewed cover fallbacks",
+    ids.length === ideas.length - COVER_FALLBACK.length,
+    ids.length + " of " + ideas.length);
 
   const unknown = [];
   const missingFiles = [];
@@ -85,8 +89,11 @@ section("every idea id exists and every photo file resolves", () => {
   check("every photos.json id exists in the catalog",
     unknown.length === 0, unknown.slice(0, 8).join(","));
 
-  const uncovered = ideas.filter(idea => !json[String(idea.id)]).map(idea => idea.id);
-  check("every catalog idea has a photos.json entry", uncovered.length === 0, uncovered.slice(0, 8).join(","));
+  const uncovered = ideas.filter(idea => !json[String(idea.id)]).map(idea => idea.id).sort((a, b) => a - b);
+  const expectedCover = COVER_FALLBACK.slice().sort((a, b) => a - b);
+  check("only the reviewed cover-fallback ids omit a photo",
+    uncovered.length === expectedCover.length && expectedCover.every((id, i) => uncovered[i] === id),
+    uncovered.join(","));
   check("every photo url is a file under public/photos",
     missingFiles.length === 0 && unsafe.length === 0,
     missingFiles.slice(0, 4).concat(unsafe.slice(0, 4)).join(","));
@@ -94,16 +101,17 @@ section("every idea id exists and every photo file resolves", () => {
   const onDisk = walkFiles(PHOTOS_ROOT, []);
   const extra = onDisk.filter(p => !referenced.has(p));
   check("every file in public/photos is used by the map", extra.length === 0, extra.slice(0, 4).join(","));
-  check("377 images in the approved set", referenced.size === 377 && onDisk.length === 377,
+  check("379 images in the approved set", referenced.size === 379 && onDisk.length === 379,
     "referenced " + referenced.size + " disk " + onDisk.length);
 
   const credits = fs.readFileSync(path.join(PUBLIC, "CREDITS.md"), "utf8");
   const aiLines = credits.split("\n").filter(line => line.indexOf("AI-generated image") !== -1 && line.indexOf("photos/") !== -1);
-  check("seven AI-generated images are credited", aiLines.length === 7, String(aiLines.length));
+  check("no AI-generated images remain in the credits", aiLines.length === 0, String(aiLines.length));
   const page = fs.readFileSync(path.join(PUBLIC, "credits.html"), "utf8");
   check("credits page is linked from the app and names a license",
-    page.indexOf("AI-generated image") !== -1 &&
+    page.indexOf("AI-generated image") === -1 &&
     page.indexOf("creativecommons.org") !== -1 &&
+    page.indexOf("unsplash.com/license") !== -1 &&
     page.indexOf('href="./"') !== -1);
 });
 

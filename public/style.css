@@ -456,6 +456,19 @@ position:absolute; height:130%; width:auto; max-width:none;
 left:50%; top:-5.4%; transform:translateX(-50%);
 pointer-events:none; user-select:none; -webkit-user-drag:none;
 }
+/* CC BY-SA frames are letterboxed 4:5. Show the whole frame. */
+.swipe-card.has-photo .card-photo img.photo-fit{
+width:100%; height:100%; max-width:100%; left:0; top:0; transform:none;
+object-fit:contain; object-position:center; background:#141816;
+}
+.photo-representative{
+margin:0; font-size:12px; font-weight:800; line-height:1.25; color:#fff;
+background:rgba(14,15,18,.82); border-radius:10px; padding:6px 8px;
+}
+.swipe-card.has-photo .card-photo .photo-representative{
+position:absolute; z-index:4; left:12px; right:12px; top:52px;
+pointer-events:none;
+}
 .swipe-card.has-photo .card-photo-scrim{
 position:absolute; left:0; right:0; bottom:0; height:64%; z-index:1;
 pointer-events:none;
@@ -585,6 +598,13 @@ background:linear-gradient(to top, rgba(14,15,18,.84) 0%, rgba(14,15,18,.28) 48%
 .detail-hero.has-photo .dh-icon{ display:none; }
 .detail-hero.has-photo .dh-cat,
 .detail-hero.has-photo .dh-swipe-hint{ text-shadow:0 1px 2px rgba(0,0,0,.45); }
+.detail-hero.has-photo.photo-fit{
+background-size:contain; background-repeat:no-repeat; background-color:#141816;
+}
+.detail-hero.has-photo .photo-representative{ margin-top:8px; align-self:stretch; }
+.saved-photo-representative{
+margin-top:6px; color:var(--color-text); background:var(--surface-soft);
+}
 .detail-title{ font-size:24px; font-weight:800; color:var(--text); margin:18px 0 6px; }
 .detail-desc{ font-size:14.5px; line-height:1.6; color:var(--text-soft); margin:0 0 16px; }
 .detail-materials{ margin:0 0 16px; }
@@ -1105,6 +1125,7 @@ width:68px; height:68px; border-radius:12px; overflow:hidden; flex-shrink:0;
 background:var(--surface-soft); display:flex; align-items:center; justify-content:center;
 }
 .saved-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.saved-thumb img.photo-fit{ object-fit:contain; background:#141816; }
 .saved-thumb.is-placeholder{
 background:color-mix(in srgb, var(--color-jade) 14%, var(--color-surface));
 color:var(--accent);

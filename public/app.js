@@ -7,8 +7,8 @@
   var IDEAS_BY_ID = {};
   IDEAS_DATA.forEach(function(i){ IDEAS_BY_ID[i.id] = i; });
   // photos.json (loaded as IDEA_PHOTOS) supplies { url, credit } for each
-  // idea. License and source links stay on the credits page. Ideas with no
-  // entry keep the generated cover.
+  // idea, plus optional representative and fit. License and source links
+  // stay on the credits page. Ideas with no entry keep the generated cover.
   applyIdeaPhotos(typeof IDEA_PHOTOS === "undefined" ? null : IDEA_PHOTOS);
   applyIdeaPins(typeof IDEA_PINS === "undefined" ? null : IDEA_PINS);
 
@@ -17,11 +17,21 @@
     IDEAS_DATA.forEach(function(idea){
       var entry = map[idea.id] || map[String(idea.id)];
       if(!entry || typeof entry !== "object") return;
-      var url = typeof entry.url === "string" ? entry.url.trim() : "";
-      if(!url) return;
-      var credit = typeof entry.credit === "string" ? entry.credit : "";
-      idea.photo = { url: url, credit: credit };
+      var photo = photoFromCatalogEntry(entry);
+      if(photo) idea.photo = photo;
     });
+  }
+
+  // representative marks a generic stand-in that must say it is not the
+  // named venue or event. fit "contain" keeps a CC BY-SA frame uncropped.
+  function photoFromCatalogEntry(entry){
+    if(!entry || typeof entry !== "object") return null;
+    var url = typeof entry.url === "string" ? entry.url.trim() : "";
+    if(!url) return null;
+    var photo = { url: url, credit: typeof entry.credit === "string" ? entry.credit : "" };
+    if(entry.representative === true) photo.representative = true;
+    if(entry.fit === "contain") photo.fit = "contain";
+    return photo;
   }
 
   // Confident pins only. An idea that already has a point keeps it.
@@ -1032,8 +1042,8 @@
     if(typeof IDEA_PHOTOS !== "undefined" && IDEA_PHOTOS){
       var entry = IDEA_PHOTOS[idea.id] || IDEA_PHOTOS[String(idea.id)];
       if(entry && typeof entry === "object"){
-        var url = typeof entry.url === "string" ? entry.url.trim() : "";
-        if(url) idea.photo = { url: url, credit: typeof entry.credit === "string" ? entry.credit : "" };
+        var photo = photoFromCatalogEntry(entry);
+        if(photo) idea.photo = photo;
       }
     }
     if(typeof IDEA_PINS !== "undefined" && IDEA_PINS && !SparkRadius.ideaPoint(idea)){
@@ -3175,7 +3185,16 @@
     var url = typeof photo.url === "string" ? photo.url.trim() : "";
     if(!isSafePhotoUrl(url)) return null;
     var credit = typeof photo.credit === "string" ? photo.credit.trim() : "";
-    return { url: url, credit: credit };
+    var out = { url: url, credit: credit };
+    if(photo.representative === true) out.representative = true;
+    if(photo.fit === "contain") out.fit = "contain";
+    return out;
+  }
+
+  var REPRESENTATIVE_LABEL = "Representative photo — not this venue/event.";
+
+  function representativeLabelHtml(){
+    return '<p class="photo-representative" role="note">' + escapeHtml(REPRESENTATIVE_LABEL) + "</p>";
   }
 
   function isSafePhotoUrl(url){
@@ -3194,7 +3213,8 @@
     var rank = typeof depth === "number" ? depth : 1;
     var loading = rank > 1 ? "lazy" : "eager";
     var priority = rank === 0 ? "high" : "low";
-    return '<img alt="" width="800" height="1000" decoding="async" draggable="false" loading="' + loading + '" fetchpriority="' + priority + '" src="' + escapeHtml(photo.url) + '">';
+    var fit = photo.fit === "contain" ? ' class="photo-fit"' : "";
+    return '<img' + fit + ' alt="" width="800" height="1000" decoding="async" draggable="false" loading="' + loading + '" fetchpriority="' + priority + '" src="' + escapeHtml(photo.url) + '">';
   }
 
   // "Half-day (2-5 hrs)" → "half-day". The tile caption is the short form.
@@ -3378,7 +3398,8 @@
     var credit = photo.credit
       ? '<div class="card-photo-credit">' + escapeHtml(photo.credit) + creditSafetyMarkup(photo.credit) + '</div>'
       : "";
-    return happeningBarHtml(idea) + '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
+    var rep = photo.representative ? representativeLabelHtml() : "";
+    return happeningBarHtml(idea) + '<div class="card-photo">' + photoImageHtml(photo, depth) + rep + '</div>' +
       '<div class="card-photo-scrim"></div>' +
       distanceBadgeHtml(idea) +
       cardCornerHtml(idea) +
@@ -4044,11 +4065,13 @@
     var heroPhoto = ideaPhoto(idea);
     if(heroPhoto){
       hero.classList.add("has-photo");
+      if(heroPhoto.fit === "contain") hero.classList.add("photo-fit");
       hero.style.backgroundImage = "url(\"" + heroPhoto.url.replace(/"/g, "") + "\")";
     } else {
       hero.setAttribute("style", getCoverArtStyle(idea));
     }
     hero.innerHTML = '<div class="dh-icon">' + ideaIcon(idea) + '</div><div class="dh-cat">' + escapeHtml(idea.category) + '</div>' +
+      (heroPhoto && heroPhoto.representative ? representativeLabelHtml() : "") +
       '<div class="dh-swipe-hint">' + icon("chevron-up") + ' Swipe up to save</div>';
     wrap.appendChild(hero);
     attachDetailHeroSwipeUp(hero, ideaId);
@@ -5278,10 +5301,11 @@
     var card = el("div", "saved-card" + (idea && idea.unavailable ? " unavailable-item" : "") + (past ? " is-past" : "") + (likedView && likedView.liked ? " is-liked" : ""));
     var photo = ideaPhoto(idea);
     var thumb = el("div", "saved-thumb" + (photo ? " has-photo" : " is-placeholder"));
-    if(photo) thumb.innerHTML = '<img alt="" src="' + escapeHtml(photo.url) + '">';
+    if(photo) thumb.innerHTML = '<img alt="" src="' + escapeHtml(photo.url) + '"' + (photo.fit === "contain" ? ' class="photo-fit"' : "") + '>';
     else thumb.innerHTML = icon("bookmark");
     var body = el("div", "saved-card-body");
     body.appendChild(el("div", "saved-card-title", escapeHtml(idea.title)));
+    if(photo && photo.representative) body.appendChild(el("p", "photo-representative saved-photo-representative", escapeHtml(REPRESENTATIVE_LABEL)));
     appendSourceCredit(body, idea);
     var meta = savedMetaParts(idea, opts.doneDate);
     if(meta.length) body.appendChild(el("div", "saved-card-meta", escapeHtml(meta.join(" · "))));

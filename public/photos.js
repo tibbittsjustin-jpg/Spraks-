@@ -45,10 +45,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Snowshoeing_in_Hokkaido.jpg"
  },
  "9": {
-  "url": "photos/broom-hockey/broom-hockey-1.webp",
-  "credit": "Photo: J.H. Bufford's Lith. Modified by Anetode at en.… / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Jamaica_Pond,_Wext_Roxbury,_MA_-_skating_scene_(1859).jpg"
+  "url": "photos/ice-skating/ice-skating-1.webp",
+  "credit": "Photo: René Vlak / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Skating_and_ice_sailing_on_the_Gouwzee.jpg",
+  "representative": true
  },
  "10": {
   "url": "photos/sandboarding/sandboarding-1.webp",
@@ -231,10 +232,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Animal_tracks_in_snow_at_Rix%C3%B6_Marina.jpg"
  },
  "40": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "41": {
   "url": "photos/sledding/sledding-1.webp",
@@ -417,10 +418,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Snow_Volley_Italia_2016.jpg"
  },
  "71": {
-  "url": "photos/broom-hockey/broom-hockey-1.webp",
-  "credit": "Photo: J.H. Bufford's Lith. Modified by Anetode at en.… / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Jamaica_Pond,_Wext_Roxbury,_MA_-_skating_scene_(1859).jpg"
+  "url": "photos/ice-skating/ice-skating-1.webp",
+  "credit": "Photo: René Vlak / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Skating_and_ice_sailing_on_the_Gouwzee.jpg"
  },
  "72": {
   "url": "photos/ice-cream/ice-cream-2.webp",
@@ -927,10 +928,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Scuba_diver_in_silhouette.jpg"
  },
  "156": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "157": {
   "url": "photos/toy-boat-race/toy-boat-race-2.webp",
@@ -1045,12 +1046,6 @@ var IDEA_PHOTOS = {
   "credit": "Photo: pbkwee / Wikimedia Commons, CC BY 2.0",
   "license_url": "https://creativecommons.org/licenses/by/2.0",
   "source_url": "https://commons.wikimedia.org/wiki/File:Kayaking_on_Lake_Waikaremoana.jpg"
- },
- "176": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
  },
  "177": {
   "url": "photos/water-games/water-games-2.webp",
@@ -1209,10 +1204,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:HIKERS_TERRY_MCGAW_AND_GLEN_DENNY_ON_THE_TRAIL_TO_DELICATE_ARCH_IN_ARCHES_NATIONAL_PARK_-_NARA_-_545751.jpg"
  },
  "203": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "204": {
   "url": "photos/botanical-garden/botanical-garden-1.webp",
@@ -1233,10 +1228,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "207": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "208": {
   "url": "photos/scenic-overlook/scenic-overlook-2.webp",
@@ -1419,10 +1414,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Old_Spanish_National_Historic_Trail,_Utah_(36740684795).jpg"
  },
  "238": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "239": {
   "url": "photos/rock-climbing/rock-climbing-1.webp",
@@ -1437,10 +1432,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Rappelling.jpg"
  },
  "241": {
-  "url": "photos/ropes-course-zipline/ropes-course-zipline-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/ropes-course-zipline/zipline-2.webp",
+  "credit": "Photo: Vyolltsa / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Zipline_game_located_in_Belsh_Albania_in_2026.jpg",
+  "representative": true
  },
  "242": {
   "url": "photos/axe-throwing/axe-throwing-1.webp",
@@ -1473,10 +1469,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Timpanogos_Cave_National_Monument_-_49397325341.jpg"
  },
  "247": {
-  "url": "photos/ropes-course-zipline/ropes-course-zipline-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/ropes-course-zipline/ropes-course-2.webp",
+  "credit": "Photo: Lorne Sunley / Wikimedia Commons, CC BY 3.0",
+  "license_url": "https://creativecommons.org/licenses/by/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Ropes_course_at_Camp_Stephens_(YMCA-YWCA)_01.jpg"
  },
  "248": {
   "url": "photos/scavenger-hunt/scavenger-hunt-1.webp",
@@ -1977,10 +1973,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Top_of_Giant_Ocean_Tank_at_New_England_Aquarium_Oct_2024_1.jpg"
  },
  "331": {
-  "url": "photos/ropes-course-zipline/ropes-course-zipline-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/ropes-course-zipline/zipline-2.webp",
+  "credit": "Photo: Vyolltsa / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Zipline_game_located_in_Belsh_Albania_in_2026.jpg",
+  "representative": true
  },
  "332": {
   "url": "photos/hiking-trail/hiking-trail-1.webp",
@@ -2001,10 +1998,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Bench_beside_the_path_-_geograph.org.uk_-_6461109.jpg"
  },
  "335": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/fish-spa/fish-spa-1.webp",
+  "credit": "Photo: Stig Nygaard / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Fish_pedicure_natural_(42510512872).jpg",
+  "representative": true
  },
  "337": {
   "url": "photos/airport-planes/airport-planes-1.webp",
@@ -2721,10 +2719,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Bird_watching_PA250107_cave_Trail.jpg"
  },
  "457": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "458": {
   "url": "photos/picnic/picnic-1.webp",
@@ -2733,10 +2731,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:BC_-_Picnic_(32074357744).jpg"
  },
  "459": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "460": {
   "url": "photos/foraging/foraging-3.webp",
@@ -2847,10 +2845,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Hikers_near_the_summit_of_Bald_Mountain_(Uinta_Range).jpg"
  },
  "478": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "479": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
@@ -2925,10 +2923,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:BC_-_Picnic_(32074357744).jpg"
  },
  "491": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/massage/massage-1.webp",
+  "credit": "Photo: gaelx / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Massage_on_shoulder.jpg",
+  "fit": "contain"
  },
  "492": {
   "url": "photos/geocaching/geocaching-2.webp",
@@ -2973,10 +2972,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "499": {
-  "url": "photos/painting-outdoors/painting-outdoors-3.webp",
-  "credit": "Photo: Paul Fischer / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Gustave_Fischer_-_The_Artist_Painting_En_Plein_Air.jpg"
+  "url": "photos/painting-outdoors/painting-outdoors-4.webp",
+  "credit": "Photo: Jay Elhard, Denali National Park and Preserve / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Woman_uses_small_spruce_to_brace_easel_(13371980714).jpg"
  },
  "500": {
   "url": "photos/campfire-smores/campfire-smores-2.webp",
@@ -3165,10 +3164,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Riverwalk_Golf_Club_Driving_range.jpg"
  },
  "531": {
-  "url": "photos/broom-hockey/broom-hockey-1.webp",
-  "credit": "Photo: J.H. Bufford's Lith. Modified by Anetode at en.… / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Jamaica_Pond,_Wext_Roxbury,_MA_-_skating_scene_(1859).jpg"
+  "url": "photos/broom-hockey/broom-hockey-2.webp",
+  "credit": "Photo: U.S. Army / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:2018_BOSS_Strong_Broomball_tournament_(45688177341).jpg"
  },
  "532": {
   "url": "photos/driving-range-golf/driving-range-golf-1.webp",
@@ -4358,12 +4357,6 @@ var IDEA_PHOTOS = {
   "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
   "source_url": "https://commons.wikimedia.org/wiki/File:TieDyeShirtMpegMan.jpg"
  },
- "730": {
-  "url": "photos/resin-art/resin-art-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
- },
  "731": {
   "url": "photos/concrete-pottery-casting/concrete-pottery-casting-2.webp",
   "credit": "Photo: Tony Webster / Wikimedia Commons, CC BY 2.0",
@@ -4549,12 +4542,6 @@ var IDEA_PHOTOS = {
   "credit": "Photo: Tony Webster / Wikimedia Commons, CC BY 2.0",
   "license_url": "https://creativecommons.org/licenses/by/2.0",
   "source_url": "https://commons.wikimedia.org/wiki/File:Big_Concrete_Planters_(53816879695).jpg"
- },
- "762": {
-  "url": "photos/resin-art/resin-art-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
  },
  "763": {
   "url": "photos/painting-class/painting-class-2.webp",
@@ -5655,10 +5642,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:A_dancing_couple_(48615037661).jpg"
  },
  "947": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "948": {
   "url": "photos/cooking-home/cooking-home-3.webp",
@@ -5667,10 +5654,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Cooking_on_Xmas_Eve_2006_New_Orleans.jpg"
  },
  "949": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "950": {
   "url": "photos/cooking-home/cooking-home-4.webp",
@@ -5679,28 +5666,17 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Cooking_a_delicious_meal_with_fresh_ingredients_at_a_rustic_outdoor_kitchen.jpg"
  },
  "951": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/karaoke/karaoke-2.webp",
+  "credit": "Photo: Kane Reinholdtsen / Unsplash, Unsplash License",
+  "license_url": "https://unsplash.com/license",
+  "source_url": "https://unsplash.com/photos/LETdkk7wHQk",
+  "representative": true
  },
  "952": {
   "url": "photos/cooking-home/cooking-home-3.webp",
   "credit": "Photo: Bart Everson / Wikimedia Commons, CC BY 2.0",
   "license_url": "https://creativecommons.org/licenses/by/2.0",
   "source_url": "https://commons.wikimedia.org/wiki/File:Cooking_on_Xmas_Eve_2006_New_Orleans.jpg"
- },
- "953": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
- },
- "954": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
  },
  "955": {
   "url": "photos/breakfast-cooking/breakfast-cooking-3.webp",
@@ -6176,12 +6152,6 @@ var IDEA_PHOTOS = {
   "license_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg#Licensing",
   "source_url": "https://commons.wikimedia.org/wiki/File:Horseback_Riding_on_Limberlost_Trail_(51832760724).jpg"
  },
- "1034": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
- },
  "1035": {
   "url": "photos/video-making/video-making-1.webp",
   "credit": "Photo: Jacek Halicki / Wikimedia Commons, CC BY-SA 4.0",
@@ -6279,10 +6249,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Stage_version_of_the_Uncle%E2%80%99s_Dream,_2018.2.jpg"
  },
  "1051": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/karaoke/karaoke-2.webp",
+  "credit": "Photo: Kane Reinholdtsen / Unsplash, Unsplash License",
+  "license_url": "https://unsplash.com/license",
+  "source_url": "https://unsplash.com/photos/LETdkk7wHQk",
+  "representative": true
  },
  "1052": {
   "url": "photos/dance-class/dance-class-1.webp",
@@ -6381,10 +6352,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Miller_Outdoor_Theater_Houston.jpg"
  },
  "1068": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/karaoke/karaoke-2.webp",
+  "credit": "Photo: Kane Reinholdtsen / Unsplash, Unsplash License",
+  "license_url": "https://unsplash.com/license",
+  "source_url": "https://unsplash.com/photos/LETdkk7wHQk",
+  "representative": true
  },
  "1069": {
   "url": "photos/drive-in/drive-in-2.webp",
@@ -6597,10 +6569,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Clase_de_salsa_en_Iberoconf_2023.jpg"
  },
  "1104": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1105": {
   "url": "photos/outdoor-movie/outdoor-movie-2.webp",
@@ -6615,28 +6587,28 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Milford_Drive-In_Theater.jpg"
  },
  "1107": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1108": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1109": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1110": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1111": {
   "url": "photos/outdoor-movie/outdoor-movie-2.webp",
@@ -6645,10 +6617,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Screen_for_the_cinema_of_festival_Anibar,_in_the_Lake_with_form_of_map_of_ex-Yogoslavia,_Peja.jpg"
  },
  "1112": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1113": {
   "url": "photos/video-making/video-making-1.webp",
@@ -6657,16 +6629,16 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:2016_Operator_kamery_w_czasie_pracy.JPG"
  },
  "1114": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1115": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1116": {
   "url": "photos/outdoor-movie/outdoor-movie-2.webp",
@@ -6681,40 +6653,40 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:NSA_Naples_FFSC_Promotes_Domestic_Violence_Awareness_Month_(9999768).jpg"
  },
  "1118": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1119": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1120": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1121": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1122": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1123": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1124": {
   "url": "photos/movie-theater/movie-theater-2.webp",
@@ -6723,88 +6695,88 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Landmark%27s_Atlantic_Plumbing_Cinema_screening_room.jpg"
  },
  "1125": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1126": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1127": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1128": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1129": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1130": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1131": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1132": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1133": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1134": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1135": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1136": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1137": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1138": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1139": {
   "url": "photos/video-making/video-making-3.webp",
@@ -6819,10 +6791,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Gardena_Cinema_-_Screen.jpg"
  },
  "1141": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1142": {
   "url": "photos/observatory-stars/observatory-stars-2.webp",
@@ -6831,16 +6803,16 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Night_Sky_at_Chesler_Park_(21523214929).jpg"
  },
  "1143": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1144": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1145": {
   "url": "photos/mocktail-bar/mocktail-bar-2.webp",
@@ -6849,10 +6821,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Selbstgemachte_Limonade.jpg"
  },
  "1146": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1147": {
   "url": "photos/video-making/video-making-1.webp",
@@ -6861,16 +6833,16 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:2016_Operator_kamery_w_czasie_pracy.JPG"
  },
  "1148": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1149": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1150": {
   "url": "photos/outdoor-movie/outdoor-movie-2.webp",
@@ -6885,10 +6857,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:2016_Operator_kamery_w_czasie_pracy.JPG"
  },
  "1152": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1153": {
   "url": "photos/movie-theater/movie-theater-2.webp",
@@ -6903,10 +6875,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Stand-up_comedy_Bulgaria_Club.jpg"
  },
  "1155": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1156": {
   "url": "photos/costume-party/costume-party-1.webp",
@@ -6915,10 +6887,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Halloween_costume_contest_DVIDS63067.jpg"
  },
  "1157": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1158": {
   "url": "photos/outdoor-movie/outdoor-movie-2.webp",
@@ -6927,16 +6899,16 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Screen_for_the_cinema_of_festival_Anibar,_in_the_Lake_with_form_of_map_of_ex-Yogoslavia,_Peja.jpg"
  },
  "1159": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1160": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1161": {
   "url": "photos/bookstore/bookstore-2.webp",
@@ -6951,10 +6923,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Gardena_Cinema_-_Screen.jpg"
  },
  "1163": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1164": {
   "url": "photos/music-making/music-making-1.webp",
@@ -7887,10 +7859,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Jeroen_Van_Nieuwenhove.jpg"
  },
  "1319": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1320": {
   "url": "photos/breakfast-cooking/breakfast-cooking-3.webp",
@@ -7905,10 +7877,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Dirty_Girl_2013_(9445017434).jpg"
  },
  "1322": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/karaoke/karaoke-2.webp",
+  "credit": "Photo: Kane Reinholdtsen / Unsplash, Unsplash License",
+  "license_url": "https://unsplash.com/license",
+  "source_url": "https://unsplash.com/photos/LETdkk7wHQk",
+  "representative": true
  },
  "1323": {
   "url": "photos/coffee-cafe/coffee-cafe-1.webp",
@@ -8043,10 +8016,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Paris_Motor_Show_2018,_Paris_(1Y7A1639).jpg"
  },
  "1345": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/barber-home-spa/barber-home-spa-2.webp",
+  "credit": "Photo: Nenad Stojkovic / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Barber_cutting_hair_with_comb._Back_view_of_young_man_in_barber_shop.jpg"
  },
  "1346": {
   "url": "photos/catapult-builds/catapult-builds-1.webp",
@@ -8055,10 +8028,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Pinewood_derby_cars_01.jpg"
  },
  "1347": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/barber-home-spa/barber-home-spa-2.webp",
+  "credit": "Photo: Nenad Stojkovic / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Barber_cutting_hair_with_comb._Back_view_of_young_man_in_barber_shop.jpg"
  },
  "1348": {
   "url": "photos/bookstore/bookstore-2.webp",
@@ -8517,10 +8490,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Jeroen_Van_Nieuwenhove.jpg"
  },
  "1425": {
-  "url": "photos/rage-room/rage-room-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/fire-extinguisher/fire-extinguisher-1.webp",
+  "credit": "Photo: Oregon Department of Transportation / Wikimedia Commons, CC BY 2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Fire_extinguisher_training_(9311583046).jpg"
  },
  "1426": {
   "url": "photos/skipping-stones/skipping-stones-2.webp",
@@ -8888,12 +8861,6 @@ var IDEA_PHOTOS = {
   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "source_url": "https://commons.wikimedia.org/wiki/File:Stand-up_comedy_Bulgaria_Club.jpg"
  },
- "1487": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
- },
  "1488": {
   "url": "photos/lost-pets-prank/lost-pets-prank-9.webp",
   "credit": "Photo: istolethetv from Hong Kong, China / Wikimedia Commons, CC BY 2.0",
@@ -9081,10 +9048,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Zack_Fox_stand_up.jpg"
  },
  "1519": {
-  "url": "photos/karaoke/karaoke-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/karaoke/karaoke-2.webp",
+  "credit": "Photo: Kane Reinholdtsen / Unsplash, Unsplash License",
+  "license_url": "https://unsplash.com/license",
+  "source_url": "https://unsplash.com/photos/LETdkk7wHQk",
+  "representative": true
  },
  "1520": {
   "url": "photos/comedy-show/comedy-show-1.webp",
@@ -9135,10 +9103,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Zack_Fox_stand_up.jpg"
  },
  "1528": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1529": {
   "url": "photos/comedy-show/comedy-show-1.webp",
@@ -9159,10 +9127,10 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Coloured,_textured_craft_card.jpg"
  },
  "1532": {
-  "url": "photos/movie-night-home/movie-night-home-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1533": {
   "url": "photos/painting-class/painting-class-1.webp",
@@ -9309,16 +9277,17 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Planning_for_the_weekend_(Unsplash).jpg"
  },
  "1558": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/massage/massage-1.webp",
+  "credit": "Photo: gaelx / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Massage_on_shoulder.jpg",
+  "fit": "contain"
  },
  "1559": {
-  "url": "photos/movie-night-home/movie-night-home-2.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/movie-night-home/movie-night-home-3.webp",
+  "credit": "Photo: CDC / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Person_watching_television_on_couch.tiff"
  },
  "1560": {
   "url": "photos/bucket-list-planning/bucket-list-planning-2.webp",
@@ -9399,10 +9368,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Coloured,_textured_craft_card.jpg"
  },
  "1573": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/massage/massage-1.webp",
+  "credit": "Photo: gaelx / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Massage_on_shoulder.jpg",
+  "fit": "contain"
  },
  "1574": {
   "url": "photos/bucket-list-planning/bucket-list-planning-3.webp",
@@ -10106,12 +10076,6 @@ var IDEA_PHOTOS = {
   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "source_url": "https://commons.wikimedia.org/wiki/File:Hot-air_balloon_in_Tambov_-_02.jpg"
  },
- "1691": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
- },
  "1692": {
   "url": "photos/road-rally-scenic-drive/road-rally-scenic-drive-2.webp",
   "credit": "Photo: Ken Lund from Reno, Nevada, USA / Wikimedia Commons, CC BY-SA 2.0",
@@ -10131,10 +10095,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:IFLY_Hollywood_3.JPG"
  },
  "1695": {
-  "url": "photos/ropes-course-zipline/ropes-course-zipline-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/ropes-course-zipline/zipline-2.webp",
+  "credit": "Photo: Vyolltsa / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Zipline_game_located_in_Belsh_Albania_in_2026.jpg",
+  "representative": true
  },
  "1696": {
   "url": "photos/helicopter-tour/helicopter-tour-1.webp",
@@ -11067,22 +11032,17 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:2017_Harry_S_Truman_Bowling_Alley_-_(Old)_Eisenhower_Executive_Office_Building.jpg"
  },
  "1851": {
-  "url": "photos/broom-hockey/broom-hockey-1.webp",
-  "credit": "Photo: J.H. Bufford's Lith. Modified by Anetode at en.… / Wikimedia Commons, Public domain",
-  "license_url": "",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Jamaica_Pond,_Wext_Roxbury,_MA_-_skating_scene_(1859).jpg"
+  "url": "photos/ice-skating/ice-skating-1.webp",
+  "credit": "Photo: René Vlak / Wikimedia Commons, CC0",
+  "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Skating_and_ice_sailing_on_the_Gouwzee.jpg",
+  "representative": true
  },
  "1852": {
   "url": "photos/axe-throwing/axe-throwing-1.webp",
   "credit": "Photo: Kritzolina / Wikimedia Commons, CC BY-SA 4.0",
   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "source_url": "https://commons.wikimedia.org/wiki/File:Axe_throwing_at_the_Cavalluna_Kids_Show_01.jpg"
- },
- "1853": {
-  "url": "photos/rage-room/rage-room-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
  },
  "1854": {
   "url": "photos/axe-throwing/axe-throwing-1.webp",
@@ -11391,10 +11351,11 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:In_and_around_Bariloche,_Argentina_-_day_t5rip_up_a_small_lakeside_chairlift_with_spectacular_views_of_the_lakes_-_(24552859194).jpg"
  },
  "1905": {
-  "url": "photos/ropes-course-zipline/ropes-course-zipline-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/ropes-course-zipline/ropes-course-2.webp",
+  "credit": "Photo: Lorne Sunley / Wikimedia Commons, CC BY 3.0",
+  "license_url": "https://creativecommons.org/licenses/by/3.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Ropes_course_at_Camp_Stephens_(YMCA-YWCA)_01.jpg",
+  "representative": true
  },
  "1906": {
   "url": "photos/geyser-hot-springs/geyser-hot-springs-2.webp",
@@ -11511,10 +11472,12 @@ var IDEA_PHOTOS = {
   "source_url": "https://commons.wikimedia.org/wiki/File:Record_Store_Day_@_Rough_Trade_East_09.jpg"
  },
  "1925": {
-  "url": "photos/barber-home-spa/barber-home-spa-1.webp",
-  "credit": "AI-generated image",
-  "license_url": "",
-  "source_url": ""
+  "url": "photos/massage/massage-1.webp",
+  "credit": "Photo: gaelx / Wikimedia Commons, CC BY-SA 2.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Massage_on_shoulder.jpg",
+  "fit": "contain",
+  "representative": true
  },
  "1926": {
   "url": "photos/candle-soap-making/candle-soap-making-3.webp",

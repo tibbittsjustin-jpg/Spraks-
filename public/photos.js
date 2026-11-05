@@ -11940,10 +11940,9 @@ var IDEA_PHOTOS = {
  },
  "100241": {
   "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
-  "credit": "Photo: Masterpiece Images / Wikimedia Commons, CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "source_url": "https://commons.wikimedia.org/wiki/File:UU_Singers_Formal.jpg",
-  "fit": "contain"
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
  },
  "100288": {
   "url": "photos/orem-library/orem-library-1.webp",
@@ -12024,10 +12023,9 @@ var IDEA_PHOTOS = {
  },
  "100438": {
   "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
-  "credit": "Photo: Masterpiece Images / Wikimedia Commons, CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "source_url": "https://commons.wikimedia.org/wiki/File:UU_Singers_Formal.jpg",
-  "fit": "contain"
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
  },
  "100442": {
   "url": "photos/cathedral-of-the-madeleine/cathedral-of-the-madeleine-1.webp",
@@ -12049,10 +12047,9 @@ var IDEA_PHOTOS = {
  },
  "100470": {
   "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
-  "credit": "Photo: Masterpiece Images / Wikimedia Commons, CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "source_url": "https://commons.wikimedia.org/wiki/File:UU_Singers_Formal.jpg",
-  "fit": "contain"
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
  },
  "100480": {
   "url": "photos/tracy-aviary/tracy-aviary-1.webp",
@@ -12127,10 +12124,9 @@ var IDEA_PHOTOS = {
  },
  "100541": {
   "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
-  "credit": "Photo: Masterpiece Images / Wikimedia Commons, CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "source_url": "https://commons.wikimedia.org/wiki/File:UU_Singers_Formal.jpg",
-  "fit": "contain"
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
  },
  "100544": {
   "url": "photos/covey-center/covey-center-1.webp",
@@ -12194,10 +12190,9 @@ var IDEA_PHOTOS = {
  },
  "100616": {
   "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
-  "credit": "Photo: Masterpiece Images / Wikimedia Commons, CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "source_url": "https://commons.wikimedia.org/wiki/File:UU_Singers_Formal.jpg",
-  "fit": "contain"
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
  },
  "100619": {
   "url": "photos/abravanel-hall/abravanel-hall-1.webp",
@@ -12208,10 +12203,9 @@ var IDEA_PHOTOS = {
  },
  "100620": {
   "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
-  "credit": "Photo: Masterpiece Images / Wikimedia Commons, CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "source_url": "https://commons.wikimedia.org/wiki/File:UU_Singers_Formal.jpg",
-  "fit": "contain"
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
  },
  "100627": {
   "url": "photos/provo-historic-courthouse/provo-historic-courthouse-1.webp",
@@ -12283,10 +12277,9 @@ var IDEA_PHOTOS = {
  },
  "100663": {
   "url": "photos/libby-gardner-hall/libby-gardner-hall-1.webp",
-  "credit": "Photo: Masterpiece Images / Wikimedia Commons, CC BY-SA 3.0",
-  "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-  "source_url": "https://commons.wikimedia.org/wiki/File:UU_Singers_Formal.jpg",
-  "fit": "contain"
+  "credit": "Photo: Klubbit / Wikimedia Commons, Public domain",
+  "license_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg#Licensing",
+  "source_url": "https://commons.wikimedia.org/wiki/File:Uofu_gardnerhall.jpg"
  },
  "100665": {
   "url": "photos/casino-star-theatre/casino-star-theatre-1.webp",

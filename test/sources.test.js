@@ -438,6 +438,18 @@ const NOV5Y_EVENT_INFO_LINES = [
   ["Event info from Moab Trail Marathon (moabtrailmarathon.com).", "moabtrailmarathon.com", "https://moabtrailmarathon.com/"],
   ["Event info from Salt Lake Running Co. (slrc.com).", "slrc.com", "https://slrc.com/"]
 ];
+const NOV5Z_EVENT_INFO_LINES = [
+  ["Event info from Alta Community Enrichment (altacommunity.org).", "altacommunity.org", "https://altacommunity.org/"],
+  ["Event info from Bad Dog Arts (www.baddogarts.org).", "www.baddogarts.org", "https://www.baddogarts.org/"],
+  ["Event info from Glass With A Past (glasswithapast.com).", "glasswithapast.com", "https://glasswithapast.com/"],
+  ["Event info from Midvale Arts (www.midvalearts.com).", "www.midvalearts.com", "https://www.midvalearts.com/"],
+  ["Event info from Mooon Bread (mooonbread.com).", "mooonbread.com", "https://mooonbread.com/"],
+  ["Event info from Salt Lake Climbers Alliance (www.saltlakeclimbers.org).", "www.saltlakeclimbers.org", "https://www.saltlakeclimbers.org/"],
+  ["Event info from The Hive Collaborative (www.thehivecollaborative.com).", "www.thehivecollaborative.com", "https://www.thehivecollaborative.com/"],
+  ["Event info from The Prestige Salt Lake (prestigesaltlake.com).", "prestigesaltlake.com", "https://prestigesaltlake.com/"],
+  ["Event info from The Scratch Pad (www.climbthescratchpad.com).", "www.climbthescratchpad.com", "https://www.climbthescratchpad.com/"],
+  ["Event info from The Westerner (westernerslc.com).", "westernerslc.com", "https://westernerslc.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1930,6 +1942,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5yPrevious !== -1 && lineAt > nov5yPrevious);
         nov5yPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5zPrevious = eventsText.indexOf("Event info from Salt Lake Running Co. (slrc.com).");
+      check("nov5z checks 10 verbatim event-info lines", NOV5Z_EVENT_INFO_LINES.length === 10);
+      NOV5Z_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5zPrevious !== -1 && lineAt > nov5zPrevious);
+        nov5zPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

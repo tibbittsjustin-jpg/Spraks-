@@ -7,6 +7,7 @@ const fs = require("fs");
 const http = require("http");
 const path = require("path");
 const sources = require("../public/data-sources");
+const util = require("../public/util");
 const { buildListQuery, mapRow } = require("../db/activities-repo");
 const remote = require("../public/remote-activities");
 const { loadApp } = require("./harness");
@@ -75,6 +76,16 @@ const NOV4M_EVENT_INFO_LINES = [
   "Event info from HawkWatch International (hawkwatch.org).",
   "Event info from Alpine City (alpineut.gov)."
 ];
+const NOV4O_EVENT_INFO_LINES = [
+  ["Event info from Desert Star Playhouse (desertstarplayhouse.com).", "desertstarplayhouse.com", "https://desertstarplayhouse.com/"],
+  ["Event info from The Cabaret at Wiseguys SLC (thecabaret-atwiseguysslc.seatengine-sites.com).", "thecabaret-atwiseguysslc.seatengine-sites.com", "https://thecabaret-atwiseguysslc.seatengine-sites.com/"],
+  ["Event info from The Painted Peacock (thepaintedpeacock.art).", "thepaintedpeacock.art", "https://thepaintedpeacock.art/"],
+  ["Event info from Sip and Vibe SLC (sipandvibeslc.com).", "sipandvibeslc.com", "https://sipandvibeslc.com/"],
+  ["Event info from ComedyBox Utah (comedyboxutah.com).", "comedyboxutah.com", "https://comedyboxutah.com/"],
+  ["Event info from Home Range Brewing (homerangebeer.com).", "homerangebeer.com", "https://homerangebeer.com/"],
+  ["Event info from Moab Arts (moabarts.org).", "moabarts.org", "https://moabarts.org/"]
+];
+const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
 const NOT_AFFILIATED = "Jaderoo is not affiliated with or endorsed by any of these sources.";
@@ -869,6 +880,42 @@ function main() {
           nov4mPrevious !== -1 && lineAt > nov4mPrevious);
         nov4mPrevious = lineAt;
       });
+      let nov4oPrevious = eventsText.indexOf("Event info from Alpine City (alpineut.gov).");
+      check("nov4o checks 7 verbatim event-info lines", NOV4O_EVENT_INFO_LINES.length === 7);
+      NOV4O_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov4oPrevious !== -1 && lineAt > nov4oPrevious);
+        nov4oPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("The State Room Presents appears exactly once",
+        occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
+        occurrences(bodyText, "State Room") === 1,
+        "line " + occurrences(bodyText, STATE_ROOM_LINE) + ", State Room " + occurrences(bodyText, "State Room"));
       const sourcesLower = res.body.toLowerCase();
       check("Moab Area Chamber is absent from /sources",
         res.body.indexOf("Moab Area Chamber") === -1 &&

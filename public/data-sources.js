@@ -666,6 +666,13 @@
     { line: "Event info from Clinton City (clinton.utah.gov).", domain: "clinton.utah.gov", href: "https://clinton.utah.gov/" },
     { line: "Event info from HawkWatch International (hawkwatch.org).", domain: "hawkwatch.org", href: "https://hawkwatch.org/" },
     { line: "Event info from Alpine City (alpineut.gov).", domain: "alpineut.gov", href: "https://alpineut.gov/" },
+    { line: "Event info from Desert Star Playhouse (desertstarplayhouse.com).", domain: "desertstarplayhouse.com", href: "https://desertstarplayhouse.com/" },
+    { line: "Event info from The Cabaret at Wiseguys SLC (thecabaret-atwiseguysslc.seatengine-sites.com).", domain: "thecabaret-atwiseguysslc.seatengine-sites.com", href: "https://thecabaret-atwiseguysslc.seatengine-sites.com/" },
+    { line: "Event info from The Painted Peacock (thepaintedpeacock.art).", domain: "thepaintedpeacock.art", href: "https://thepaintedpeacock.art/" },
+    { line: "Event info from Sip and Vibe SLC (sipandvibeslc.com).", domain: "sipandvibeslc.com", href: "https://sipandvibeslc.com/" },
+    { line: "Event info from ComedyBox Utah (comedyboxutah.com).", domain: "comedyboxutah.com", href: "https://comedyboxutah.com/" },
+    { line: "Event info from Home Range Brewing (homerangebeer.com).", domain: "homerangebeer.com", href: "https://homerangebeer.com/" },
+    { line: "Event info from Moab Arts (moabarts.org).", domain: "moabarts.org", href: "https://moabarts.org/" },
   ];
 
   function eventInfoList(lines) {

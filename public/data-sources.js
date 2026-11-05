@@ -969,6 +969,10 @@
     { line: "Event info from Utah Orchid Society (utahorchidsociety.org).", domain: "utahorchidsociety.org", href: "https://utahorchidsociety.org/" },
     { line: "Event info from Utah Valley Quilt Guild (www.uvqg.org).", domain: "www.uvqg.org", href: "https://www.uvqg.org/" },
     { line: "Event info from theFINDlab (thefindlab.com).", domain: "thefindlab.com", href: "https://thefindlab.com/" },
+    { line: "Event info from Epic Brewing (epicbrewing.com).", domain: "epicbrewing.com", href: "https://epicbrewing.com/" },
+    { line: "Event info from Rabbit's Foot (rabbitsfootbrewing.com).", domain: "rabbitsfootbrewing.com", href: "https://rabbitsfootbrewing.com/" },
+    { line: "Event info from Utah Queer Film Festival (utahqueerfilmfestival.org).", domain: "utahqueerfilmfestival.org", href: "https://utahqueerfilmfestival.org/" },
+    { line: "Event info from Washington City Arts Council (washingtoncityartscouncil.com).", domain: "washingtoncityartscouncil.com", href: "https://washingtoncityartscouncil.com/" },
   ];
 
   function eventInfoList(lines) {

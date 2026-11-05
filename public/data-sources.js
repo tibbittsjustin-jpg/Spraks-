@@ -854,6 +854,21 @@
     { line: "Event info from The Dinner Detective (www.thedinnerdetective.com).", domain: "www.thedinnerdetective.com", href: "https://www.thedinnerdetective.com/" },
     { line: "Event info from Utah Festival Ballet (www.utahfestivalballet.com).", domain: "www.utahfestivalballet.com", href: "https://www.utahfestivalballet.com/" },
     { line: "Event info from Utah Metropolitan Ballet (www.umballet.org).", domain: "www.umballet.org", href: "https://www.umballet.org/" },
+    { line: "Event info from Athena VII (athenavii.com).", domain: "athenavii.com", href: "https://athenavii.com/" },
+    { line: "Event info from Cantorum Chamber Choir (www.cantorumchamberchoir.org).", domain: "www.cantorumchamberchoir.org", href: "https://www.cantorumchamberchoir.org/" },
+    { line: "Event info from Club 90 (www.club90slc.com).", domain: "www.club90slc.com", href: "https://www.club90slc.com/" },
+    { line: "Event info from Explore Morgan (exploremorganutah.com).", domain: "exploremorganutah.com", href: "https://exploremorganutah.com/" },
+    { line: "Event info from FMASU (www.fmasu.com).", domain: "www.fmasu.com", href: "https://www.fmasu.com/" },
+    { line: "Event info from Kentros Arts (www.kentrosarts.com).", domain: "www.kentrosarts.com", href: "https://www.kentrosarts.com/" },
+    { line: "Event info from League of Utah Writers (www.leagueofutahwriters.org).", domain: "www.leagueofutahwriters.org", href: "https://www.leagueofutahwriters.org/" },
+    { line: "Event info from Park City Film (parkcityfilm.org).", domain: "parkcityfilm.org", href: "https://parkcityfilm.org/" },
+    { line: "Event info from Queen Bee Giftery (queenbeegiftery.com).", domain: "queenbeegiftery.com", href: "https://queenbeegiftery.com/" },
+    { line: "Event info from Red Rock Film Festival (www.redrockfilmfestival.com).", domain: "www.redrockfilmfestival.com", href: "https://www.redrockfilmfestival.com/" },
+    { line: "Event info from Salt Lake Chinese Choir (www.saltlakechinesechoir.com).", domain: "www.saltlakechinesechoir.com", href: "https://www.saltlakechinesechoir.com/" },
+    { line: "Event info from Serena Webb Dance Theater (www.serenawebb.org).", domain: "www.serenawebb.org", href: "https://www.serenawebb.org/" },
+    { line: "Event info from Signature Books (www.signaturebooks.com).", domain: "www.signaturebooks.com", href: "https://www.signaturebooks.com/" },
+    { line: "Event info from The Community Nutcracker (www.communitynutcracker.com).", domain: "www.communitynutcracker.com", href: "https://www.communitynutcracker.com/" },
+    { line: "Event info from The Romantics Archive (theromanticsarchive.com).", domain: "theromanticsarchive.com", href: "https://theromanticsarchive.com/" },
   ];
 
   function eventInfoList(lines) {

@@ -249,7 +249,6 @@ const NOV5J_EVENT_INFO_LINES = [
   ["Event info from JG Art Gallery exhibitions (jgartgallery.com).", "jgartgallery.com", "https://jgartgallery.com/"],
   ["Event info from Logan Tabernacle (logantabernacle.com).", "logantabernacle.com", "https://logantabernacle.com/"],
   ["Event info from Lyceum Philharmonic Christmas (lyceumphilharmonic.com).", "lyceumphilharmonic.com", "https://lyceumphilharmonic.com/"],
-  ["Event info from Saratoga Arts (saratoga-arts.org).", "saratoga-arts.org", "https://saratoga-arts.org/"],
   ["Event info from Sears Art Museum schedule (www.searsart.com).", "www.searsart.com", "https://www.searsart.com/"],
   ["Event info from Skyridge Theatre (skyridgetheatre.com).", "skyridgetheatre.com", "https://skyridgetheatre.com/"],
   ["Event info from SoJo Choral Arts / Seasons Chorale (www.sojochoralarts.org).", "www.sojochoralarts.org", "https://www.sojochoralarts.org/"],
@@ -1424,7 +1423,7 @@ function main() {
           foundHref);
       });
       let nov5jPrevious = eventsText.indexOf("Event info from Wolfdog Brewing (www.wolfdogbrewing.com).");
-      check("nov5j checks 11 verbatim event-info lines", NOV5J_EVENT_INFO_LINES.length === 11);
+      check("nov5j checks 10 verbatim event-info lines", NOV5J_EVENT_INFO_LINES.length === 10);
       NOV5J_EVENT_INFO_LINES.forEach(function (row) {
         const line = row[0];
         const domain = row[1];

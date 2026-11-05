@@ -828,7 +828,6 @@
     { line: "Event info from JG Art Gallery exhibitions (jgartgallery.com).", domain: "jgartgallery.com", href: "https://jgartgallery.com/" },
     { line: "Event info from Logan Tabernacle (logantabernacle.com).", domain: "logantabernacle.com", href: "https://logantabernacle.com/" },
     { line: "Event info from Lyceum Philharmonic Christmas (lyceumphilharmonic.com).", domain: "lyceumphilharmonic.com", href: "https://lyceumphilharmonic.com/" },
-    { line: "Event info from Saratoga Arts (saratoga-arts.org).", domain: "saratoga-arts.org", href: "https://saratoga-arts.org/" },
     { line: "Event info from Sears Art Museum schedule (www.searsart.com).", domain: "www.searsart.com", href: "https://www.searsart.com/" },
     { line: "Event info from Skyridge Theatre (skyridgetheatre.com).", domain: "skyridgetheatre.com", href: "https://skyridgetheatre.com/" },
     { line: "Event info from SoJo Choral Arts / Seasons Chorale (www.sojochoralarts.org).", domain: "www.sojochoralarts.org", href: "https://www.sojochoralarts.org/" },

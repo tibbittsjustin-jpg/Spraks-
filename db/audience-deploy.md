@@ -6,9 +6,9 @@ This change adds `activities.audience` and the Discover chips Family Friendly, F
 
 | Stored `audience` | What a filter does |
 |---|---|
-| Column missing, SQL `NULL`, or `'{}'` | Untagged. Matches **Friends** or **Date** only. Does not match Family Friendly, Group Date, or Solo. |
-| One or more of the five chips | OR match. An empty filter still means "no audience constraint". |
-| `Family Friendly` on a row with `age21 = true` | Ignored for matching, even if Hide 21+ is off. Other chips on that row still count. The untagged fallback is not applied after this strip. |
+| Column missing, SQL `NULL`, or `'{}'` | No chips. A selected audience chip does not match. An empty audience filter still returns the row. |
+| One or more of the five chips | OR overlap, the same way vibe and season match. |
+| `Family Friendly` on a row with `age21 = true` | That chip is ignored, even if Hide 21+ is off. Other chips on that row still count. |
 | `Good with kids` | Read as Family Friendly. The check constraint rejects that label on write. Store `Family Friendly`. |
 
 `stage` and `date_type` stay in the database. The new Discover sheet does not send them. Older clients may still pass them, and the API still honors those parameters. Saved phone filters that still have Date Stage or Double or Group Date are dropped on the next open. They are not copied onto audience. `Solo/Couple` is not Solo.
@@ -27,9 +27,9 @@ New submissions may include `audience`. Family Friendly is rejected when `age21`
    `DATABASE_URL=... npm run db:migrate`
 
    The runner records `schema_migrations`. If Supabase already lists `020_audience` or `020_audience.sql` in `supabase_migrations.schema_migrations`, the file is skipped. This repo does not use `supabase db push` for these files. Apply it on a disposable database first. Do not point `DATABASE_URL` at production from a laptop session that also has seed scripts.
-3. **Deploy the app** after the migration when you can. The app selects `audience`. If the column is not there yet, list and detail requests catch Postgres `42703`, retry without the column, and apply the audience filter in process. Untagged rows still read as Friends and Date, never Family Friendly. A page can come back short until the column exists, because the limit is applied before that in-memory pass. Preferred order is migration, then app.
-4. **Do not backfill in the deploy.** Empty arrays are the safe state. The read-time Friends and Date fallback is what untagged rows match until a person tags them.
-5. **Tag after the app is live**, from the snapshot, in a reviewed write. Filters owns that pass. Map a reviewed "Good with kids" value to `Family Friendly`. Do not auto-apply the proposal's keyword candidates. Never write Family Friendly on `age21` rows, alcohol-signaled rows, or kids-only rows. Unclear rows that you do tag get Friends and Date, not Family Friendly and not Group Date.
+3. **Deploy the app** after the migration when you can. The app selects `audience`. If the column is not there yet, list and detail requests catch Postgres `42703`, retry without the column, and apply the audience filter in process. With no column, a selected chip matches nothing, because there are no stored tags to overlap. An empty audience filter still returns rows. A page can come back short until the column exists, because the limit is applied before that in-memory pass. Preferred order is migration, then app.
+4. **Do not backfill in the deploy.** Empty arrays stay empty. They do not match a selected chip.
+5. **Tag after the app is live**, from the snapshot, in a reviewed write. Filters owns that pass. Map a reviewed "Good with kids" value to `Family Friendly`. Do not auto-apply the proposal's keyword candidates. Never write Family Friendly on `age21` rows, alcohol-signaled rows, or kids-only rows. Unclear rows that you choose to tag get Friends and Date, not Family Friendly and not Group Date. This pull request does not write those tags.
 6. **Rollback:** snapshot again if tags exist and you still need them. Deploy the previous app, or leave this app up (it tolerates a missing column). Then run `db/rollbacks/020_audience.sql` as the owner. That drops the index, the check, and the column. `stage` and `date_type` stay.
 
 ## Supabase

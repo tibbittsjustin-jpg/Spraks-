@@ -17,8 +17,8 @@
   "use strict";
 
   // 7: ideas carry audience. A version 6 cache has no audience field, so it
-  // is not reused. Empty and missing audience stay empty here. Matching
-  // treats that as Friends and Date, never Family Friendly.
+  // is not reused. Empty and missing audience stay empty. A selected chip
+  // does not match an empty list.
   // 6: cached ideas carry costUnit. Budget labels are the $20 bands.
   // A version 5 cache has no costUnit, so it is not reused.
   // 5: saved lists also cache catalog rows fetched by id. Those rows keep

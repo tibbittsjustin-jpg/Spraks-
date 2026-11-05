@@ -1,10 +1,9 @@
 -- Additive audience tags for Discover. No backfill.
 --
--- activities.audience is a closed set of five chips:
+-- activities.audience is a closed set of five chips, in this order:
 --   Family Friendly, Friends, Date, Group Date, Solo
--- An empty array means "not tagged yet". The application reads an empty
--- or missing value as Friends and Date. It does not write that fallback,
--- and it never treats an empty value as Family Friendly.
+-- An empty array means "not tagged yet". A selected chip does not match
+-- an empty array. This file does not fill those arrays.
 --
 -- This file does not UPDATE existing rows. Tagging is a later reviewed
 -- pass, after a database snapshot. The column default is '{}' only.
@@ -47,7 +46,7 @@ create index if not exists activities_audience_gin
   on public.activities using gin (audience);
 
 comment on column public.activities.audience is
-  'Who the activity is for: Family Friendly, Friends, Date, Group Date, Solo. Empty means not tagged yet. Readers treat empty as Friends and Date, never Family Friendly. Solo is one person alone. Do not tag 21+ rows Family Friendly.';
+  'Who the activity is for: Family Friendly, Friends, Date, Group Date, Solo. Empty means not tagged yet and matches no selected chip. Solo is one person alone. Do not tag 21+ rows Family Friendly.';
 
 alter table public.activities enable row level security;
 revoke all on table public.activities from public;

@@ -1761,9 +1761,8 @@ async function main() {
           "/api/activities?audience=" + enc("Friends") + "&category=" + enc(audiencePlain.category) + "&limit=10"
         );
         const missingFriendsBody = JSON.parse(missingFriends.body);
-        check("a missing column still serves Friends from the untagged fallback",
-          missingFriends.status === 200 && missingFriendsBody.items.length > 0 &&
-          missingFriendsBody.items.every(item => item.audience == null));
+        check("a missing column does not invent Friends tags",
+          missingFriends.status === 200 && missingFriendsBody.items.length === 0);
       } finally {
         await pool.query("alter table activities rename column audience_hidden to audience");
       }

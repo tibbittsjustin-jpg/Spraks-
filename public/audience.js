@@ -8,16 +8,16 @@
    Solo is one person going alone. It is not the old "Solo/Couple" date
    size. That label is never rewritten into Solo.
 
-   Empty, null, and a missing audience mean the row has not been tagged.
-   Reading it uses Friends and Date so a hangout or a couple still matches.
-   That fallback is not written to the database, and it never adds Family
-   Friendly, Group Date, or Solo.
+   Matching is an OR overlap, the same way vibe and season match: a row
+   hits when it carries any selected chip. An empty filter matches every
+   row. An empty, null, or missing audience matches no selected chip.
+   This module does not invent Friends and Date for untagged rows. That
+   write, if it happens, is a later reviewed tagging pass.
 
-   A non-empty tag list is used as stored. Family Friendly is then removed
-   when age21 is true, even if the row was tagged by mistake, and even when
-   Hide 21+ is off. Removing it does not turn the row into the untagged
-   fallback. A 21+ row tagged Family Friendly and Friends still matches
-   Friends. A 21+ row tagged only Family Friendly matches nothing.
+   Family Friendly is removed from the overlap when age21 is true, even if
+   the row was tagged by mistake, and even when Hide 21+ is off. A 21+ row
+   tagged Family Friendly and Friends still matches Friends. A 21+ row
+   tagged only Family Friendly matches nothing.
 
    "Good with kids" is the older proposal name for Family Friendly. It is
    accepted on the way in and stored as Family Friendly. Keyword hits from
@@ -38,7 +38,6 @@
   var FAMILY = "Family Friendly";
   var LEGACY_FAMILY = "Good with kids";
   var AUDIENCE = [FAMILY, "Friends", "Date", "Group Date", "Solo"];
-  var FALLBACK = ["Friends", "Date"];
   var FAMILY_HELP = "For adults 18+. Means the activity works when you bring kids, not that Jaderoo is for children.";
 
   var ALCOHOL_RE = /21\+|must be 21|over 21|21 and over|bar crawl|brewery|brewpub|wine tasting|cocktail|happy hour|nightclub|adults only|taproom|distillery/i;
@@ -80,15 +79,13 @@
     if (idea && Object.prototype.hasOwnProperty.call(idea, "audience")) {
       stored = canonicalStored(idea.audience);
     }
-    var tags = stored && stored.length ? stored.slice() : FALLBACK.slice();
-    var tagged = !!(stored && stored.length);
+    var tags = stored ? stored.slice() : [];
     if (idea && idea.age21 === true) {
       var kept = [];
       for (var i = 0; i < tags.length; i++) {
         if (tags[i] !== FAMILY) kept.push(tags[i]);
       }
       tags = kept;
-      if (tagged && !tags.length) return [];
     }
     return tags;
   }
@@ -160,7 +157,6 @@
     FAMILY: FAMILY,
     LEGACY_FAMILY: LEGACY_FAMILY,
     AUDIENCE: AUDIENCE.slice(),
-    FALLBACK: FALLBACK.slice(),
     FAMILY_HELP: FAMILY_HELP,
     canonicalizeToken: canonicalizeToken,
     normalizeFilterSelection: normalizeFilterSelection,

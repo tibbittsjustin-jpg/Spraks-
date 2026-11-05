@@ -329,22 +329,18 @@ function readAudienceParam(value) {
   return selected;
 }
 
-// Untagged rows overlap Friends and Date only. A tagged row overlaps the
-// selected chips, except Family Friendly is dropped when age21 is true.
-// That exclusion does not depend on hide21. Good with kids counts as
-// Family Friendly if a row still has the old label.
+// Same OR overlap as vibe and season: the row matches when its audience
+// shares any selected chip. Empty audience matches nothing. Good with kids
+// is read as Family Friendly. A 21+ row never counts as Family Friendly,
+// whether or not hide21 is set. Other chips on that row still overlap.
 function appendAudienceFilter(where, values, selected) {
   if (!selected.length) return;
-  const nonFamily = selected.filter(tag => tag !== audience.FAMILY);
   values.push(selected);
   const selIdx = values.length;
-  values.push(nonFamily);
-  const nonIdx = values.length;
   where.push(
-    "(((audience IS NULL OR cardinality(audience) = 0) AND ARRAY['Friends','Date']::text[] && $" + selIdx + "::text[]) OR " +
-    "(cardinality(audience) > 0 AND (audience && $" + nonIdx + "::text[] OR (" +
-    "age21 IS NOT TRUE AND 'Family Friendly' = ANY($" + selIdx + "::text[]) AND (" +
-    "'Family Friendly' = ANY(audience) OR 'Good with kids' = ANY(audience))))))"
+    "(CASE WHEN age21 IS TRUE THEN array_remove(array_replace(coalesce(audience, '{}'::text[]), 'Good with kids', 'Family Friendly'), 'Family Friendly') " +
+    "ELSE array_replace(coalesce(audience, '{}'::text[]), 'Good with kids', 'Family Friendly') END) && $" +
+    selIdx + "::text[]"
   );
 }
 
@@ -808,7 +804,7 @@ function mapRow(row, located) {
     stage: row.stage || [],
     dateType: row.date_type || [],
     // Absent column stays null. An empty array stays empty. Neither is
-    // rewritten to Family Friendly. The matcher applies Friends and Date.
+    // rewritten into a chip. Good with kids is stored here as Family Friendly.
     audience: Object.prototype.hasOwnProperty.call(row, "audience") ? audience.canonicalStored(row.audience) : null,
     scene: row.scene,
     motif: row.motif,

@@ -66,20 +66,21 @@ section("vocabulary", () => {
     audience.normalizeFilterSelection(["First Date", "Date"]).join("|") === "Date");
 });
 
-section("OR match, 21+, and untagged fallback", () => {
+section("OR match, 21+, and untagged rows", () => {
   const untagged = idea({});
   const empty = idea({ audience: [] });
   const absent = idea({ audience: null });
-  check("a missing audience matches Friends and Date",
-    audience.effectiveAudience(untagged).join("|") === "Friends|Date" &&
-    audience.effectiveAudience(empty).join("|") === "Friends|Date" &&
-    audience.effectiveAudience(absent).join("|") === "Friends|Date");
-  check("untagged does not match Family Friendly, Group Date, or Solo",
+  check("a missing audience has no chips",
+    audience.effectiveAudience(untagged).join("|") === "" &&
+    audience.effectiveAudience(empty).join("|") === "" &&
+    audience.effectiveAudience(absent).join("|") === "");
+  check("untagged does not match any selected chip",
     audience.matchesAudience(untagged, ["Family Friendly"]) === false &&
     audience.matchesAudience(untagged, ["Group Date"]) === false &&
     audience.matchesAudience(untagged, ["Solo"]) === false &&
-    audience.matchesAudience(untagged, ["Friends"]) === true &&
-    audience.matchesAudience(untagged, ["Date"]) === true);
+    audience.matchesAudience(untagged, ["Friends"]) === false &&
+    audience.matchesAudience(untagged, ["Date"]) === false &&
+    audience.matchesAudience(untagged, ["Friends", "Date"]) === false);
   check("an empty filter allows every row",
     audience.matchesAudience(idea({ age21: true, audience: ["Family Friendly"] }), []) === true &&
     audience.matchesAudience(untagged, null) === true);
@@ -106,8 +107,13 @@ section("OR match, 21+, and untagged fallback", () => {
     audience.matchesAudience(ok, ["Family Friendly"]) === true &&
     audience.matchesAudience(ok, ["Solo"]) === true &&
     audience.matchesAudience(ok, ["Friends"]) === false);
-  check("stripping Family Friendly does not invent the untagged fallback",
+  check("stripping Family Friendly leaves no invented chips",
     audience.effectiveAudience(onlyFamily).join("|") === "");
+  const overlap = idea({ audience: ["Friends", "Group Date"] });
+  check("OR matches any shared chip and not an absent one",
+    audience.matchesAudience(overlap, ["Date", "Group Date"]) === true &&
+    audience.matchesAudience(overlap, ["Solo"]) === false &&
+    audience.matchesAudience(overlap, ["Friends", "Date"]) === true);
   check("Solo on a couple-shaped dateType is not implied",
     audience.matchesAudience(idea({ dateType: ["Solo/Couple"], audience: ["Date"] }), ["Solo"]) === false &&
     audience.matchesAudience(idea({ dateType: ["Solo/Couple"] }), ["Solo"]) === false);
@@ -126,8 +132,8 @@ section("family candidates are not auto-tagged", () => {
     audience.blocksFamilyFriendly({ title: "Taproom flight", description: "A cocktail at the brewery." }) === "alcohol");
   check("kids-only wording blocks Family Friendly",
     audience.blocksFamilyFriendly({ title: "Youth recital", description: "Kids only." }) === "kids_only");
-  check("unclear text is not given Group Date or Family Friendly",
-    audience.effectiveAudience(idea({ title: "Hike to a Rope Swing", description: "Walk the trail." })).join("|") === "Friends|Date");
+  check("unclear text is not given any chip",
+    audience.effectiveAudience(idea({ title: "Hike to a Rope Swing", description: "Walk the trail." })).join("|") === "");
 });
 
 section("saved filters and serialization", () => {
@@ -162,7 +168,8 @@ section("saved filters and serialization", () => {
     t.matchesFilters(couple, soloOnly) === false &&
     t.matchesFilters(t.IDEAS_BY_ID[2], soloOnly) === false);
   const friends = Object.assign({}, stale, { audience: ["Friends"] });
-  check("an untagged catalog idea matches Friends", t.matchesFilters(t.IDEAS_BY_ID[2], friends) === true);
+  check("an untagged catalog idea does not match Friends until it is tagged",
+    t.matchesFilters(t.IDEAS_BY_ID[2], friends) === false);
   const family = Object.assign({}, stale, { audience: ["Family Friendly"] });
   check("an untagged catalog idea does not match Family Friendly",
     t.matchesFilters(t.IDEAS_BY_ID[2], family) === false);
@@ -249,15 +256,16 @@ section("API validation", () => {
   check("the alias is bound as Family Friendly",
     q.values.some(value => Array.isArray(value) && value.join("|") === "Family Friendly|Friends"));
   check("Family Friendly is excluded with age21, not by hide21",
-    q.text.indexOf("age21 IS NOT TRUE") !== -1 &&
+    q.text.indexOf("age21 IS TRUE") !== -1 &&
+    q.text.indexOf("array_remove(") !== -1 &&
+    q.text.indexOf(" && $") !== -1 &&
     q.text.indexOf("age21 = false") === -1 &&
-    q.text.indexOf("ARRAY['Friends','Date']") !== -1 &&
     q.text.indexOf("'Good with kids'") !== -1);
   check("the chip text is not concatenated into the SQL",
     q.text.indexOf("Good with kids,Friends") === -1);
   const hidden = buildListQuery({ audience: "Family Friendly", hide21: "true" });
   check("hide21 still adds its own predicate beside the audience rule",
-    hidden.text.indexOf("age21 = false") !== -1 && hidden.text.indexOf("age21 IS NOT TRUE") !== -1);
+    hidden.text.indexOf("age21 = false") !== -1 && hidden.text.indexOf("age21 IS TRUE") !== -1);
   const bare = buildListQuery({});
   check("queries select audience and do not filter it when no chip is chosen",
     bare.text.indexOf(", audience") !== -1 && bare.text.indexOf("cardinality(audience)") === -1);
@@ -393,8 +401,8 @@ module.exports = (async () => {
       calls = 0;
       return listActivities({ audience: "Friends", limit: "5" }, db);
     }).then(friends => {
-      check("Friends still matches an untagged row while the column is absent",
-        friends.items.length === 1 && friends.items[0].audience === null && calls === 2);
+      check("Friends matches nothing while the column is absent",
+        friends.items.length === 0 && calls === 2);
     }).catch(err => {
       check("missing-column lookup succeeded", false, String(err.stack || err.message).slice(0, 400));
     });

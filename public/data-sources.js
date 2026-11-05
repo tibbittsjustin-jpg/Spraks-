@@ -698,7 +698,6 @@
     { line: "Event info from Loa Town (loautah.gov).", domain: "loautah.gov", href: "https://loautah.gov/" },
     { line: "Event info from Wayne County Fair (waynecountyutahfair.com).", domain: "waynecountyutahfair.com", href: "https://waynecountyutahfair.com/" },
     { line: "Event info from Casino Star Theatre (www.casinostartheatre.com).", domain: "www.casinostartheatre.com", href: "https://www.casinostartheatre.com/" },
-    { line: "Event info from Eureka Main Street (www.eurekamainstreet.org).", domain: "www.eurekamainstreet.org", href: "https://www.eurekamainstreet.org/" },
     { line: "Event info from Juab County Fair (juabcountyfair.com).", domain: "juabcountyfair.com", href: "https://juabcountyfair.com/" },
     { line: "Event info from Vernal Community Events (thisisvernal.trumba.com).", domain: "thisisvernal.trumba.com", href: "https://thisisvernal.trumba.com/" },
     { line: "Event info from Museum of Uintah County (themuc.org).", domain: "themuc.org", href: "https://themuc.org/" },

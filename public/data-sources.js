@@ -954,6 +954,21 @@
     { line: "Event info from Humane Society of Utah (utahhumane.org).", domain: "utahhumane.org", href: "https://utahhumane.org/" },
     { line: "Event info from Nuzzles & Co (nuzzlesandco.org).", domain: "nuzzlesandco.org", href: "https://nuzzlesandco.org/" },
     { line: "Event info from United Way of Utah County (volunteer.unitedwayuc.org).", domain: "volunteer.unitedwayuc.org", href: "https://volunteer.unitedwayuc.org/" },
+    { line: "Event info from Alliance Française SLC (www.afslc-ut.org).", domain: "www.afslc-ut.org", href: "https://www.afslc-ut.org/" },
+    { line: "Event info from Ascent Chorus (ascentchorus.org).", domain: "ascentchorus.org", href: "https://ascentchorus.org/" },
+    { line: "Event info from Ballroom Utah (ballroomutah.com).", domain: "ballroomutah.com", href: "https://ballroomutah.com/" },
+    { line: "Event info from Cottonwood Heights Parks & Rec (www.chparksandrecut.gov).", domain: "www.chparksandrecut.gov", href: "https://www.chparksandrecut.gov/" },
+    { line: "Event info from Country Dance Provo (utahcountrydance.com).", domain: "utahcountrydance.com", href: "https://utahcountrydance.com/" },
+    { line: "Event info from Huston Holiday Light Show (herrimanlights.com).", domain: "herrimanlights.com", href: "https://herrimanlights.com/" },
+    { line: "Event info from Jubilate Choir (jubilatechoirslc.weebly.com).", domain: "jubilatechoirslc.weebly.com", href: "https://jubilatechoirslc.weebly.com/" },
+    { line: "Event info from Lieto Voices (www.lietovoices.com).", domain: "www.lietovoices.com", href: "https://www.lietovoices.com/" },
+    { line: "Event info from Lightwalk at Tracy Aviary (www.lightwalkslc.com).", domain: "www.lightwalkslc.com", href: "https://www.lightwalkslc.com/" },
+    { line: "Event info from Provo Pioneer Village (www.provopioneervillage.org).", domain: "www.provopioneervillage.org", href: "https://www.provopioneervillage.org/" },
+    { line: "Event info from Salt Lake City Chess Club (saltlakecitychessclub.com).", domain: "saltlakecitychessclub.com", href: "https://saltlakecitychessclub.com/" },
+    { line: "Event info from Southern Utah Heritage Choir (www.heritagechoir.org).", domain: "www.heritagechoir.org", href: "https://www.heritagechoir.org/" },
+    { line: "Event info from Utah Orchid Society (utahorchidsociety.org).", domain: "utahorchidsociety.org", href: "https://utahorchidsociety.org/" },
+    { line: "Event info from Utah Valley Quilt Guild (www.uvqg.org).", domain: "www.uvqg.org", href: "https://www.uvqg.org/" },
+    { line: "Event info from theFINDlab (thefindlab.com).", domain: "thefindlab.com", href: "https://thefindlab.com/" },
   ];
 
   function eventInfoList(lines) {

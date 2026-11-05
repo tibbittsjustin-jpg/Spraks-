@@ -204,6 +204,58 @@ const NOV5G_EVENT_INFO_LINES = [
   ["Event info from Trash Moon Collective events (www.trashmooncollective.org).", "www.trashmooncollective.org", "https://www.trashmooncollective.org/"],
   ["Event info from Utah City events (utahcity.com).", "utahcity.com", "https://utahcity.com/"]
 ];
+const NOV5HI_EVENT_INFO_LINES = [
+  ["Event info from 2 Row Brewing (www.2rowbrewing.com).", "www.2rowbrewing.com", "https://www.2rowbrewing.com/"],
+  ["Event info from Dixie Convention Center (dixiecenter.com).", "dixiecenter.com", "https://dixiecenter.com/"],
+  ["Event info from Downtown Farmers Market St. George (downtownfarmerstg.com).", "downtownfarmerstg.com", "https://downtownfarmerstg.com/"],
+  ["Event info from Ephraim Library (ephraim.lib.utah.gov).", "ephraim.lib.utah.gov", "https://ephraim.lib.utah.gov/"],
+  ["Event info from Fairview City Library (fairviewcity.lib.utah.gov).", "fairviewcity.lib.utah.gov", "https://fairviewcity.lib.utah.gov/"],
+  ["Event info from Four Seasons Theatre Company (fourseasonstheatre.org).", "fourseasonstheatre.org", "https://fourseasonstheatre.org/"],
+  ["Event info from Fruit Heights City (www.fruitheights.gov).", "www.fruitheights.gov", "https://www.fruitheights.gov/"],
+  ["Event info from Harrisville City (harrisvillecity.gov).", "harrisvillecity.gov", "https://harrisvillecity.gov/"],
+  ["Event info from Hooper City (www.hoopercity.gov).", "www.hoopercity.gov", "https://www.hoopercity.gov/"],
+  ["Event info from Hurricane Recreation (www.hurricanerecreation.com).", "www.hurricanerecreation.com", "https://www.hurricanerecreation.com/"],
+  ["Event info from Ivins Arts Commission (www.ivinsartscommission.com).", "www.ivinsartscommission.com", "https://www.ivinsartscommission.com/"],
+  ["Event info from Lake Point (lakepoint.gov).", "lakepoint.gov", "https://lakepoint.gov/"],
+  ["Event info from Leeds Town (leeds.utah.gov).", "leeds.utah.gov", "https://leeds.utah.gov/"],
+  ["Event info from Lewiston City (lewistonutah.gov).", "lewistonutah.gov", "https://lewistonutah.gov/"],
+  ["Event info from Mendon Library (mendoncity.lib.utah.gov).", "mendoncity.lib.utah.gov", "https://mendoncity.lib.utah.gov/"],
+  ["Event info from Millville City (millvilleut.gov).", "millvilleut.gov", "https://millvilleut.gov/"],
+  ["Event info from Music Theatre West (www.musictheatrewest.org).", "www.musictheatrewest.org", "https://www.musictheatrewest.org/"],
+  ["Event info from New Harmony Fire Association (newharmonyfire.org).", "newharmonyfire.org", "https://newharmonyfire.org/"],
+  ["Event info from Nibley City (nibleycity.gov).", "nibleycity.gov", "https://nibleycity.gov/"],
+  ["Event info from Ogden Musical Theatre (ogdenmusicaltheatre.org).", "ogdenmusicaltheatre.org", "https://ogdenmusicaltheatre.org/"],
+  ["Event info from Old Barn Community Theatre (www.oldbarn.org).", "www.oldbarn.org", "https://www.oldbarn.org/"],
+  ["Event info from On Pitch Performing Arts (onpitchperformingarts.com).", "onpitchperformingarts.com", "https://onpitchperformingarts.com/"],
+  ["Event info from Smithfield Recreation (smithfieldrecreation.com).", "smithfieldrecreation.com", "https://smithfieldrecreation.com/"],
+  ["Event info from South Weber City (southwebercity.gov).", "southwebercity.gov", "https://southwebercity.gov/"],
+  ["Event info from Southern Utah Dickens Christmas Festival (www.dickenschristmasfestival.com).", "www.dickenschristmasfestival.com", "https://www.dickenschristmasfestival.com/"],
+  ["Event info from Southwest Symphony (swsutah.org).", "swsutah.org", "https://swsutah.org/"],
+  ["Event info from Stansbury Park (stansburypark.gov).", "stansburypark.gov", "https://stansburypark.gov/"],
+  ["Event info from Stansbury Park Library (stansburypark.lib.utah.gov).", "stansburypark.lib.utah.gov", "https://stansburypark.lib.utah.gov/"],
+  ["Event info from Sunset City (sunsetut.gov).", "sunsetut.gov", "https://sunsetut.gov/"],
+  ["Event info from Tooele Downtown Alliance (www.downtowntooele.com).", "www.downtowntooele.com", "https://www.downtowntooele.com/"],
+  ["Event info from Unicorn Theatre (www.unicorntheatre.net).", "www.unicorntheatre.net", "https://www.unicorntheatre.net/"],
+  ["Event info from Utah Car Culture (utahcarculture.org).", "utahcarculture.org", "https://utahcarculture.org/"],
+  ["Event info from Virgin Town (www.virgin.utah.gov).", "www.virgin.utah.gov", "https://www.virgin.utah.gov/"],
+  ["Event info from Washington City (washingtonutah.gov).", "washingtonutah.gov", "https://washingtonutah.gov/"],
+  ["Event info from Wellsville City (www.wellsvillecity.com).", "www.wellsvillecity.com", "https://www.wellsvillecity.com/"],
+  ["Event info from West Bountiful City (wbcityut.gov).", "wbcityut.gov", "https://wbcityut.gov/"],
+  ["Event info from Wolfdog Brewing (www.wolfdogbrewing.com).", "www.wolfdogbrewing.com", "https://www.wolfdogbrewing.com/"]
+];
+const NOV5J_EVENT_INFO_LINES = [
+  ["Event info from American West Symphony & Chorus (www.americanwestsymphony.com).", "www.americanwestsymphony.com", "https://www.americanwestsymphony.com/"],
+  ["Event info from Bout Time Pub & Grub Lehi (www.bouttimepub.com).", "www.bouttimepub.com", "https://www.bouttimepub.com/"],
+  ["Event info from JG Art Gallery exhibitions (jgartgallery.com).", "jgartgallery.com", "https://jgartgallery.com/"],
+  ["Event info from Logan Tabernacle (logantabernacle.com).", "logantabernacle.com", "https://logantabernacle.com/"],
+  ["Event info from Lyceum Philharmonic Christmas (lyceumphilharmonic.com).", "lyceumphilharmonic.com", "https://lyceumphilharmonic.com/"],
+  ["Event info from Saratoga Arts (saratoga-arts.org).", "saratoga-arts.org", "https://saratoga-arts.org/"],
+  ["Event info from Sears Art Museum schedule (www.searsart.com).", "www.searsart.com", "https://www.searsart.com/"],
+  ["Event info from Skyridge Theatre (skyridgetheatre.com).", "skyridgetheatre.com", "https://skyridgetheatre.com/"],
+  ["Event info from SoJo Choral Arts / Seasons Chorale (www.sojochoralarts.org).", "www.sojochoralarts.org", "https://www.sojochoralarts.org/"],
+  ["Event info from Wasatch Chorale performances (www.wasatchchorale.org).", "www.wasatchchorale.org", "https://www.wasatchchorale.org/"],
+  ["Event info from West Jordan Symphony (www.westjordansymphony.org).", "www.westjordansymphony.org", "https://www.westjordansymphony.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -1120,6 +1172,70 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5gPrevious !== -1 && lineAt > nov5gPrevious);
         nov5gPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5hiPrevious = eventsText.indexOf("Event info from Utah City events (utahcity.com).");
+      check("nov5hi checks 37 verbatim event-info lines", NOV5HI_EVENT_INFO_LINES.length === 37);
+      NOV5HI_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5hiPrevious !== -1 && lineAt > nov5hiPrevious);
+        nov5hiPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5jPrevious = eventsText.indexOf("Event info from Wolfdog Brewing (www.wolfdogbrewing.com).");
+      check("nov5j checks 11 verbatim event-info lines", NOV5J_EVENT_INFO_LINES.length === 11);
+      NOV5J_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5jPrevious !== -1 && lineAt > nov5jPrevious);
+        nov5jPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

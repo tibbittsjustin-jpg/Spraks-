@@ -130,6 +130,58 @@ const NOV5ABC_NOV4E_EVENT_INFO_LINES = [
   ["Event info from Stellar Vista Observatory (stellarvistaobservatory.org).", "stellarvistaobservatory.org", "https://stellarvistaobservatory.org/public-star-parties/"],
   ["Event info from Cache Valley Astronomical Society (cvas-utahskies.org).", "cvas-utahskies.org", "https://cvas-utahskies.org/events/"]
 ];
+const NOV5DEF_EVENT_INFO_LINES = [
+  ["Event info from Arcade Galactic (arcadegalactic.com).", "arcadegalactic.com", "https://arcadegalactic.com/"],
+  ["Event info from Artes de Mexico en Utah (www.artesmexut.org).", "www.artesmexut.org", "https://www.artesmexut.org/"],
+  ["Event info from Aspen Chorale (aspenchorale.com).", "aspenchorale.com", "https://aspenchorale.com/"],
+  ["Event info from Bountiful Davis Art Center (www.bdac.org).", "www.bdac.org", "https://www.bdac.org/"],
+  ["Event info from Brian Head Town (brianheadtown.utah.gov).", "brianheadtown.utah.gov", "https://brianheadtown.utah.gov/"],
+  ["Event info from Comfy Cozy Games (comfycozygames.com).", "comfycozygames.com", "https://comfycozygames.com/"],
+  ["Event info from Cultural Arts Society of West Jordan (www.wjarts.org).", "www.wjarts.org", "https://www.wjarts.org/"],
+  ["Event info from Downtown SLC Farmers Market (www.slcfarmersmarket.org).", "www.slcfarmersmarket.org", "https://www.slcfarmersmarket.org/"],
+  ["Event info from Draper Philharmonic (www.draperphilharmonic.org).", "www.draperphilharmonic.org", "https://www.draperphilharmonic.org/"],
+  ["Event info from Excellence in the Community concerts (excellenceconcerts.org).", "excellenceconcerts.org", "https://excellenceconcerts.org/"],
+  ["Event info from Funk N Dive Bar live music (www.funkanddive.com).", "www.funkanddive.com", "https://www.funkanddive.com/"],
+  ["Event info from Game Night Games (www.gamenightgames.com).", "www.gamenightgames.com", "https://www.gamenightgames.com/"],
+  ["Event info from Golden Braid Books (www.goldenbraidslc.com).", "www.goldenbraidslc.com", "https://www.goldenbraidslc.com/"],
+  ["Event info from Harp and Hound (harphound.com).", "harphound.com", "https://harphound.com/"],
+  ["Event info from Kensington Theatre (kensingtontheatre.org).", "kensingtontheatre.org", "https://kensingtontheatre.org/"],
+  ["Event info from Lila Studio (www.lilastudio.com).", "www.lilastudio.com", "https://www.lilastudio.com/"],
+  ["Event info from Loki Coffee (www.lokicoffeeco.com).", "www.lokicoffeeco.com", "https://www.lokicoffeeco.com/"],
+  ["Event info from Magna (magna.utah.gov).", "magna.utah.gov", "https://magna.utah.gov/"],
+  ["Event info from Melancholy (www.melancholyslc.com).", "www.melancholyslc.com", "https://www.melancholyslc.com/"],
+  ["Event info from Millcreek Common (millcreekcommon.org).", "millcreekcommon.org", "https://millcreekcommon.org/"],
+  ["Event info from Millennial Choirs & Orchestras (www.millennial.org).", "www.millennial.org", "https://www.millennial.org/"],
+  ["Event info from Mountain West Cider (www.mountainwestcider.com).", "www.mountainwestcider.com", "https://www.mountainwestcider.com/"],
+  ["Event info from Mountaintop Music Institute (www.mountaintopmusicinstitute.com).", "www.mountaintopmusicinstitute.com", "https://www.mountaintopmusicinstitute.com/"],
+  ["Event info from Offset Bier (offsetbier.com).", "offsetbier.com", "https://offsetbier.com/"],
+  ["Event info from Oratorio Society of Utah (oratoriosocietyofutah.godaddysites.com).", "oratoriosocietyofutah.godaddysites.com", "https://oratoriosocietyofutah.godaddysites.com/"],
+  ["Event info from Parker Theatre (www.parkertheatre.org).", "www.parkertheatre.org", "https://www.parkertheatre.org/"],
+  ["Event info from Poppy Book & Gifts (www.poppybookssf.com).", "www.poppybookssf.com", "https://www.poppybookssf.com/"],
+  ["Event info from Regency Christmas Market at Provo Towne Centre (www.provotownecentre.com).", "www.provotownecentre.com", "https://www.provotownecentre.com/"],
+  ["Event info from SALT Contemporary Dance (saltdance.com).", "saltdance.com", "https://saltdance.com/"],
+  ["Event info from Salt City Slam (www.saltcityslam.com).", "www.saltcityslam.com", "https://www.saltcityslam.com/"],
+  ["Event info from Salt Lake Art Museum (saltlakeartmuseum.org).", "saltlakeartmuseum.org", "https://saltlakeartmuseum.org/"],
+  ["Event info from Sandbox Theatre Company (www.sandboxtheatrecompany.org).", "www.sandboxtheatrecompany.org", "https://www.sandboxtheatrecompany.org/"],
+  ["Event info from Scaffold Theatre (www.scaffoldtheatre.org).", "www.scaffoldtheatre.org", "https://www.scaffoldtheatre.org/"],
+  ["Event info from Scion Cider Bar (www.scionciderbar.com).", "www.scionciderbar.com", "https://www.scionciderbar.com/"],
+  ["Event info from Second Summit Cider (secondsummitcider.com).", "secondsummitcider.com", "https://secondsummitcider.com/"],
+  ["Event info from Soundwell (soundwellslc.com).", "soundwellslc.com", "https://soundwellslc.com/"],
+  ["Event info from TF Brewing (tfbrewing.com).", "tfbrewing.com", "https://tfbrewing.com/"],
+  ["Event info from Talisman Brewing (talismanbrewingco.com).", "talismanbrewingco.com", "https://talismanbrewingco.com/"],
+  ["Event info from Terrace Plaza Playhouse (www.terraceplazaplayhouse.com).", "www.terraceplazaplayhouse.com", "https://www.terraceplazaplayhouse.com/"],
+  ["Event info from The Tasting Room SLC (www.tastingroomslc.com).", "www.tastingroomslc.com", "https://www.tastingroomslc.com/"],
+  ["Event info from The Westerner Club (westernerclub.com).", "westernerclub.com", "https://westernerclub.com/"],
+  ["Event info from Three Penny Theatre Company (www.threepennytheatre.com).", "www.threepennytheatre.com", "https://www.threepennytheatre.com/"],
+  ["Event info from University Place Orem holiday (www.universityplaceorem.com).", "www.universityplaceorem.com", "https://www.universityplaceorem.com/"],
+  ["Event info from Utah National Guard (guard.utah.gov).", "guard.utah.gov", "https://guard.utah.gov/"],
+  ["Event info from Utah Valley Christkindlmarkt (www.uvchristkindlmarkt.com).", "www.uvchristkindlmarkt.com", "https://www.uvchristkindlmarkt.com/"],
+  ["Event info from Utah Valley Symphony (www.utahvalleysymphony.org).", "www.utahvalleysymphony.org", "https://www.utahvalleysymphony.org/"],
+  ["Event info from Wasatch Community Gardens Love Local Winter Market (wasatchgardens.org).", "wasatchgardens.org", "https://wasatchgardens.org/"],
+  ["Event info from Wasatch Contemporary Dance Company (wasatchcontemporary.com).", "wasatchcontemporary.com", "https://wasatchcontemporary.com/"],
+  ["Event info from Wasatch Theatre Company (wasatchtheatre.org).", "wasatchtheatre.org", "https://wasatchtheatre.org/"],
+  ["Event info from West Valley Arts (wvcarts.org).", "wvcarts.org", "https://wvcarts.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -982,6 +1034,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5abcPrevious !== -1 && lineAt > nov5abcPrevious);
         nov5abcPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov5defPrevious = eventsText.indexOf("Event info from Cache Valley Astronomical Society (cvas-utahskies.org).");
+      check("nov5def checks 50 verbatim event-info lines", NOV5DEF_EVENT_INFO_LINES.length === 50);
+      NOV5DEF_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov5defPrevious !== -1 && lineAt > nov5defPrevious);
+        nov5defPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

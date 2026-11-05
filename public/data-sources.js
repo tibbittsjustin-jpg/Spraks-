@@ -882,6 +882,18 @@
     { line: "Event info from Sunset Farmers Markets (sunsetfarmersmarkets.com).", domain: "sunsetfarmersmarkets.com", href: "https://sunsetfarmersmarkets.com/" },
     { line: "Event info from Utah Cultural Celebration Center (www.culturalcelebration.org).", domain: "www.culturalcelebration.org", href: "https://www.culturalcelebration.org/" },
     { line: "Event info from UtahPresents (utahpresents.org).", domain: "utahpresents.org", href: "https://utahpresents.org/" },
+    { line: "Event info from Central Utah Ballet (centralutahballet.com).", domain: "centralutahballet.com", href: "https://centralutahballet.com/" },
+    { line: "Event info from Clark Historic Farm (www.clarkhistoricfarm.org).", domain: "www.clarkhistoricfarm.org", href: "https://www.clarkhistoricfarm.org/" },
+    { line: "Event info from Clytie Adams School of Ballet (clytieadams.com).", domain: "clytieadams.com", href: "https://clytieadams.com/" },
+    { line: "Event info from GENTRI (gentrimusic.com).", domain: "gentrimusic.com", href: "https://gentrimusic.com/" },
+    { line: "Event info from Habitat for Humanity Summit & Wasatch (www.habitat-utah.org).", domain: "www.habitat-utah.org", href: "https://www.habitat-utah.org/" },
+    { line: "Event info from Imagine Ballet Theatre (imagineballet.org).", domain: "imagineballet.org", href: "https://imagineballet.org/" },
+    { line: "Event info from Lux Choral Society (www.luxchoralsociety.org).", domain: "www.luxchoralsociety.org", href: "https://www.luxchoralsociety.org/" },
+    { line: "Event info from Mountain West Ballet (www.mountainwestballet.org).", domain: "www.mountainwestballet.org", href: "https://www.mountainwestballet.org/" },
+    { line: "Event info from New American Philharmonic (newamericanphil.org).", domain: "newamericanphil.org", href: "https://newamericanphil.org/" },
+    { line: "Event info from Ogden City (christmasvillage.ogdencity.com).", domain: "christmasvillage.ogdencity.com", href: "https://christmasvillage.ogdencity.com/" },
+    { line: "Event info from Peter Breinholt (peterbreinholt.com).", domain: "peterbreinholt.com", href: "https://peterbreinholt.com/" },
+    { line: "Event info from Tanner Dance (tannerdance.utah.edu).", domain: "tannerdance.utah.edu", href: "https://tannerdance.utah.edu/" },
   ];
 
   function eventInfoList(lines) {

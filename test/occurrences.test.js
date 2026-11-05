@@ -164,8 +164,8 @@ section("the discover deck uses the active plan date", () => {
   check("a weekly Monday event stays in that plan", t.matchesFilters(WEEKLY, open) === true);
   check("an anytime idea stays in that plan", t.matchesFilters(ANYTIME, open) === true);
   t.ui.activePlanId = null;
-  check("local mode keeps a one-time game out after the plan is cleared",
-    t.matchesFilters(Object.assign({}, GAME, { expires_at: "2099-01-01" }), open) === false);
+  check("clearing the plan keeps the one-time game in the mixed list",
+    t.matchesFilters(Object.assign({}, GAME, { expires_at: "2099-01-01" }), open) === true);
 });
 
 function onDay(date, start, end) {

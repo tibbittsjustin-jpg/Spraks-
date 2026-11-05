@@ -110,14 +110,20 @@ section("the circle follows the radius", () => {
   t.state.location = { lat: center.lat, lng: center.lng, mode: "approximate", stale: false };
   t.state.filters.radiusMiles = 10;
   t.state.filters.localOnly = false;
-  const screen = t.buildDiscoverScreen();
-  const nodes = walk(screen);
+  const discover = t.buildDiscoverScreen();
+  check("Discover has no map above Filters",
+    !walk(discover).some(node => node.className === "radius-map-panel" || node.className === "radius-map-slot" || node.id === "radius-map-slot"));
+  t.ui.filterDraft = Object.assign({}, t.state.filters);
+  const group = t.buildWhereGroup();
+  const nodes = walk(group);
   const panel = nodes.filter(node => node.className === "radius-map-panel")[0];
   const circle = nodes.filter(node => node.tagName === "CIRCLE" || (node.getAttribute && node.getAttribute("cx") === "100"))[0];
-  check("the map panel is on Discover", !!panel);
+  const stage = nodes.filter(node => node.className === "radius-map-stage")[0];
+  check("the map panel is in Filters", !!panel && nodes.some(node => node.className === "choose-spot"));
   const r10 = circle ? Number(attr(circle, "r")) : 0;
   check("the drawn circle starts at 10 miles",
     t.radiusMapHandle.radiusMiles() === 10 && attr(panel, "data-radius-miles") === "10" && r10 > 0);
+  check("without tiles the empty stage stays hidden", stage && stage.hidden === true);
   const next = t.setDiscoverRadius(50);
   check("moving the slider to 50 updates the circle",
     next === 50 &&
@@ -213,18 +219,22 @@ section("map corner credit and the no-tile state", () => {
     options.customAttribution.indexOf("Basemap:") === -1 &&
     options.customAttribution.toLowerCase().indexOf("logo") === -1);
   const t = loadApp({});
+  const discover = t.buildDiscoverScreen();
+  check("a closed Filters sheet leaves Discover without a map",
+    !walk(discover).some(node => node.className === "radius-map-panel" || node.id === "radius-map-slot"));
   t.openPickMode();
-  const screen = t.buildDiscoverScreen();
-  const nodes = walk(screen);
-  const panel = nodes.filter(node => node.className === "radius-map-panel")[0];
+  const panel = t.radiusMapHandle && t.radiusMapHandle.element;
+  const nodes = walk(panel);
   const credit = nodes.filter(node => node.className === "radius-map-credit")[0];
   const note = nodes.filter(node => node.className === "radius-map-note")[0];
   const query = nodes.filter(node => node.className && String(node.className).indexOf("radius-map-query") !== -1)[0];
-  const pin = nodes.filter(node => node.className === "radius-map-pin")[0];
+  const stage = nodes.filter(node => node.className === "radius-map-stage")[0];
+  const search = nodes.filter(node => node.className === "radius-map-search")[0];
+  check("opening Filters is what shows the chooser", t.filterSheetOpen === true && !!panel);
   check("without MapLibre the panel says the map didn't load",
     attr(panel, "data-tiles") === "off" && note && note.textContent === FALLBACK);
-  check("the fallback still has a circle, a pin, and search",
-    nodes.some(node => attr(node, "cx") === "100") && pin && query && attr(panel, "data-search") === "open");
+  check("the fallback keeps search and hides the empty stage",
+    query && search && search.hidden !== true && stage && stage.hidden === true && attr(panel, "data-search") === "open");
   check("the corner credit links to Sources and is not a logo",
     credit && credit.textContent === CORNER && attr(credit, "href") === "/sources" &&
     nodes.every(node => String(node.tagName || "").toLowerCase() !== "img" || String(node.className || "").indexOf("radius-map") === -1));
@@ -354,6 +364,141 @@ section("picked spot, rounding, clear, and share links", () => {
     calls.length === 0 && kept.state.location.lat === PRECISE_LAT && kept.state.location.mode === "picked");
 });
 
+section("blocked location still chooses a spot in Filters", () => {
+  const t = loadApp({});
+  const calls = installGeo(t);
+  t.requestLocation({ silent: true });
+  calls[0].error({ code: 1, message: "denied" });
+  check("the blocked message stays on the location bar",
+    t.locationStatusText().indexOf("Location is blocked in this browser") !== -1);
+  const bar = walk(t.buildLocationBar()).map(node => [node.textContent, node.innerHTML, node.className].join("\n")).join("\n");
+  check("Use my exact location stays available", bar.indexOf("Use my exact location") !== -1);
+  check("the map picker is not on the Discover location bar",
+    bar.indexOf("Pick a spot") === -1 && bar.indexOf("radius-map") === -1);
+  t.ui.filterDraft = Object.assign({}, t.state.filters, { localOnly: false, radiusMiles: 10 });
+  const group = t.buildWhereGroup();
+  const nodes = walk(group);
+  const query = nodes.filter(node => node.className && String(node.className).indexOf("radius-map-query") !== -1)[0];
+  const note = nodes.filter(node => node.className === "radius-map-note")[0];
+  const stage = nodes.filter(node => node.className === "radius-map-stage")[0];
+  const status = nodes.filter(node => node.className === "choose-spot-status")[0];
+  check("Filters still offers place search", !!query && query.disabled !== true);
+  check("Filters repeats the blocked message without an empty map box",
+    status && status.textContent.indexOf("Location is blocked") !== -1 &&
+    note && note.textContent === FALLBACK &&
+    stage && stage.hidden === true);
+  check("a blocked fix does not remove How far's absence until a spot exists",
+    !nodes.some(node => node.className === "how-far"));
+  t.applyPickedSpot({ lat: 40.2338, lng: -111.6585, name: "Provo" }, "Provo");
+  check("picking a spot still wins after a block",
+    t.state.location.mode === "picked" && t.state.location.label === "Provo" && t.locationPhase === "ready");
+});
+
+section("Filters can close and open again", () => {
+  const t = loadApp({});
+  t.openFilterOverlay();
+  const first = t.radiusMapHandle;
+  check("the first open mounts a chooser", !!first && first.tilesState() === "off");
+  t.closeFilterOverlay();
+  const discover = t.buildDiscoverScreen();
+  check("closing Filters removes the map from Discover",
+    t.filterSheetOpen === false && t.radiusMapHandle === null &&
+    !walk(discover).some(node => node.className === "radius-map-panel"));
+  t.openFilterOverlay();
+  check("opening again mounts a new chooser",
+    !!t.radiusMapHandle && t.radiusMapHandle !== first && t.radiusMapHandle.element !== first.element);
+  const sliderNodes = walk(t.buildWhereGroup()).filter(node => node.className && String(node.className).indexOf("radius-slider-panel") !== -1);
+  t.state.location = { lat: 40.2338, lng: -111.6585, mode: "approximate", stale: false };
+  t.ui.filterDraft = Object.assign({}, t.state.filters, { localOnly: false, radiusMiles: 10 });
+  const located = t.buildWhereGroup();
+  const slider = walk(located).filter(node => node.className && String(node.className).indexOf("radius-slider-panel") !== -1)[0];
+  check("a fix still shows the radius slider beside the map", !!slider && sliderNodes);
+  if (slider && slider._listeners && slider._listeners.input && slider._listeners.input[0]) {
+    slider.value = "1000";
+    slider._listeners.input[0]();
+    check("the filter slider moves the radius circle", t.radiusMapHandle.radiusMiles() === 50);
+  } else {
+    check("the filter slider moves the radius circle", false, "no input listener");
+  }
+});
+
+function miniMapDocument() {
+  function node(tag) {
+    const attrs = Object.create(null);
+    const children = [];
+    const el = {
+      tagName: String(tag).toUpperCase(),
+      children,
+      style: {},
+      clientWidth: 320,
+      offsetWidth: 320,
+      clientHeight: 220,
+      offsetHeight: 220,
+      hidden: false,
+      appendChild(child) { children.push(child); return child; },
+      setAttribute(name, value) { attrs[name] = String(value); },
+      getAttribute(name) { return Object.prototype.hasOwnProperty.call(attrs, name) ? attrs[name] : null; },
+      addEventListener() {},
+      removeEventListener() {},
+      querySelectorAll() { return []; }
+    };
+    Object.defineProperty(el, "className", {
+      get() { return el._class || ""; },
+      set(value) { el._class = String(value || ""); }
+    });
+    Object.defineProperty(el, "textContent", {
+      get() { return el._text || ""; },
+      set(value) { el._text = String(value == null ? "" : value); }
+    });
+    return el;
+  }
+  return { createElement: node, createElementNS: function (_ns, tag) { return node(tag); } };
+}
+
+section("an open filter sheet resizes the map", () => {
+  const savedDocument = global.document;
+  const savedWindow = global.window;
+  const doc = miniMapDocument();
+  global.document = doc;
+  global.window = global.window || {};
+  const maps = [];
+  const markerOpts = [];
+  function FakeMap() { this.resizeCount = 0; this.removed = false; maps.push(this); }
+  FakeMap.prototype.resize = function () { this.resizeCount += 1; };
+  FakeMap.prototype.remove = function () { this.removed = true; };
+  FakeMap.prototype.on = function () {};
+  FakeMap.prototype.getSource = function () { return { setData() {} }; };
+  FakeMap.prototype.fitBounds = function () {};
+  function Marker(opts) {
+    markerOpts.push(opts);
+    this.setLngLat = function () { return this; };
+    this.addTo = function () { return this; };
+    this.on = function () {};
+  }
+  const parent = doc.createElement("div");
+  const handle = radiusMap.mount(parent, {
+    center: { lat: 40.23, lng: -111.66 },
+    radiusMiles: 10,
+    pickMode: true,
+    maplibre: { Map: FakeMap, Marker: Marker }
+  });
+  const stage = walk(handle.element).filter(node => node.className === "radius-map-stage")[0];
+  check("tiles on keep the map stage", handle.tilesState() === "on" && stage && stage.hidden === false);
+  check("pick mode makes the pin draggable", markerOpts[0] && markerOpts[0].draggable === true);
+  handle.resize();
+  check("resize asks MapLibre to measure the sheet", maps[0].resizeCount === 1);
+  stage.clientWidth = 0;
+  stage.offsetWidth = 0;
+  handle.resize();
+  check("a hidden sheet does not freeze a zero size", maps[0].resizeCount === 1);
+  handle.destroy();
+  check("closing releases the map", maps[0].removed === true);
+  if (savedDocument === undefined) delete global.document;
+  else global.document = savedDocument;
+  if (savedWindow === undefined) delete global.window;
+  else global.window = savedWindow;
+});
+
 async function main() {
   await section("activities requests and share links stay rounded", async () => {
     const t = loadApp({});
@@ -387,7 +532,8 @@ async function main() {
     try {
       t.state.filters.radiusMiles = 25;
       t.state.filters.localOnly = false;
-      t.buildDiscoverScreen();
+      t.ui.filterDraft = Object.assign({}, t.state.filters);
+      t.buildWhereGroup();
       t.radiusMapHandle.runSearch("provo");
       t.applyPickedSpot({ lat: PRECISE_LAT, lng: PRECISE_LNG }, "");
       for (let i = 0; i < 12; i++) await new Promise(resolve => setImmediate(resolve));

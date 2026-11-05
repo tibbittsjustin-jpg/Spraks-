@@ -1,11 +1,11 @@
-/* Local Activities vs Happening, the Denver date window, the card bar,
-   and new-first order. No database. */
+/* Anytime activities and dated events in one list, the Denver date window,
+   the card bar, and new-first order. No database. */
 "use strict";
 
 const { loadApp } = require("./harness");
 const occ = require("../public/occurrences");
 const feed = require("../public/feed");
-const { buildListQuery, encodeCursor } = require("../db/activities-repo");
+const { buildListQuery } = require("../db/activities-repo");
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {
@@ -64,7 +64,7 @@ section("isDatedEvent", () => {
   check("a null row is not dated", occ.isDatedEvent(null) === false);
 });
 
-section("both modes, the default, and a saved choice", () => {
+section("one list, the date filter, and a saved mode", () => {
   const tonight = dated("2026-10-31", "19:00", "21:00", { id: 10, cost: "Free" });
   const otherDay = dated("2026-11-02", "19:00", "21:00", { id: 11, cost: "Free" });
   const morning = dated("2026-10-31", "10:00", "11:00", { id: 12, cost: "$20-$30" });
@@ -73,39 +73,41 @@ section("both modes, the default, and a saved choice", () => {
     id: 14, title: "Market", cost: "Free", time: [], vibe: [], season: [], stage: [], dateType: [], food: false, setting: "Outdoor",
     occurrences: { kind: "weekly", start: "2026-01-01", weekdays: ["Sat"], start_time: "19:00", end_time: "21:00" }
   };
-  const local = baseFilters();
-  const happening = baseFilters({ feedMode: "happening", when: "tonight" });
-  check("local hides a one-time event", feed.matchesFeed(tonight, local, SIX_PM) === false);
-  check("local keeps an anytime place", feed.matchesFeed(anytime, local, SIX_PM) === true);
-  check("local keeps a weekly row", feed.matchesFeed(weekly, local, SIX_PM) === true);
-  check("tonight keeps the 7pm show", feed.matchesFeed(tonight, happening, SIX_PM) === true);
-  check("tonight hides another day", feed.matchesFeed(otherDay, happening, SIX_PM) === false);
-  check("tonight hides a weekly row", feed.matchesFeed(weekly, happening, SIX_PM) === false);
-  check("tonight hides an anytime place", feed.matchesFeed(anytime, happening, SIX_PM) === false);
+  const open = baseFilters();
+  const tonightFilter = baseFilters({ feedMode: "happening", when: "tonight" });
+  check("an open list keeps a one-time event", feed.matchesFeed(tonight, open, SIX_PM) === true);
+  check("an open list keeps an anytime place", feed.matchesFeed(anytime, open, SIX_PM) === true);
+  check("an open list keeps a weekly row", feed.matchesFeed(weekly, open, SIX_PM) === true);
+  check("a stale happening mode does not hide the anytime place",
+    feed.matchesFeed(anytime, tonightFilter, SIX_PM) === true);
+  check("a stale happening mode does not hide the weekly row",
+    feed.matchesFeed(weekly, tonightFilter, SIX_PM) === true);
+  check("tonight keeps the 7pm show", feed.matchesFeed(tonight, tonightFilter, SIX_PM) === true);
+  check("tonight hides another day", feed.matchesFeed(otherDay, tonightFilter, SIX_PM) === false);
   check("a morning show that already ended stays out of tonight",
-    feed.matchesFeed(morning, happening, SIX_PM) === false);
+    feed.matchesFeed(morning, tonightFilter, SIX_PM) === false);
   check("a show whose end has passed stays out of tonight",
-    feed.matchesFeed(tonight, happening, TEN_PM) === false);
+    feed.matchesFeed(tonight, tonightFilter, TEN_PM) === false);
   check("today still hides that ended show",
-    feed.matchesFeed(tonight, baseFilters({ feedMode: "happening", when: "today" }), TEN_PM) === false);
+    feed.matchesFeed(tonight, baseFilters({ feedMode: "local", when: "today" }), TEN_PM) === false);
   check("a later show is still tonight",
-    feed.matchesFeed(dated("2026-10-31", "21:00", "23:00"), happening, TEN_PM) === true);
+    feed.matchesFeed(dated("2026-10-31", "21:00", "23:00"), tonightFilter, TEN_PM) === true);
   const todayLocal = baseFilters({ when: "today" });
-  check("a chosen day in local keeps every anytime place",
+  check("a chosen day keeps every anytime place",
     feed.matchesFeed(anytime, todayLocal, SIX_PM) === true &&
     feed.matchesFeed(Object.assign({}, anytime, { openNow: false, closesAt: "5 pm" }), todayLocal, SIX_PM) === true);
-  check("a chosen day in local adds that day's event",
+  check("a chosen day keeps that day's event",
     feed.matchesFeed(tonight, todayLocal, SIX_PM) === true);
-  check("a chosen day in local skips another day's event",
+  check("a chosen day skips another day's event",
     feed.matchesFeed(otherDay, todayLocal, SIX_PM) === false);
 
   const t = loadApp({});
-  check("Local Activities is the default", t.state.filters.feedMode === "local" && t.state.filters.when === "");
+  check("the default list has no feed mode", t.state.filters.feedMode == null && t.state.filters.when === "");
   check("a morning catalog idea stays in the default deck", t.matchesFilters(t.IDEAS_BY_ID[2], t.state.filters) === true);
   const paid = Object.assign({}, t.IDEAS_BY_ID[2], { cost: "$20-$30" });
-  check("cost still applies on top of the mode",
+  check("cost still applies on the mixed list",
     t.matchesFilters(paid, Object.assign({}, t.state.filters, { cost: ["Free"] })) === false &&
-    t.matchesFilters(t.IDEAS_BY_ID[2], Object.assign({}, t.state.filters, { feedMode: "happening", when: "tonight", cost: ["Free"] })) === false);
+    t.matchesFilters(t.IDEAS_BY_ID[2], Object.assign({}, t.state.filters, { feedMode: "happening", when: "tonight", cost: ["Free"] })) === true);
 
   const held = {};
   const chosen = occ.addDays(occ.denverToday(new Date()), 10);
@@ -115,19 +117,13 @@ section("both modes, the default, and a saved choice", () => {
   first.state.location = { lat: 40.23, lng: -111.66 };
   first.saveState();
   const saved = JSON.parse(held.spark_state_v1);
-  check("the saved mode is happening on the chosen day",
-    saved.filters.feedMode === "happening" && saved.filters.when === chosen);
-  check("the mode does not store a location",
+  check("the day is what gets saved", saved.filters.when === chosen);
+  check("the saved filters do not store a location",
     saved.filters.lat == null && saved.filters.lng == null && saved.filters.location == null);
   const again = loadApp(held);
-  check("reloading restores the mode",
-    again.state.filters.feedMode === "happening" && again.state.filters.when === chosen);
+  check("reloading drops the mode and keeps the day",
+    again.state.filters.feedMode == null && again.state.filters.when === chosen);
   again.ui.filterDraft = JSON.parse(JSON.stringify(again.state.filters));
-  const toggle = again.buildFeedModeToggle();
-  const labels = (toggle.children[0].children || []).map(node => node.innerHTML);
-  check("the filters toggle offers Local Activities and Happening on that day",
-    labels.indexOf("Local Activities") !== -1 && labels.join(" ").indexOf("Happening") !== -1,
-    labels.join(" | "));
   function walk(node, acc) {
     acc = acc || [];
     if (!node || typeof node !== "object" || acc.indexOf(node) !== -1) return acc;
@@ -138,11 +134,17 @@ section("both modes, the default, and a saved choice", () => {
   const pickerNodes = walk(again.buildWhenPicker());
   const pickerText = pickerNodes.map(node => (node.innerHTML || "") + "\n" + (node.className || "")).join("\n");
   const input = pickerNodes.filter(node => node.className === "when-date")[0];
-  check("the date picker offers Tonight and Today",
-    pickerText.indexOf("Tonight") !== -1 && pickerText.indexOf("Today") !== -1);
+  check("Filters has no Local Activities toggle",
+    pickerText.indexOf("Local Activities") === -1 && pickerText.indexOf("feed-mode") === -1);
+  check("the date picker offers Any time, Tonight, and Today",
+    pickerText.indexOf("Any time") !== -1 && pickerText.indexOf("Tonight") !== -1 && pickerText.indexOf("Today") !== -1);
   check("the date input stops 14 days out",
     !!input && input.getAttribute("max") === feed.maxDate(new Date()) &&
     input.getAttribute("min") === occ.denverToday(new Date()));
+  const discover = walk(again.buildDiscoverScreen());
+  const discoverText = discover.map(node => (node.innerHTML || "") + "\n" + (node.className || "")).join("\n");
+  check("Discover does not render the segmented toggle",
+    discoverText.indexOf("Local Activities") === -1 && discoverText.indexOf("feed-mode") === -1);
 });
 
 section("14 Denver days, midnight, and the spring-forward hour", () => {
@@ -166,7 +168,7 @@ section("14 Denver days, midnight, and the spring-forward hour", () => {
     feed.maxDate(AFTER_SPRING) === "2026-03-22");
   check("a date saved from yesterday drops off after midnight",
     feed.storedWhen("2026-10-31", AFTER_MIDNIGHT, "local") === "" &&
-    feed.storedWhen("2026-10-31", AFTER_MIDNIGHT, "happening") === "tonight");
+    feed.storedWhen("2026-10-31", AFTER_MIDNIGHT, "happening") === "");
 });
 
 section("the happening bar", () => {
@@ -265,24 +267,22 @@ section("new rows lead, with a stable id tiebreak", () => {
     rank: "new",
     limit: 2
   });
-  check("happening SQL orders new rows, then start, then id",
-    sql.rank === "happening" &&
-    sql.text.indexOf(feed.newRowSql()) !== -1 &&
-    sql.text.indexOf("1441") !== -1 &&
-    sql.text.indexOf("ORDER BY") !== -1);
-  const pageToken = encodeCursor({ v: 2, p: "h", n: 0, s: 19 * 60, id: 30 });
-  const next = buildListQuery({
-    feed: "happening",
-    when: "today",
-    rank: "new",
-    limit: 2,
-    cursor: pageToken
-  });
-  check("the next happening page keeps the same order expression",
-    next.text.indexOf("ORDER BY") !== -1 && next.text.indexOf("id >= " + feed.NEW_ROW_ID) !== -1 &&
-    next.values.indexOf(0) !== -1 && next.values.indexOf(19 * 60) !== -1 && next.values.indexOf(30) !== -1);
-  const localSql = buildListQuery({ feed: "local", rank: "new", limit: 2 });
-  check("local SQL asks for new rows before older rows",
+  check("a feed flag does not switch the list to events only",
+    sql.rank !== "happening" &&
+    sql.mode === "phases" &&
+    sql.text.indexOf("occurrences->>'kind' = 'dates'") !== -1 &&
+    sql.text.indexOf("IS DISTINCT FROM 'dates'") !== -1);
+  const openSql = buildListQuery({ feed: "local", rank: "new", limit: 2 });
+  check("feed=local still returns both kinds",
+    openSql.mode === "phases" &&
+    openSql.phases.map(phase => phase.name).join(",") === "ni,oi" &&
+    openSql.text.indexOf("occurrences->>'kind' = 'dates'") === -1);
+  const mixed = buildListQuery({ rank: "new", limit: 2 });
+  check("omitting feed uses the same mixed pages",
+    mixed.mode === "phases" &&
+    mixed.phases.map(phase => phase.name).join(",") === "ni,oi");
+  const localSql = openSql;
+  check("mixed SQL asks for new rows before older rows",
     localSql.mode === "phases" &&
     localSql.phases.map(phase => phase.name).join(",") === "ni,oi" &&
     localSql.text.indexOf("id >= " + feed.NEW_ROW_ID) !== -1 &&

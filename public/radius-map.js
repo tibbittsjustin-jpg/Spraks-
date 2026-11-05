@@ -1,8 +1,9 @@
-/* Radius map. The circle and the pin are drawn here.
+/* Choose-a-spot map used inside Filters.
    A tap's latitude and longitude come from MapLibre's screen-to-coordinate
    result (lngLat). Tile images are only displayed.
-   With no MapLibre, or when the browser is offline, the same circle and
-   pin sit on a blank panel so search and the radius still work.
+   If MapLibre is missing, the browser is offline, or the map errors, the
+   map stage stays hidden. Place search and a short fallback sentence stay
+   so Filters has no empty box.
    ============================================================ */
 (function (root, factory) {
   var api = factory();
@@ -211,19 +212,19 @@
     credit.setAttribute("href", config ? config.SOURCES_PATH : "/sources");
     stage.appendChild(canvas);
     stage.appendChild(blank);
-    stage.appendChild(note);
     stage.appendChild(credit);
     panel.appendChild(searchWrap);
+    panel.appendChild(note);
     panel.appendChild(stage);
     parent.appendChild(panel);
 
     function paintBlank() {
       circle.setAttribute("r", String(fallbackRadiusPx(state.miles)));
       panel.setAttribute("data-radius-miles", String(state.miles));
-      var showBlank = state.tiles !== "on";
-      blank.hidden = !showBlank;
-      if (state.center) pin.hidden = !showBlank;
-      else pin.hidden = true;
+      var tilesOn = state.tiles === "on";
+      stage.hidden = !tilesOn;
+      blank.hidden = true;
+      pin.hidden = true;
       if (state.tiles === "off" || state.tiles === "error") note.textContent = FALLBACK_NOTE;
       else note.textContent = "";
     }
@@ -327,7 +328,40 @@
       query.addEventListener("input", function () { runSearch(query.value); });
     }
 
+    var mapAttempts = 0;
+    var mapLoaded = false;
+    var sawTile = false;
+    var loadTimer = null;
+    function stageSize() {
+      try {
+        return {
+          w: stage.clientWidth || stage.offsetWidth || 0,
+          h: stage.clientHeight || stage.offsetHeight || 0
+        };
+      } catch (err) {
+        return { w: 0, h: 0 };
+      }
+    }
+    function clearLoadTimer() {
+      if (!loadTimer) return;
+      clearTimeout(loadTimer);
+      loadTimer = null;
+    }
+    function canvasLooksBlank() {
+      try {
+        var el = map && map.getCanvas ? map.getCanvas() : null;
+        if (!el || !el.width || !el.height) return true;
+        var gl = el.getContext("webgl2") || el.getContext("webgl");
+        if (!gl) return true;
+        var px = new Uint8Array(4);
+        gl.readPixels(Math.floor(el.width / 2), Math.floor(el.height / 2), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+        return px[0] < 96 && px[1] < 96 && px[2] < 96;
+      } catch (err) {
+        return false;
+      }
+    }
     function tryMap() {
+      if (!alive || map) return;
       var lib = typeof maplibregl !== "undefined" ? maplibregl : null;
       if (options.maplibre) lib = options.maplibre;
       mapLib = lib;
@@ -344,6 +378,19 @@
         markTiles("off");
         return;
       }
+      // The stage starts hidden. Unhide it before measuring, or MapLibre
+      // builds a zero-size canvas and the sheet stays a blank box.
+      stage.hidden = false;
+      var size = stageSize();
+      if (!size.w || !size.h) {
+        mapAttempts += 1;
+        if (mapAttempts > 45 || typeof requestAnimationFrame !== "function") {
+          markTiles("off");
+          return;
+        }
+        requestAnimationFrame(tryMap);
+        return;
+      }
       try {
         map = new lib.Map({
           container: canvas,
@@ -351,7 +398,8 @@
           center: state.center ? [state.center.lng, state.center.lat] : [-111.6, 39.32],
           zoom: state.center ? 8 : 6,
           attributionControl: false,
-          fadeDuration: 0
+          fadeDuration: 0,
+          canvasContextAttributes: { preserveDrawingBuffer: true, antialias: false }
         });
       } catch (err) {
         map = null;
@@ -359,6 +407,13 @@
         return;
       }
       markTiles("on");
+      clearLoadTimer();
+      loadTimer = setTimeout(function () {
+        loadTimer = null;
+        if (!alive) return;
+        if (!canvasLooksBlank()) return;
+        markTiles("error");
+      }, 3500);
       if (typeof lib.AttributionControl === "function" && map.addControl) {
         try {
           map.addControl(new lib.AttributionControl(attributionOptions()), "bottom-right");
@@ -366,12 +421,21 @@
         } catch (err) {}
       }
       if (map.on) {
-        map.on("error", function () {
-          if (!alive) return;
+        map.on("data", function (event) {
+          if (!event || !event.tile || sawTile) return;
+          if (event.tile.state !== "loaded") return;
+          sawTile = true;
+          mapLoaded = true;
+        });
+        map.on("error", function (event) {
+          if (!alive || sawTile) return;
+          var status = event && event.error && event.error.status;
+          if (event && event.tile) return;
+          if (status) return;
           markTiles("error");
         });
         map.on("load", function () {
-          if (!alive || !map.addSource) return;
+          if (!alive || !map || !map.addSource) return;
           try {
             map.addSource("radius", { type: "geojson", data: polygonData(state.center, state.miles) });
             map.addLayer({
@@ -388,6 +452,7 @@
             });
           } catch (err) {}
           paintCircleOnMap();
+          resizeMap();
         });
         map.on("click", function (event) {
           emitPick(event && event.lngLat);
@@ -419,8 +484,34 @@
         try { marker.setDraggable(state.pickMode); } catch (err) {}
       }
     }
+    var resizeObserver = null;
+    function resizeMap() {
+      if (!alive || !map || typeof map.resize !== "function") return;
+      var size = stageSize();
+      if (!size.w || !size.h) return;
+      try { map.resize(); } catch (err) {}
+      if (map.triggerRepaint) {
+        try { map.triggerRepaint(); } catch (err) {}
+      }
+      paintCircleOnMap();
+    }
+    function watchStage() {
+      if (typeof ResizeObserver !== "function") return;
+      try {
+        resizeObserver = new ResizeObserver(function () { resizeMap(); });
+        resizeObserver.observe(stage);
+      } catch (err) {
+        resizeObserver = null;
+      }
+    }
+
     function destroy() {
       alive = false;
+      clearLoadTimer();
+      if (resizeObserver && resizeObserver.disconnect) {
+        try { resizeObserver.disconnect(); } catch (err) {}
+      }
+      resizeObserver = null;
       if (map && map.remove) {
         try { map.remove(); } catch (err) {}
       }
@@ -428,11 +519,14 @@
       marker = null;
     }
 
+    watchStage();
+
     return {
       element: panel,
       setRadiusMiles: setRadiusMiles,
       setCenter: setCenter,
       setPickMode: setPickMode,
+      resize: resizeMap,
       destroy: destroy,
       runSearch: runSearch,
       choose: choose,
@@ -448,6 +542,7 @@
       setRadiusMiles: function (miles) { state.miles = clampMiles(miles); return state.miles; },
       setCenter: function () {},
       setPickMode: function () {},
+      resize: function () {},
       destroy: function () {},
       runSearch: function () { return []; },
       choose: function () { return null; },

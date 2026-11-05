@@ -10,6 +10,7 @@ const { buildListQuery } = require("../db/activities-repo");
 const { validateSubmission } = require("../lib/submission");
 const { poolConfig } = require("../db");
 const { loadApp } = require("./harness");
+const occ = require("../public/occurrences");
 
 let pass = 0, fail = 0;
 function check(name, ok, info) {
@@ -337,15 +338,23 @@ check("a Morning and Afternoon idea prints the three window labels",
   detail.indexOf(LABELS[1]) !== -1 &&
   detail.indexOf(LABELS[2]) !== -1 &&
   detail.indexOf(LABELS[3]) === -1);
-idea.occurrences = dates(["19:00", "10:30"]);
+const showDay = occ.addDays(occ.denverToday(new Date()), 1);
+idea.occurrences = {
+  kind: "dates",
+  dates: [
+    { date: showDay, start: "19:00" },
+    { date: occ.addDays(showDay, 1), start: "10:30" }
+  ]
+};
 idea.time = ["Morning"];
 const placed = textOf(app.buildDetailScreen(2));
+const onThatDay = Object.assign({}, app.state.filters, { feedMode: "happening", when: showDay });
 check("a dated idea prints the windows of its Denver start times",
   placed.indexOf(LABELS[1]) !== -1 &&
   placed.indexOf(LABELS[3]) !== -1 &&
   placed.indexOf(LABELS[0]) === -1 &&
-  app.matchesFilters(idea, Object.assign({}, app.state.filters, { time: ["evening"] })) === true &&
-  app.matchesFilters(idea, Object.assign({}, app.state.filters, { time: ["morning"] })) === false);
+  app.matchesFilters(idea, Object.assign({}, onThatDay, { time: ["evening"] })) === true &&
+  app.matchesFilters(idea, Object.assign({}, onThatDay, { time: ["morning"] })) === false);
 idea.time = savedTime;
 idea.occurrences = savedOcc;
 

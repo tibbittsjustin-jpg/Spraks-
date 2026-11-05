@@ -203,6 +203,7 @@
       sourceKey: cleanSourceKey(row.source_key != null ? row.source_key : row.sourceKey),
       source_credit: cleanSourceCredit(row.source_credit != null ? row.source_credit : row.sourceCredit),
       sourceCredit: cleanSourceCredit(row.source_credit != null ? row.source_credit : row.sourceCredit),
+      source: typeof row.source === "string" ? row.source : "",
       expires_at: expires,
       expiresAt: expires,
       occurrences: occurrences,

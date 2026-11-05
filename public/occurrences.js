@@ -485,6 +485,18 @@
     return startMin == null || nowMin < startMin + NO_END_GRACE_MIN;
   }
 
+  /* Same clock rules as tonightSlot without the 4:00pm gate.
+     A start with no end lasts three hours. Date-only stays all day. */
+  function slotStillOpen(start, end, nowMin, dateOnlyCounts) {
+    if (start == null && end == null) return dateOnlyCounts === true;
+    var startMin = clockMinutes(start);
+    var endMin = clockMinutes(end);
+    if (endMin === 0) endMin = 24 * 60;
+    else if (startMin != null && endMin != null && endMin < startMin) endMin += 24 * 60;
+    if (endMin != null) return nowMin < endMin;
+    return startMin == null || nowMin < startMin + NO_END_GRACE_MIN;
+  }
+
   /* True when a dated or weekly schedule falls on today's Denver civil
      day and the clock window is tonight. Anytime (null occurrences) is
      false. A dated row with no start and no end matches for the whole day. */
@@ -511,16 +523,100 @@
     return false;
   }
 
+  /* isDatedEvent(row)
+     True for a one-time dated event. False for anytime.
+     Reads row.occurrences — the same field occursTonight normalizes.
+     A normalized kind of "dates" (a list of {date, optional start, optional end})
+     is dated, including when that date is already past.
+     Weekly recurrence (kind "weekly") is anytime. Null or a missing
+     occurrences is anytime. An end date with no start date does not
+     normalize, because a weekly range requires a start, so it is not dated.
+
+     Read-only. Counts approved rows in each bucket, then lists odd rows
+     (a past specific date, or an end date with no start date). Do not
+     run this from the app.
+
+     WITH bucketed AS (
+       SELECT id, occurrences,
+         CASE
+           WHEN occurrences IS NULL THEN 'anytime'
+           WHEN occurrences->>'kind' = 'weekly' THEN 'anytime'
+           WHEN occurrences->>'kind' = 'dates' THEN 'dated'
+           ELSE 'unclassified'
+         END AS bucket
+       FROM activities
+       WHERE status = 'approved'
+     )
+     SELECT bucket, count(*) AS rows
+     FROM bucketed
+     GROUP BY bucket
+     ORDER BY bucket;
+
+     SELECT id, occurrences
+     FROM activities
+     WHERE status = 'approved'
+       AND (
+         (
+           occurrences->>'kind' = 'dates'
+           AND EXISTS (
+             SELECT 1
+             FROM jsonb_array_elements(
+               CASE WHEN jsonb_typeof(occurrences->'dates') = 'array'
+                    THEN occurrences->'dates' ELSE '[]'::jsonb END
+             ) AS item
+             WHERE item->>'date' ~ '^\d{4}-\d{2}-\d{2}$'
+               AND item->>'date' < to_char((now() AT TIME ZONE 'America/Denver')::date, 'YYYY-MM-DD')
+           )
+         )
+         OR (
+           COALESCE(occurrences->>'end', occurrences->>'end_date') IS NOT NULL
+           AND COALESCE(occurrences->>'start', occurrences->>'start_date') IS NULL
+           AND COALESCE(occurrences->>'kind', '') IS DISTINCT FROM 'dates'
+         )
+       );
+  */
+  function isDatedEvent(row) {
+    if (!row || typeof row !== "object") return false;
+    var norm = normalizeOccurrences(row.occurrences);
+    return !!(norm.ok && norm.value && norm.value.kind === "dates");
+  }
+
+  /* One-time event on a Denver civil day that has not already ended.
+     A future day counts for the whole day. Today uses slotStillOpen
+     (3-hour grace, no 4:00pm gate). A past day does not count. */
+  function occursOnDateStill(idea, isoDate, now) {
+    if (!isDatedEvent(idea)) return false;
+    var date = parseISODate(typeof isoDate === "string" ? isoDate : "");
+    if (!date) return false;
+    var norm = normalizeOccurrences(idea.occurrences);
+    if (!norm.ok || !norm.value || norm.value.kind !== "dates") return false;
+    var today = denverToday(now);
+    if (date < today) return false;
+    var clock = denverClock(now);
+    var nowMin = clock.hour * 60 + clock.minute;
+    var dates = norm.value.dates;
+    for (var i = 0; i < dates.length; i++) {
+      var entry = dates[i];
+      if (!entry || entry.date !== date) continue;
+      if (date > today) return true;
+      if (slotStillOpen(entry.start || null, entry.end || null, nowMin, true)) return true;
+    }
+    return false;
+  }
+
   return {
     WEEKDAYS: WEEKDAYS,
     parseISODate: parseISODate,
     weekdayIndex: weekdayIndex,
     weekdayName: weekdayName,
+    addDays: addDays,
     denverToday: denverToday,
     denverClock: denverClock,
     normalizeOccurrences: normalizeOccurrences,
     occursOn: occursOn,
     occursTonight: occursTonight,
+    occursOnDateStill: occursOnDateStill,
+    isDatedEvent: isDatedEvent,
     visibleOnPlan: visibleOnPlan,
     isPast: isPast
   };

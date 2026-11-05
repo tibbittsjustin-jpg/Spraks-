@@ -271,7 +271,7 @@
       doneIds:[],       // [{id, date, rating?, recap?, photoKey?}] rating 1–5, recap one line, photoKey points at IndexedDB
       seenIds:[],        // ids already swiped (yes or no) this "session cycle"
       passedIds:[],
-      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false, radiusMiles:SparkRadius.RADIUS_DEFAULT, localOnly:false },
+      filters:{ duration:[], cost:[], time:[], setting:[], vibe:[], season:[], stage:[], dateType:[], food:null, hide21:false, tonight:false, feedMode:"local", when:"", radiusMiles:SparkRadius.RADIUS_DEFAULT, localOnly:false },
       submittedIdeas:[],
       ideaSendBannerDismissed:false, // one-time "send ideas saved on this phone" offer
       deckOrder:null,    // cached shuffled id order for current filter set
@@ -314,6 +314,15 @@
         parsed.filters.time = migratedTime.values;
         pendingTimeFilterSave = true;
       }
+      // Local Activities is the default. A missing mode stays local.
+      // The choice is a mode and a Denver day token, never a coordinate.
+      if (parsed.filters.feedMode !== "local" && parsed.filters.feedMode !== "happening") {
+        parsed.filters.feedMode = "local";
+      }
+      parsed.filters.when = SparkFeed.storedWhen(parsed.filters.when, new Date(), parsed.filters.feedMode);
+      delete parsed.filters.lat;
+      delete parsed.filters.lng;
+      delete parsed.filters.location;
       // A saved fix from an older build is {lat, lng, grantedAt} with no mode.
       // Keep it only as a stale stand-in. Exact mode is remembered only when
       // this device already stored that choice. Bad data becomes no fix.
@@ -1213,7 +1222,7 @@
         if(matchesFilters(idea, state.filters)) matching.push(idea.id);
       });
       if(matching.length){
-        deckOrderCache.ids = SparkRemoteActivities.appendNewIds(deckOrderCache.ids, matching);
+        deckOrderCache.ids = orderDeckIds(SparkRemoteActivities.appendNewIds(deckOrderCache.ids, matching));
         rememberDeckSignature();
       }
     }
@@ -1244,6 +1253,9 @@
     // A fix means the deck is the radius. Ask for pinned rows only so
     // ideas with no location are not paged in from the server.
     if(f.localOnly === true || usableOrigin()) out.localOnly = "1";
+    out.feed = f.feedMode === "happening" ? "happening" : "local";
+    if(f.when) out.when = f.when;
+    out.rank = "new";
     return out;
   }
 
@@ -1270,7 +1282,10 @@
       food: f.food === true ? true : (f.food === false ? false : null),
       hide21: f.hide21 === true,
       localOnly: f.localOnly === true || !!usableOrigin(),
-      radius: remoteRadiusMiles()
+      radius: remoteRadiusMiles(),
+      feed: f.feedMode === "happening" ? "happening" : "local",
+      when: f.when || "",
+      rank: "new"
     });
   }
 
@@ -2425,10 +2440,9 @@
       if(!ideaHasKnownPlace(idea)) return false;
       if(!SparkRadius.withinRadius(idea, state.location, f.radiusMiles)) return false;
     }
-    // Quick filter from the Discover chip. Not part of the Filters sheet,
-    // and not counted on that button. Dated and weekly events only.
-    // Anytime ideas stay off this count. See SparkUtil.suitsTonight.
-    if(f.tonight === true && !SparkUtil.suitsTonight(idea)) return false;
+    // Local Activities is anytime rows. Happening is one-time dated events
+    // on the chosen Denver day. Other filters above still apply.
+    if(!SparkFeed.matchesFeed(idea, f, new Date())) return false;
     var plan = getActivePlan();
     var planDate = plan && typeof plan.date === "string" ? plan.date : "";
     // Deck only. A saved list keeps the idea after this day passes.
@@ -2442,7 +2456,8 @@
   function tonightMatchCount(){
     var f = {};
     for(var k in state.filters) f[k] = state.filters[k];
-    f.tonight = true;
+    f.feedMode = "happening";
+    f.when = "tonight";
     var n = 0;
     for(var i = 0; i < IDEAS_DATA.length; i++){
       if(matchesFilters(IDEAS_DATA[i], f)) n++;
@@ -2459,9 +2474,12 @@
   }
 
   function toggleTonightFilter(){
-    state.filters.tonight = state.filters.tonight !== true;
+    var on = state.filters.feedMode !== "happening";
+    state.filters.feedMode = on ? "happening" : "local";
+    state.filters.when = on ? "tonight" : "";
+    state.filters.tonight = on;
     saveState();
-    return state.filters.tonight;
+    return on;
   }
 
   function nextRadiusStop(miles){
@@ -2526,16 +2544,7 @@
     if(!host) host = tonightAlsoEl();
     if(!host) return;
     host.innerHTML = "";
-    if(state.filters.tonight !== true){
-      host.className = "tonight-also hidden";
-      return;
-    }
-    host.className = "tonight-also";
-    host.appendChild(el("h2", "tonight-also-title", "Also good tonight"));
-    var ideas = alsoGoodTonightIdeas();
-    for(var i = 0; i < ideas.length; i++){
-      host.appendChild(buildIdeaRow(ideas[i], alsoGoodSubtext(ideas[i])));
-    }
+    host.className = "tonight-also hidden";
   }
 
   // A pin (lat/lng, location, or coordinates) or a measured distanceMiles.
@@ -2551,6 +2560,8 @@
     ["duration","cost","time","setting","vibe","season","stage","dateType"].forEach(function(k){ n += f[k].length; });
     if(f.food !== null) n += 1;
     if(f.hide21) n += 1;
+    if(f.feedMode === "happening") n += 1;
+    else if(f.when) n += 1;
     // Local counts on its own. A non-default radius counts whenever it
     // is actually filtering: Local on, or any fix (even with Local off).
     var customRadius = SparkRadius.clampRadiusMiles(f.radiusMiles) !== SparkRadius.RADIUS_DEFAULT;
@@ -2590,6 +2601,19 @@
     btn.textContent = formatShowIdeas(countIdeasMatching(ui.filterDraft));
   }
 
+  // New credited rows first. Happening then sorts each group by start time.
+  // Local keeps the order already in `ids` inside each group.
+  function orderDeckIds(ids){
+    if(state.filters.feedMode === "happening"){
+      var sel = SparkFeed.resolveSelection(state.filters, new Date());
+      var ranked = ids.slice().sort(function(a, b){
+        return SparkFeed.compareHappening(IDEAS_BY_ID[a], IDEAS_BY_ID[b], sel.date);
+      });
+      return ranked;
+    }
+    return SparkFeed.partitionNewFirst(ids, function(id){ return IDEAS_BY_ID[id]; });
+  }
+
   // The interleaved deck order, cached so it stays PUT between swipes.
   // Recomputing it from what's left after every swipe looks equivalent but
   // isn't: the extras get re-inserted N cards deep each time, so the first
@@ -2611,7 +2635,7 @@
     // in hand keeps its place.
     var signature = deckSignature(builtinIds, extraIds);
     if(!deckOrderCache || deckOrderCache.signature !== signature){
-      deckOrderCache = { signature: signature, ids: interleaveIds(builtinIds, extraIds) };
+      deckOrderCache = { signature: signature, ids: orderDeckIds(interleaveIds(builtinIds, extraIds)) };
     }
 
     var seen = {};
@@ -2921,19 +2945,6 @@
     bar.appendChild(fbtn);
     if(state.filters.localOnly === true) bar.appendChild(buildLocalPill());
 
-    var tonightOn = state.filters.tonight === true;
-    var tonightCount = tonightMatchCount();
-    var tonightBtn = el("button", "tonight-chip" + (tonightOn ? " is-on" : ""));
-    tonightBtn.type = "button";
-    tonightBtn.setAttribute("aria-pressed", tonightOn ? "true" : "false");
-    tonightBtn.setAttribute("aria-label", "Happening tonight, " + tonightCount + (tonightCount === 1 ? " idea" : " ideas"));
-    tonightBtn.innerHTML = icon("moon", "icon-inline") + '<span class="tonight-count">' + tonightCount + "</span>";
-    tonightBtn.addEventListener("click", function(){
-      toggleTonightFilter();
-      renderContent();
-    });
-    bar.appendChild(tonightBtn);
-
     var deck = computeDeck();
     var rc = el("div", "result-count", deckCountLabel(deck));
     bar.appendChild(rc);
@@ -3052,12 +3063,13 @@
     }
 
     if(ids.length === 0){
-      var tonightEmpty = state.filters.tonight === true && deck.total === 0;
+      var tonightEmpty = state.filters.feedMode === "happening" && deck.total === 0;
       if(tonightEmpty){
         deckEl.className = "deck deck-tonight-empty";
         var tonightNote = el("div", "empty-state tonight-empty");
         tonightNote.appendChild(el("span", "es-icon", icon("moon")));
-        tonightNote.appendChild(el("h3", null, "Nothing scheduled near you tonight"));
+        var tonightLabel = !state.filters.when || state.filters.when === "tonight";
+        tonightNote.appendChild(el("h3", null, tonightLabel ? "Nothing scheduled near you tonight" : "Nothing scheduled that day"));
         var widen = el("button", "btn-secondary", "Widen radius");
         widen.type = "button";
         widen.id = "tonight-widen-radius";
@@ -3334,11 +3346,17 @@
     return "";
   }
 
+  function happeningBarHtml(idea){
+    var text = SparkFeed.barText(idea, new Date());
+    if(!text) return "";
+    return '<div class="happening-bar">' + escapeHtml(text) + "</div>";
+  }
+
   function photoSwipeCardHtml(idea, photo, depth){
     var credit = photo.credit
       ? '<div class="card-photo-credit">' + escapeHtml(photo.credit) + creditSafetyMarkup(photo.credit) + '</div>'
       : "";
-    return '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
+    return happeningBarHtml(idea) + '<div class="card-photo">' + photoImageHtml(photo, depth) + '</div>' +
       '<div class="card-photo-scrim"></div>' +
       distanceBadgeHtml(idea) +
       cardCornerHtml(idea) +
@@ -3348,7 +3366,7 @@
   }
 
   function classicSwipeCardHtml(idea){
-    return '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
+    return happeningBarHtml(idea) + '<div class="card-media" style="' + getCoverArtStyle(idea) + '">' +
         distanceBadgeHtml(idea) +
         cardCornerHtml(idea) +
         '<span class="stamp yes">SAVE</span><span class="stamp no">PASS</span>' +
@@ -3688,10 +3706,82 @@
     return chip;
   }
 
+  function buildFeedModeToggle(){
+    if(!ui.filterDraft) ui.filterDraft = JSON.parse(JSON.stringify(state.filters));
+    var mode = ui.filterDraft.feedMode === "happening" ? "happening" : "local";
+    var group = el("div", "filter-group feed-mode-group");
+    var toggle = el("div", "feed-mode");
+    toggle.setAttribute("role", "radiogroup");
+    toggle.setAttribute("aria-label", "What to show");
+    var happeningLabel = SparkFeed.modeLabel({
+      feedMode: "happening",
+      when: ui.filterDraft.when || "tonight"
+    }, new Date());
+    [["local", "Local Activities"], ["happening", happeningLabel]].forEach(function(pair){
+      var on = mode === pair[0];
+      var btn = el("button", "feed-mode-option" + (on ? " is-on" : ""), escapeHtml(pair[1]));
+      btn.type = "button";
+      btn.setAttribute("role", "radio");
+      btn.setAttribute("aria-checked", on ? "true" : "false");
+      btn.addEventListener("click", function(){
+        ui.filterDraft.feedMode = pair[0];
+        if(pair[0] === "happening" && !ui.filterDraft.when) ui.filterDraft.when = "tonight";
+        renderFilterBody();
+      });
+      toggle.appendChild(btn);
+    });
+    group.appendChild(toggle);
+    return group;
+  }
+
+  function buildWhenPicker(){
+    if(!ui.filterDraft) ui.filterDraft = JSON.parse(JSON.stringify(state.filters));
+    var mode = ui.filterDraft.feedMode === "happening" ? "happening" : "local";
+    var when = ui.filterDraft.when || "";
+    var group = el("div", "filter-group when-group");
+    group.appendChild(el("div", "filter-group-title", "When"));
+    var chips = el("div", "chip-select when-choices");
+    function addChip(value, label){
+      var selected = when === value;
+      var chip = el("button", "chip when-chip" + (selected ? " selected" : ""), escapeHtml(label));
+      chip.type = "button";
+      chip.setAttribute("aria-pressed", selected ? "true" : "false");
+      chip.addEventListener("click", function(){
+        ui.filterDraft.when = value;
+        renderFilterBody();
+      });
+      chips.appendChild(chip);
+    }
+    if(mode === "local") addChip("", "Any time");
+    addChip("tonight", "Tonight");
+    addChip("today", "Today");
+    group.appendChild(chips);
+    var today = SparkOccurrences.denverToday(new Date());
+    var input = document.createElement("input");
+    input.type = "date";
+    input.className = "when-date";
+    input.min = today;
+    input.max = SparkFeed.maxDate(new Date());
+    input.setAttribute("min", input.min);
+    input.setAttribute("max", input.max);
+    input.setAttribute("aria-label", "Date, up to 14 days out");
+    if(/^\d{4}-\d{2}-\d{2}$/.test(when)) input.value = when;
+    input.addEventListener("change", function(){
+      var next = SparkFeed.canonicalWhen(input.value);
+      if(!next || !SparkFeed.dateAllowed(next, new Date())) return;
+      ui.filterDraft.when = next;
+      renderFilterBody();
+    });
+    group.appendChild(input);
+    return group;
+  }
+
   function renderFilterBody(){
     var body = $("#filter-body");
     var scroll = body.scrollTop || 0;
     body.innerHTML = "";
+    body.appendChild(buildFeedModeToggle());
+    body.appendChild(buildWhenPicker());
     body.appendChild(buildWhereGroup());
 
     FILTER_DEFS.forEach(function(def){
@@ -5145,6 +5235,8 @@
     if(opts.doneEntry) appendDoneRecap(body, opts.doneEntry);
     var mark = el("span", "saved-bookmark", icon("bookmark"));
     mark.setAttribute("aria-hidden", "true");
+    var whenBar = SparkFeed.barText(idea, new Date());
+    if(whenBar) card.appendChild(el("div", "happening-bar", escapeHtml(whenBar)));
     card.appendChild(thumb);
     card.appendChild(body);
     if(like) appendSavedLikeButton(card, like);

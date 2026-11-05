@@ -407,8 +407,10 @@ async function main() {
     const countBefore = t.countIdeasMatching(t.state.filters);
     const added = t.applyRemoteIdeas([anytime]);
     const after = t.computeDeck();
-    check("the current card stays when activities arrive", after.remaining[0] === first, String(after.remaining[0]));
-    check("the new idea is appended", added.length === 1 && after.remaining.indexOf(anytime.id) !== -1);
+    check("a new activities row leads when it arrives",
+      after.remaining[0] === anytime.id && after.remaining.indexOf(first) > 0,
+      String(after.remaining[0]));
+    check("the new idea is in the deck", added.length === 1 && after.remaining.indexOf(anytime.id) !== -1);
     const withRemote = t.countIdeasMatching(t.state.filters);
     check("the filter count includes it", withRemote === countBefore + 1, withRemote + " vs " + countBefore);
     t.applyRemoteIdeas([expired]);
@@ -429,7 +431,9 @@ async function main() {
     t.ui.activePlanId = null;
     t.state.location = { lat: 40.2338, lng: -111.6585 };
     const local = Object.assign({}, t.state.filters, { localOnly: true, radiusMiles: 10 });
-    check("a close pin matches Local events", t.matchesFilters(dated, local) === true);
+    const closeAnytime = Object.assign({}, anytime, { lat: dated.lat, lng: dated.lng, occurrences: null });
+    check("a close anytime pin matches Local events", t.matchesFilters(closeAnytime, local) === true);
+    check("Local Activities leaves a close one-time event out", t.matchesFilters(dated, local) === false);
     check("a far pin is outside the radius", t.matchesFilters(far, local) === false);
     check("a measured distance inside the radius stays", t.matchesFilters(milesOnly, local) === true);
     check("an idea with no place is hidden when Local events is on", t.matchesFilters(anytime, local) === false);

@@ -113,7 +113,7 @@ section("every idea id exists and every photo file resolves", () => {
   check("459 images in the approved set", referenced.size === 459 && onDisk.length === 459,
     "referenced " + referenced.size + " disk " + onDisk.length);
   const repIds = ids.filter(key => json[key] && json[key].representative === true).map(Number).sort((a, b) => a - b);
-  const expectedRep = [9, 241, 331, 335, 951, 1051, 1068, 1322, 1519, 1695, 1851, 1905, 1925, 100057, 100288, 100313, 100412, 100416, 100480, 100484, 100514, 100535, 100577, 100646, 100685, 100694, 100703, 100706];
+  const expectedRep = [9, 71, 241, 331, 335, 951, 1051, 1068, 1322, 1519, 1695, 1851, 1905, 1925, 100057, 100288, 100313, 100412, 100416, 100480, 100484, 100514, 100535, 100577, 100646, 100685, 100694, 100703, 100706];
   check("close-relevant venue photos are the representative set",
     repIds.length === expectedRep.length && expectedRep.every((id, i) => repIds[i] === id),
     repIds.join(","));

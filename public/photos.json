@@ -418,7 +418,8 @@
   "url": "photos/ice-skating/ice-skating-1.webp",
   "credit": "Photo: René Vlak / Wikimedia Commons, CC0",
   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-  "source_url": "https://commons.wikimedia.org/wiki/File:Skating_and_ice_sailing_on_the_Gouwzee.jpg"
+  "source_url": "https://commons.wikimedia.org/wiki/File:Skating_and_ice_sailing_on_the_Gouwzee.jpg",
+  "representative": true
  },
  "72": {
   "url": "photos/ice-cream/ice-cream-2.webp",

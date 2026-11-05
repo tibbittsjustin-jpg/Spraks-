@@ -249,6 +249,33 @@ section("Representative label and fit/contain stay on the card", () => {
   check("the exact aviary card does not show the representative label",
     aviaryCard.html.indexOf("Representative photo — not this venue/event.") === -1 &&
     aviaryCard.html.indexOf("photo-fit") !== -1);
+
+  t.applyCatalogIdeas([{
+    id: 71,
+    title: "Skate a Pond by Moonlight",
+    description: "Skate a frozen pond under a full moon.",
+    category: "Winter & Snow Adventures",
+    icon: "",
+    setting: "Outdoor",
+    season: ["Winter"],
+    food: false,
+    age21: false,
+    cost: "Free",
+    duration: "Half-day (2-5 hrs)",
+    time: [],
+    vibe: [],
+    stage: [],
+    dateType: [],
+    audience: null,
+    materials: []
+  }]);
+  const pond = t.IDEAS_BY_ID[71];
+  const pondPhoto = t.ideaPhoto(pond);
+  check("skate a pond by moonlight keeps the Gouwzee photo and the representative flag",
+    pondPhoto && pondPhoto.representative === true && pondPhoto.url.indexOf("ice-skating-1") !== -1);
+  const pondCard = cardOf(t, pond);
+  check("the pond card shows the representative label",
+    pondCard.html.indexOf("Representative photo — not this venue/event.") !== -1);
 });
 
 section("Duration caption", () => {

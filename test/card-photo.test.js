@@ -168,6 +168,36 @@ section("Photo does not change filtering", () => {
     !!costDef && costDef.options.indexOf("$81-$100") !== -1);
 });
 
+section("Representative label and fit/contain stay on the card", () => {
+  const t = loadApp({});
+  const idea = copyIdea(t, 2);
+  idea.photo = {
+    url: "photos/massage/massage-1.webp",
+    credit: "Photo: gaelx / Wikimedia Commons, CC BY-SA 2.0",
+    representative: true,
+    fit: "contain"
+  };
+  const parsed = t.ideaPhoto(idea);
+  check("ideaPhoto keeps the representative flag and contain fit",
+    parsed && parsed.representative === true && parsed.fit === "contain");
+  const card = cardOf(t, idea);
+  check("the swipe card shows the representative label on the photo",
+    card.html.indexOf("Representative photo — not this venue/event.") !== -1 &&
+    card.html.indexOf("photo-representative") !== -1);
+  check("a contain photo is not cover-cropped",
+    card.html.indexOf('class="photo-fit"') !== -1);
+  function textOf(node) {
+    if (!node) return "";
+    let out = (node.innerHTML || "") + " " + (node.className || "");
+    (node.children || []).forEach(child => { out += "\n" + textOf(child); });
+    return out;
+  }
+  const savedHtml = textOf(t.buildSavedCard(idea));
+  check("the saved card repeats the representative label",
+    savedHtml.indexOf("Representative photo — not this venue/event.") !== -1 &&
+    savedHtml.indexOf("photo-fit") !== -1);
+});
+
 section("Duration caption", () => {
   const t = loadApp({});
   const idea = copyIdea(t, 3);

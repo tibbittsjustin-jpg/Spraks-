@@ -83,9 +83,9 @@ async function main() {
       home.body.indexOf('src="data.js"') !== -1);
     check("profile links to photo credits", home.body.indexOf('data-action="credits"') !== -1);
     const creditsPage = await request(port, "/credits.html");
-    check("credits page names the AI images and links licenses",
+    check("credits page links licenses",
       creditsPage.status === 200 &&
-      creditsPage.body.indexOf("AI-generated image") !== -1 &&
+      creditsPage.body.indexOf("AI-generated image") === -1 &&
       creditsPage.body.indexOf("creativecommons.org") !== -1);
     const sample = await request(port, "/photos/aquarium/aquarium-1.webp");
     check("a catalog photo is served", sample.status === 200 && sample.headers["content-type"] && sample.headers["content-type"].indexOf("image/webp") !== -1,

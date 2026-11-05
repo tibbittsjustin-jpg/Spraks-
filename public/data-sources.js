@@ -933,6 +933,14 @@
     { line: "Event info from The Pearl On Main (thepearlonmain.com).", domain: "thepearlonmain.com", href: "https://thepearlonmain.com/" },
     { line: "Event info from UTCH (www.utch.org).", domain: "www.utch.org", href: "https://www.utch.org/" },
     { line: "Event info from Utah State Capitol (utahstatecapitol.utah.gov).", domain: "utahstatecapitol.utah.gov", href: "https://utahstatecapitol.utah.gov/" },
+    { line: "Event info from CromaTCG (cromatcg.com).", domain: "cromatcg.com", href: "https://cromatcg.com/" },
+    { line: "Event info from Goose Games SLC (goosegamesslc.com).", domain: "goosegamesslc.com", href: "https://goosegamesslc.com/" },
+    { line: "Event info from Salt City Games (saltcitygames.shop).", domain: "saltcitygames.shop", href: "https://saltcitygames.shop/" },
+    { line: "Event info from Tailgate Tavern (www.tailgatetavernslc.com).", domain: "www.tailgatetavernslc.com", href: "https://www.tailgatetavernslc.com/" },
+    { line: "Event info from Tavernacle (www.tavernacle.com).", domain: "www.tavernacle.com", href: "https://www.tavernacle.com/" },
+    { line: "Event info from Terracotta Tortoise Clay Center (terracottatortoise.com).", domain: "terracottatortoise.com", href: "https://terracottatortoise.com/" },
+    { line: "Event info from The Clay Hole (theclayhole.com).", domain: "theclayhole.com", href: "https://theclayhole.com/" },
+    { line: "Event info from Throw Art Studio (www.throwartstudios.app).", domain: "www.throwartstudios.app", href: "https://www.throwartstudios.app/" },
   ];
 
   function eventInfoList(lines) {

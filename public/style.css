@@ -792,6 +792,9 @@ border:1.5px solid var(--border); font-family:inherit;
 
 /* filter overlay */
 .filter-sheet{ height:82%; }
+/* The Filters heading is a full-width flex item tilted -5deg, so its
+   box covers the close control. Keep the X above that heading. */
+.filter-sheet .overlay-close{ z-index:2; }
 .filter-scroll{ overflow-y:auto; flex:1; }
 .filter-group{ margin-bottom:20px; }
 .filter-group-title{ font-size:13px; font-weight:800; color:var(--text); margin-bottom:8px; }

@@ -502,6 +502,19 @@ const NOV9C_EVENT_INFO_LINES = [
   ["Event info from Thieves Guild Cidery (www.thievesguildcidery.com).", "www.thievesguildcidery.com", "https://www.thievesguildcidery.com/"],
   ["Event info from KJ's Ice Barn (kjsicebarn.org).", "kjsicebarn.org", "https://kjsicebarn.org/"]
 ];
+const NOV9D_EVENT_INFO_LINES = [
+  ["Event info from Crush Golf & Grill (crushgolfandgrill.com).", "crushgolfandgrill.com", "https://crushgolfandgrill.com/"],
+  ["Event info from Nomad Eatery (nomad-eatery.com).", "nomad-eatery.com", "https://nomad-eatery.com/"],
+  ["Event info from Promise South Salt Lake (promise.sslc.gov).", "promise.sslc.gov", "https://promise.sslc.gov/"],
+  ["Event info from America First Square (www.americafirstsquare.com).", "www.americafirstsquare.com", "https://www.americafirstsquare.com/"],
+  ["Event info from Woodsy Art Cafe (www.woodsyartcafe.com).", "www.woodsyartcafe.com", "https://www.woodsyartcafe.com/"],
+  ["Event info from La Caille (www.lacaille.com).", "www.lacaille.com", "https://www.lacaille.com/"],
+  ["Event info from America250 Utah (america250.utah.gov).", "america250.utah.gov", "https://america250.utah.gov/"],
+  ["Event info from Utah Energy Healing Center (www.utahenergyhealingcenter.com).", "www.utahenergyhealingcenter.com", "https://www.utahenergyhealingcenter.com/"],
+  ["Event info from Joaby Parker (www.joabyparker.com).", "www.joabyparker.com", "https://www.joabyparker.com/"],
+  ["Event info from Survivor Wellness (www.survivorwellness.org).", "www.survivorwellness.org", "https://www.survivorwellness.org/"],
+  ["Event info from Tooele City Arts Council (www.tooelecityartscouncil.org).", "www.tooelecityartscouncil.org", "https://www.tooelecityartscouncil.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2154,6 +2167,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov9cPrevious !== -1 && lineAt > nov9cPrevious);
         nov9cPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9dPrevious = eventsText.indexOf("Event info from KJ's Ice Barn (kjsicebarn.org).");
+      check("nov9d checks 11 verbatim event-info lines", NOV9D_EVENT_INFO_LINES.length === 11);
+      NOV9D_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9dPrevious !== -1 && lineAt > nov9dPrevious);
+        nov9dPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

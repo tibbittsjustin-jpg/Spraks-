@@ -1039,6 +1039,18 @@
     { line: "Event info from Trees for Charity (www.treesforcharity.com).", domain: "www.treesforcharity.com", href: "https://www.treesforcharity.com/" },
     { line: "Event info from Thieves Guild Cidery (www.thievesguildcidery.com).", domain: "www.thievesguildcidery.com", href: "https://www.thievesguildcidery.com/" },
     { line: "Event info from KJ's Ice Barn (kjsicebarn.org).", domain: "kjsicebarn.org", href: "https://kjsicebarn.org/" },
+    // nov9d Legal-cleared
+    { line: "Event info from Crush Golf & Grill (crushgolfandgrill.com).", domain: "crushgolfandgrill.com", href: "https://crushgolfandgrill.com/" },
+    { line: "Event info from Nomad Eatery (nomad-eatery.com).", domain: "nomad-eatery.com", href: "https://nomad-eatery.com/" },
+    { line: "Event info from Promise South Salt Lake (promise.sslc.gov).", domain: "promise.sslc.gov", href: "https://promise.sslc.gov/" },
+    { line: "Event info from America First Square (www.americafirstsquare.com).", domain: "www.americafirstsquare.com", href: "https://www.americafirstsquare.com/" },
+    { line: "Event info from Woodsy Art Cafe (www.woodsyartcafe.com).", domain: "www.woodsyartcafe.com", href: "https://www.woodsyartcafe.com/" },
+    { line: "Event info from La Caille (www.lacaille.com).", domain: "www.lacaille.com", href: "https://www.lacaille.com/" },
+    { line: "Event info from America250 Utah (america250.utah.gov).", domain: "america250.utah.gov", href: "https://america250.utah.gov/" },
+    { line: "Event info from Utah Energy Healing Center (www.utahenergyhealingcenter.com).", domain: "www.utahenergyhealingcenter.com", href: "https://www.utahenergyhealingcenter.com/" },
+    { line: "Event info from Joaby Parker (www.joabyparker.com).", domain: "www.joabyparker.com", href: "https://www.joabyparker.com/" },
+    { line: "Event info from Survivor Wellness (www.survivorwellness.org).", domain: "www.survivorwellness.org", href: "https://www.survivorwellness.org/" },
+    { line: "Event info from Tooele City Arts Council (www.tooelecityartscouncil.org).", domain: "www.tooelecityartscouncil.org", href: "https://www.tooelecityartscouncil.org/" },
   ];
 
   function eventInfoList(lines) {

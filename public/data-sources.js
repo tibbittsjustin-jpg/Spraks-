@@ -1065,6 +1065,17 @@
     { line: "Event info from Basin Recreation (basinrecreationutah.gov).", domain: "basinrecreationutah.gov", href: "https://basinrecreationutah.gov/" },
     { line: "Event info from Utah DVMA (veterans.utah.gov).", domain: "veterans.utah.gov", href: "https://veterans.utah.gov/" },
     { line: "Event info from Pin Heads Bowling (pinheads-bowling.com).", domain: "pinheads-bowling.com", href: "https://pinheads-bowling.com/" },
+    // nov9g Legal-cleared
+    { line: "Event info from Watershed Pub & Kitchen (www.watershedutah.com).", domain: "www.watershedutah.com", href: "https://www.watershedutah.com/" },
+    { line: "Event info from Riftgate Games (riftgate.com).", domain: "riftgate.com", href: "https://riftgate.com/" },
+    { line: "Event info from High Point Coffee (www.highpointcoffeehouse.com).", domain: "www.highpointcoffeehouse.com", href: "https://www.highpointcoffeehouse.com/" },
+    { line: "Event info from Color Me Mine Logan (logan.colormemine.com).", domain: "logan.colormemine.com", href: "https://logan.colormemine.com/" },
+    { line: "Event info from Cache Bar (www.cachebarlogan.com).", domain: "www.cachebarlogan.com", href: "https://www.cachebarlogan.com/" },
+    { line: "Event info from IAMA (www.iamaweb.org).", domain: "www.iamaweb.org", href: "https://www.iamaweb.org/" },
+    { line: "Event info from Crossroads Card Show (www.crossroadscardshow.com).", domain: "www.crossroadscardshow.com", href: "https://www.crossroadscardshow.com/" },
+    { line: "Event info from Utah Archery Association (www.utaharchery.org).", domain: "www.utaharchery.org", href: "https://www.utaharchery.org/" },
+    { line: "Event info from Back Nine Compete (www.beyondthegrass.com).", domain: "www.beyondthegrass.com", href: "https://www.beyondthegrass.com/" },
+    { line: "Event info from Christmas Gift and Craft Show (www.christmascraftshows.com).", domain: "www.christmascraftshows.com", href: "https://www.christmascraftshows.com/" },
   ];
 
   function eventInfoList(lines) {

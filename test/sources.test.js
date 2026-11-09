@@ -531,6 +531,18 @@ const NOV9F_EVENT_INFO_LINES = [
   ["Event info from Utah DVMA (veterans.utah.gov).", "veterans.utah.gov", "https://veterans.utah.gov/"],
   ["Event info from Pin Heads Bowling (pinheads-bowling.com).", "pinheads-bowling.com", "https://pinheads-bowling.com/"]
 ];
+const NOV9G_EVENT_INFO_LINES = [
+  ["Event info from Watershed Pub & Kitchen (www.watershedutah.com).", "www.watershedutah.com", "https://www.watershedutah.com/"],
+  ["Event info from Riftgate Games (riftgate.com).", "riftgate.com", "https://riftgate.com/"],
+  ["Event info from High Point Coffee (www.highpointcoffeehouse.com).", "www.highpointcoffeehouse.com", "https://www.highpointcoffeehouse.com/"],
+  ["Event info from Color Me Mine Logan (logan.colormemine.com).", "logan.colormemine.com", "https://logan.colormemine.com/"],
+  ["Event info from Cache Bar (www.cachebarlogan.com).", "www.cachebarlogan.com", "https://www.cachebarlogan.com/"],
+  ["Event info from IAMA (www.iamaweb.org).", "www.iamaweb.org", "https://www.iamaweb.org/"],
+  ["Event info from Crossroads Card Show (www.crossroadscardshow.com).", "www.crossroadscardshow.com", "https://www.crossroadscardshow.com/"],
+  ["Event info from Utah Archery Association (www.utaharchery.org).", "www.utaharchery.org", "https://www.utaharchery.org/"],
+  ["Event info from Back Nine Compete (www.beyondthegrass.com).", "www.beyondthegrass.com", "https://www.beyondthegrass.com/"],
+  ["Event info from Christmas Gift and Craft Show (www.christmascraftshows.com).", "www.christmascraftshows.com", "https://www.christmascraftshows.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2279,6 +2291,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov9fPrevious !== -1 && lineAt > nov9fPrevious);
         nov9fPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9gPrevious = eventsText.indexOf("Event info from Pin Heads Bowling (pinheads-bowling.com).");
+      check("nov9g checks 10 verbatim event-info lines", NOV9G_EVENT_INFO_LINES.length === 10);
+      NOV9G_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9gPrevious !== -1 && lineAt > nov9gPrevious);
+        nov9gPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

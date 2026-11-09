@@ -1021,6 +1021,12 @@
     { line: "Event info from 7 Sins Cocktail Bar (7sinsutah.com).", domain: "7sinsutah.com", href: "https://7sinsutah.com/" },
     { line: "Event info from Moab BASE Association (moab.baseaccess.org).", domain: "moab.baseaccess.org", href: "https://moab.baseaccess.org/" },
     { line: "Event info from DANCE TO UPLIFT (www.dancetouplift.com).", domain: "www.dancetouplift.com", href: "https://www.dancetouplift.com/" },
+    { line: "Event info from Sport City Utah (www.sportcityutah.com).", domain: "www.sportcityutah.com", href: "https://www.sportcityutah.com/" },
+    { line: "Event info from Rock Climbing Utah (rockclimbingutah.com).", domain: "rockclimbingutah.com", href: "https://rockclimbingutah.com/" },
+    { line: "Event info from U4WDA (u4wda.org).", domain: "u4wda.org", href: "https://u4wda.org/" },
+    { line: "Event info from Outlaw Saloon (outlawsaloon.com).", domain: "outlawsaloon.com", href: "https://outlawsaloon.com/" },
+    { line: "Event info from Red Rock 4-Wheelers (rr4w.com).", domain: "rr4w.com", href: "https://rr4w.com/" },
+    { line: "Event info from X-Golf Riverton (www.xgolfriverton.com).", domain: "www.xgolfriverton.com", href: "https://www.xgolfriverton.com/" },
   ];
 
   function eventInfoList(lines) {

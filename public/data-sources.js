@@ -1051,6 +1051,15 @@
     { line: "Event info from Joaby Parker (www.joabyparker.com).", domain: "www.joabyparker.com", href: "https://www.joabyparker.com/" },
     { line: "Event info from Survivor Wellness (www.survivorwellness.org).", domain: "www.survivorwellness.org", href: "https://www.survivorwellness.org/" },
     { line: "Event info from Tooele City Arts Council (www.tooelecityartscouncil.org).", domain: "www.tooelecityartscouncil.org", href: "https://www.tooelecityartscouncil.org/" },
+    // nov9e Legal-cleared
+    { line: "Event info from Hobbled Dog Cidery (hobbleddogcider.com).", domain: "hobbleddogcider.com", href: "https://hobbleddogcider.com/" },
+    { line: "Event info from Liquid Breathwork (www.liquidbreathwork.com).", domain: "www.liquidbreathwork.com", href: "https://www.liquidbreathwork.com/" },
+    { line: "Event info from Blakfyre Games (blakfyre.com).", domain: "blakfyre.com", href: "https://blakfyre.com/" },
+    { line: "Event info from Sarah Geesey Studio (www.sarahgeesey.com).", domain: "www.sarahgeesey.com", href: "https://www.sarahgeesey.com/" },
+    { line: "Event info from SwingInUtah (www.swinginutah.com).", domain: "www.swinginutah.com", href: "https://www.swinginutah.com/" },
+    { line: "Event info from Barbary Coast Saloon (barbarycoastsaloon.com).", domain: "barbarycoastsaloon.com", href: "https://barbarycoastsaloon.com/" },
+    { line: "Event info from Salt Lake Indoor Soccer (www.saltlakeindoorsoccer.com).", domain: "www.saltlakeindoorsoccer.com", href: "https://www.saltlakeindoorsoccer.com/" },
+    { line: "Event info from Hell's Backbone Grill (www.hellsbackbonegrill.com).", domain: "www.hellsbackbonegrill.com", href: "https://www.hellsbackbonegrill.com/" },
   ];
 
   function eventInfoList(lines) {

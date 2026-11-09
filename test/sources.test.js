@@ -467,6 +467,20 @@ const NOV5AA_EVENT_INFO_LINES = [
   ["Event info from Wasatch Trails Foundation (www.wasatchtrails.org).", "www.wasatchtrails.org", "https://www.wasatchtrails.org/"],
   ["Event info from Utah Global Diplomacy (www.utahglobaldiplomacy.org).", "www.utahglobaldiplomacy.org", "https://www.utahglobaldiplomacy.org/"]
 ];
+const NOV9A_EVENT_INFO_LINES = [
+  ["Event info from Color Me Mine Salt Lake City (saltlakecity.colormemine.com).", "saltlakecity.colormemine.com", "https://saltlakecity.colormemine.com/"],
+  ["Event info from Salt Lake Family Christmas Gift Show (www.familychristmasgiftshow.com).", "www.familychristmasgiftshow.com", "https://www.familychristmasgiftshow.com/"],
+  ["Event info from Climb Moab Gym (www.climbmoabgym.com).", "www.climbmoabgym.com", "https://www.climbmoabgym.com/"],
+  ["Event info from Crazy Daisy (www.crazydaisypro.com).", "www.crazydaisypro.com", "https://www.crazydaisypro.com/"],
+  ["Event info from Wild Thistle Market (www.wildthistlemarket.com).", "www.wildthistlemarket.com", "https://www.wildthistlemarket.com/"],
+  ["Event info from SLC TCG (slctcg.com).", "slctcg.com", "https://slctcg.com/"],
+  ["Event info from IJ & Jeanné Wagner JCC (www.slcjcc.org).", "www.slcjcc.org", "https://www.slcjcc.org/"],
+  ["Event info from Northern Utah USBC (www.nuusbca.com).", "www.nuusbca.com", "https://www.nuusbca.com/"],
+  ["Event info from Anderson's Seed & Garden (andersonseedandgarden.com).", "andersonseedandgarden.com", "https://andersonseedandgarden.com/"],
+  ["Event info from 7 Sins Cocktail Bar (7sinsutah.com).", "7sinsutah.com", "https://7sinsutah.com/"],
+  ["Event info from Moab BASE Association (moab.baseaccess.org).", "moab.baseaccess.org", "https://moab.baseaccess.org/"],
+  ["Event info from DANCE TO UPLIFT (www.dancetouplift.com).", "www.dancetouplift.com", "https://www.dancetouplift.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2023,6 +2037,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov5aaPrevious !== -1 && lineAt > nov5aaPrevious);
         nov5aaPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9aPrevious = eventsText.indexOf("Event info from Utah Global Diplomacy (www.utahglobaldiplomacy.org).");
+      check("nov9a checks 12 verbatim event-info lines", NOV9A_EVENT_INFO_LINES.length === 12);
+      NOV9A_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9aPrevious !== -1 && lineAt > nov9aPrevious);
+        nov9aPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

@@ -1009,6 +1009,18 @@
     { line: "Event info from The L.A.B. (www.thelabutah.com).", domain: "www.thelabutah.com", href: "https://www.thelabutah.com/" },
     { line: "Event info from Wasatch Trails Foundation (www.wasatchtrails.org).", domain: "www.wasatchtrails.org", href: "https://www.wasatchtrails.org/" },
     { line: "Event info from Utah Global Diplomacy (www.utahglobaldiplomacy.org).", domain: "www.utahglobaldiplomacy.org", href: "https://www.utahglobaldiplomacy.org/" },
+    { line: "Event info from Color Me Mine Salt Lake City (saltlakecity.colormemine.com).", domain: "saltlakecity.colormemine.com", href: "https://saltlakecity.colormemine.com/" },
+    { line: "Event info from Salt Lake Family Christmas Gift Show (www.familychristmasgiftshow.com).", domain: "www.familychristmasgiftshow.com", href: "https://www.familychristmasgiftshow.com/" },
+    { line: "Event info from Climb Moab Gym (www.climbmoabgym.com).", domain: "www.climbmoabgym.com", href: "https://www.climbmoabgym.com/" },
+    { line: "Event info from Crazy Daisy (www.crazydaisypro.com).", domain: "www.crazydaisypro.com", href: "https://www.crazydaisypro.com/" },
+    { line: "Event info from Wild Thistle Market (www.wildthistlemarket.com).", domain: "www.wildthistlemarket.com", href: "https://www.wildthistlemarket.com/" },
+    { line: "Event info from SLC TCG (slctcg.com).", domain: "slctcg.com", href: "https://slctcg.com/" },
+    { line: "Event info from IJ & Jeanné Wagner JCC (www.slcjcc.org).", domain: "www.slcjcc.org", href: "https://www.slcjcc.org/" },
+    { line: "Event info from Northern Utah USBC (www.nuusbca.com).", domain: "www.nuusbca.com", href: "https://www.nuusbca.com/" },
+    { line: "Event info from Anderson's Seed & Garden (andersonseedandgarden.com).", domain: "andersonseedandgarden.com", href: "https://andersonseedandgarden.com/" },
+    { line: "Event info from 7 Sins Cocktail Bar (7sinsutah.com).", domain: "7sinsutah.com", href: "https://7sinsutah.com/" },
+    { line: "Event info from Moab BASE Association (moab.baseaccess.org).", domain: "moab.baseaccess.org", href: "https://moab.baseaccess.org/" },
+    { line: "Event info from DANCE TO UPLIFT (www.dancetouplift.com).", domain: "www.dancetouplift.com", href: "https://www.dancetouplift.com/" },
   ];
 
   function eventInfoList(lines) {

@@ -1027,6 +1027,18 @@
     { line: "Event info from Outlaw Saloon (outlawsaloon.com).", domain: "outlawsaloon.com", href: "https://outlawsaloon.com/" },
     { line: "Event info from Red Rock 4-Wheelers (rr4w.com).", domain: "rr4w.com", href: "https://rr4w.com/" },
     { line: "Event info from X-Golf Riverton (www.xgolfriverton.com).", domain: "www.xgolfriverton.com", href: "https://www.xgolfriverton.com/" },
+    // nov9c Legal-cleared
+    { line: "Event info from Alpine Community Library (www.alpinelibrary.org).", domain: "www.alpinelibrary.org", href: "https://www.alpinelibrary.org/" },
+    { line: "Event info from A Bar Named Sue (www.abarnamedsue.com).", domain: "www.abarnamedsue.com", href: "https://www.abarnamedsue.com/" },
+    { line: "Event info from Bella Rosa Pottery (www.bellarosapottery.com).", domain: "www.bellarosapottery.com", href: "https://www.bellarosapottery.com/" },
+    { line: "Event info from Bears Ears Partnership (bearsearspartnership.org).", domain: "bearsearspartnership.org", href: "https://bearsearspartnership.org/" },
+    { line: "Event info from Yoga Barn Utah (www.yogabarnutah.com).", domain: "www.yogabarnutah.com", href: "https://www.yogabarnutah.com/" },
+    { line: "Event info from Wasatch Fly Fisher (wasatchflyfisher.com).", domain: "wasatchflyfisher.com", href: "https://wasatchflyfisher.com/" },
+    { line: "Event info from The Green Pig Pub (thegreenpigpub.com).", domain: "thegreenpigpub.com", href: "https://thegreenpigpub.com/" },
+    { line: "Event info from Our Mahjong Table (ourmahjongtable.com).", domain: "ourmahjongtable.com", href: "https://ourmahjongtable.com/" },
+    { line: "Event info from Trees for Charity (www.treesforcharity.com).", domain: "www.treesforcharity.com", href: "https://www.treesforcharity.com/" },
+    { line: "Event info from Thieves Guild Cidery (www.thievesguildcidery.com).", domain: "www.thievesguildcidery.com", href: "https://www.thievesguildcidery.com/" },
+    { line: "Event info from KJ's Ice Barn (kjsicebarn.org).", domain: "kjsicebarn.org", href: "https://kjsicebarn.org/" },
   ];
 
   function eventInfoList(lines) {

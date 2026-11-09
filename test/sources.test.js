@@ -613,6 +613,13 @@ const NOV9N_EVENT_INFO_LINES = [
   ["Event info from Queer Poetry Night SLC (queerpoetrynightslc.wordpress.com).", "queerpoetrynightslc.wordpress.com", "https://queerpoetrynightslc.wordpress.com/"],
   ["Event info from Wasatch Sewing Collective (www.wasatchsewingcollective.org).", "www.wasatchsewingcollective.org", "https://www.wasatchsewingcollective.org/"]
 ];
+const NOV9O_EVENT_INFO_LINES = [
+  ["Event info from Holy Cow Boutique (holycowboutique.com).", "holycowboutique.com", "https://holycowboutique.com/"],
+  ["Event info from Utah Baroque Ensemble (www.utahbaroque.org).", "www.utahbaroque.org", "https://www.utahbaroque.org/"],
+  ["Event info from Salt Lake Strummers (saltlakestrummers.org).", "saltlakestrummers.org", "https://saltlakestrummers.org/"],
+  ["Event info from Utah Watercolor Society (www.utahwatercolor.org).", "www.utahwatercolor.org", "https://www.utahwatercolor.org/"],
+  ["Event info from The Hog Wallow Pub (thehogwallow.com).", "thehogwallow.com", "https://thehogwallow.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2617,6 +2624,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov9nPrevious !== -1 && lineAt > nov9nPrevious);
         nov9nPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9oPrevious = eventsText.indexOf("Event info from Wasatch Sewing Collective (www.wasatchsewingcollective.org).");
+      check("nov9o checks 5 verbatim event-info lines", NOV9O_EVENT_INFO_LINES.length === 5);
+      NOV9O_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9oPrevious !== -1 && lineAt > nov9oPrevious);
+        nov9oPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

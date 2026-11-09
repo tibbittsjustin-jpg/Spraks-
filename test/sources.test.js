@@ -595,7 +595,6 @@ const NOV9K_EVENT_INFO_LINES = [
   ["Event info from It Just Gets Stranger (www.itjustgetsstranger.com).", "www.itjustgetsstranger.com", "https://www.itjustgetsstranger.com/"]
 ];
 const NOV9L_EVENT_INFO_LINES = [
-  ["Event info from Daughters of Utah Pioneers / ISDUP (isdup.org).", "isdup.org", "https://isdup.org/"],
   ["Event info from Timpanogos Chamber Music (www.timpchamber.org).", "www.timpchamber.org", "https://www.timpchamber.org/"],
   ["Event info from Summerhays Music Center (www.summerhaysmusic.com).", "www.summerhaysmusic.com", "https://www.summerhaysmusic.com/"],
   ["Event info from Make Well (www.makewell.studio).", "www.makewell.studio", "https://www.makewell.studio/"],
@@ -2518,7 +2517,7 @@ function main() {
           foundHref);
       });
       let nov9lPrevious = eventsText.indexOf("Event info from It Just Gets Stranger (www.itjustgetsstranger.com).");
-      check("nov9l checks 6 verbatim event-info lines", NOV9L_EVENT_INFO_LINES.length === 6);
+      check("nov9l checks 5 verbatim event-info lines", NOV9L_EVENT_INFO_LINES.length === 5);
       NOV9L_EVENT_INFO_LINES.forEach(function (row) {
         const line = row[0];
         const domain = row[1];

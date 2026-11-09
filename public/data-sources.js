@@ -1089,6 +1089,25 @@
     { line: "Event info from Utah Car Czar (utahcarczar.com).", domain: "utahcarczar.com", href: "https://utahcarczar.com/" },
     { line: "Event info from St George Gobbler (stgeorgegobbler.com).", domain: "stgeorgegobbler.com", href: "https://stgeorgegobbler.com/" },
     { line: "Event info from Salt Lake Power Yoga (www.slpy.xyz).", domain: "www.slpy.xyz", href: "https://www.slpy.xyz/" },
+    // nov9i Legal-cleared
+    { line: "Event info from GreenHouse Nursery (logangreenhouse.com).", domain: "logangreenhouse.com", href: "https://logangreenhouse.com/" },
+    { line: "Event info from The Workshop (www.alpineworkshop.co).", domain: "www.alpineworkshop.co", href: "https://www.alpineworkshop.co/" },
+    { line: "Event info from Utah Symphony | Utah Opera (usuo.org).", domain: "usuo.org", href: "https://usuo.org/" },
+    { line: "Event info from Nature Hills Farm (www.naturehillsfarm.com).", domain: "www.naturehillsfarm.com", href: "https://www.naturehillsfarm.com/" },
+    { line: "Event info from Sip & Script (www.sipandscript.com).", domain: "www.sipandscript.com", href: "https://www.sipandscript.com/" },
+    { line: "Event info from Sarinda Jones (www.sarindajones.com).", domain: "www.sarindajones.com", href: "https://www.sarindajones.com/" },
+    { line: "Event info from Caputo's Market & Deli (caputos.com).", domain: "caputos.com", href: "https://caputos.com/" },
+    // nov9j Legal-cleared
+    { line: "Event info from Koral Kafe (koralkafe.com).", domain: "koralkafe.com", href: "https://koralkafe.com/" },
+    { line: "Event info from Wasatch Food Co-op (www.wasatch.coop).", domain: "www.wasatch.coop", href: "https://www.wasatch.coop/" },
+    { line: "Event info from Utah Classical Guitar (www.utahclassicalguitar.org).", domain: "www.utahclassicalguitar.org", href: "https://www.utahclassicalguitar.org/" },
+    { line: "Event info from Jordan River Commission (jordanrivercommission.gov).", domain: "jordanrivercommission.gov", href: "https://jordanrivercommission.gov/" },
+    { line: "Event info from Root'd Cafe (rootdcafe.com).", domain: "rootdcafe.com", href: "https://rootdcafe.com/" },
+    { line: "Event info from Two-Bit Bistro (www.twobitbistro.com).", domain: "www.twobitbistro.com", href: "https://www.twobitbistro.com/" },
+    { line: "Event info from Utah Contra (utahcontra.org).", domain: "utahcontra.org", href: "https://utahcontra.org/" },
+    { line: "Event info from Salt Lake Scots Pipe Band (www.saltlakescots.org).", domain: "www.saltlakescots.org", href: "https://www.saltlakescots.org/" },
+    { line: "Event info from Board In Utah (boardinutah.games).", domain: "boardinutah.games", href: "https://boardinutah.games/" },
+    { line: "Event info from Business Owners of Bluff (bluffutah.org).", domain: "bluffutah.org", href: "https://bluffutah.org/" },
   ];
 
   function eventInfoList(lines) {

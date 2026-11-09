@@ -1108,6 +1108,21 @@
     { line: "Event info from Salt Lake Scots Pipe Band (www.saltlakescots.org).", domain: "www.saltlakescots.org", href: "https://www.saltlakescots.org/" },
     { line: "Event info from Board In Utah (boardinutah.games).", domain: "boardinutah.games", href: "https://boardinutah.games/" },
     { line: "Event info from Business Owners of Bluff (bluffutah.org).", domain: "bluffutah.org", href: "https://bluffutah.org/" },
+    // nov9k Legal-cleared
+    { line: "Event info from Millcreek Arts Council (www.millcreekartscouncil.org).", domain: "www.millcreekartscouncil.org", href: "https://www.millcreekartscouncil.org/" },
+    { line: "Event info from Conserve Southwest Utah (www.conserveswu.org).", domain: "www.conserveswu.org", href: "https://www.conserveswu.org/" },
+    { line: "Event info from Red Acre Farm (www.redacrefarmcsa.org).", domain: "www.redacrefarmcsa.org", href: "https://www.redacrefarmcsa.org/" },
+    { line: "Event info from Preservation Utah (www.preservationutah.org).", domain: "www.preservationutah.org", href: "https://www.preservationutah.org/" },
+    { line: "Event info from Anna's European Antiques (www.annasantiques.net).", domain: "www.annasantiques.net", href: "https://www.annasantiques.net/" },
+    { line: "Event info from Schmidt's Farm and Greenhouse (www.schmidtsfarmandgreenhouse.com).", domain: "www.schmidtsfarmandgreenhouse.com", href: "https://www.schmidtsfarmandgreenhouse.com/" },
+    { line: "Event info from Utah Folk Orchestra (utahfolkorchestra.org).", domain: "utahfolkorchestra.org", href: "https://utahfolkorchestra.org/" },
+    { line: "Event info from Peterson School of Music (petersonschoolofmusic.org).", domain: "petersonschoolofmusic.org", href: "https://petersonschoolofmusic.org/" },
+    { line: "Event info from Utah Scottish Association (www.utahscots.org).", domain: "www.utahscots.org", href: "https://www.utahscots.org/" },
+    { line: "Event info from Utah Tech Music (music.utahtech.edu).", domain: "music.utahtech.edu", href: "https://music.utahtech.edu/" },
+    { line: "Event info from Tanner Humanities Center (tanner.utah.edu).", domain: "tanner.utah.edu", href: "https://tanner.utah.edu/" },
+    { line: "Event info from Crowne Books (crownebooks.com).", domain: "crownebooks.com", href: "https://crownebooks.com/" },
+    { line: "Event info from LimitBreak Loot (www.limitbreakloot.com).", domain: "www.limitbreakloot.com", href: "https://www.limitbreakloot.com/" },
+    { line: "Event info from It Just Gets Stranger (www.itjustgetsstranger.com).", domain: "www.itjustgetsstranger.com", href: "https://www.itjustgetsstranger.com/" },
   ];
 
   function eventInfoList(lines) {

@@ -578,6 +578,22 @@ const NOV9J_EVENT_INFO_LINES = [
   ["Event info from Board In Utah (boardinutah.games).", "boardinutah.games", "https://boardinutah.games/"],
   ["Event info from Business Owners of Bluff (bluffutah.org).", "bluffutah.org", "https://bluffutah.org/"]
 ];
+const NOV9K_EVENT_INFO_LINES = [
+  ["Event info from Millcreek Arts Council (www.millcreekartscouncil.org).", "www.millcreekartscouncil.org", "https://www.millcreekartscouncil.org/"],
+  ["Event info from Conserve Southwest Utah (www.conserveswu.org).", "www.conserveswu.org", "https://www.conserveswu.org/"],
+  ["Event info from Red Acre Farm (www.redacrefarmcsa.org).", "www.redacrefarmcsa.org", "https://www.redacrefarmcsa.org/"],
+  ["Event info from Preservation Utah (www.preservationutah.org).", "www.preservationutah.org", "https://www.preservationutah.org/"],
+  ["Event info from Anna's European Antiques (www.annasantiques.net).", "www.annasantiques.net", "https://www.annasantiques.net/"],
+  ["Event info from Schmidt's Farm and Greenhouse (www.schmidtsfarmandgreenhouse.com).", "www.schmidtsfarmandgreenhouse.com", "https://www.schmidtsfarmandgreenhouse.com/"],
+  ["Event info from Utah Folk Orchestra (utahfolkorchestra.org).", "utahfolkorchestra.org", "https://utahfolkorchestra.org/"],
+  ["Event info from Peterson School of Music (petersonschoolofmusic.org).", "petersonschoolofmusic.org", "https://petersonschoolofmusic.org/"],
+  ["Event info from Utah Scottish Association (www.utahscots.org).", "www.utahscots.org", "https://www.utahscots.org/"],
+  ["Event info from Utah Tech Music (music.utahtech.edu).", "music.utahtech.edu", "https://music.utahtech.edu/"],
+  ["Event info from Tanner Humanities Center (tanner.utah.edu).", "tanner.utah.edu", "https://tanner.utah.edu/"],
+  ["Event info from Crowne Books (crownebooks.com).", "crownebooks.com", "https://crownebooks.com/"],
+  ["Event info from LimitBreak Loot (www.limitbreakloot.com).", "www.limitbreakloot.com", "https://www.limitbreakloot.com/"],
+  ["Event info from It Just Gets Stranger (www.itjustgetsstranger.com).", "www.itjustgetsstranger.com", "https://www.itjustgetsstranger.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2454,6 +2470,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov9jPrevious !== -1 && lineAt > nov9jPrevious);
         nov9jPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9kPrevious = eventsText.indexOf("Event info from Business Owners of Bluff (bluffutah.org).");
+      check("nov9k checks 14 verbatim event-info lines", NOV9K_EVENT_INFO_LINES.length === 14);
+      NOV9K_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9kPrevious !== -1 && lineAt > nov9kPrevious);
+        nov9kPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

@@ -1145,6 +1145,11 @@
     { line: "Event info from Salt Lake Strummers (saltlakestrummers.org).", domain: "saltlakestrummers.org", href: "https://saltlakestrummers.org/" },
     { line: "Event info from Utah Watercolor Society (www.utahwatercolor.org).", domain: "www.utahwatercolor.org", href: "https://www.utahwatercolor.org/" },
     { line: "Event info from The Hog Wallow Pub (thehogwallow.com).", domain: "thehogwallow.com", href: "https://thehogwallow.com/" },
+    // nov9p Legal-cleared
+    { line: "Event info from Weber Community Orchestra (weberorchestra.org).", domain: "weberorchestra.org", href: "https://weberorchestra.org/" },
+    { line: "Event info from Back of Beyond Books (backofbeyondbooks.com).", domain: "backofbeyondbooks.com", href: "https://backofbeyondbooks.com/" },
+    { line: "Event info from Recycle Utah (recycleutah.org).", domain: "recycleutah.org", href: "https://recycleutah.org/" },
+    { line: "Event info from Art for the Recovery Community (www.artfortherecoverycommunity.com).", domain: "www.artfortherecoverycommunity.com", href: "https://www.artfortherecoverycommunity.com/" },
   ];
 
   function eventInfoList(lines) {

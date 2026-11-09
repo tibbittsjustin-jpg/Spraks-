@@ -1139,6 +1139,12 @@
     { line: "Event info from Bridgerland Audubon Society (bridgerlandaudubon.org).", domain: "bridgerlandaudubon.org", href: "https://bridgerlandaudubon.org/" },
     { line: "Event info from Queer Poetry Night SLC (queerpoetrynightslc.wordpress.com).", domain: "queerpoetrynightslc.wordpress.com", href: "https://queerpoetrynightslc.wordpress.com/" },
     { line: "Event info from Wasatch Sewing Collective (www.wasatchsewingcollective.org).", domain: "www.wasatchsewingcollective.org", href: "https://www.wasatchsewingcollective.org/" },
+    // nov9o Legal-cleared
+    { line: "Event info from Holy Cow Boutique (holycowboutique.com).", domain: "holycowboutique.com", href: "https://holycowboutique.com/" },
+    { line: "Event info from Utah Baroque Ensemble (www.utahbaroque.org).", domain: "www.utahbaroque.org", href: "https://www.utahbaroque.org/" },
+    { line: "Event info from Salt Lake Strummers (saltlakestrummers.org).", domain: "saltlakestrummers.org", href: "https://saltlakestrummers.org/" },
+    { line: "Event info from Utah Watercolor Society (www.utahwatercolor.org).", domain: "www.utahwatercolor.org", href: "https://www.utahwatercolor.org/" },
+    { line: "Event info from The Hog Wallow Pub (thehogwallow.com).", domain: "thehogwallow.com", href: "https://thehogwallow.com/" },
   ];
 
   function eventInfoList(lines) {

@@ -174,6 +174,73 @@ section("denied, timeout, and unavailable stop using the old fix", () => {
   check("unsupported hides the exact button", blob(bare.buildLocationBar()).indexOf("Use my exact location") === -1);
 });
 
+section("the exact button hides while an exact fix is active", () => {
+  const storage = {};
+  const t = loadApp(storage);
+  const geo = installGeo(t);
+  check("the exact button is visible before location is granted",
+    blob(t.buildLocationBar()).indexOf("Use my exact location") !== -1);
+
+  t.askExactLocation();
+  t.confirmExactLocation();
+  geo.calls[geo.calls.length - 1].success({
+    coords: { latitude: PRECISE_LAT, longitude: PRECISE_LNG, accuracy: 40 }
+  });
+  const granted = blob(t.buildLocationBar());
+  check("the exact button hides after granting", granted.indexOf("Use my exact location") === -1);
+  check("the exact banner and its clear control stay",
+    granted.indexOf("Exact location, within about 40 m. Saved on this device.") !== -1 &&
+    granted.indexOf("Clear location") !== -1 &&
+    granted.indexOf("location-chip-end") !== -1);
+  const savedExact = storage[KEY];
+
+  const restored = loadApp(storage);
+  const restoredBar = blob(restored.buildLocationBar());
+  check("a saved exact fix hides the button before the next request",
+    restored.state.locationMode === "exact" &&
+    restored.state.location && restored.state.location.mode === "exact" &&
+    restored.state.location.stale === true &&
+    restoredBar.indexOf("Use my exact location") === -1 &&
+    restoredBar.indexOf("Clear location") !== -1);
+
+  const geo2 = installGeo(restored);
+  restored.requestLocation({ silent: true });
+  check("the button stays hidden while the saved exact fix refreshes",
+    blob(restored.buildLocationBar()).indexOf("Use my exact location") === -1);
+  geo2.calls[0].success({ coords: { latitude: PRECISE_LAT, longitude: PRECISE_LNG, accuracy: 40 } });
+  check("the button stays hidden after the restored fix refreshes",
+    restored.locationStatusText() === "Exact location, within about 40 m. Saved on this device." &&
+    blob(restored.buildLocationBar()).indexOf("Use my exact location") === -1);
+
+  restored.clearLocation();
+  check("clearing location shows the exact button again",
+    restored.state.location === null &&
+    restored.state.locationMode === "approximate" &&
+    blob(restored.buildLocationBar()).indexOf("Use my exact location") !== -1);
+
+  const deniedStore = {};
+  deniedStore[KEY] = savedExact;
+  const denied = loadApp(deniedStore);
+  const geo3 = installGeo(denied);
+  denied.requestLocation({ silent: true });
+  geo3.calls[0].error({ code: 1 });
+  const deniedBar = blob(denied.buildLocationBar());
+  check("a denial shows the exact button again",
+    denied.state.location === null &&
+    denied.locationPhase === "denied" &&
+    deniedBar.indexOf("Use my exact location") !== -1 &&
+    deniedBar.indexOf("Try again") !== -1 &&
+    deniedBar.indexOf("Exact location, within about 40 m") === -1);
+
+  const approx = loadApp({});
+  const geo4 = installGeo(approx);
+  approx.requestLocation({ silent: true, exact: false });
+  geo4.calls[0].success({ coords: { latitude: PRECISE_LAT, longitude: PRECISE_LNG, accuracy: 2000 } });
+  check("approximate location keeps the exact button",
+    approx.state.location.mode === "approximate" &&
+    blob(approx.buildLocationBar()).indexOf("Use my exact location") !== -1);
+});
+
 section("clear location forgets the fix and the exact choice", () => {
   const t = loadApp({});
   const geo = installGeo(t);

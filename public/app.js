@@ -3025,6 +3025,16 @@
     return wrap;
   }
 
+  // An exact fix is active while it is the saved center, including a stale
+  // stand-in restored from this device. A denial, timeout, or clear drops
+  // that fix, so the exact button can come back. The banner X is unchanged.
+  function exactLocationActive(){
+    var loc = state.location;
+    if(!loc || loc.mode !== "exact") return false;
+    if(locationPhase === "denied" || locationPhase === "timeout" || locationPhase === "unavailable" || locationPhase === "unsupported") return false;
+    return true;
+  }
+
   // Status, accuracy, the exact-location choice, and Clear location.
   // Precise coordinates are not written into this bar.
   function buildLocationBar(){
@@ -3069,7 +3079,7 @@
       retry.addEventListener("click", function(){ requestLocation({}); });
       row.appendChild(retry);
     }
-    if(locationPhase !== "unsupported"){
+    if(locationPhase !== "unsupported" && !exactLocationActive()){
       var exactBtn = el("button", "btn-outline exact-location-btn", "Use my exact location");
       exactBtn.type = "button";
       exactBtn.setAttribute("aria-pressed", state.locationMode === "exact" && !pickMode ? "true" : "false");

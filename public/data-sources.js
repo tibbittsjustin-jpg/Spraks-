@@ -1129,6 +1129,16 @@
     { line: "Event info from Make Well (www.makewell.studio).", domain: "www.makewell.studio", href: "https://www.makewell.studio/" },
     { line: "Event info from Cambria Williams (www.cambriawilliams.com).", domain: "www.cambriawilliams.com", href: "https://www.cambriawilliams.com/" },
     { line: "Event info from TriUtah (triutah.com).", domain: "triutah.com", href: "https://triutah.com/" },
+    // nov9m Legal-cleared
+    { line: "Event info from Utah Philharmonic Orchestra (utahphil.org).", domain: "utahphil.org", href: "https://utahphil.org/" },
+    { line: "Event info from Salt & Honey Market (www.saltandhoneymarket.com).", domain: "www.saltandhoneymarket.com", href: "https://www.saltandhoneymarket.com/" },
+    { line: "Event info from Pioneer Memorial Museum (isdup.org).", domain: "isdup.org", href: "https://isdup.org/" },
+    // nov9n Legal-cleared
+    { line: "Event info from Marriott Library Book Arts Program (lib.utah.edu).", domain: "lib.utah.edu", href: "https://lib.utah.edu/" },
+    { line: "Event info from GSL Beer Choir (www.gslbeerchoir.com).", domain: "www.gslbeerchoir.com", href: "https://www.gslbeerchoir.com/" },
+    { line: "Event info from Bridgerland Audubon Society (bridgerlandaudubon.org).", domain: "bridgerlandaudubon.org", href: "https://bridgerlandaudubon.org/" },
+    { line: "Event info from Queer Poetry Night SLC (queerpoetrynightslc.wordpress.com).", domain: "queerpoetrynightslc.wordpress.com", href: "https://queerpoetrynightslc.wordpress.com/" },
+    { line: "Event info from Wasatch Sewing Collective (www.wasatchsewingcollective.org).", domain: "www.wasatchsewingcollective.org", href: "https://www.wasatchsewingcollective.org/" },
   ];
 
   function eventInfoList(lines) {

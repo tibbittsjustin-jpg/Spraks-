@@ -1060,6 +1060,11 @@
     { line: "Event info from Barbary Coast Saloon (barbarycoastsaloon.com).", domain: "barbarycoastsaloon.com", href: "https://barbarycoastsaloon.com/" },
     { line: "Event info from Salt Lake Indoor Soccer (www.saltlakeindoorsoccer.com).", domain: "www.saltlakeindoorsoccer.com", href: "https://www.saltlakeindoorsoccer.com/" },
     { line: "Event info from Hell's Backbone Grill (www.hellsbackbonegrill.com).", domain: "www.hellsbackbonegrill.com", href: "https://www.hellsbackbonegrill.com/" },
+    // nov9f Legal-cleared
+    { line: "Event info from Color Me Mine Sandy (sandy.colormemine.com).", domain: "sandy.colormemine.com", href: "https://sandy.colormemine.com/" },
+    { line: "Event info from Basin Recreation (basinrecreationutah.gov).", domain: "basinrecreationutah.gov", href: "https://basinrecreationutah.gov/" },
+    { line: "Event info from Utah DVMA (veterans.utah.gov).", domain: "veterans.utah.gov", href: "https://veterans.utah.gov/" },
+    { line: "Event info from Pin Heads Bowling (pinheads-bowling.com).", domain: "pinheads-bowling.com", href: "https://pinheads-bowling.com/" },
   ];
 
   function eventInfoList(lines) {

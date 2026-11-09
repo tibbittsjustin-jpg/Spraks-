@@ -557,6 +557,27 @@ const NOV9H_EVENT_INFO_LINES = [
   ["Event info from St George Gobbler (stgeorgegobbler.com).", "stgeorgegobbler.com", "https://stgeorgegobbler.com/"],
   ["Event info from Salt Lake Power Yoga (www.slpy.xyz).", "www.slpy.xyz", "https://www.slpy.xyz/"]
 ];
+const NOV9I_EVENT_INFO_LINES = [
+  ["Event info from GreenHouse Nursery (logangreenhouse.com).", "logangreenhouse.com", "https://logangreenhouse.com/"],
+  ["Event info from The Workshop (www.alpineworkshop.co).", "www.alpineworkshop.co", "https://www.alpineworkshop.co/"],
+  ["Event info from Utah Symphony | Utah Opera (usuo.org).", "usuo.org", "https://usuo.org/"],
+  ["Event info from Nature Hills Farm (www.naturehillsfarm.com).", "www.naturehillsfarm.com", "https://www.naturehillsfarm.com/"],
+  ["Event info from Sip & Script (www.sipandscript.com).", "www.sipandscript.com", "https://www.sipandscript.com/"],
+  ["Event info from Sarinda Jones (www.sarindajones.com).", "www.sarindajones.com", "https://www.sarindajones.com/"],
+  ["Event info from Caputo's Market & Deli (caputos.com).", "caputos.com", "https://caputos.com/"]
+];
+const NOV9J_EVENT_INFO_LINES = [
+  ["Event info from Koral Kafe (koralkafe.com).", "koralkafe.com", "https://koralkafe.com/"],
+  ["Event info from Wasatch Food Co-op (www.wasatch.coop).", "www.wasatch.coop", "https://www.wasatch.coop/"],
+  ["Event info from Utah Classical Guitar (www.utahclassicalguitar.org).", "www.utahclassicalguitar.org", "https://www.utahclassicalguitar.org/"],
+  ["Event info from Jordan River Commission (jordanrivercommission.gov).", "jordanrivercommission.gov", "https://jordanrivercommission.gov/"],
+  ["Event info from Root'd Cafe (rootdcafe.com).", "rootdcafe.com", "https://rootdcafe.com/"],
+  ["Event info from Two-Bit Bistro (www.twobitbistro.com).", "www.twobitbistro.com", "https://www.twobitbistro.com/"],
+  ["Event info from Utah Contra (utahcontra.org).", "utahcontra.org", "https://utahcontra.org/"],
+  ["Event info from Salt Lake Scots Pipe Band (www.saltlakescots.org).", "www.saltlakescots.org", "https://www.saltlakescots.org/"],
+  ["Event info from Board In Utah (boardinutah.games).", "boardinutah.games", "https://boardinutah.games/"],
+  ["Event info from Business Owners of Bluff (bluffutah.org).", "bluffutah.org", "https://bluffutah.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2369,6 +2390,70 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov9hPrevious !== -1 && lineAt > nov9hPrevious);
         nov9hPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9iPrevious = eventsText.indexOf("Event info from Salt Lake Power Yoga (www.slpy.xyz).");
+      check("nov9i checks 7 verbatim event-info lines", NOV9I_EVENT_INFO_LINES.length === 7);
+      NOV9I_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9iPrevious !== -1 && lineAt > nov9iPrevious);
+        nov9iPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9jPrevious = eventsText.indexOf("Event info from Caputo's Market & Deli (caputos.com).");
+      check("nov9j checks 10 verbatim event-info lines", NOV9J_EVENT_INFO_LINES.length === 10);
+      NOV9J_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9jPrevious !== -1 && lineAt > nov9jPrevious);
+        nov9jPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

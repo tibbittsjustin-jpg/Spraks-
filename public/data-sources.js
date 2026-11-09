@@ -1123,6 +1123,12 @@
     { line: "Event info from Crowne Books (crownebooks.com).", domain: "crownebooks.com", href: "https://crownebooks.com/" },
     { line: "Event info from LimitBreak Loot (www.limitbreakloot.com).", domain: "www.limitbreakloot.com", href: "https://www.limitbreakloot.com/" },
     { line: "Event info from It Just Gets Stranger (www.itjustgetsstranger.com).", domain: "www.itjustgetsstranger.com", href: "https://www.itjustgetsstranger.com/" },
+    // nov9l Legal-cleared
+    { line: "Event info from Timpanogos Chamber Music (www.timpchamber.org).", domain: "www.timpchamber.org", href: "https://www.timpchamber.org/" },
+    { line: "Event info from Summerhays Music Center (www.summerhaysmusic.com).", domain: "www.summerhaysmusic.com", href: "https://www.summerhaysmusic.com/" },
+    { line: "Event info from Make Well (www.makewell.studio).", domain: "www.makewell.studio", href: "https://www.makewell.studio/" },
+    { line: "Event info from Cambria Williams (www.cambriawilliams.com).", domain: "www.cambriawilliams.com", href: "https://www.cambriawilliams.com/" },
+    { line: "Event info from TriUtah (triutah.com).", domain: "triutah.com", href: "https://triutah.com/" },
   ];
 
   function eventInfoList(lines) {

@@ -1076,6 +1076,19 @@
     { line: "Event info from Utah Archery Association (www.utaharchery.org).", domain: "www.utaharchery.org", href: "https://www.utaharchery.org/" },
     { line: "Event info from Back Nine Compete (www.beyondthegrass.com).", domain: "www.beyondthegrass.com", href: "https://www.beyondthegrass.com/" },
     { line: "Event info from Christmas Gift and Craft Show (www.christmascraftshows.com).", domain: "www.christmascraftshows.com", href: "https://www.christmascraftshows.com/" },
+    // nov9h Legal-cleared
+    { line: "Event info from The Tilted Kiln (thetiltedkiln.com).", domain: "thetiltedkiln.com", href: "https://thetiltedkiln.com/" },
+    { line: "Event info from Willard Eccles Observatory (www.physics.utah.edu).", domain: "www.physics.utah.edu", href: "https://www.physics.utah.edu/" },
+    { line: "Event info from Mountain Town Music (mountaintownmusic.org).", domain: "mountaintownmusic.org", href: "https://mountaintownmusic.org/" },
+    { line: "Event info from Pleasant Grove Players (pgplayers.weebly.com).", domain: "pgplayers.weebly.com", href: "https://pgplayers.weebly.com/" },
+    { line: "Event info from 60 East Press (60eastpress.com).", domain: "60eastpress.com", href: "https://60eastpress.com/" },
+    { line: "Event info from Gracie's Farm (www.graciesfarm.com).", domain: "www.graciesfarm.com", href: "https://www.graciesfarm.com/" },
+    { line: "Event info from Salty Dogz Agility (www.saltydogzagility.com).", domain: "www.saltydogzagility.com", href: "https://www.saltydogzagility.com/" },
+    { line: "Event info from Love Baked by Callie (lovebakedbycallie.com).", domain: "lovebakedbycallie.com", href: "https://lovebakedbycallie.com/" },
+    { line: "Event info from Open Heart Energy (www.openheartenergy.com).", domain: "www.openheartenergy.com", href: "https://www.openheartenergy.com/" },
+    { line: "Event info from Utah Car Czar (utahcarczar.com).", domain: "utahcarczar.com", href: "https://utahcarczar.com/" },
+    { line: "Event info from St George Gobbler (stgeorgegobbler.com).", domain: "stgeorgegobbler.com", href: "https://stgeorgegobbler.com/" },
+    { line: "Event info from Salt Lake Power Yoga (www.slpy.xyz).", domain: "www.slpy.xyz", href: "https://www.slpy.xyz/" },
   ];
 
   function eventInfoList(lines) {

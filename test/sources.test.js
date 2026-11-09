@@ -543,6 +543,20 @@ const NOV9G_EVENT_INFO_LINES = [
   ["Event info from Back Nine Compete (www.beyondthegrass.com).", "www.beyondthegrass.com", "https://www.beyondthegrass.com/"],
   ["Event info from Christmas Gift and Craft Show (www.christmascraftshows.com).", "www.christmascraftshows.com", "https://www.christmascraftshows.com/"]
 ];
+const NOV9H_EVENT_INFO_LINES = [
+  ["Event info from The Tilted Kiln (thetiltedkiln.com).", "thetiltedkiln.com", "https://thetiltedkiln.com/"],
+  ["Event info from Willard Eccles Observatory (www.physics.utah.edu).", "www.physics.utah.edu", "https://www.physics.utah.edu/"],
+  ["Event info from Mountain Town Music (mountaintownmusic.org).", "mountaintownmusic.org", "https://mountaintownmusic.org/"],
+  ["Event info from Pleasant Grove Players (pgplayers.weebly.com).", "pgplayers.weebly.com", "https://pgplayers.weebly.com/"],
+  ["Event info from 60 East Press (60eastpress.com).", "60eastpress.com", "https://60eastpress.com/"],
+  ["Event info from Gracie's Farm (www.graciesfarm.com).", "www.graciesfarm.com", "https://www.graciesfarm.com/"],
+  ["Event info from Salty Dogz Agility (www.saltydogzagility.com).", "www.saltydogzagility.com", "https://www.saltydogzagility.com/"],
+  ["Event info from Love Baked by Callie (lovebakedbycallie.com).", "lovebakedbycallie.com", "https://lovebakedbycallie.com/"],
+  ["Event info from Open Heart Energy (www.openheartenergy.com).", "www.openheartenergy.com", "https://www.openheartenergy.com/"],
+  ["Event info from Utah Car Czar (utahcarczar.com).", "utahcarczar.com", "https://utahcarczar.com/"],
+  ["Event info from St George Gobbler (stgeorgegobbler.com).", "stgeorgegobbler.com", "https://stgeorgegobbler.com/"],
+  ["Event info from Salt Lake Power Yoga (www.slpy.xyz).", "www.slpy.xyz", "https://www.slpy.xyz/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2323,6 +2337,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov9gPrevious !== -1 && lineAt > nov9gPrevious);
         nov9gPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9hPrevious = eventsText.indexOf("Event info from Christmas Gift and Craft Show (www.christmascraftshows.com).");
+      check("nov9h checks 12 verbatim event-info lines", NOV9H_EVENT_INFO_LINES.length === 12);
+      NOV9H_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9hPrevious !== -1 && lineAt > nov9hPrevious);
+        nov9hPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

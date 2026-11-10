@@ -1274,6 +1274,128 @@ section("round 8 mapping omits sources still on hold", () => {
   });
 });
 
+section("legal 2026-11-10 UGRC shared line, parcels LIR, and municipal boundaries", () => {
+  const SHARED = "Utah Geospatial Resource Center (UGRC), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data Sources: UGRC SGID (data modified).";
+  const ROWS = [
+    {
+      title: "Utah Salt Lake County Parcels LIR",
+      itemId: "6f900727e16d4ce1a83f2a1ec1d82e60",
+      credit: "Utah Salt Lake County Parcels LIR, via UGRC SGID · CC BY 4.0 · data modified",
+      note: "Change note: parcel polygon reduced to a centroid; not a legal boundary."
+    },
+    {
+      title: "Utah Municipal Boundaries",
+      itemId: "543fa1f073714198a3dbf8a292bdf30c",
+      credit: "Utah Municipal Boundaries, via UGRC SGID · CC BY 4.0 · data modified",
+      note: "Change note: municipal polygon reduced to a city centroid; not a legal boundary."
+    }
+  ];
+  check("shared line matches the module", sources.UGRC_SHARED_LINE === SHARED);
+  check("legal nov10 is a separate two-row list",
+    Array.isArray(sources.UGRC_LEGAL_NOV10) && sources.UGRC_LEGAL_NOV10.length === 2 &&
+    sources.UGRC_ROUND8.length === 11);
+  ROWS.forEach((row, i) => {
+    const item = sources.UGRC_LEGAL_NOV10[i];
+    const dataset = "https://opendata.gis.utah.gov/datasets/" + row.itemId + "_0";
+    const dotAt = row.credit.indexOf("SGID") + 5;
+    check(row.title + " credit is exact",
+      item && item.title === row.title && item.itemId === row.itemId &&
+      item.credit === row.credit && item.note === row.note &&
+      item.datasetUrl === dataset && item.credit.charCodeAt(dotAt) === 0x00B7 &&
+      !item.key);
+  });
+  const page = sources.renderPage();
+  const text = visibleText(page);
+  function paragraphHtml(html, exact) {
+    const re = /<p\b[^>]*>[\s\S]*?<\/p>/g;
+    let match;
+    while ((match = re.exec(html))) {
+      if (visibleText(match[0]) === exact) return match[0];
+    }
+    return "";
+  }
+  function anchorAttrsFor(html, exact) {
+    const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/g;
+    const found = [];
+    let match;
+    while ((match = re.exec(html))) {
+      if (visibleText(match[2]) === exact) found.push(match[1]);
+    }
+    return found;
+  }
+  const sharedHtml = paragraphHtml(page, SHARED);
+  check("the shared line appears on /sources once",
+    occurrences(text, SHARED) === 1 && visibleText(sharedHtml) === SHARED,
+    String(occurrences(text, SHARED)));
+  check("the shared line links the CC BY URL to itself",
+    sharedHtml.indexOf('href="' + CC_BY + '"') !== -1 &&
+    sharedHtml.indexOf(">" + CC_BY + "</a>") !== -1);
+  const gnisCredit = ROUND8_LAYERS.filter(row => row[0] === "ugrc_gnis")[0][3];
+  const gnisAt = text.indexOf(gnisCredit);
+  check("the shared line follows the round 8 credits",
+    gnisAt !== -1 && text.indexOf(SHARED) > gnisAt);
+  let previousCreditAt = text.indexOf(SHARED);
+  const noteAts = [];
+  ROWS.forEach(row => {
+    const dataset = "https://opendata.gis.utah.gov/datasets/" + row.itemId + "_0";
+    const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+    let itemHtml = "";
+    let itemCount = 0;
+    let itemMatch;
+    while ((itemMatch = itemRe.exec(page))) {
+      if (visibleText(itemMatch[0]) === row.credit) {
+        itemCount++;
+        itemHtml = itemMatch[0];
+      }
+    }
+    const sgidAttrs = anchorAttrsFor(itemHtml, "UGRC SGID").join(" ");
+    const ccAttrs = anchorAttrsFor(itemHtml, "CC BY 4.0").join(" ");
+    const creditAt = text.indexOf(row.credit);
+    const noteAt = text.indexOf(row.note);
+    check(row.title + " credit appears once",
+      occurrences(text, row.credit) === 1 && itemCount === 1 && creditAt > previousCreditAt,
+      String(occurrences(text, row.credit)));
+    check(row.title + " links UGRC SGID to its dataset",
+      sgidAttrs.indexOf('href="' + dataset + '"') !== -1, sgidAttrs);
+    check(row.title + " links CC BY 4.0 to the license",
+      ccAttrs.indexOf('href="' + CC_BY + '"') !== -1, ccAttrs);
+    check(row.note + " appears once",
+      occurrences(text, row.note) === 1,
+      String(occurrences(text, row.note)));
+    previousCreditAt = creditAt;
+    noteAts.push(noteAt);
+  });
+  check("change notes follow the legal credits in order",
+    noteAts[0] > previousCreditAt && noteAts[1] > noteAts[0]);
+  const disclaimerAt = text.indexOf("UGRC disclaimer (unmodified)");
+  const headingAt = page.indexOf('id="ugrc-sgid"');
+  const sharedHtmlAt = page.indexOf(sharedHtml);
+  check("legal lines sit in the UGRC SGID section before the disclaimer",
+    headingAt !== -1 && sharedHtmlAt > headingAt && disclaimerAt > noteAts[1]);
+  const round8Ids = sources.ROUND8_SOURCES.map(entry => entry.itemId);
+  const entryBlob = JSON.stringify(sources.ENTRIES);
+  check("ROUND8_SOURCES is still length 13", sources.ROUND8_SOURCES.length === 13);
+  check("ROUND8_SOURCES contains neither new itemId",
+    round8Ids.indexOf(ROWS[0].itemId) === -1 &&
+    round8Ids.indexOf(ROWS[1].itemId) === -1 &&
+    entryBlob.indexOf(ROWS[0].itemId) === -1 &&
+    entryBlob.indexOf(ROWS[1].itemId) === -1);
+  [
+    "state_park_points_for_website",
+    "f48539a42c714223ad67e0e6727051cf",
+    "45847ee7b6a04361b9dae4ee5340a4f1",
+    "Utah_Places_of_Worship",
+    "Utah Places of Worship",
+    "6c04168379d24199a41c7492a1f5da2d"
+  ].forEach(phrase => {
+    check("page, ENTRIES, and ROUND8_SOURCES omit " + phrase,
+      page.indexOf(phrase) === -1 &&
+      text.indexOf(phrase) === -1 &&
+      entryBlob.indexOf(phrase) === -1 &&
+      JSON.stringify(sources.ROUND8_SOURCES).indexOf(phrase) === -1);
+  });
+});
+
 function main() {
   return section("Sources page", async () => {
     const page = sources.renderPage();

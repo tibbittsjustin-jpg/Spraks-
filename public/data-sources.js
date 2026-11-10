@@ -253,6 +253,23 @@
     return { text: row.title, href: row.datasetUrl };
   });
 
+  // Legal 2026-11-10. Sources page only. No source_key. These rows stay
+  // out of UGRC_ROUND8, ROUND8_SOURCES, and ENTRIES.
+  var UGRC_SHARED_LINE = "Utah Geospatial Resource Center (UGRC), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Data Sources: UGRC SGID (data modified).";
+  var UGRC_LEGAL_NOV10 = [
+    ugrcLayer({
+      title: "Utah Salt Lake County Parcels LIR",
+      itemId: "6f900727e16d4ce1a83f2a1ec1d82e60",
+      credit: "Utah Salt Lake County Parcels LIR, via UGRC SGID · CC BY 4.0 · data modified",
+      note: "Change note: parcel polygon reduced to a centroid; not a legal boundary."
+    }),
+    ugrcLayer({
+      title: "Utah Municipal Boundaries",
+      itemId: "543fa1f073714198a3dbf8a292bdf30c",
+      credit: "Utah Municipal Boundaries, via UGRC SGID · CC BY 4.0 · data modified",
+      note: "Change note: municipal polygon reduced to a city centroid; not a legal boundary."
+    })
+  ];
 
   // Older ingest text. Showing it would describe changes we do not make.
   var PREVIOUS_CREDITS = {};
@@ -1367,6 +1384,11 @@
     html.push(paragraph(MUSEUMS_PAGE));
     html.push('<h2 id="ugrc-sgid">Utah Geospatial Resource Center (UGRC), State Geographic Information Database (SGID)</h2>');
     html.push(creditList(UGRC_ROUND8));
+    html.push(paragraph(UGRC_SHARED_LINE));
+    html.push(creditList(UGRC_LEGAL_NOV10));
+    UGRC_LEGAL_NOV10.forEach(function (row) {
+      if (row.note) html.push(paragraph(row.note));
+    });
     html.push('<div class="block">');
     html.push(paragraphPhrases(UGRC_SGID_INTRO, UGRC_LAYER_LINKS));
     html.push(paragraph(UGRC_SGID_DISCLAIMER));
@@ -1455,6 +1477,8 @@
     USGS_NATIONAL_MAP_CREDIT: USGS_NATIONAL_MAP_CREDIT,
     UGRC_ROUND8: UGRC_ROUND8,
     ROUND8_SOURCES: ROUND8_SOURCES,
+    UGRC_LEGAL_NOV10: UGRC_LEGAL_NOV10,
+    UGRC_SHARED_LINE: UGRC_SHARED_LINE,
     BULK_LOADER_NOTES: BULK_LOADER_NOTES,
     NOT_AFFILIATED: NOT_AFFILIATED,
     CHECK_CONDITIONS: CHECK_CONDITIONS,

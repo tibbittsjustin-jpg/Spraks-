@@ -788,6 +788,11 @@ const NOV9AG_EVENT_INFO_LINES = [
   ["Event info from 4Corners Riversports (riversports.com).", "riversports.com", "https://riversports.com/"],
   ["Event info from Utah Ballroom Dance (utahballroomdance.com).", "utahballroomdance.com", "https://utahballroomdance.com/"]
 ];
+const NOV9AH_EVENT_INFO_LINES = [
+  ["Event info from St George Opera (stgeorgeopera.com).", "stgeorgeopera.com", "https://stgeorgeopera.com/"],
+  ["Event info from Orchestra of Southern Utah (osucedarcity.blogspot.com).", "osucedarcity.blogspot.com", "https://osucedarcity.blogspot.com/"],
+  ["Event info from Progression Sessions (progressionsessions.fun).", "progressionsessions.fun", "https://progressionsessions.fun/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3331,6 +3336,78 @@ function main() {
         bodyText.indexOf("rodeosusa.com") === -1 &&
         eventsHtml.indexOf("rodeosusa.com") === -1 &&
         eventsText.indexOf("rodeosusa.com") === -1);
+      let nov9ahPrevious = eventsText.indexOf("Event info from Utah Ballroom Dance (utahballroomdance.com).");
+      check("nov9ah checks 3 verbatim event-info lines", NOV9AH_EVENT_INFO_LINES.length === 3);
+      NOV9AH_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9ahPrevious !== -1 && lineAt > nov9ahPrevious);
+        nov9ahPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("woodsandwatersproject.com is absent from credits",
+        res.body.indexOf("woodsandwatersproject.com") === -1 &&
+        bodyText.indexOf("woodsandwatersproject.com") === -1 &&
+        eventsHtml.indexOf("woodsandwatersproject.com") === -1 &&
+        eventsText.indexOf("woodsandwatersproject.com") === -1);
+      check("utvevents.weebly.com is absent from credits",
+        res.body.indexOf("utvevents.weebly.com") === -1 &&
+        bodyText.indexOf("utvevents.weebly.com") === -1 &&
+        eventsHtml.indexOf("utvevents.weebly.com") === -1 &&
+        eventsText.indexOf("utvevents.weebly.com") === -1);
+      check("stgeorgedance.com is absent from credits",
+        res.body.indexOf("stgeorgedance.com") === -1 &&
+        bodyText.indexOf("stgeorgedance.com") === -1 &&
+        eventsHtml.indexOf("stgeorgedance.com") === -1 &&
+        eventsText.indexOf("stgeorgedance.com") === -1);
+      check("movara.com is absent from credits",
+        res.body.indexOf("movara.com") === -1 &&
+        bodyText.indexOf("movara.com") === -1 &&
+        eventsHtml.indexOf("movara.com") === -1 &&
+        eventsText.indexOf("movara.com") === -1);
+      check("oeccutah.com is absent from credits",
+        res.body.indexOf("oeccutah.com") === -1 &&
+        bodyText.indexOf("oeccutah.com") === -1 &&
+        eventsHtml.indexOf("oeccutah.com") === -1 &&
+        eventsText.indexOf("oeccutah.com") === -1);
+      check("csfamilyfarm.com is absent from credits",
+        res.body.indexOf("csfamilyfarm.com") === -1 &&
+        bodyText.indexOf("csfamilyfarm.com") === -1 &&
+        eventsHtml.indexOf("csfamilyfarm.com") === -1 &&
+        eventsText.indexOf("csfamilyfarm.com") === -1);
+      check("backyardultraofnorthernutah.com is absent from credits",
+        res.body.indexOf("backyardultraofnorthernutah.com") === -1 &&
+        bodyText.indexOf("backyardultraofnorthernutah.com") === -1 &&
+        eventsHtml.indexOf("backyardultraofnorthernutah.com") === -1 &&
+        eventsText.indexOf("backyardultraofnorthernutah.com") === -1);
+      check("brigadoon.live is absent from credits",
+        res.body.indexOf("brigadoon.live") === -1 &&
+        bodyText.indexOf("brigadoon.live") === -1 &&
+        eventsHtml.indexOf("brigadoon.live") === -1 &&
+        eventsText.indexOf("brigadoon.live") === -1);
       check("The State Room Presents appears exactly once",
         occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
         occurrences(bodyText, "State Room") === 1,

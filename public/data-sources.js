@@ -1303,6 +1303,10 @@
     { line: "Event info from Greenband Enterprises (slcbridalshowcase.com).", domain: "slcbridalshowcase.com", href: "https://slcbridalshowcase.com/" },
     { line: "Event info from 4Corners Riversports (riversports.com).", domain: "riversports.com", href: "https://riversports.com/" },
     { line: "Event info from Utah Ballroom Dance (utahballroomdance.com).", domain: "utahballroomdance.com", href: "https://utahballroomdance.com/" },
+    // nov9ah Legal-cleared
+    { line: "Event info from St George Opera (stgeorgeopera.com).", domain: "stgeorgeopera.com", href: "https://stgeorgeopera.com/" },
+    { line: "Event info from Orchestra of Southern Utah (osucedarcity.blogspot.com).", domain: "osucedarcity.blogspot.com", href: "https://osucedarcity.blogspot.com/" },
+    { line: "Event info from Progression Sessions (progressionsessions.fun).", domain: "progressionsessions.fun", href: "https://progressionsessions.fun/" },
   ];
 
   function eventInfoList(lines) {

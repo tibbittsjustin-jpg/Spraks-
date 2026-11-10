@@ -641,6 +641,60 @@ const NOV9U_EVENT_INFO_LINES = [
   ["Event info from Tooele Trail Racing (tooeletrailracing.com).", "tooeletrailracing.com", "https://tooeletrailracing.com/"],
   ["Event info from South Davis Race Series (www.southdavisraces.com).", "www.southdavisraces.com", "https://www.southdavisraces.com/"]
 ];
+const NOV9VWXY_EVENT_INFO_LINES = [
+  ["Event info from Salt Lake City Marathon (www.saltlakecitymarathon.com).", "www.saltlakecitymarathon.com", "https://www.saltlakecitymarathon.com/"],
+  ["Event info from Lucky 13 Race (www.lucky13race.com).", "www.lucky13race.com", "https://www.lucky13race.com/"],
+  ["Event info from Eggs Legs (www.eggslegs.com).", "www.eggslegs.com", "https://www.eggslegs.com/"],
+  ["Event info from Ride Southern Utah (www.ridesouthernutah.com).", "www.ridesouthernutah.com", "https://www.ridesouthernutah.com/"],
+  ["Event info from Utah Gravel Series (utahgravelseries.com).", "utahgravelseries.com", "https://utahgravelseries.com/"],
+  ["Event info from Belgian Waffle Ride Utah (www.belgianwaffleride.bike).", "www.belgianwaffleride.bike", "https://www.belgianwaffleride.bike/"],
+  ["Event info from Beaver County ATV Jamboree (beavercountyatvjamboree.org).", "beavercountyatvjamboree.org", "https://beavercountyatvjamboree.org/"],
+  ["Event info from Eyes to the Sky Balloon Festival (eyestotheskyballoonfestival.com).", "eyestotheskyballoonfestival.com", "https://eyestotheskyballoonfestival.com/"],
+  ["Event info from Bear Lake Monster Winterfest (bearlakemonsterwinterfest.com).", "bearlakemonsterwinterfest.com", "https://bearlakemonsterwinterfest.com/"],
+  ["Event info from Zions Indie Film Fest (www.zionsindiefilmfest.com).", "www.zionsindiefilmfest.com", "https://www.zionsindiefilmfest.com/"],
+  ["Event info from Nordic United (www.nordicunited.org).", "www.nordicunited.org", "https://www.nordicunited.org/"],
+  ["Event info from Up and Away Balloon Festival (upandawayballoonfestival.com).", "upandawayballoonfestival.com", "https://upandawayballoonfestival.com/"],
+  ["Event info from Ephraim Scandinavian Festival (www.scandifest.org).", "www.scandifest.org", "https://www.scandifest.org/"],
+  ["Event info from Nihon Matsuri (www.nihonmatsuri.com).", "www.nihonmatsuri.com", "https://www.nihonmatsuri.com/"],
+  ["Event info from Payson Scottish Festival (www.paysonscottishfestival.org).", "www.paysonscottishfestival.org", "https://www.paysonscottishfestival.org/"],
+  ["Event info from Orienteering Utah (www.o-utah.org).", "www.o-utah.org", "https://www.o-utah.org/"],
+  ["Event info from Utah Cycling Events (utahcyclingevents.com).", "utahcyclingevents.com", "https://utahcyclingevents.com/"],
+  ["Event info from SPLICE (splicemusic.org).", "splicemusic.org", "https://splicemusic.org/"],
+  ["Event info from Park City Kimball Arts Festival (kimballartsfestival.org).", "kimballartsfestival.org", "https://kimballartsfestival.org/"],
+  ["Event info from Utah Air Show (theutahairshow.com).", "theutahairshow.com", "https://theutahairshow.com/"],
+  ["Event info from Tan’s Treats (tanstreats.com).", "tanstreats.com", "https://tanstreats.com/"],
+  ["Event info from National Ability Center (nationalabilitycenter.org).", "nationalabilitycenter.org", "https://nationalabilitycenter.org/"],
+  ["Event info from Town of Mantua (www.mantuautah.gov).", "www.mantuautah.gov", "https://www.mantuautah.gov/"],
+  ["Event info from Green River Rocks (www.greenriverrocks.com).", "www.greenriverrocks.com", "https://www.greenriverrocks.com/"],
+  ["Event info from John Wesley Powell River History Museum (johnwesleypowell.com).", "johnwesleypowell.com", "https://johnwesleypowell.com/"],
+  ["Event info from Hinckley Town (hinckleytown.utah.gov).", "hinckleytown.utah.gov", "https://hinckleytown.utah.gov/"],
+  ["Event info from Vernal Rock Rally (www.vernalrockrally.com).", "www.vernalrockrally.com", "https://www.vernalrockrally.com/"],
+  ["Event info from Old Capitol Arts & Living History Festival (oldcapitolfestivals.com).", "oldcapitolfestivals.com", "https://oldcapitolfestivals.com/"],
+  ["Event info from Friends of Historic Spring City (www.friendsofhistoricspringcity.org).", "www.friendsofhistoricspringcity.org", "https://www.friendsofhistoricspringcity.org/"],
+  ["Event info from Moab Run the Rocks (www.moabruntherocks.com).", "www.moabruntherocks.com", "https://www.moabruntherocks.com/"],
+  ["Event info from Moab Bike Fest (moabbikefest.com).", "moabbikefest.com", "https://moabbikefest.com/"],
+  ["Event info from Canyonlands PRCA Rodeo (www.moabcanyonlandsrodeo.com).", "www.moabcanyonlandsrodeo.com", "https://www.moabcanyonlandsrodeo.com/"],
+  ["Event info from Destination Trail Moab 240 (www.destinationtrailrun.com).", "www.destinationtrailrun.com", "https://www.destinationtrailrun.com/"],
+  ["Event info from Stand4Kind (stand4kind.com).", "stand4kind.com", "https://stand4kind.com/"],
+  ["Event info from Red, White & Snow (redwhiteandsnow.org).", "redwhiteandsnow.org", "https://redwhiteandsnow.org/"],
+  ["Event info from Vernal Dinosaur Roundup Rodeo (vernalrodeo.com).", "vernalrodeo.com", "https://vernalrodeo.com/"],
+  ["Event info from Blossom Run (www.blossom.run).", "www.blossom.run", "https://www.blossom.run/"],
+  ["Event info from May the Fourth Race (www.maythefourthrun.com).", "www.maythefourthrun.com", "https://www.maythefourthrun.com/"],
+  ["Event info from DC Peaks (www.dcpeaks.com).", "www.dcpeaks.com", "https://www.dcpeaks.com/"],
+  ["Event info from Logan Summerfest Arts Faire (logansummerfest.org).", "logansummerfest.org", "https://logansummerfest.org/"],
+  ["Event info from Green River Watermelon Crawl (www.greenriverwatermeloncrawl.com).", "www.greenriverwatermeloncrawl.com", "https://www.greenriverwatermeloncrawl.com/"],
+  ["Event info from Salt Lake Home + Garden Show (www.saltlakehomeandgardenshow.com).", "www.saltlakehomeandgardenshow.com", "https://www.saltlakehomeandgardenshow.com/"],
+  ["Event info from Wasatch Gem Society (wasatchgemsociety.com).", "wasatchgemsociety.com", "https://wasatchgemsociety.com/"],
+  ["Event info from Vision2050 (vision2050pc.com).", "vision2050pc.com", "https://vision2050pc.com/"],
+  ["Event info from Storymakers (storymakersguild.org).", "storymakersguild.org", "https://storymakersguild.org/"],
+  ["Event info from Krank-It-Up Productions (krankitupproductions.com).", "krankitupproductions.com", "https://krankitupproductions.com/"],
+  ["Event info from Asian Association of Utah (aau-slc.org).", "aau-slc.org", "https://aau-slc.org/"],
+  ["Event info from Western Hunting & Conservation Expo (huntexpo.com).", "huntexpo.com", "https://huntexpo.com/"],
+  ["Event info from Green River Dirt Bike Rally (www.greenriverdirtbikerally.com).", "www.greenriverdirtbikerally.com", "https://www.greenriverdirtbikerally.com/"],
+  ["Event info from Special Olympics of Utah (sout.org).", "sout.org", "https://sout.org/"],
+  ["Event info from Pleasant Grove Strawberry Days (strawberrydays.org).", "strawberrydays.org", "https://strawberrydays.org/"],
+  ["Event info from Scots on the Rocks Moab (www.scotsontherocksmoab.org).", "www.scotsontherocksmoab.org", "https://www.scotsontherocksmoab.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2780,6 +2834,41 @@ function main() {
           util.httpsPageUrl(href) === href,
           foundHref);
       });
+      let nov9vwxyPrevious = eventsText.indexOf("Event info from South Davis Race Series (www.southdavisraces.com).");
+      check("nov9vwxy checks 52 verbatim event-info lines", NOV9VWXY_EVENT_INFO_LINES.length === 52);
+      NOV9VWXY_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9vwxyPrevious !== -1 && lineAt > nov9vwxyPrevious);
+        nov9vwxyPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("thesnowleague.com is absent from event-info credits",
+        eventsHtml.indexOf("thesnowleague.com") === -1 &&
+        eventsText.indexOf("thesnowleague.com") === -1);
       check("The State Room Presents appears exactly once",
         occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
         occurrences(bodyText, "State Room") === 1,

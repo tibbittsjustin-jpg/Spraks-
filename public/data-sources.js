@@ -1150,6 +1150,15 @@
     { line: "Event info from Back of Beyond Books (backofbeyondbooks.com).", domain: "backofbeyondbooks.com", href: "https://backofbeyondbooks.com/" },
     { line: "Event info from Recycle Utah (recycleutah.org).", domain: "recycleutah.org", href: "https://recycleutah.org/" },
     { line: "Event info from Art for the Recovery Community (www.artfortherecoverycommunity.com).", domain: "www.artfortherecoverycommunity.com", href: "https://www.artfortherecoverycommunity.com/" },
+    // nov9st Legal-cleared
+    { line: "Event info from HEAL Utah (www.healutah.org).", domain: "www.healutah.org", href: "https://www.healutah.org/" },
+    { line: "Event info from Glass Art Guild of Utah (www.glassartguild.org).", domain: "www.glassartguild.org", href: "https://www.glassartguild.org/" },
+    { line: "Event info from Salt Lake City Library Foundation (slclf.org).", domain: "slclf.org", href: "https://slclf.org/" },
+    { line: "Event info from Utopia Early Music (www.utopiaearlymusic.org).", domain: "www.utopiaearlymusic.org", href: "https://www.utopiaearlymusic.org/" },
+    { line: "Event info from Utah Valley Handbell Choir (utahbells.com).", domain: "utahbells.com", href: "https://utahbells.com/" },
+    { line: "Event info from W.D. Kilpack (www.kilpack.net).", domain: "www.kilpack.net", href: "https://www.kilpack.net/" },
+    { line: "Event info from Ivory Innovations (www.ivoryinnovations.org).", domain: "www.ivoryinnovations.org", href: "https://www.ivoryinnovations.org/" },
+    { line: "Event info from Briarbook Lane (Mary W. Jensen) (www.briarbooklane.com).", domain: "www.briarbooklane.com", href: "https://www.briarbooklane.com/" },
   ];
 
   function eventInfoList(lines) {

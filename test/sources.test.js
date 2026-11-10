@@ -636,6 +636,11 @@ const NOV9ST_EVENT_INFO_LINES = [
   ["Event info from Ivory Innovations (www.ivoryinnovations.org).", "www.ivoryinnovations.org", "https://www.ivoryinnovations.org/"],
   ["Event info from Briarbook Lane (Mary W. Jensen) (www.briarbooklane.com).", "www.briarbooklane.com", "https://www.briarbooklane.com/"]
 ];
+const NOV9U_EVENT_INFO_LINES = [
+  ["Event info from Wasatch Powderkeg (www.wasatchpowderkeg.com).", "www.wasatchpowderkeg.com", "https://www.wasatchpowderkeg.com/"],
+  ["Event info from Tooele Trail Racing (tooeletrailracing.com).", "tooeletrailracing.com", "https://tooeletrailracing.com/"],
+  ["Event info from South Davis Race Series (www.southdavisraces.com).", "www.southdavisraces.com", "https://www.southdavisraces.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2736,6 +2741,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov9stPrevious !== -1 && lineAt > nov9stPrevious);
         nov9stPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9uPrevious = eventsText.indexOf("Event info from Briarbook Lane (Mary W. Jensen) (www.briarbooklane.com).");
+      check("nov9u checks 3 verbatim event-info lines", NOV9U_EVENT_INFO_LINES.length === 3);
+      NOV9U_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9uPrevious !== -1 && lineAt > nov9uPrevious);
+        nov9uPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

@@ -53,7 +53,7 @@
     { key:"cost",     label:"Budget",      options:["Free","$1-$20","$21-$40","$41-$60","$61-$80","$81-$100","Over $100"] },
     { key:"time",     label:"Time of Day", options:SparkTimeWindows.TIME_WINDOWS.slice() },
     { key:"setting",  label:"Indoor / Outdoor", options:["Indoor","Outdoor"] },
-    { key:"vibe",     label:"Vibe",        options:["Chill","Romantic","Active","Adventurous","Creative","Silly","Cozy","Spontaneous"] },
+    { key:"vibe",     label:"Vibe",        options:["Chill","Romantic","Active","Adventurous","Creative","Silly","Cozy"] },
     { key:"season",   label:"Season",      options:["Spring","Summer","Fall","Winter"] },
     { key:"audience", label:"Audience",    options:SparkAudience.AUDIENCE.slice() }
   ];

@@ -1267,6 +1267,17 @@
     { line: "Event info from Soldier Hollow Classic (soldierhollowclassic.com).", domain: "soldierhollowclassic.com", href: "https://soldierhollowclassic.com/" },
     { line: "Event info from Salt City Stomp (saltcitystomp.com).", domain: "saltcitystomp.com", href: "https://saltcitystomp.com/" },
     { line: "Event info from Utah Avalanche Center (utahavalanchecenter.org).", domain: "utahavalanchecenter.org", href: "https://utahavalanchecenter.org/" },
+    // nov9ad Legal-cleared
+    { line: "Event info from Sew Simply Stitched (sewsimplystitched.com).", domain: "sewsimplystitched.com", href: "https://sewsimplystitched.com/" },
+    { line: "Event info from RedStone Highland Games (redstonehighlandgames.com).", domain: "redstonehighlandgames.com", href: "https://redstonehighlandgames.com/" },
+    { line: "Event info from Iron County HBA (ichba.org).", domain: "ichba.org", href: "https://ichba.org/" },
+    { line: "Event info from Cache Valley Media Group (cachevalleymediagroup.com).", domain: "cachevalleymediagroup.com", href: "https://cachevalleymediagroup.com/" },
+    { line: "Event info from International Sportsmen's Expositions (sportsexpos.com).", domain: "sportsexpos.com", href: "https://sportsexpos.com/" },
+    { line: "Event info from Stitch Craft Conference (stitchcraftconference.com).", domain: "stitchcraftconference.com", href: "https://stitchcraftconference.com/" },
+    { line: "Event info from Kitchen Kneads (kitchenkneads.com).", domain: "kitchenkneads.com", href: "https://kitchenkneads.com/" },
+    { line: "Event info from Vintage Market Days (vintagemarketdays.com).", domain: "vintagemarketdays.com", href: "https://vintagemarketdays.com/" },
+    { line: "Event info from Compass & Core (compassandcore.com).", domain: "compassandcore.com", href: "https://compassandcore.com/" },
+    { line: "Event info from HEAL Studio (healyogastudio.com).", domain: "healyogastudio.com", href: "https://healyogastudio.com/" },
   ];
 
   function eventInfoList(lines) {

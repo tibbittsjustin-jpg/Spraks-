@@ -748,6 +748,18 @@ const NOV9AC_EVENT_INFO_LINES = [
   ["Event info from Salt City Stomp (saltcitystomp.com).", "saltcitystomp.com", "https://saltcitystomp.com/"],
   ["Event info from Utah Avalanche Center (utahavalanchecenter.org).", "utahavalanchecenter.org", "https://utahavalanchecenter.org/"]
 ];
+const NOV9AD_EVENT_INFO_LINES = [
+  ["Event info from Sew Simply Stitched (sewsimplystitched.com).", "sewsimplystitched.com", "https://sewsimplystitched.com/"],
+  ["Event info from RedStone Highland Games (redstonehighlandgames.com).", "redstonehighlandgames.com", "https://redstonehighlandgames.com/"],
+  ["Event info from Iron County HBA (ichba.org).", "ichba.org", "https://ichba.org/"],
+  ["Event info from Cache Valley Media Group (cachevalleymediagroup.com).", "cachevalleymediagroup.com", "https://cachevalleymediagroup.com/"],
+  ["Event info from International Sportsmen's Expositions (sportsexpos.com).", "sportsexpos.com", "https://sportsexpos.com/"],
+  ["Event info from Stitch Craft Conference (stitchcraftconference.com).", "stitchcraftconference.com", "https://stitchcraftconference.com/"],
+  ["Event info from Kitchen Kneads (kitchenkneads.com).", "kitchenkneads.com", "https://kitchenkneads.com/"],
+  ["Event info from Vintage Market Days (vintagemarketdays.com).", "vintagemarketdays.com", "https://vintagemarketdays.com/"],
+  ["Event info from Compass & Core (compassandcore.com).", "compassandcore.com", "https://compassandcore.com/"],
+  ["Event info from HEAL Studio (healyogastudio.com).", "healyogastudio.com", "https://healyogastudio.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3038,6 +3050,58 @@ function main() {
         bodyText.indexOf("saltlake.acsgala.org") === -1 &&
         eventsHtml.indexOf("saltlake.acsgala.org") === -1 &&
         eventsText.indexOf("saltlake.acsgala.org") === -1);
+      let nov9adPrevious = eventsText.indexOf("Event info from Utah Avalanche Center (utahavalanchecenter.org).");
+      check("nov9ad checks 10 verbatim event-info lines", NOV9AD_EVENT_INFO_LINES.length === 10);
+      NOV9AD_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9adPrevious !== -1 && lineAt > nov9adPrevious);
+        nov9adPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("canyonlandquilts.com is absent from credits",
+        res.body.indexOf("canyonlandquilts.com") === -1 &&
+        bodyText.indexOf("canyonlandquilts.com") === -1 &&
+        eventsHtml.indexOf("canyonlandquilts.com") === -1 &&
+        eventsText.indexOf("canyonlandquilts.com") === -1);
+      check("cedarcityquiltretreat.com is absent from credits",
+        res.body.indexOf("cedarcityquiltretreat.com") === -1 &&
+        bodyText.indexOf("cedarcityquiltretreat.com") === -1 &&
+        eventsHtml.indexOf("cedarcityquiltretreat.com") === -1 &&
+        eventsText.indexOf("cedarcityquiltretreat.com") === -1);
+      check("rockymountainrodeo.com is absent from credits",
+        res.body.indexOf("rockymountainrodeo.com") === -1 &&
+        bodyText.indexOf("rockymountainrodeo.com") === -1 &&
+        eventsHtml.indexOf("rockymountainrodeo.com") === -1 &&
+        eventsText.indexOf("rockymountainrodeo.com") === -1);
+      check("northernutahhomeshow.com is absent from credits",
+        res.body.indexOf("northernutahhomeshow.com") === -1 &&
+        bodyText.indexOf("northernutahhomeshow.com") === -1 &&
+        eventsHtml.indexOf("northernutahhomeshow.com") === -1 &&
+        eventsText.indexOf("northernutahhomeshow.com") === -1);
       check("The State Room Presents appears exactly once",
         occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
         occurrences(bodyText, "State Room") === 1,

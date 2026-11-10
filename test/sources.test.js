@@ -783,6 +783,11 @@ const NOV9AF_EVENT_INFO_LINES = [
   ["Event info from Enlighten Photography Excursions (zion-photography.com).", "zion-photography.com", "https://zion-photography.com/"],
   ["Event info from Rockbound Adventures (rockboundadventures.com).", "rockboundadventures.com", "https://rockboundadventures.com/"]
 ];
+const NOV9AG_EVENT_INFO_LINES = [
+  ["Event info from Greenband Enterprises (slcbridalshowcase.com).", "slcbridalshowcase.com", "https://slcbridalshowcase.com/"],
+  ["Event info from 4Corners Riversports (riversports.com).", "riversports.com", "https://riversports.com/"],
+  ["Event info from Utah Ballroom Dance (utahballroomdance.com).", "utahballroomdance.com", "https://utahballroomdance.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3264,6 +3269,68 @@ function main() {
         bodyText.indexOf("getyourmarriageon.com") === -1 &&
         eventsHtml.indexOf("getyourmarriageon.com") === -1 &&
         eventsText.indexOf("getyourmarriageon.com") === -1);
+      let nov9agPrevious = eventsText.indexOf("Event info from Rockbound Adventures (rockboundadventures.com).");
+      check("nov9ag checks 3 verbatim event-info lines", NOV9AG_EVENT_INFO_LINES.length === 3);
+      NOV9AG_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9agPrevious !== -1 && lineAt > nov9agPrevious);
+        nov9agPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("jillilystudio.com is absent from credits",
+        res.body.indexOf("jillilystudio.com") === -1 &&
+        bodyText.indexOf("jillilystudio.com") === -1 &&
+        eventsHtml.indexOf("jillilystudio.com") === -1 &&
+        eventsText.indexOf("jillilystudio.com") === -1);
+      check("vivavitaexpos.com is absent from credits",
+        res.body.indexOf("vivavitaexpos.com") === -1 &&
+        bodyText.indexOf("vivavitaexpos.com") === -1 &&
+        eventsHtml.indexOf("vivavitaexpos.com") === -1 &&
+        eventsText.indexOf("vivavitaexpos.com") === -1);
+      check("alwaysbesewing.com is absent from credits",
+        res.body.indexOf("alwaysbesewing.com") === -1 &&
+        bodyText.indexOf("alwaysbesewing.com") === -1 &&
+        eventsHtml.indexOf("alwaysbesewing.com") === -1 &&
+        eventsText.indexOf("alwaysbesewing.com") === -1);
+      check("cruisemoab.com is absent from credits",
+        res.body.indexOf("cruisemoab.com") === -1 &&
+        bodyText.indexOf("cruisemoab.com") === -1 &&
+        eventsHtml.indexOf("cruisemoab.com") === -1 &&
+        eventsText.indexOf("cruisemoab.com") === -1);
+      check("strikeyourmatch.net is absent from credits",
+        res.body.indexOf("strikeyourmatch.net") === -1 &&
+        bodyText.indexOf("strikeyourmatch.net") === -1 &&
+        eventsHtml.indexOf("strikeyourmatch.net") === -1 &&
+        eventsText.indexOf("strikeyourmatch.net") === -1);
+      check("rodeosusa.com is absent from credits",
+        res.body.indexOf("rodeosusa.com") === -1 &&
+        bodyText.indexOf("rodeosusa.com") === -1 &&
+        eventsHtml.indexOf("rodeosusa.com") === -1 &&
+        eventsText.indexOf("rodeosusa.com") === -1);
       check("The State Room Presents appears exactly once",
         occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
         occurrences(bodyText, "State Room") === 1,

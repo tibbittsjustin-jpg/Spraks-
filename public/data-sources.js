@@ -1299,6 +1299,10 @@
     { line: "Event info from Nature Photography Collective (naturephotocollective.com).", domain: "naturephotocollective.com", href: "https://naturephotocollective.com/" },
     { line: "Event info from Enlighten Photography Excursions (zion-photography.com).", domain: "zion-photography.com", href: "https://zion-photography.com/" },
     { line: "Event info from Rockbound Adventures (rockboundadventures.com).", domain: "rockboundadventures.com", href: "https://rockboundadventures.com/" },
+    // nov9ag Legal-cleared
+    { line: "Event info from Greenband Enterprises (slcbridalshowcase.com).", domain: "slcbridalshowcase.com", href: "https://slcbridalshowcase.com/" },
+    { line: "Event info from 4Corners Riversports (riversports.com).", domain: "riversports.com", href: "https://riversports.com/" },
+    { line: "Event info from Utah Ballroom Dance (utahballroomdance.com).", domain: "utahballroomdance.com", href: "https://utahballroomdance.com/" },
   ];
 
   function eventInfoList(lines) {

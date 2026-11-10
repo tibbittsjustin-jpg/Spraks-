@@ -760,6 +760,18 @@ const NOV9AD_EVENT_INFO_LINES = [
   ["Event info from Compass & Core (compassandcore.com).", "compassandcore.com", "https://compassandcore.com/"],
   ["Event info from HEAL Studio (healyogastudio.com).", "healyogastudio.com", "https://healyogastudio.com/"]
 ];
+const NOV9AE_EVENT_INFO_LINES = [
+  ["Event info from Desert Mountain Medicine (desertmountainmedicine.com).", "desertmountainmedicine.com", "https://desertmountainmedicine.com/"],
+  ["Event info from Jurassic Quest (jurassicquest.com).", "jurassicquest.com", "https://jurassicquest.com/"],
+  ["Event info from Into the Wild Adventure (itwadventure.com).", "itwadventure.com", "https://itwadventure.com/"],
+  ["Event info from National Park Photography Expeditions (nppemasterclass.com).", "nppemasterclass.com", "https://nppemasterclass.com/"],
+  ["Event info from Bruce Barnbaum (barnbaum.com).", "barnbaum.com", "https://barnbaum.com/"],
+  ["Event info from Kat Anderson Writes (katandersonwrites.com).", "katandersonwrites.com", "https://katandersonwrites.com/"],
+  ["Event info from Under The Garden Moon (underthegardenmoon.com).", "underthegardenmoon.com", "https://underthegardenmoon.com/"],
+  ["Event info from Anasazi Free-Trappers (anasazifreetrappers.org).", "anasazifreetrappers.org", "https://anasazifreetrappers.org/"],
+  ["Event info from Hurricane Valley Rotary Club (eastercarshow.com).", "eastercarshow.com", "https://eastercarshow.com/"],
+  ["Event info from America On Stage (americaonstage.org).", "americaonstage.org", "https://americaonstage.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3102,6 +3114,88 @@ function main() {
         bodyText.indexOf("northernutahhomeshow.com") === -1 &&
         eventsHtml.indexOf("northernutahhomeshow.com") === -1 &&
         eventsText.indexOf("northernutahhomeshow.com") === -1);
+      let nov9aePrevious = eventsText.indexOf("Event info from HEAL Studio (healyogastudio.com).");
+      check("nov9ae checks 10 verbatim event-info lines", NOV9AE_EVENT_INFO_LINES.length === 10);
+      NOV9AE_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9aePrevious !== -1 && lineAt > nov9aePrevious);
+        nov9aePrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("honestheartjourneys.com is absent from credits",
+        res.body.indexOf("honestheartjourneys.com") === -1 &&
+        bodyText.indexOf("honestheartjourneys.com") === -1 &&
+        eventsHtml.indexOf("honestheartjourneys.com") === -1 &&
+        eventsText.indexOf("honestheartjourneys.com") === -1);
+      check("hunterpagenatureprints.com is absent from credits",
+        res.body.indexOf("hunterpagenatureprints.com") === -1 &&
+        bodyText.indexOf("hunterpagenatureprints.com") === -1 &&
+        eventsHtml.indexOf("hunterpagenatureprints.com") === -1 &&
+        eventsText.indexOf("hunterpagenatureprints.com") === -1);
+      check("pittatours.com is absent from credits",
+        res.body.indexOf("pittatours.com") === -1 &&
+        bodyText.indexOf("pittatours.com") === -1 &&
+        eventsHtml.indexOf("pittatours.com") === -1 &&
+        eventsText.indexOf("pittatours.com") === -1);
+      check("photogadventures.com is absent from credits",
+        res.body.indexOf("photogadventures.com") === -1 &&
+        bodyText.indexOf("photogadventures.com") === -1 &&
+        eventsHtml.indexOf("photogadventures.com") === -1 &&
+        eventsText.indexOf("photogadventures.com") === -1);
+      check("carolnewsomart.com is absent from credits",
+        res.body.indexOf("carolnewsomart.com") === -1 &&
+        bodyText.indexOf("carolnewsomart.com") === -1 &&
+        eventsHtml.indexOf("carolnewsomart.com") === -1 &&
+        eventsText.indexOf("carolnewsomart.com") === -1);
+      check("actionphototours.com is absent from credits",
+        res.body.indexOf("actionphototours.com") === -1 &&
+        bodyText.indexOf("actionphototours.com") === -1 &&
+        eventsHtml.indexOf("actionphototours.com") === -1 &&
+        eventsText.indexOf("actionphototours.com") === -1);
+      check("spencerscamera.com is absent from credits",
+        res.body.indexOf("spencerscamera.com") === -1 &&
+        bodyText.indexOf("spencerscamera.com") === -1 &&
+        eventsHtml.indexOf("spencerscamera.com") === -1 &&
+        eventsText.indexOf("spencerscamera.com") === -1);
+      check("weberbasin.com is absent from credits",
+        res.body.indexOf("weberbasin.com") === -1 &&
+        bodyText.indexOf("weberbasin.com") === -1 &&
+        eventsHtml.indexOf("weberbasin.com") === -1 &&
+        eventsText.indexOf("weberbasin.com") === -1);
+      check("artprovides.org is absent from credits",
+        res.body.indexOf("artprovides.org") === -1 &&
+        bodyText.indexOf("artprovides.org") === -1 &&
+        eventsHtml.indexOf("artprovides.org") === -1 &&
+        eventsText.indexOf("artprovides.org") === -1);
+      check("wrightflowercompany.com is absent from credits",
+        res.body.indexOf("wrightflowercompany.com") === -1 &&
+        bodyText.indexOf("wrightflowercompany.com") === -1 &&
+        eventsHtml.indexOf("wrightflowercompany.com") === -1 &&
+        eventsText.indexOf("wrightflowercompany.com") === -1);
       check("The State Room Presents appears exactly once",
         occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
         occurrences(bodyText, "State Room") === 1,

@@ -1289,6 +1289,16 @@
     { line: "Event info from Anasazi Free-Trappers (anasazifreetrappers.org).", domain: "anasazifreetrappers.org", href: "https://anasazifreetrappers.org/" },
     { line: "Event info from Hurricane Valley Rotary Club (eastercarshow.com).", domain: "eastercarshow.com", href: "https://eastercarshow.com/" },
     { line: "Event info from America On Stage (americaonstage.org).", domain: "americaonstage.org", href: "https://americaonstage.org/" },
+    // nov9af Legal-cleared
+    { line: "Event info from Salt City ParaCon (saltcityparacon.com).", domain: "saltcityparacon.com", href: "https://saltcityparacon.com/" },
+    { line: "Event info from Stephanie Chavez Designs (stephaniechavez.com).", domain: "stephaniechavez.com", href: "https://stephaniechavez.com/" },
+    { line: "Event info from Ninja Mountain Bike Skills (ridelikeaninja.com).", domain: "ridelikeaninja.com", href: "https://ridelikeaninja.com/" },
+    { line: "Event info from Utah Dancesport (utahdancesport.com).", domain: "utahdancesport.com", href: "https://utahdancesport.com/" },
+    { line: "Event info from Dusty Doddridge Photography (dustydoddridge.com).", domain: "dustydoddridge.com", href: "https://dustydoddridge.com/" },
+    { line: "Event info from Pacific Mindfulness (pacificmindfulness.com).", domain: "pacificmindfulness.com", href: "https://pacificmindfulness.com/" },
+    { line: "Event info from Nature Photography Collective (naturephotocollective.com).", domain: "naturephotocollective.com", href: "https://naturephotocollective.com/" },
+    { line: "Event info from Enlighten Photography Excursions (zion-photography.com).", domain: "zion-photography.com", href: "https://zion-photography.com/" },
+    { line: "Event info from Rockbound Adventures (rockboundadventures.com).", domain: "rockboundadventures.com", href: "https://rockboundadventures.com/" },
   ];
 
   function eventInfoList(lines) {

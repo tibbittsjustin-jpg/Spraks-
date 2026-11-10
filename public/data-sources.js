@@ -1332,10 +1332,13 @@
     { line: "Event info from Ky & The Jellies (kyandthejellies.com).", domain: "kyandthejellies.com", href: "https://kyandthejellies.com/" },
     { line: "Event info from Lisa and the Missing Pieces (lisaandthemissingpieces.com).", domain: "lisaandthemissingpieces.com", href: "https://lisaandthemissingpieces.com/" },
     // nov10fill Legal-cleared
-    { line: "Farm info from the Utah Department of Agriculture and Food Agritourism Directory (agritourism.utah.gov).", domain: "agritourism.utah.gov", href: "https://agritourism.utah.gov/farm-directory/", note: "Listed for information only. UDAF and Jaderoo don't endorse any farm. Confirm hours and seasons with the farm." },
+    { line: "Farm info from the Utah Department of Agriculture and Food Agritourism Directory (agritourism.utah.gov).", domain: "agritourism.utah.gov", href: "https://agritourism.utah.gov/farm-directory/" },
+  ];
+  var NOV10FILL_AGRITOURISM_NOTE = "Listed for information only. UDAF and Jaderoo don't endorse any farm. Confirm hours and seasons with the farm.";
+  var NOV10FILL_FOLLOWING_LINES = [
     { line: "Event info from Ogden Astronomical Society (www.ogden-astronomy.org).", domain: "www.ogden-astronomy.org", href: "https://www.ogden-astronomy.org/events" },
     { line: "Event info from Utah Valley Astronomy Club (uvac.us).", domain: "uvac.us", href: "https://uvac.us/2026-timpanogos-cave-star-parties/" },
-    { line: "Event info from Ephraim City (ephraim.gov).", domain: "ephraim.gov", href: "https://ephraim.gov/" },
+    { line: "Event info from Ephraim City (ephraim.gov).", domain: "ephraim.gov", href: "https://ephraim.gov/" }
   ];
 
   function eventInfoList(lines) {
@@ -1349,7 +1352,7 @@
         { text: before },
         { text: item.domain, href: item.href, external: true },
         { text: after }
-      ]) + (item.note ? " " + escapeHtml(item.note) : "") + "</li>";
+      ]) + "</li>";
     });
     html += "</ul>";
     return html;
@@ -1435,6 +1438,8 @@
     html.push('<p class="muted">Each event listing links to the organizer and shows the credit below.</p>');
     html.push(groupList("events"));
     html.push(eventInfoList(EVENT_INFO_LINES));
+    html.push(paragraph(NOV10FILL_AGRITOURISM_NOTE));
+    html.push(eventInfoList(NOV10FILL_FOLLOWING_LINES));
     html.push("<h2>Discovery only</h2>");
     html.push(paragraph("Visit Salt Lake and Explore Utah Valley are used only to find events. Jaderoo does not copy their listings. When an event is shown, the credit names the organizer."));
     html.push(groupList("discovery"));

@@ -3654,12 +3654,16 @@ function main() {
           foundHref);
       });
       const farmLine = NOV10FILL_EVENT_INFO_LINES[0][0];
-      const farmRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
-      let farmHtml = "";
-      let farmMatch;
-      while ((farmMatch = farmRe.exec(eventsHtml))) {
-        if (visibleText(farmMatch[0]) === farmLine + " " + NOV10FILL_AGRITOURISM_NOTE) {
-          farmHtml = farmMatch[0];
+      const ogdenLine = NOV10FILL_EVENT_INFO_LINES[1][0];
+      const farmAt = eventsText.indexOf(farmLine);
+      const noteAt = eventsText.indexOf(NOV10FILL_AGRITOURISM_NOTE);
+      const ogdenAt = eventsText.indexOf(ogdenLine);
+      const noteParaRe = /<p\b[^>]*>[\s\S]*?<\/p>/g;
+      let notePara = "";
+      let noteParaMatch;
+      while ((noteParaMatch = noteParaRe.exec(eventsHtml))) {
+        if (visibleText(noteParaMatch[0]) === NOV10FILL_AGRITOURISM_NOTE) {
+          notePara = noteParaMatch[0];
           break;
         }
       }
@@ -3667,8 +3671,10 @@ function main() {
         occurrences(bodyText, NOV10FILL_AGRITOURISM_NOTE) === 1 &&
         occurrences(eventsText, NOV10FILL_AGRITOURISM_NOTE) === 1 &&
         occurrences(sourcesData, NOV10FILL_AGRITOURISM_NOTE) === 1 &&
-        farmHtml.length > 0 &&
-        visibleText(farmHtml).indexOf(farmLine + " " + NOV10FILL_AGRITOURISM_NOTE) === 0);
+        farmAt !== -1 && noteAt > farmAt && ogdenAt > noteAt &&
+        notePara.length > 0 &&
+        notePara.toLowerCase().indexOf("<a") === -1 &&
+        notePara.indexOf("()") === -1);
       function eventInfoRows(data) {
         const re = /\{\s*line:\s*"((?:\\.|[^"\\])*)"\s*,\s*domain:\s*"((?:\\.|[^"\\])*)"\s*,\s*href:\s*"((?:\\.|[^"\\])*)"/g;
         const rows = [];

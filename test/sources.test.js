@@ -626,6 +626,16 @@ const NOV9P_EVENT_INFO_LINES = [
   ["Event info from Recycle Utah (recycleutah.org).", "recycleutah.org", "https://recycleutah.org/"],
   ["Event info from Art for the Recovery Community (www.artfortherecoverycommunity.com).", "www.artfortherecoverycommunity.com", "https://www.artfortherecoverycommunity.com/"]
 ];
+const NOV9ST_EVENT_INFO_LINES = [
+  ["Event info from HEAL Utah (www.healutah.org).", "www.healutah.org", "https://www.healutah.org/"],
+  ["Event info from Glass Art Guild of Utah (www.glassartguild.org).", "www.glassartguild.org", "https://www.glassartguild.org/"],
+  ["Event info from Salt Lake City Library Foundation (slclf.org).", "slclf.org", "https://slclf.org/"],
+  ["Event info from Utopia Early Music (www.utopiaearlymusic.org).", "www.utopiaearlymusic.org", "https://www.utopiaearlymusic.org/"],
+  ["Event info from Utah Valley Handbell Choir (utahbells.com).", "utahbells.com", "https://utahbells.com/"],
+  ["Event info from W.D. Kilpack (www.kilpack.net).", "www.kilpack.net", "https://www.kilpack.net/"],
+  ["Event info from Ivory Innovations (www.ivoryinnovations.org).", "www.ivoryinnovations.org", "https://www.ivoryinnovations.org/"],
+  ["Event info from Briarbook Lane (Mary W. Jensen) (www.briarbooklane.com).", "www.briarbooklane.com", "https://www.briarbooklane.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2694,6 +2704,38 @@ function main() {
         check(line + " keeps its order in Event listings",
           nov9pPrevious !== -1 && lineAt > nov9pPrevious);
         nov9pPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      let nov9stPrevious = eventsText.indexOf("Event info from Art for the Recovery Community (www.artfortherecoverycommunity.com).");
+      check("nov9st checks 8 verbatim event-info lines", NOV9ST_EVENT_INFO_LINES.length === 8);
+      NOV9ST_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9stPrevious !== -1 && lineAt > nov9stPrevious);
+        nov9stPrevious = lineAt;
         check(domain + " links over https and passes sourceLink",
           foundHref === href &&
           sources.httpsPageUrl(href) === href &&

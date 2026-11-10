@@ -1,7 +1,7 @@
 /* Approximate by default, exact only after a just-in-time confirm.
    The choice is remembered on this device. A saved fix is stale until a
    new request settles. The radius filters with or without Local.
-   Activities requests carry the rounded pair only. */
+   Activities requests carry the rounded pair only. Nearby ideas do too. */
 "use strict";
 
 const fs = require("fs");
@@ -391,6 +391,60 @@ async function main() {
     check("a shared plan link does not embed the origin",
       share.indexOf(String(PRECISE_LAT)) === -1 && share.indexOf(String(PRECISE_LNG)) === -1 && share.indexOf("lat=") === -1,
       share);
+  });
+
+  await section("nearby ideas send the rounded pair only", async () => {
+    const storage = {};
+    const t = loadApp(storage);
+    const geo = installGeo(t);
+    const requests = [];
+    t.setFetch(function(url, options) {
+      requests.push({
+        url: String(url),
+        method: options && options.method,
+        body: options && options.body != null ? String(options.body) : ""
+      });
+      const pathName = String(url);
+      if (pathName.indexOf("/api/status") !== -1) {
+        return Promise.resolve({
+          ok: true,
+          json: function() { return Promise.resolve({ placesConfigured: true, aiConfigured: true, offline: false }); }
+        });
+      }
+      if (pathName.indexOf("/api/nearby-ideas") !== -1) {
+        return Promise.resolve({
+          ok: true,
+          json: function() { return Promise.resolve({ ideas: [] }); }
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: function() { return Promise.resolve({ items: [], nextCursor: null }); }
+      });
+    });
+    t.requestLocation({ silent: true, exact: true });
+    geo.calls[0].success({ coords: { latitude: PRECISE_LAT, longitude: PRECISE_LNG, accuracy: 8 } });
+    for (let i = 0; i < 12; i++) await new Promise(resolve => setImmediate(resolve));
+    const nearby = requests.filter(req => req.url.indexOf("/api/nearby-ideas") !== -1);
+    check("a precise fix still asks for nearby ideas", nearby.length === 1, requests.map(req => req.url).join(" | "));
+    const sent = nearby[0] || { body: "", method: "" };
+    let payload = null;
+    try { payload = JSON.parse(sent.body); } catch (e) { payload = null; }
+    const latText = payload ? String(payload.lat) : "";
+    const lngText = payload ? String(payload.lng) : "";
+    check("the device fix stays precise",
+      t.state.location && t.state.location.lat === PRECISE_LAT && t.state.location.lng === PRECISE_LNG);
+    const saved = storage[KEY] ? JSON.parse(storage[KEY]) : {};
+    check("the saved fix stays precise",
+      saved.location && saved.location.lat === PRECISE_LAT && saved.location.lng === PRECISE_LNG);
+    check("nearby latitude is rounded to 2 decimals", latText === "40.23", sent.body.slice(0, 240));
+    check("nearby longitude is rounded to 2 decimals", lngText === "-111.66", sent.body.slice(0, 240));
+    check("the nearby body has no number past 2 decimal places", !/-?\d+\.\d{3,}/.test(sent.body), sent.body.slice(0, 240));
+    check("the nearby body omits the precise pair",
+      sent.body.indexOf(String(PRECISE_LAT)) === -1 && sent.body.indexOf(String(PRECISE_LNG)) === -1,
+      sent.body.slice(0, 240));
+    check("nearby still posts the deck filters and count",
+      sent.method === "POST" && payload && payload.count === 12 && payload.filters && typeof payload.filters === "object");
   });
 }
 

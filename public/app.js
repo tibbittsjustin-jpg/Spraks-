@@ -918,12 +918,16 @@
     if(!state.location || realIdeasLoading || REAL_IDEAS_RUNTIME.length) return;
     fetchApiStatus().then(function(status){
       if(status.offline || !status.placesConfigured || !status.aiConfigured) return;
+      // Same two-decimal pair the activities request sends (~1 km). The saved fix stays precise.
+      if(!state.location || typeof SparkRemoteActivities === "undefined" || typeof SparkRemoteActivities.roundPair !== "function") return;
+      var rounded = SparkRemoteActivities.roundPair(state.location.lat, state.location.lng);
+      if(!rounded) return;
       realIdeasLoading = true;
       updateLocationBar();
       fetch("/api/nearby-ideas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lat: state.location.lat, lng: state.location.lng, filters: state.filters, count: 12 })
+        body: JSON.stringify({ lat: rounded.lat, lng: rounded.lng, filters: state.filters, count: 12 })
       })
         .then(function(r){ return r.json(); })
         .catch(function(){ return { ideas: [] }; })

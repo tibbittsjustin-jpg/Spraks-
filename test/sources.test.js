@@ -801,6 +801,13 @@ const NOV9AI_EVENT_INFO_LINES = [
   ["Event info from Ky & The Jellies (kyandthejellies.com).", "kyandthejellies.com", "https://kyandthejellies.com/"],
   ["Event info from Lisa and the Missing Pieces (lisaandthemissingpieces.com).", "lisaandthemissingpieces.com", "https://lisaandthemissingpieces.com/"]
 ];
+const NOV10FILL_AGRITOURISM_NOTE = "Listed for information only. UDAF and Jaderoo don't endorse any farm. Confirm hours and seasons with the farm.";
+const NOV10FILL_EVENT_INFO_LINES = [
+  ["Farm info from the Utah Department of Agriculture and Food Agritourism Directory (agritourism.utah.gov).", "agritourism.utah.gov", "https://agritourism.utah.gov/farm-directory/"],
+  ["Event info from Ogden Astronomical Society (www.ogden-astronomy.org).", "www.ogden-astronomy.org", "https://www.ogden-astronomy.org/events"],
+  ["Event info from Utah Valley Astronomy Club (uvac.us).", "uvac.us", "https://uvac.us/2026-timpanogos-cave-star-parties/"],
+  ["Event info from Ephraim City (ephraim.gov).", "ephraim.gov", "https://ephraim.gov/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3608,6 +3615,144 @@ function main() {
       check("NowPlayingUtah is absent from /sources",
         res.body.indexOf("NowPlayingUtah") === -1 &&
         sourcesLower.indexOf("nowplayingutah") === -1);
+      const nov10fillBlockAt = sourcesData.indexOf("// nov10fill Legal-cleared");
+      check("the nov10fill block appears after the nov9ai block",
+        nov9aiBlockAt !== -1 && nov10fillBlockAt > nov9aiBlockAt);
+      let nov10fillPrevious = eventsText.indexOf("Event info from Lisa and the Missing Pieces (lisaandthemissingpieces.com).");
+      check("nov10fill checks 4 verbatim event-info lines", NOV10FILL_EVENT_INFO_LINES.length === 4);
+      NOV10FILL_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          const itemText = visibleText(itemMatch[0]);
+          if (itemText === line || itemText === line + " " + NOV10FILL_AGRITOURISM_NOTE) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        const shown = visibleText(itemHtml);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 &&
+          (shown === line || shown === line + " " + NOV10FILL_AGRITOURISM_NOTE),
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov10fillPrevious !== -1 && lineAt > nov10fillPrevious);
+        nov10fillPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      const farmLine = NOV10FILL_EVENT_INFO_LINES[0][0];
+      const ogdenLine = NOV10FILL_EVENT_INFO_LINES[1][0];
+      const farmAt = eventsText.indexOf(farmLine);
+      const noteAt = eventsText.indexOf(NOV10FILL_AGRITOURISM_NOTE);
+      const ogdenAt = eventsText.indexOf(ogdenLine);
+      const noteParaRe = /<p\b[^>]*>[\s\S]*?<\/p>/g;
+      let notePara = "";
+      let noteParaMatch;
+      while ((noteParaMatch = noteParaRe.exec(eventsHtml))) {
+        if (visibleText(noteParaMatch[0]) === NOV10FILL_AGRITOURISM_NOTE) {
+          notePara = noteParaMatch[0];
+          break;
+        }
+      }
+      check("the agritourism non-endorsement text renders exactly once",
+        occurrences(bodyText, NOV10FILL_AGRITOURISM_NOTE) === 1 &&
+        occurrences(eventsText, NOV10FILL_AGRITOURISM_NOTE) === 1 &&
+        occurrences(sourcesData, NOV10FILL_AGRITOURISM_NOTE) === 1 &&
+        farmAt !== -1 && noteAt > farmAt && ogdenAt > noteAt &&
+        notePara.length > 0 &&
+        notePara.toLowerCase().indexOf("<a") === -1 &&
+        notePara.indexOf("()") === -1);
+      function eventInfoRows(data) {
+        const re = /\{\s*line:\s*"((?:\\.|[^"\\])*)"\s*,\s*domain:\s*"((?:\\.|[^"\\])*)"\s*,\s*href:\s*"((?:\\.|[^"\\])*)"/g;
+        const rows = [];
+        let match;
+        while ((match = re.exec(data))) {
+          const end = data.indexOf("}", match.index);
+          rows.push({
+            line: match[1],
+            domain: match[2],
+            href: match[3],
+            entry: end === -1 ? "" : data.slice(match.index, end + 1)
+          });
+        }
+        return rows;
+      }
+      function lisMentioning(html, needle) {
+        const re = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let count = 0;
+        let match;
+        while ((match = re.exec(html))) {
+          if (match[0].indexOf(needle) !== -1 || visibleText(match[0]).indexOf(needle) !== -1) count++;
+        }
+        return count;
+      }
+      const infoRows = eventInfoRows(sourcesData);
+      check("no entry domain is exactly utahtech.edu and no (utahtech.edu) text",
+        infoRows.every(function (row) { return row.domain !== "utahtech.edu"; }) &&
+        sourcesData.indexOf("(utahtech.edu)") === -1 &&
+        bodyText.indexOf("(utahtech.edu)") === -1 &&
+        res.body.indexOf("(utahtech.edu)") === -1 &&
+        infoRows.some(function (row) {
+          return row.domain === "music.utahtech.edu" &&
+            row.line === "Event info from Utah Tech Music (music.utahtech.edu)." &&
+            row.href === "https://music.utahtech.edu/";
+        }));
+      check("exactly one thisisvernal.trumba.com domain",
+        infoRows.filter(function (row) { return row.domain === "thisisvernal.trumba.com"; }).length === 1 &&
+        infoRows.some(function (row) {
+          return row.domain === "thisisvernal.trumba.com" &&
+            row.line === "Event info from Vernal Community Events (thisisvernal.trumba.com)." &&
+            row.href === "https://thisisvernal.trumba.com/";
+        }) &&
+        lisMentioning(eventsHtml, "thisisvernal.trumba.com") === 1);
+      const southRows = infoRows.filter(function (row) {
+        return row.entry.indexOf("southvalleychamber.com") !== -1;
+      });
+      check("exactly one southvalleychamber.com entry and no bare host href",
+        southRows.length === 1 &&
+        southRows[0].line === "Event info from South Valley Chamber (southvalleychamber.com)." &&
+        southRows[0].domain === "southvalleychamber.com" &&
+        southRows[0].href === "https://www.southvalleychamber.com/" &&
+        infoRows.every(function (row) { return row.href !== "https://southvalleychamber.com/"; }) &&
+        sourcesData.indexOf("https://southvalleychamber.com/") === -1 &&
+        res.body.indexOf('href="https://southvalleychamber.com/"') === -1 &&
+        lisMentioning(res.body, "southvalleychamber.com") === 1);
+      check("at most one brycecanyoncountry.com entry",
+        infoRows.filter(function (row) { return row.entry.indexOf("brycecanyoncountry.com") !== -1; }).length <= 1 &&
+        lisMentioning(res.body, "brycecanyoncountry.com") <= 1);
+      check("Workshop SLC is absent",
+        res.body.indexOf("Workshop SLC") === -1 &&
+        bodyText.indexOf("Workshop SLC") === -1 &&
+        sourcesData.indexOf("Workshop SLC") === -1);
+      check("uvac.us/event-calendar is absent from the page and data file",
+        res.body.indexOf("uvac.us/event-calendar") === -1 &&
+        bodyText.indexOf("uvac.us/event-calendar") === -1 &&
+        sourcesData.indexOf("uvac.us/event-calendar") === -1);
+      check("Myton and godance.me are absent",
+        res.body.toLowerCase().indexOf("myton") === -1 &&
+        bodyText.toLowerCase().indexOf("myton") === -1 &&
+        sourcesData.toLowerCase().indexOf("myton") === -1 &&
+        res.body.toLowerCase().indexOf("godance.me") === -1 &&
+        sourcesData.toLowerCase().indexOf("godance.me") === -1);
+      check("no DarkSky credit line",
+        res.body.toLowerCase().indexOf("darksky") === -1 &&
+        bodyText.toLowerCase().indexOf("darksky") === -1 &&
+        sourcesData.toLowerCase().indexOf("darksky") === -1 &&
+        bodyText.toLowerCase().indexOf("dark sky") === -1 &&
+        sourcesData.toLowerCase().indexOf("dark sky") === -1);
       const home = await request(server.address().port, "/");
       check("home loads the sources script and links Sources",
         home.status === 200 &&

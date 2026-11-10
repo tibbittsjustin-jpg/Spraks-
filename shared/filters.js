@@ -71,7 +71,7 @@ module.exports = {
   windowsForActivity: timeWindows.windowsForActivity,
   selectionFromQuery: timeWindows.selectionFromQuery,
   storedTimesForWindows: timeWindows.storedValuesForWindows,
-  vibe: ["Chill", "Romantic", "Active", "Adventurous", "Creative", "Silly", "Cozy", "Spontaneous"],
+  vibe: ["Chill", "Romantic", "Active", "Adventurous", "Creative", "Silly", "Cozy"],
   // Discover chips. stage and dateType stay for rows and older clients.
   audience: audience.AUDIENCE.slice(),
   stage: ["First Date", "Second/Third Date", "Serious Relationship"],

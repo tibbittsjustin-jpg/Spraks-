@@ -205,7 +205,7 @@ var prompt = "You are turning REAL nearby places into short, fun date-idea cards
 + "[{\"placeIndex\": 1, \"title\": \"short catchy activity title mentioning the place (<=8 words)\", "
 + "\"description\": \"2-3 friendly sentences on how to do this date at this venue\", \"icon\": \"a single relevant emoji\", "
 + "\"cost\": \"one of Free, $1-$20, $21-$40, $41-$60, $61-$80, $81-$100, Over $100\", \"setting\": \"Indoor or Outdoor\", "
-+ "\"vibe\": [\"1-3 of: Chill, Romantic, Active, Adventurous, Creative, Silly, Cozy, Spontaneous\"], "
++ "\"vibe\": [\"1-3 of: Chill, Romantic, Active, Adventurous, Creative, Silly, Cozy\"], "
 + "\"food\": true or false, \"durationGuess\": \"one of Quick (under 1 hr), Short (1-2 hrs), Half-day (2-5 hrs), Full day, Overnight\", "
 + "\"materials\": [\"0-4 short items to bring, [] if nothing\"]}]"
 + "\n\nCost is the price per person. The only exception is a park, national park or state park entrance fee, which is per car."

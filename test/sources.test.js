@@ -695,6 +695,47 @@ const NOV9VWXY_EVENT_INFO_LINES = [
   ["Event info from Pleasant Grove Strawberry Days (strawberrydays.org).", "strawberrydays.org", "https://strawberrydays.org/"],
   ["Event info from Scots on the Rocks Moab (www.scotsontherocksmoab.org).", "www.scotsontherocksmoab.org", "https://www.scotsontherocksmoab.org/"]
 ];
+const NOV9ZAB_EVENT_INFO_LINES = [
+  ["Event info from Cedar City Music Arts (cedarcitymusicarts.org).", "cedarcitymusicarts.org", "https://cedarcitymusicarts.org/"],
+  ["Event info from Area 11 Handbells (area11.handbellmusicians.org).", "area11.handbellmusicians.org", "https://area11.handbellmusicians.org/"],
+  ["Event info from YCC Family Crisis Center (yccogden.org).", "yccogden.org", "https://yccogden.org/"],
+  ["Event info from Utah Valley Marathon (utahvalleymarathon.com).", "utahvalleymarathon.com", "https://utahvalleymarathon.com/"],
+  ["Event info from Coldwater Traverse (cwtraverse.com).", "cwtraverse.com", "https://cwtraverse.com/"],
+  ["Event info from Living Traditions Festival (livingtraditionsfestival.com).", "livingtraditionsfestival.com", "https://livingtraditionsfestival.com/"],
+  ["Event info from Ogden Home Show (ogdenhomeshow.com).", "ogdenhomeshow.com", "https://ogdenhomeshow.com/"],
+  ["Event info from Luau Run (luau.run).", "luau.run", "https://luau.run/"],
+  ["Event info from Utah Valley Parade of Homes (uvparade.com).", "uvparade.com", "https://uvparade.com/"],
+  ["Event info from BioHive (biohive.com).", "biohive.com", "https://biohive.com/"],
+  ["Event info from Trail Hero (trail-hero.com).", "trail-hero.com", "https://trail-hero.com/"],
+  ["Event info from Ability Inclusion Services (abilityis.org).", "abilityis.org", "https://abilityis.org/"],
+  ["Event info from Pinners Conference (pinnersconference.com).", "pinnersconference.com", "https://pinnersconference.com/"],
+  ["Event info from Salt Lake Art Show (saltlakeartshow.com).", "saltlakeartshow.com", "https://saltlakeartshow.com/"],
+  ["Event info from Juab Cowboy Poetry & Music Gathering (juabcp.com).", "juabcp.com", "https://juabcp.com/"],
+  ["Event info from Handcart Days (handcartdays.org).", "handcartdays.org", "https://handcartdays.org/"],
+  ["Event info from Utah Auto Expo (autoshowutah.com).", "autoshowutah.com", "https://autoshowutah.com/"],
+  ["Event info from US Moto Expo (usmotoexpo.com).", "usmotoexpo.com", "https://usmotoexpo.com/"],
+  ["Event info from Greenband Enterprises (greenband.com).", "greenband.com", "https://greenband.com/"],
+  ["Event info from The Great Basin Fiber Arts Fair (gbfaf.org).", "gbfaf.org", "https://gbfaf.org/"],
+  ["Event info from Southwest Quilt & Fiber Art Festival (southwestquilt.com).", "southwestquilt.com", "https://southwestquilt.com/"],
+  ["Event info from RODS Heroes (rods.org).", "rods.org", "https://rods.org/"],
+  ["Event info from FRONT RUNNER Metric Century (frontrunnercentury.com).", "frontrunnercentury.com", "https://frontrunnercentury.com/"],
+  ["Event info from Redrok Rally (redrokrally.com).", "redrokrally.com", "https://redrokrally.com/"],
+  ["Event info from LTUE (ltue.net).", "ltue.net", "https://ltue.net/"],
+  ["Event info from Gem Faire (gemfaire.com).", "gemfaire.com", "https://gemfaire.com/"],
+  ["Event info from East Canyon Marathon (eastcanyonmarathon.com).", "eastcanyonmarathon.com", "https://eastcanyonmarathon.com/"],
+  ["Event info from PC2PG (pc2pg.com).", "pc2pg.com", "https://pc2pg.com/"],
+  ["Event info from Super Hero Race (superherorace.com).", "superherorace.com", "https://superherorace.com/"],
+  ["Event info from Antelope Island Marathon (antelopeislandmarathon.com).", "antelopeislandmarathon.com", "https://antelopeislandmarathon.com/"],
+  ["Event info from Chamber Music Society of Logan (chambermusicsocietyoflogan.org).", "chambermusicsocietyoflogan.org", "https://chambermusicsocietyoflogan.org/"],
+  ["Event info from PRO Skijor (proskijor.com).", "proskijor.com", "https://proskijor.com/"],
+  ["Event info from Amazing Earthfest (amazingearthfest.org).", "amazingearthfest.org", "https://amazingearthfest.org/"],
+  ["Event info from Golden Spike Gem & Mineral Society (goldenspikegem.org).", "goldenspikegem.org", "https://goldenspikegem.org/"],
+  ["Event info from Sun River Gardens (sunrivergardens.com).", "sunrivergardens.com", "https://sunrivergardens.com/"],
+  ["Event info from The Quilter's Crossing (thequilterscrossing.com).", "thequilterscrossing.com", "https://thequilterscrossing.com/"],
+  ["Event info from Logan Home Show (loganhomeshow.com).", "loganhomeshow.com", "https://loganhomeshow.com/"],
+  ["Event info from Isekai Anime Con (isekaianimecon.com).", "isekaianimecon.com", "https://isekaianimecon.com/"],
+  ["Event info from Underground Runner (myundergroundrunner.com).", "myundergroundrunner.com", "https://myundergroundrunner.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2869,6 +2910,50 @@ function main() {
       check("thesnowleague.com is absent from event-info credits",
         eventsHtml.indexOf("thesnowleague.com") === -1 &&
         eventsText.indexOf("thesnowleague.com") === -1);
+      let nov9zabPrevious = eventsText.indexOf("Event info from Scots on the Rocks Moab (www.scotsontherocksmoab.org).");
+      check("nov9zab checks 39 verbatim event-info lines", NOV9ZAB_EVENT_INFO_LINES.length === 39);
+      NOV9ZAB_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9zabPrevious !== -1 && lineAt > nov9zabPrevious);
+        nov9zabPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("run.deseret.com is absent from event-info credits",
+        eventsHtml.indexOf("run.deseret.com") === -1 &&
+        eventsText.indexOf("run.deseret.com") === -1);
+      check("openrangeraces.com is absent from event-info credits",
+        eventsHtml.indexOf("openrangeraces.com") === -1 &&
+        eventsText.indexOf("openrangeraces.com") === -1);
+      check("storycon.org is absent from event-info credits",
+        eventsHtml.indexOf("storycon.org") === -1 &&
+        eventsText.indexOf("storycon.org") === -1);
+      check("saltlake.acsgala.org is absent from event-info credits",
+        eventsHtml.indexOf("saltlake.acsgala.org") === -1 &&
+        eventsText.indexOf("saltlake.acsgala.org") === -1);
       check("The State Room Presents appears exactly once",
         occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
         occurrences(bodyText, "State Room") === 1,

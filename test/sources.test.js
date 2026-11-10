@@ -676,7 +676,6 @@ const NOV9VWXY_EVENT_INFO_LINES = [
   ["Event info from Canyonlands PRCA Rodeo (www.moabcanyonlandsrodeo.com).", "www.moabcanyonlandsrodeo.com", "https://www.moabcanyonlandsrodeo.com/"],
   ["Event info from Destination Trail Moab 240 (www.destinationtrailrun.com).", "www.destinationtrailrun.com", "https://www.destinationtrailrun.com/"],
   ["Event info from Stand4Kind (stand4kind.com).", "stand4kind.com", "https://stand4kind.com/"],
-  ["Event info from The Snow League Park City (thesnowleague.com).", "thesnowleague.com", "https://thesnowleague.com/"],
   ["Event info from Red, White & Snow (redwhiteandsnow.org).", "redwhiteandsnow.org", "https://redwhiteandsnow.org/"],
   ["Event info from Vernal Dinosaur Roundup Rodeo (vernalrodeo.com).", "vernalrodeo.com", "https://vernalrodeo.com/"],
   ["Event info from Blossom Run (www.blossom.run).", "www.blossom.run", "https://www.blossom.run/"],
@@ -687,12 +686,12 @@ const NOV9VWXY_EVENT_INFO_LINES = [
   ["Event info from Salt Lake Home + Garden Show (www.saltlakehomeandgardenshow.com).", "www.saltlakehomeandgardenshow.com", "https://www.saltlakehomeandgardenshow.com/"],
   ["Event info from Wasatch Gem Society (wasatchgemsociety.com).", "wasatchgemsociety.com", "https://wasatchgemsociety.com/"],
   ["Event info from Vision2050 (vision2050pc.com).", "vision2050pc.com", "https://vision2050pc.com/"],
-  ["Event info from Storymakers Guild (storymakersguild.org).", "storymakersguild.org", "https://storymakersguild.org/"],
+  ["Event info from Storymakers (storymakersguild.org).", "storymakersguild.org", "https://storymakersguild.org/"],
   ["Event info from Krank-It-Up Productions (krankitupproductions.com).", "krankitupproductions.com", "https://krankitupproductions.com/"],
   ["Event info from Asian Association of Utah (aau-slc.org).", "aau-slc.org", "https://aau-slc.org/"],
   ["Event info from Western Hunting & Conservation Expo (huntexpo.com).", "huntexpo.com", "https://huntexpo.com/"],
   ["Event info from Green River Dirt Bike Rally (www.greenriverdirtbikerally.com).", "www.greenriverdirtbikerally.com", "https://www.greenriverdirtbikerally.com/"],
-  ["Event info from Special Olympics Utah (sout.org).", "sout.org", "https://sout.org/"],
+  ["Event info from Special Olympics of Utah (sout.org).", "sout.org", "https://sout.org/"],
   ["Event info from Pleasant Grove Strawberry Days (strawberrydays.org).", "strawberrydays.org", "https://strawberrydays.org/"],
   ["Event info from Scots on the Rocks Moab (www.scotsontherocksmoab.org).", "www.scotsontherocksmoab.org", "https://www.scotsontherocksmoab.org/"]
 ];
@@ -2836,7 +2835,7 @@ function main() {
           foundHref);
       });
       let nov9vwxyPrevious = eventsText.indexOf("Event info from South Davis Race Series (www.southdavisraces.com).");
-      check("nov9vwxy checks 53 verbatim event-info lines", NOV9VWXY_EVENT_INFO_LINES.length === 53);
+      check("nov9vwxy checks 52 verbatim event-info lines", NOV9VWXY_EVENT_INFO_LINES.length === 52);
       NOV9VWXY_EVENT_INFO_LINES.forEach(function (row) {
         const line = row[0];
         const domain = row[1];
@@ -2867,6 +2866,9 @@ function main() {
           util.httpsPageUrl(href) === href,
           foundHref);
       });
+      check("thesnowleague.com is absent from event-info credits",
+        eventsHtml.indexOf("thesnowleague.com") === -1 &&
+        eventsText.indexOf("thesnowleague.com") === -1);
       check("The State Room Presents appears exactly once",
         occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
         occurrences(bodyText, "State Room") === 1,

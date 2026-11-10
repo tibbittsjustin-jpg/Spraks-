@@ -1159,6 +1159,10 @@
     { line: "Event info from W.D. Kilpack (www.kilpack.net).", domain: "www.kilpack.net", href: "https://www.kilpack.net/" },
     { line: "Event info from Ivory Innovations (www.ivoryinnovations.org).", domain: "www.ivoryinnovations.org", href: "https://www.ivoryinnovations.org/" },
     { line: "Event info from Briarbook Lane (Mary W. Jensen) (www.briarbooklane.com).", domain: "www.briarbooklane.com", href: "https://www.briarbooklane.com/" },
+    // nov9u Legal-cleared
+    { line: "Event info from Wasatch Powderkeg (www.wasatchpowderkeg.com).", domain: "www.wasatchpowderkeg.com", href: "https://www.wasatchpowderkeg.com/" },
+    { line: "Event info from Tooele Trail Racing (tooeletrailracing.com).", domain: "tooeletrailracing.com", href: "https://tooeletrailracing.com/" },
+    { line: "Event info from South Davis Race Series (www.southdavisraces.com).", domain: "www.southdavisraces.com", href: "https://www.southdavisraces.com/" },
   ];
 
   function eventInfoList(lines) {

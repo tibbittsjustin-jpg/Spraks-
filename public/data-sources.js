@@ -1331,6 +1331,11 @@
     { line: "Event info from Utah Cornhole (utahcornhole.com).", domain: "utahcornhole.com", href: "https://utahcornhole.com/" },
     { line: "Event info from Ky & The Jellies (kyandthejellies.com).", domain: "kyandthejellies.com", href: "https://kyandthejellies.com/" },
     { line: "Event info from Lisa and the Missing Pieces (lisaandthemissingpieces.com).", domain: "lisaandthemissingpieces.com", href: "https://lisaandthemissingpieces.com/" },
+    // nov10fill Legal-cleared
+    { line: "Farm info from the Utah Department of Agriculture and Food Agritourism Directory (agritourism.utah.gov).", domain: "agritourism.utah.gov", href: "https://agritourism.utah.gov/farm-directory/", note: "Listed for information only. UDAF and Jaderoo don't endorse any farm. Confirm hours and seasons with the farm." },
+    { line: "Event info from Ogden Astronomical Society (www.ogden-astronomy.org).", domain: "www.ogden-astronomy.org", href: "https://www.ogden-astronomy.org/events" },
+    { line: "Event info from Utah Valley Astronomy Club (uvac.us).", domain: "uvac.us", href: "https://uvac.us/2026-timpanogos-cave-star-parties/" },
+    { line: "Event info from Ephraim City (ephraim.gov).", domain: "ephraim.gov", href: "https://ephraim.gov/" },
   ];
 
   function eventInfoList(lines) {
@@ -1344,7 +1349,7 @@
         { text: before },
         { text: item.domain, href: item.href, external: true },
         { text: after }
-      ]) + "</li>";
+      ]) + (item.note ? " " + escapeHtml(item.note) : "") + "</li>";
     });
     html += "</ul>";
     return html;

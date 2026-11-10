@@ -1324,6 +1324,13 @@
     { line: "Event info from St George Opera (stgeorgeopera.com).", domain: "stgeorgeopera.com", href: "https://stgeorgeopera.com/" },
     { line: "Event info from Orchestra of Southern Utah (osucedarcity.blogspot.com).", domain: "osucedarcity.blogspot.com", href: "https://osucedarcity.blogspot.com/" },
     { line: "Event info from Progression Sessions (progressionsessions.fun).", domain: "progressionsessions.fun", href: "https://progressionsessions.fun/" },
+    // nov9ai Legal-cleared
+    { line: "Event info from Body of Light (bodyoflight.com).", domain: "bodyoflight.com", href: "https://bodyoflight.com/" },
+    { line: "Event info from Blossoming Medium (blossomingmedium.com).", domain: "blossomingmedium.com", href: "https://blossomingmedium.com/" },
+    { line: "Event info from Friends of Recovery Utah (forutah.org).", domain: "forutah.org", href: "https://forutah.org/" },
+    { line: "Event info from Utah Cornhole (utahcornhole.com).", domain: "utahcornhole.com", href: "https://utahcornhole.com/" },
+    { line: "Event info from Ky & The Jellies (kyandthejellies.com).", domain: "kyandthejellies.com", href: "https://kyandthejellies.com/" },
+    { line: "Event info from Lisa and the Missing Pieces (lisaandthemissingpieces.com).", domain: "lisaandthemissingpieces.com", href: "https://lisaandthemissingpieces.com/" },
   ];
 
   function eventInfoList(lines) {

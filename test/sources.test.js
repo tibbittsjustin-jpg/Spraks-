@@ -793,6 +793,14 @@ const NOV9AH_EVENT_INFO_LINES = [
   ["Event info from Orchestra of Southern Utah (osucedarcity.blogspot.com).", "osucedarcity.blogspot.com", "https://osucedarcity.blogspot.com/"],
   ["Event info from Progression Sessions (progressionsessions.fun).", "progressionsessions.fun", "https://progressionsessions.fun/"]
 ];
+const NOV9AI_EVENT_INFO_LINES = [
+  ["Event info from Body of Light (bodyoflight.com).", "bodyoflight.com", "https://bodyoflight.com/"],
+  ["Event info from Blossoming Medium (blossomingmedium.com).", "blossomingmedium.com", "https://blossomingmedium.com/"],
+  ["Event info from Friends of Recovery Utah (forutah.org).", "forutah.org", "https://forutah.org/"],
+  ["Event info from Utah Cornhole (utahcornhole.com).", "utahcornhole.com", "https://utahcornhole.com/"],
+  ["Event info from Ky & The Jellies (kyandthejellies.com).", "kyandthejellies.com", "https://kyandthejellies.com/"],
+  ["Event info from Lisa and the Missing Pieces (lisaandthemissingpieces.com).", "lisaandthemissingpieces.com", "https://lisaandthemissingpieces.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3530,6 +3538,61 @@ function main() {
         bodyText.indexOf("brigadoon.live") === -1 &&
         eventsHtml.indexOf("brigadoon.live") === -1 &&
         eventsText.indexOf("brigadoon.live") === -1);
+      const sourcesData = fs.readFileSync(path.join(__dirname, "..", "public", "data-sources.js"), "utf8");
+      const nov9ahBlockAt = sourcesData.indexOf("// nov9ah Legal-cleared");
+      const nov9aiBlockAt = sourcesData.indexOf("// nov9ai Legal-cleared");
+      check("the nov9ai block appears after the nov9ah block",
+        nov9ahBlockAt !== -1 && nov9aiBlockAt > nov9ahBlockAt);
+      let nov9aiPrevious = eventsText.indexOf("Event info from Progression Sessions (progressionsessions.fun).");
+      check("nov9ai checks 6 verbatim event-info lines", NOV9AI_EVENT_INFO_LINES.length === 6);
+      NOV9AI_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9aiPrevious !== -1 && lineAt > nov9aiPrevious);
+        nov9aiPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      [
+        "bearriverblogger.com",
+        "rivolitheater.com",
+        "pioneercourthousestg.com",
+        "ubocmusic.org",
+        "fountainrecordsslc.com",
+        "cedarcitybikeworks.org",
+        "jkirkrichards.com",
+        "darkrangertelescopetours.com",
+        "namiut.org"
+      ].forEach(function (host) {
+        check(host + " is absent from credits",
+          res.body.indexOf(host) === -1 &&
+          bodyText.indexOf(host) === -1 &&
+          eventsHtml.indexOf(host) === -1 &&
+          eventsText.indexOf(host) === -1 &&
+          sourcesData.indexOf(host) === -1);
+      });
       check("The State Room Presents appears exactly once",
         occurrences(bodyText, STATE_ROOM_LINE) === 1 &&
         occurrences(bodyText, "State Room") === 1,

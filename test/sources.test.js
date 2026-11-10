@@ -736,6 +736,18 @@ const NOV9ZAB_EVENT_INFO_LINES = [
   ["Event info from Isekai Anime Con (isekaianimecon.com).", "isekaianimecon.com", "https://isekaianimecon.com/"],
   ["Event info from Underground Runner (myundergroundrunner.com).", "myundergroundrunner.com", "https://myundergroundrunner.com/"]
 ];
+const NOV9AC_EVENT_INFO_LINES = [
+  ["Event info from Rev3Endurance (rev3endurance.com).", "rev3endurance.com", "https://rev3endurance.com/"],
+  ["Event info from St George Jazz Festival (stgeorgejazz.com).", "stgeorgejazz.com", "https://stgeorgejazz.com/"],
+  ["Event info from St. George Home Expo (stgeorgehomeexpo.com).", "stgeorgehomeexpo.com", "https://stgeorgehomeexpo.com/"],
+  ["Event info from Anglers Den (anglersden.com).", "anglersden.com", "https://anglersden.com/"],
+  ["Event info from Park City Pioneers (parkcitypioneers.com).", "parkcitypioneers.com", "https://parkcitypioneers.com/"],
+  ["Event info from Quilter's Heritage Festival (quiltersheritagefestival.com).", "quiltersheritagefestival.com", "https://quiltersheritagefestival.com/"],
+  ["Event info from Utah Bridal Expo (utahbridalexpo.com).", "utahbridalexpo.com", "https://utahbridalexpo.com/"],
+  ["Event info from Soldier Hollow Classic (soldierhollowclassic.com).", "soldierhollowclassic.com", "https://soldierhollowclassic.com/"],
+  ["Event info from Salt City Stomp (saltcitystomp.com).", "saltcitystomp.com", "https://saltcitystomp.com/"],
+  ["Event info from Utah Avalanche Center (utahavalanchecenter.org).", "utahavalanchecenter.org", "https://utahavalanchecenter.org/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -2952,6 +2964,78 @@ function main() {
         eventsHtml.indexOf("storycon.org") === -1 &&
         eventsText.indexOf("storycon.org") === -1);
       check("saltlake.acsgala.org is absent from event-info credits",
+        eventsHtml.indexOf("saltlake.acsgala.org") === -1 &&
+        eventsText.indexOf("saltlake.acsgala.org") === -1);
+      let nov9acPrevious = eventsText.indexOf("Event info from Underground Runner (myundergroundrunner.com).");
+      check("nov9ac checks 10 verbatim event-info lines", NOV9AC_EVENT_INFO_LINES.length === 10);
+      NOV9AC_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov9acPrevious !== -1 && lineAt > nov9acPrevious);
+        nov9acPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("wildwomentribe.net is absent from credits",
+        res.body.indexOf("wildwomentribe.net") === -1 &&
+        bodyText.indexOf("wildwomentribe.net") === -1 &&
+        eventsHtml.indexOf("wildwomentribe.net") === -1 &&
+        eventsText.indexOf("wildwomentribe.net") === -1);
+      check("templetotemple.life is absent from credits",
+        res.body.indexOf("templetotemple.life") === -1 &&
+        bodyText.indexOf("templetotemple.life") === -1 &&
+        eventsHtml.indexOf("templetotemple.life") === -1 &&
+        eventsText.indexOf("templetotemple.life") === -1);
+      check("littlehollywoodwildwestfest.com is absent from credits",
+        res.body.indexOf("littlehollywoodwildwestfest.com") === -1 &&
+        bodyText.indexOf("littlehollywoodwildwestfest.com") === -1 &&
+        eventsHtml.indexOf("littlehollywoodwildwestfest.com") === -1 &&
+        eventsText.indexOf("littlehollywoodwildwestfest.com") === -1);
+      check("gsutah.org is absent from credits",
+        res.body.indexOf("gsutah.org") === -1 &&
+        bodyText.indexOf("gsutah.org") === -1 &&
+        eventsHtml.indexOf("gsutah.org") === -1 &&
+        eventsText.indexOf("gsutah.org") === -1);
+      check("asraracing.com is absent from credits",
+        res.body.indexOf("asraracing.com") === -1 &&
+        bodyText.indexOf("asraracing.com") === -1 &&
+        eventsHtml.indexOf("asraracing.com") === -1 &&
+        eventsText.indexOf("asraracing.com") === -1);
+      check("utvoffroadadventures.com is absent from credits",
+        res.body.indexOf("utvoffroadadventures.com") === -1 &&
+        bodyText.indexOf("utvoffroadadventures.com") === -1 &&
+        eventsHtml.indexOf("utvoffroadadventures.com") === -1 &&
+        eventsText.indexOf("utvoffroadadventures.com") === -1);
+      check("run.deseret.com is absent from credits",
+        res.body.indexOf("run.deseret.com") === -1 &&
+        bodyText.indexOf("run.deseret.com") === -1 &&
+        eventsHtml.indexOf("run.deseret.com") === -1 &&
+        eventsText.indexOf("run.deseret.com") === -1);
+      check("saltlake.acsgala.org is absent from credits",
+        res.body.indexOf("saltlake.acsgala.org") === -1 &&
+        bodyText.indexOf("saltlake.acsgala.org") === -1 &&
         eventsHtml.indexOf("saltlake.acsgala.org") === -1 &&
         eventsText.indexOf("saltlake.acsgala.org") === -1);
       check("The State Room Presents appears exactly once",

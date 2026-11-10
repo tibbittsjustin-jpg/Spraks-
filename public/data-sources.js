@@ -1256,6 +1256,17 @@
     { line: "Event info from Logan Home Show (loganhomeshow.com).", domain: "loganhomeshow.com", href: "https://loganhomeshow.com/" },
     { line: "Event info from Isekai Anime Con (isekaianimecon.com).", domain: "isekaianimecon.com", href: "https://isekaianimecon.com/" },
     { line: "Event info from Underground Runner (myundergroundrunner.com).", domain: "myundergroundrunner.com", href: "https://myundergroundrunner.com/" },
+    // nov9ac Legal-cleared
+    { line: "Event info from Rev3Endurance (rev3endurance.com).", domain: "rev3endurance.com", href: "https://rev3endurance.com/" },
+    { line: "Event info from St George Jazz Festival (stgeorgejazz.com).", domain: "stgeorgejazz.com", href: "https://stgeorgejazz.com/" },
+    { line: "Event info from St. George Home Expo (stgeorgehomeexpo.com).", domain: "stgeorgehomeexpo.com", href: "https://stgeorgehomeexpo.com/" },
+    { line: "Event info from Anglers Den (anglersden.com).", domain: "anglersden.com", href: "https://anglersden.com/" },
+    { line: "Event info from Park City Pioneers (parkcitypioneers.com).", domain: "parkcitypioneers.com", href: "https://parkcitypioneers.com/" },
+    { line: "Event info from Quilter's Heritage Festival (quiltersheritagefestival.com).", domain: "quiltersheritagefestival.com", href: "https://quiltersheritagefestival.com/" },
+    { line: "Event info from Utah Bridal Expo (utahbridalexpo.com).", domain: "utahbridalexpo.com", href: "https://utahbridalexpo.com/" },
+    { line: "Event info from Soldier Hollow Classic (soldierhollowclassic.com).", domain: "soldierhollowclassic.com", href: "https://soldierhollowclassic.com/" },
+    { line: "Event info from Salt City Stomp (saltcitystomp.com).", domain: "saltcitystomp.com", href: "https://saltcitystomp.com/" },
+    { line: "Event info from Utah Avalanche Center (utahavalanchecenter.org).", domain: "utahavalanchecenter.org", href: "https://utahavalanchecenter.org/" },
   ];
 
   function eventInfoList(lines) {

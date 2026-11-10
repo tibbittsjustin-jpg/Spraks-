@@ -1278,6 +1278,17 @@
     { line: "Event info from Vintage Market Days (vintagemarketdays.com).", domain: "vintagemarketdays.com", href: "https://vintagemarketdays.com/" },
     { line: "Event info from Compass & Core (compassandcore.com).", domain: "compassandcore.com", href: "https://compassandcore.com/" },
     { line: "Event info from HEAL Studio (healyogastudio.com).", domain: "healyogastudio.com", href: "https://healyogastudio.com/" },
+    // nov9ae Legal-cleared
+    { line: "Event info from Desert Mountain Medicine (desertmountainmedicine.com).", domain: "desertmountainmedicine.com", href: "https://desertmountainmedicine.com/" },
+    { line: "Event info from Jurassic Quest (jurassicquest.com).", domain: "jurassicquest.com", href: "https://jurassicquest.com/" },
+    { line: "Event info from Into the Wild Adventure (itwadventure.com).", domain: "itwadventure.com", href: "https://itwadventure.com/" },
+    { line: "Event info from National Park Photography Expeditions (nppemasterclass.com).", domain: "nppemasterclass.com", href: "https://nppemasterclass.com/" },
+    { line: "Event info from Bruce Barnbaum (barnbaum.com).", domain: "barnbaum.com", href: "https://barnbaum.com/" },
+    { line: "Event info from Kat Anderson Writes (katandersonwrites.com).", domain: "katandersonwrites.com", href: "https://katandersonwrites.com/" },
+    { line: "Event info from Under The Garden Moon (underthegardenmoon.com).", domain: "underthegardenmoon.com", href: "https://underthegardenmoon.com/" },
+    { line: "Event info from Anasazi Free-Trappers (anasazifreetrappers.org).", domain: "anasazifreetrappers.org", href: "https://anasazifreetrappers.org/" },
+    { line: "Event info from Hurricane Valley Rotary Club (eastercarshow.com).", domain: "eastercarshow.com", href: "https://eastercarshow.com/" },
+    { line: "Event info from America On Stage (americaonstage.org).", domain: "americaonstage.org", href: "https://americaonstage.org/" },
   ];
 
   function eventInfoList(lines) {

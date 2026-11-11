@@ -808,6 +808,9 @@ const NOV10FILL_EVENT_INFO_LINES = [
   ["Event info from Utah Valley Astronomy Club (uvac.us).", "uvac.us", "https://uvac.us/2026-timpanogos-cave-star-parties/"],
   ["Event info from Ephraim City (ephraim.gov).", "ephraim.gov", "https://ephraim.gov/"]
 ];
+const NOV11LR2_EVENT_INFO_LINES = [
+  ["Event info from the Utah Barrel Racing Association (utbra.com).", "utbra.com", "https://utbra.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3675,6 +3678,51 @@ function main() {
         notePara.length > 0 &&
         notePara.toLowerCase().indexOf("<a") === -1 &&
         notePara.indexOf("()") === -1);
+      const nov11lr2BlockAt = sourcesData.indexOf("// nov11lr2 Legal-cleared");
+      check("the nov11lr2 block appears after the nov10fill block",
+        nov10fillBlockAt !== -1 && nov11lr2BlockAt > nov10fillBlockAt);
+      let nov11lr2Previous = eventsText.indexOf("Event info from Ephraim City (ephraim.gov).");
+      check("nov11lr2 checks 1 verbatim event-info line", NOV11LR2_EVENT_INFO_LINES.length === 1);
+      NOV11LR2_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov11lr2Previous !== -1 && lineAt > nov11lr2Previous);
+        nov11lr2Previous = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("no usu.edu credit line",
+        res.body.indexOf("usu.edu") === -1 &&
+        bodyText.indexOf("usu.edu") === -1 &&
+        eventsHtml.indexOf("usu.edu") === -1 &&
+        eventsText.indexOf("usu.edu") === -1 &&
+        sourcesData.indexOf("usu.edu") === -1);
+      check("no second utbra.com line",
+        occurrences(bodyText, "utbra.com") === 1 &&
+        occurrences(eventsText, "utbra.com") === 1 &&
+        occurrences(bodyText, "Event info from the Utah Barrel Racing Association (utbra.com).") === 1);
       function eventInfoRows(data) {
         const re = /\{\s*line:\s*"((?:\\.|[^"\\])*)"\s*,\s*domain:\s*"((?:\\.|[^"\\])*)"\s*,\s*href:\s*"((?:\\.|[^"\\])*)"/g;
         const rows = [];

@@ -1340,6 +1340,10 @@
     { line: "Event info from Utah Valley Astronomy Club (uvac.us).", domain: "uvac.us", href: "https://uvac.us/2026-timpanogos-cave-star-parties/" },
     { line: "Event info from Ephraim City (ephraim.gov).", domain: "ephraim.gov", href: "https://ephraim.gov/" }
   ];
+  // nov11lr2 Legal-cleared
+  var NOV11LR2_LINES = [
+    { line: "Event info from the Utah Barrel Racing Association (utbra.com).", domain: "utbra.com", href: "https://utbra.com/" }
+  ];
 
   function eventInfoList(lines) {
     var html = "<ul>";
@@ -1440,6 +1444,7 @@
     html.push(eventInfoList(EVENT_INFO_LINES));
     html.push(paragraph(NOV10FILL_AGRITOURISM_NOTE));
     html.push(eventInfoList(NOV10FILL_FOLLOWING_LINES));
+    html.push(eventInfoList(NOV11LR2_LINES));
     html.push("<h2>Discovery only</h2>");
     html.push(paragraph("Visit Salt Lake and Explore Utah Valley are used only to find events. Jaderoo does not copy their listings. When an event is shown, the credit names the organizer."));
     html.push(groupList("discovery"));

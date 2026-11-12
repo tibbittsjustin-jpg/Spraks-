@@ -1344,6 +1344,10 @@
   var NOV11LR2_LINES = [
     { line: "Event info from the Utah Barrel Racing Association (utbra.com).", domain: "utbra.com", href: "https://utbra.com/" }
   ];
+  // nov11lr3 Legal-cleared
+  var NOV11LR3_LINES = [
+    { line: "Event info from Hee Haw Farms (heehawfarms.com).", domain: "heehawfarms.com", href: "https://heehawfarms.com/" }
+  ];
 
   function eventInfoList(lines) {
     var html = "<ul>";
@@ -1445,6 +1449,7 @@
     html.push(paragraph(NOV10FILL_AGRITOURISM_NOTE));
     html.push(eventInfoList(NOV10FILL_FOLLOWING_LINES));
     html.push(eventInfoList(NOV11LR2_LINES));
+    html.push(eventInfoList(NOV11LR3_LINES));
     html.push("<h2>Discovery only</h2>");
     html.push(paragraph("Visit Salt Lake and Explore Utah Valley are used only to find events. Jaderoo does not copy their listings. When an event is shown, the credit names the organizer."));
     html.push(groupList("discovery"));

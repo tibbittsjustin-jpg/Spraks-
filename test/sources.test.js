@@ -811,6 +811,9 @@ const NOV10FILL_EVENT_INFO_LINES = [
 const NOV11LR2_EVENT_INFO_LINES = [
   ["Event info from the Utah Barrel Racing Association (utbra.com).", "utbra.com", "https://utbra.com/"]
 ];
+const NOV11LR3_EVENT_INFO_LINES = [
+  ["Event info from Hee Haw Farms (heehawfarms.com).", "heehawfarms.com", "https://heehawfarms.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3723,6 +3726,61 @@ function main() {
         occurrences(bodyText, "utbra.com") === 1 &&
         occurrences(eventsText, "utbra.com") === 1 &&
         occurrences(bodyText, "Event info from the Utah Barrel Racing Association (utbra.com).") === 1);
+      const nov11lr3BlockAt = sourcesData.indexOf("// nov11lr3 Legal-cleared");
+      const nov11lr3DefAt = sourcesData.indexOf("var NOV11LR3_LINES = [");
+      const nov11lr3DefEnd = nov11lr3DefAt === -1 ? -1 : sourcesData.indexOf("];", nov11lr3DefAt);
+      const nov11lr3Def = nov11lr3DefAt === -1 || nov11lr3DefEnd === -1 ? "" : sourcesData.slice(nov11lr3DefAt, nov11lr3DefEnd + 2);
+      check("NOV11LR3_LINES has length 1 with the Hee Haw Farms tuple",
+        nov11lr3Def === 'var NOV11LR3_LINES = [\n    { line: "Event info from Hee Haw Farms (heehawfarms.com).", domain: "heehawfarms.com", href: "https://heehawfarms.com/" }\n  ];' &&
+        (nov11lr3Def.match(/\{ line:/g) || []).length === 1 &&
+        NOV11LR3_EVENT_INFO_LINES.length === 1 &&
+        NOV11LR3_EVENT_INFO_LINES[0][0] === "Event info from Hee Haw Farms (heehawfarms.com)." &&
+        NOV11LR3_EVENT_INFO_LINES[0][1] === "heehawfarms.com" &&
+        NOV11LR3_EVENT_INFO_LINES[0][2] === "https://heehawfarms.com/");
+      check("the nov11lr3 block appears after the nov11lr2 block",
+        nov11lr2BlockAt !== -1 && nov11lr3BlockAt > nov11lr2BlockAt);
+      let nov11lr3Previous = eventsText.indexOf("Event info from the Utah Barrel Racing Association (utbra.com).");
+      check("nov11lr3 checks 1 verbatim event-info line", NOV11LR3_EVENT_INFO_LINES.length === 1);
+      NOV11LR3_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov11lr3Previous !== -1 && lineAt > nov11lr3Previous);
+        nov11lr3Previous = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+      });
+      check("no oliversplaceut.com credit line",
+        res.body.indexOf("oliversplaceut.com") === -1 &&
+        bodyText.indexOf("oliversplaceut.com") === -1 &&
+        eventsHtml.indexOf("oliversplaceut.com") === -1 &&
+        eventsText.indexOf("oliversplaceut.com") === -1 &&
+        sourcesData.indexOf("oliversplaceut.com") === -1);
+      check("no second heehawfarms.com line",
+        occurrences(bodyText, "heehawfarms.com") === 1 &&
+        occurrences(eventsText, "heehawfarms.com") === 1 &&
+        occurrences(bodyText, "Event info from Hee Haw Farms (heehawfarms.com).") === 1);
       function eventInfoRows(data) {
         const re = /\{\s*line:\s*"((?:\\.|[^"\\])*)"\s*,\s*domain:\s*"((?:\\.|[^"\\])*)"\s*,\s*href:\s*"((?:\\.|[^"\\])*)"/g;
         const rows = [];

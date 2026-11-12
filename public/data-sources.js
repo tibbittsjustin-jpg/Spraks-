@@ -1348,6 +1348,14 @@
   var NOV11LR3_LINES = [
     { line: "Event info from Hee Haw Farms (heehawfarms.com).", domain: "heehawfarms.com", href: "https://heehawfarms.com/" }
   ];
+  // nov12terms Legal-cleared
+  var NOV12TERMS_LINES = [
+    { line: "Event info from San Juan County (sanjuancountyut.gov).", domain: "sanjuancountyut.gov", href: "https://sanjuancountyut.gov/" },
+    { line: "Event info from the Town of Bicknell (bicknellutah.gov).", domain: "bicknellutah.gov", href: "https://bicknellutah.gov/" },
+    { line: "Event info from Go Heber Valley (gohebervalley.com).", domain: "gohebervalley.com", href: "https://gohebervalley.com/" },
+    { line: "Event info from Visit Southern Utah / Kane County Office of Tourism (visitsouthernutah.com).", domain: "visitsouthernutah.com", href: "https://visitsouthernutah.com/" },
+    { line: "Event info from Bryce Canyon Country (brycecanyoncountry.com).", domain: "brycecanyoncountry.com", href: "https://brycecanyoncountry.com/" }
+  ];
 
   function eventInfoList(lines) {
     var html = "<ul>";
@@ -1450,6 +1458,7 @@
     html.push(eventInfoList(NOV10FILL_FOLLOWING_LINES));
     html.push(eventInfoList(NOV11LR2_LINES));
     html.push(eventInfoList(NOV11LR3_LINES));
+    html.push(eventInfoList(NOV12TERMS_LINES));
     html.push("<h2>Discovery only</h2>");
     html.push(paragraph("Visit Salt Lake and Explore Utah Valley are used only to find events. Jaderoo does not copy their listings. When an event is shown, the credit names the organizer."));
     html.push(groupList("discovery"));

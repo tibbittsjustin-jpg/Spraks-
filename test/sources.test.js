@@ -814,6 +814,13 @@ const NOV11LR2_EVENT_INFO_LINES = [
 const NOV11LR3_EVENT_INFO_LINES = [
   ["Event info from Hee Haw Farms (heehawfarms.com).", "heehawfarms.com", "https://heehawfarms.com/"]
 ];
+const NOV12TERMS_EVENT_INFO_LINES = [
+  ["Event info from San Juan County (sanjuancountyut.gov).", "sanjuancountyut.gov", "https://sanjuancountyut.gov/"],
+  ["Event info from the Town of Bicknell (bicknellutah.gov).", "bicknellutah.gov", "https://bicknellutah.gov/"],
+  ["Event info from Go Heber Valley (gohebervalley.com).", "gohebervalley.com", "https://gohebervalley.com/"],
+  ["Event info from Visit Southern Utah / Kane County Office of Tourism (visitsouthernutah.com).", "visitsouthernutah.com", "https://visitsouthernutah.com/"],
+  ["Event info from Bryce Canyon Country (brycecanyoncountry.com).", "brycecanyoncountry.com", "https://brycecanyoncountry.com/"]
+];
 const STATE_ROOM_LINE = "Event info from The State Room Presents (thestateroompresents.com).";
 const MUSEUMS_CREDIT = "via Utah Division of Arts & Museums";
 const MUSEUMS_PAGE = "Utah Museums Directory. Museum names, addresses and links come from the Utah Museums Directory published by the Utah Division of Arts & Museums, a division of the Utah Department of Cultural & Community Engagement (https://artsandmuseums.utah.gov/utah-museums-directory/). We list facts only and link to each listing. State information is provided \"as is\" under the Utah.gov Terms of Use (https://www.utah.gov/support/disclaimer.html). Jaderoo isn't affiliated with or endorsed by the Division or the listed museums.";
@@ -3781,6 +3788,96 @@ function main() {
         occurrences(bodyText, "heehawfarms.com") === 1 &&
         occurrences(eventsText, "heehawfarms.com") === 1 &&
         occurrences(bodyText, "Event info from Hee Haw Farms (heehawfarms.com).") === 1);
+      const nov12termsBlockAt = sourcesData.indexOf("// nov12terms Legal-cleared");
+      const nov12termsDefAt = sourcesData.indexOf("var NOV12TERMS_LINES = [");
+      const nov12termsDefEnd = nov12termsDefAt === -1 ? -1 : sourcesData.indexOf("];", nov12termsDefAt);
+      const nov12termsDef = nov12termsDefAt === -1 || nov12termsDefEnd === -1 ? "" : sourcesData.slice(nov12termsDefAt, nov12termsDefEnd + 2);
+      check("NOV12TERMS_LINES has length 5 with the tuples in order",
+        nov12termsDef === 'var NOV12TERMS_LINES = [\n    { line: "Event info from San Juan County (sanjuancountyut.gov).", domain: "sanjuancountyut.gov", href: "https://sanjuancountyut.gov/" },\n    { line: "Event info from the Town of Bicknell (bicknellutah.gov).", domain: "bicknellutah.gov", href: "https://bicknellutah.gov/" },\n    { line: "Event info from Go Heber Valley (gohebervalley.com).", domain: "gohebervalley.com", href: "https://gohebervalley.com/" },\n    { line: "Event info from Visit Southern Utah / Kane County Office of Tourism (visitsouthernutah.com).", domain: "visitsouthernutah.com", href: "https://visitsouthernutah.com/" },\n    { line: "Event info from Bryce Canyon Country (brycecanyoncountry.com).", domain: "brycecanyoncountry.com", href: "https://brycecanyoncountry.com/" }\n  ];' &&
+        (nov12termsDef.match(/\{ line:/g) || []).length === 5 &&
+        NOV12TERMS_EVENT_INFO_LINES.length === 5 &&
+        NOV12TERMS_EVENT_INFO_LINES[0][0] === "Event info from San Juan County (sanjuancountyut.gov)." &&
+        NOV12TERMS_EVENT_INFO_LINES[0][1] === "sanjuancountyut.gov" &&
+        NOV12TERMS_EVENT_INFO_LINES[0][2] === "https://sanjuancountyut.gov/" &&
+        NOV12TERMS_EVENT_INFO_LINES[1][0] === "Event info from the Town of Bicknell (bicknellutah.gov)." &&
+        NOV12TERMS_EVENT_INFO_LINES[1][1] === "bicknellutah.gov" &&
+        NOV12TERMS_EVENT_INFO_LINES[1][2] === "https://bicknellutah.gov/" &&
+        NOV12TERMS_EVENT_INFO_LINES[2][0] === "Event info from Go Heber Valley (gohebervalley.com)." &&
+        NOV12TERMS_EVENT_INFO_LINES[2][1] === "gohebervalley.com" &&
+        NOV12TERMS_EVENT_INFO_LINES[2][2] === "https://gohebervalley.com/" &&
+        NOV12TERMS_EVENT_INFO_LINES[3][0] === "Event info from Visit Southern Utah / Kane County Office of Tourism (visitsouthernutah.com)." &&
+        NOV12TERMS_EVENT_INFO_LINES[3][1] === "visitsouthernutah.com" &&
+        NOV12TERMS_EVENT_INFO_LINES[3][2] === "https://visitsouthernutah.com/" &&
+        NOV12TERMS_EVENT_INFO_LINES[4][0] === "Event info from Bryce Canyon Country (brycecanyoncountry.com)." &&
+        NOV12TERMS_EVENT_INFO_LINES[4][1] === "brycecanyoncountry.com" &&
+        NOV12TERMS_EVENT_INFO_LINES[4][2] === "https://brycecanyoncountry.com/");
+      check("the nov12terms block appears after the nov11lr3 block",
+        nov11lr3BlockAt !== -1 && nov12termsBlockAt > nov11lr3BlockAt);
+      let nov12termsPrevious = eventsText.indexOf("Event info from Hee Haw Farms (heehawfarms.com).");
+      check("nov12terms checks 5 verbatim event-info lines", NOV12TERMS_EVENT_INFO_LINES.length === 5);
+      NOV12TERMS_EVENT_INFO_LINES.forEach(function (row) {
+        const line = row[0];
+        const domain = row[1];
+        const href = row[2];
+        const itemRe = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+        let itemHtml = "";
+        let itemMatch;
+        while ((itemMatch = itemRe.exec(eventsHtml))) {
+          if (visibleText(itemMatch[0]) === line) {
+            itemHtml = itemMatch[0];
+            break;
+          }
+        }
+        const attrs = anchorAttrsFor(itemHtml, domain);
+        const hrefMatch = /href="([^"]*)"/.exec(attrs);
+        const foundHref = hrefMatch ? hrefMatch[1] : "";
+        const lineAt = eventsText.indexOf(line);
+        check(line + " appears once on /sources, verbatim",
+          occurrences(bodyText, line) === 1 && visibleText(itemHtml) === line,
+          String(occurrences(bodyText, line)));
+        check(line + " keeps its order in Event listings",
+          nov12termsPrevious !== -1 && lineAt > nov12termsPrevious);
+        nov12termsPrevious = lineAt;
+        check(domain + " links over https and passes sourceLink",
+          foundHref === href &&
+          sources.httpsPageUrl(href) === href &&
+          util.sourceLink({ url: href }) === href &&
+          util.httpsPageUrl(href) === href,
+          foundHref);
+        if (domain === "visitsouthernutah.com") {
+          const mark = "(" + domain + ")";
+          const slashAt = line.indexOf(mark);
+          const before = line.slice(0, slashAt + 1);
+          const after = line.slice(slashAt + 1 + domain.length);
+          const expectedItem = "<li>" + sources.escapeHtml(before) +
+            '<a href="' + sources.escapeHtml(href) + '" target="_blank" rel="noopener noreferrer">' +
+            sources.escapeHtml(domain) + "</a>" +
+            sources.escapeHtml(after) + "</li>";
+          check("Kane County slash is escaped like eventInfoList",
+            itemHtml === expectedItem &&
+            expectedItem.indexOf(sources.escapeHtml(" / ")) !== -1);
+        }
+      });
+      check("no second sanjuancountyut.gov line",
+        occurrences(bodyText, "sanjuancountyut.gov") === 1 &&
+        occurrences(eventsText, "sanjuancountyut.gov") === 1 &&
+        occurrences(bodyText, "Event info from San Juan County (sanjuancountyut.gov).") === 1);
+      check("no second bicknellutah.gov line",
+        occurrences(bodyText, "bicknellutah.gov") === 1 &&
+        occurrences(eventsText, "bicknellutah.gov") === 1 &&
+        occurrences(bodyText, "Event info from the Town of Bicknell (bicknellutah.gov).") === 1);
+      check("no second gohebervalley.com line",
+        occurrences(bodyText, "gohebervalley.com") === 1 &&
+        occurrences(eventsText, "gohebervalley.com") === 1 &&
+        occurrences(bodyText, "Event info from Go Heber Valley (gohebervalley.com).") === 1);
+      check("no second visitsouthernutah.com line",
+        occurrences(bodyText, "visitsouthernutah.com") === 1 &&
+        occurrences(eventsText, "visitsouthernutah.com") === 1 &&
+        occurrences(bodyText, "Event info from Visit Southern Utah / Kane County Office of Tourism (visitsouthernutah.com).") === 1);
+      check("no second brycecanyoncountry.com line",
+        occurrences(bodyText, "brycecanyoncountry.com") === 1 &&
+        occurrences(eventsText, "brycecanyoncountry.com") === 1 &&
+        occurrences(bodyText, "Event info from Bryce Canyon Country (brycecanyoncountry.com).") === 1);
       function eventInfoRows(data) {
         const re = /\{\s*line:\s*"((?:\\.|[^"\\])*)"\s*,\s*domain:\s*"((?:\\.|[^"\\])*)"\s*,\s*href:\s*"((?:\\.|[^"\\])*)"/g;
         const rows = [];

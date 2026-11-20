@@ -534,7 +534,6 @@ const NOV9F_EVENT_INFO_LINES = [
 const NOV9G_EVENT_INFO_LINES = [
   ["Event info from Watershed Pub & Kitchen (www.watershedutah.com).", "www.watershedutah.com", "https://www.watershedutah.com/"],
   ["Event info from Riftgate Games (riftgate.com).", "riftgate.com", "https://riftgate.com/"],
-  ["Event info from High Point Coffee (www.highpointcoffeehouse.com).", "www.highpointcoffeehouse.com", "https://www.highpointcoffeehouse.com/"],
   ["Event info from Color Me Mine Logan (logan.colormemine.com).", "logan.colormemine.com", "https://logan.colormemine.com/"],
   ["Event info from Cache Bar (www.cachebarlogan.com).", "www.cachebarlogan.com", "https://www.cachebarlogan.com/"],
   ["Event info from IAMA (www.iamaweb.org).", "www.iamaweb.org", "https://www.iamaweb.org/"],
@@ -2699,7 +2698,7 @@ function main() {
           foundHref);
       });
       let nov9gPrevious = eventsText.indexOf("Event info from Pin Heads Bowling (pinheads-bowling.com).");
-      check("nov9g checks 10 verbatim event-info lines", NOV9G_EVENT_INFO_LINES.length === 10);
+      check("nov9g checks 9 verbatim event-info lines", NOV9G_EVENT_INFO_LINES.length === 9);
       NOV9G_EVENT_INFO_LINES.forEach(function (row) {
         const line = row[0];
         const domain = row[1];
@@ -3956,6 +3955,13 @@ function main() {
         sourcesData.toLowerCase().indexOf("darksky") === -1 &&
         bodyText.toLowerCase().indexOf("dark sky") === -1 &&
         sourcesData.toLowerCase().indexOf("dark sky") === -1);
+      check("no retired coffeehouse credit line",
+        [res.body, bodyText, sourcesData].every(function (text) {
+          const lower = text.toLowerCase();
+          const host = "high" + "point" + "coffeehouse";
+          const name = "high" + " point" + " coffee";
+          return lower.indexOf(host) === -1 && lower.indexOf(name) === -1;
+        }));
       const home = await request(server.address().port, "/");
       check("home loads the sources script and links Sources",
         home.status === 200 &&

@@ -1085,7 +1085,6 @@
     // nov9g Legal-cleared
     { line: "Event info from Watershed Pub & Kitchen (www.watershedutah.com).", domain: "www.watershedutah.com", href: "https://www.watershedutah.com/" },
     { line: "Event info from Riftgate Games (riftgate.com).", domain: "riftgate.com", href: "https://riftgate.com/" },
-    { line: "Event info from High Point Coffee (www.highpointcoffeehouse.com).", domain: "www.highpointcoffeehouse.com", href: "https://www.highpointcoffeehouse.com/" },
     { line: "Event info from Color Me Mine Logan (logan.colormemine.com).", domain: "logan.colormemine.com", href: "https://logan.colormemine.com/" },
     { line: "Event info from Cache Bar (www.cachebarlogan.com).", domain: "www.cachebarlogan.com", href: "https://www.cachebarlogan.com/" },
     { line: "Event info from IAMA (www.iamaweb.org).", domain: "www.iamaweb.org", href: "https://www.iamaweb.org/" },
